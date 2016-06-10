@@ -150,9 +150,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Motif.h" />
     <ClInclude Include="MotifSelector.h" />
