@@ -1,5 +1,5 @@
 #pragma once
-#include "SearchStrategy.h"
+#include "CandidateMethod.h"
 #include <string>
 #include <map>
 #include <functional>
@@ -11,9 +11,9 @@
 */
 /************************************************************************/ 
 
-class SearchStrategyFactory
+class CandidateMethodFactory
 {
-	using createFun = std::function<SearchStrategy*()>;
+	using createFun = std::function<CandidateMethod*()>;
 	static std::map<std::string, createFun> cont;
 public:
 	static bool isValid(const std::string& name);
@@ -21,11 +21,11 @@ public:
 	static void registerStrategy();
 	static void init();
 
-	static SearchStrategy* generate(const std::string& strategyName);
+	static CandidateMethod* generate(const std::string& strategyName);
 };
 
 template <class T>
-void SearchStrategyFactory::registerStrategy() {
+void CandidateMethodFactory::registerStrategy() {
 	cont[T::name] = []() {
 		return new T();
 	};

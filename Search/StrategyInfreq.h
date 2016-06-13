@@ -1,5 +1,5 @@
 #pragma once
-#include "SearchStrategy.h"
+#include "CandidateMethod.h"
 #include "Motif.h"
 #include "Graph.h"
 #include "GraphProb.h"
@@ -10,7 +10,7 @@
 struct StrategyInfreqPara;
 
 class StrategyInfreq :
-	public SearchStrategy
+	public CandidateMethod
 {
 	int nNode; // size of original graph
 	int smin, smax;// size of motif [smin, smax]

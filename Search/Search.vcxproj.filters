@@ -13,7 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Strategy">
+    <Filter Include="Searchers">
+      <UniqueIdentifier>{cc012e00-2ed4-4e02-995f-9eb724b834f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Strategies">
       <UniqueIdentifier>{109a830d-cd50-4292-ad0d-47df5e4044e9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -36,22 +39,22 @@
     <ClInclude Include="GraphProb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SearchStrategy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Motif.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SearchStrategyFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFreq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StrategyInfreq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SearcherFreqPN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMethodFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMethod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateFreq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,22 +77,22 @@
     <ClCompile Include="GraphProb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SearchStrategy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Motif.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SearchStrategyFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFreq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyInfreq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SearcherFreqPN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMethodFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMethod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateFreq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

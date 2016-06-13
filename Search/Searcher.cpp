@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Searcher.h"
-#include "SearchStrategyFactory.h"
+#include "CandidateMethodFactory.h"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ std::vector<std::tuple<Motif,double,double>> Searcher::search(
 	*/
 
 	// searching
-	SearchStrategy* strategy = SearchStrategyFactory::generate(searchStrategyName);
+	CandidateMethod* strategy = CandidateMethodFactory::generate(searchStrategyName);
 	vector<vector<pair<Motif,double> > > phase1;
 	cout << "Phase 1 (find positive):"<<endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
@@ -60,7 +60,7 @@ std::vector<std::tuple<Motif,double,double>> Searcher::search(
 
 
 std::vector<std::pair<Motif, double>> Searcher::candidateFromOne(const std::vector<Graph> & gs,
-	int smin, int smax, SearchStrategy* strategy, const SearchStrategyPara& par)
+	int smin, int smax, CandidateMethod* strategy, const SearchStrategyPara& par)
 {
 	return strategy->getCandidantMotifs(gs, smin, smax, par);
 }

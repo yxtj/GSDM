@@ -4,11 +4,11 @@
 
 struct SearchStrategyPara;
 
-class SearchStrategy
+class CandidateMethod
 {
 public:
-	SearchStrategy();
-	~SearchStrategy();
+	CandidateMethod();
+	~CandidateMethod();
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
 		const int smin, const int smax, const SearchStrategyPara& par) = 0;

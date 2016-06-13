@@ -156,10 +156,10 @@
     <ClInclude Include="Option.h" />
     <ClInclude Include="Searcher.h" />
     <ClInclude Include="SearcherFreqPN.h" />
-    <ClInclude Include="SearchStrategy.h" />
-    <ClInclude Include="SearchStrategyFactory.h" />
+    <ClInclude Include="CandidateMethod.h" />
+    <ClInclude Include="CandidateMethodFactory.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="StrategyFreq.h" />
+    <ClInclude Include="CandidateFreq.h" />
     <ClInclude Include="StrategyInfreq.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -171,15 +171,15 @@
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="Searcher.cpp" />
     <ClCompile Include="SearcherFreqPN.cpp" />
-    <ClCompile Include="SearchStrategy.cpp" />
-    <ClCompile Include="SearchStrategyFactory.cpp" />
+    <ClCompile Include="CandidateMethod.cpp" />
+    <ClCompile Include="CandidateMethodFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="StrategyFreq.cpp" />
+    <ClCompile Include="CandidateFreq.cpp" />
     <ClCompile Include="StrategyInfreq.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

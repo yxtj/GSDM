@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SearcherFreqPN.h"
-#include "SearchStrategyFactory.h"
-#include "StrategyFreq.h"
+#include "CandidateMethodFactory.h"
+#include "CandidateFreq.h"
 #include "StrategyInfreq.h"
 
 using namespace std;
@@ -21,7 +21,7 @@ std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::search(
 	// initial probability graphs for future usage
 
 	// searching
-	SearchStrategy* strategy = SearchStrategyFactory::generate(searchStrategyName);
+	CandidateMethod* strategy = CandidateMethodFactory::generate(searchStrategyName);
 	vector<vector<pair<Motif, double> > > phase1;
 	cout << "Phase 1 (find positive):" << endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
@@ -83,7 +83,7 @@ std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::search(
 
 
 std::vector<std::pair<Motif, double>> SearcherFreqPN::candidateFromOne(const std::vector<Graph> & gs,
-	int smin, int smax, SearchStrategy* strategy, const SearchStrategyPara& par)
+	int smin, int smax, CandidateMethod* strategy, const SearchStrategyPara& par)
 {
 	return strategy->getCandidantMotifs(gs, smin, smax, par);
 }
@@ -96,7 +96,7 @@ std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::filterByNegative(
 	for(auto &tp : motifs) {
 		double d = 0.0;
 		for(auto& line : gNeg) {
-			d += SearchStrategy::probOfMotif(get<0>(tp), line);
+			d += CandidateMethod::probOfMotif(get<0>(tp), line);
 		}
 		d /= gNeg.size();
 		if(d <= pMax)

@@ -7,9 +7,9 @@
 #include "Motif.h"
 #include "Option.h"
 #include "Searcher.h"
-#include "SearchStrategyFactory.h"
+#include "CandidateMethodFactory.h"
 #include "SearcherFreqPN.h"
-#include "StrategyFreq.h"
+#include "CandidateFreq.h"
 
 using namespace std;
 
@@ -83,10 +83,10 @@ int main(int argc, char* argv[])
 	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
 	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
 	
-	SearchStrategyFactory::init();
+	CandidateMethodFactory::init();
 	Searcher searcher;
 	SearchStrategyPara* pssp = nullptr;
-	if(opt.stgName == StrategyFreq::name) {
+	if(opt.stgName == CandidateFreq::name) {
 		StrategyFreqPara* p=new StrategyFreqPara();
 		p->pMin = opt.pMotifInd;
 		pssp = p;

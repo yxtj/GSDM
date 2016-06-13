@@ -2,7 +2,7 @@
 #include "Graph.h"
 #include "GraphProb.h"
 #include "Motif.h"
-#include "SearchStrategy.h"
+#include "CandidateMethod.h"
 #include <vector>
 
 class SearcherFreqPN
@@ -19,7 +19,7 @@ public:
 
 	// learn candidate motifs from given raw dataset
 	std::vector<std::pair<Motif, double>> candidateFromOne(const std::vector<Graph> & gs,
-		int smin, int smax, SearchStrategy* strategy, const SearchStrategyPara& par);
+		int smin, int smax, CandidateMethod* strategy, const SearchStrategyPara& par);
 
 	std::vector<std::tuple<Motif, double, double>> filterByNegative(
 		const std::vector<std::tuple<Motif, double, double>>& motifs,

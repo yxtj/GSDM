@@ -1,5 +1,5 @@
 #pragma once
-#include "SearchStrategy.h"
+#include "CandidateMethod.h"
 #include "Motif.h"
 #include "Graph.h"
 #include "GraphProb.h"
@@ -9,8 +9,8 @@
 
 struct StrategyFreqPara;
 
-class StrategyFreq :
-	public SearchStrategy
+class CandidateFreq :
+	public CandidateMethod
 {
 	int nNode; // size of original graph
 	int smin, smax;// size of motif [smin, smax]
@@ -18,7 +18,7 @@ class StrategyFreq :
 	const StrategyFreqPara* par;
 public:
 	static const std::string name;
-	StrategyFreq();
+	CandidateFreq();
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
 		const int smin, const int smax, const SearchStrategyPara& par);
