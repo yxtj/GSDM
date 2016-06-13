@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "Searcher.h"
+#include "StrategyCandidate.h"
 #include "CandidateMethodFactory.h"
 
 using namespace std;
 
-Searcher::Searcher()
+StrategyCandidate::StrategyCandidate()
 {
 }
 
-std::vector<std::tuple<Motif,double,double>> Searcher::search(
+std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchStrategyName, const SearchStrategyPara& par,
+	const int smin, const int smax, const std::string& searchStrategyName, const CandidateMethodParm& par,
 	const int k, const double pRefine)
 {
 	if(gPos.size()==0 || gPos.front().size() == 0 
@@ -59,13 +59,13 @@ std::vector<std::tuple<Motif,double,double>> Searcher::search(
 }
 
 
-std::vector<std::pair<Motif, double>> Searcher::candidateFromOne(const std::vector<Graph> & gs,
-	int smin, int smax, CandidateMethod* strategy, const SearchStrategyPara& par)
+std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(const std::vector<Graph> & gs,
+	int smin, int smax, CandidateMethod* strategy, const CandidateMethodParm& par)
 {
 	return strategy->getCandidantMotifs(gs, smin, smax, par);
 }
 
-std::vector<std::tuple<Motif, double, double>> Searcher::refineByAll(
+std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
 	const std::vector<std::vector<std::pair<Motif,double>>>& motifs, const int k, const double pRef)
 {
 	// count occurrence of each motif

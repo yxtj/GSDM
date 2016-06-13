@@ -1,22 +1,22 @@
 #include "stdafx.h"
-#include "CandidateFreq.h"
+#include "CandidateMthdFreq.h"
 
 #include <iostream>
 
 using namespace std;
 
-const std::string CandidateFreq::name("Freq");
+const std::string CandidateMthdFreq::name("Freq");
 
-CandidateFreq::CandidateFreq()
+CandidateMthdFreq::CandidateMthdFreq()
 {
 }
 
-std::vector<std::pair<Motif, double>> CandidateFreq::getCandidantMotifs(const std::vector<Graph>& gs,
-	const int smin, const int smax, const SearchStrategyPara& par)
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs,
+	const int smin, const int smax, const CandidateMethodParm& par)
 {
 	this->smin = smin;
 	this->smax = smax;
-	const StrategyFreqPara& param = static_cast<const StrategyFreqPara&>(par);
+	const CandidateMthdFreqParm& param = static_cast<const CandidateMthdFreqParm&>(par);
 	this->par = &param;
 	GraphProb gp(gs);
 	this->nNode = gp.nNode;
@@ -123,8 +123,8 @@ vector<vector<Edge>> dfsEdgeCom(vector<Edge>& curr, const int pExp, const int pD
 // Prune: 
 //	1, maximum probability ( <= that motif in indenpendent uncertain graph)
 //	2, expand to nodes with greater id
-void CandidateFreq::dfsMotif(std::vector<std::pair<Motif, double>>& mps, const int expNode,
-	const std::vector<Graph>& gs, const StrategyFreqPara& par, const GraphProb& gp)
+void CandidateMthdFreq::dfsMotif(std::vector<std::pair<Motif, double>>& mps, const int expNode,
+	const std::vector<Graph>& gs, const CandidateMthdFreqParm& par, const GraphProb& gp)
 {
 	for(int i = expNode + 1; i < nNode; ++i) {
 		// rough test
@@ -226,7 +226,7 @@ vector<tuple<Motif, double, vector<int>>> _DfsEdgeComSearcher::search(
 	return res;
 }
 
-void CandidateFreq::dfsMotif2(std::vector<std::pair<Motif, double>>& res, 
+void CandidateMthdFreq::dfsMotif2(std::vector<std::pair<Motif, double>>& res, 
 	const std::pair<Motif, double>& curr, const int expNode,
 	const std::vector<Graph>& gs, const GraphProb& gp)
 {
@@ -283,7 +283,7 @@ condition:
 
 */
 /************************************************************************/
-void CandidateFreq::dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
+void CandidateMthdFreq::dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
 	std::vector<std::pair<Motif, double>>& open,
 	const std::pair<Motif, double>& rootMP, const int expNode,
 	const std::vector<Graph>& gs, const GraphProb& gp)
@@ -345,7 +345,7 @@ Precondition:
 Postcondition:
 	all return motifs contains curr.first and 
 */
-std::vector<std::pair<Motif, double>> CandidateFreq::dfsMotif4(
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::dfsMotif4(
 	const std::pair<Motif, double>& curr, const int expNode,
 	const std::vector<Graph>& gs, const GraphProb & gp)
 {
@@ -383,7 +383,7 @@ std::vector<std::pair<Motif, double>> CandidateFreq::dfsMotif4(
 }
 
 // layer expansion
-std::vector<std::pair<Motif, double>> CandidateFreq::dfsMotif5(const std::pair<Motif, double>& curr, const int expNode, const std::vector<Graph>& gs, const GraphProb & gp)
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::dfsMotif5(const std::pair<Motif, double>& curr, const int expNode, const std::vector<Graph>& gs, const GraphProb & gp)
 {
 	return std::vector<std::pair<Motif, double>>();
 }
@@ -392,7 +392,7 @@ std::vector<std::pair<Motif, double>> CandidateFreq::dfsMotif5(const std::pair<M
 
 // ---------------------------- Parameter Class: ----------------------------
 
-void StrategyFreqPara::construct(
+void CandidateMthdFreqParm::construct(
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	//gp.startAccum(gPos.front().size());

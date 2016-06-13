@@ -21,7 +21,7 @@ public:
 	StrategyInfreq();
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
-		const int smin, const int smax, const SearchStrategyPara& par);
+		const int smin, const int smax, const CandidateMethodParm& par);
 private:
 	std::vector<std::pair<Motif, double>> dfsMotif4(
 		const std::pair<Motif, double>& curr, const int expNode,
@@ -32,7 +32,7 @@ private:
 };
 
 struct StrategyInfreqPara :
-	public SearchStrategyPara
+	public CandidateMethodParm
 {
 	double pMin;
 	std::function<bool(double, double)> op_freq = std::less<double>();

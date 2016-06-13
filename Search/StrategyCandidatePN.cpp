@@ -1,18 +1,18 @@
 #include "stdafx.h"
-#include "SearcherFreqPN.h"
+#include "StrategyCandidatePN.h"
 #include "CandidateMethodFactory.h"
-#include "CandidateFreq.h"
+#include "CandidateMthdFreq.h"
 #include "StrategyInfreq.h"
 
 using namespace std;
 
-SearcherFreqPN::SearcherFreqPN()
+StrategyCandidatePN::StrategyCandidatePN()
 {
 }
 
-std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::search(
+std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::search(
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchStrategyName, const SearchStrategyPara& par,
+	const int smin, const int smax, const std::string& searchStrategyName, const CandidateMethodParm& par,
 	const int k, const double pRefine)
 {
 	if(gPos.size() == 0 || gPos.front().size() == 0
@@ -36,7 +36,7 @@ std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::search(
 
 	cout << "Phase 3 (filter by negative infrequent):" << endl;
 	double pdis = 0.8; // (x/(x+y)>pdis
-	double pMax = static_cast<const StrategyFreqPara&>(par).pMin * (1.0 / pdis - 1);
+	double pMax = static_cast<const CandidateMthdFreqParm&>(par).pMin * (1.0 / pdis - 1);
 	vector<tuple<Motif, double, double>> phase3 = filterByNegative(phase2, pMax, gNeg);
 	cout << phase3.size() << " motifs after removal of negative frequent ones." << endl;
 
@@ -82,13 +82,13 @@ std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::search(
 }
 
 
-std::vector<std::pair<Motif, double>> SearcherFreqPN::candidateFromOne(const std::vector<Graph> & gs,
-	int smin, int smax, CandidateMethod* strategy, const SearchStrategyPara& par)
+std::vector<std::pair<Motif, double>> StrategyCandidatePN::candidateFromOne(const std::vector<Graph> & gs,
+	int smin, int smax, CandidateMethod* strategy, const CandidateMethodParm& par)
 {
 	return strategy->getCandidantMotifs(gs, smin, smax, par);
 }
 
-std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::filterByNegative(
+std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::filterByNegative(
 	const std::vector<std::tuple<Motif, double, double>>& motifs, 
 	const double pMax, const std::vector<std::vector<Graph>>& gNeg)
 {
@@ -105,7 +105,7 @@ std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::filterByNegative(
 	return res;
 }
 
-std::vector<std::tuple<Motif, double, double>> SearcherFreqPN::refineByAll(
+std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::refineByAll(
 	const std::vector<std::vector<std::pair<Motif, double>>>& motifs, const int k, const double pRef)
 {
 	// count occurrence of each motif

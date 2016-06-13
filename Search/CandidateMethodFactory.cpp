@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CandidateMethodFactory.h"
 // include conclude strategies:
-#include "CandidateFreq.h"
+#include "CandidateMthdFreq.h"
 #include "StrategyInfreq.h"
 
 using namespace std;
@@ -15,7 +15,7 @@ bool CandidateMethodFactory::isValid(const std::string & name)
 
 void CandidateMethodFactory::init()
 {
-	registerStrategy<CandidateFreq>();
+	registerStrategy<CandidateMthdFreq>();
 	// TODO: add new strategy here
 	registerStrategy<StrategyInfreq>();
 }

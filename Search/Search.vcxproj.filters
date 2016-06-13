@@ -33,9 +33,6 @@
     <ClInclude Include="Option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Searcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GraphProb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,16 +42,19 @@
     <ClInclude Include="StrategyInfreq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SearcherFreqPN.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CandidateMethodFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CandidateMethod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CandidateFreq.h">
+    <ClInclude Include="CandidateMthdFreq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyCandidate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyCandidatePN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,9 +71,6 @@
     <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Searcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GraphProb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,16 +80,19 @@
     <ClCompile Include="StrategyInfreq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SearcherFreqPN.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CandidateMethodFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CandidateMethod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CandidateFreq.cpp">
+    <ClCompile Include="CandidateMthdFreq.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyCandidate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyCandidatePN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

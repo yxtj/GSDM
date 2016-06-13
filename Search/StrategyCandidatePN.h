@@ -5,21 +5,21 @@
 #include "CandidateMethod.h"
 #include <vector>
 
-class SearcherFreqPN
+class StrategyCandidatePN
 {
 public:
-	SearcherFreqPN();
+	StrategyCandidatePN();
 
 	std::vector<std::tuple<Motif, double, double>> search(
 		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-		const int smin, const int smax, const std::string& searchStrategyName, const SearchStrategyPara& par,
+		const int smin, const int smax, const std::string& searchStrategyName, const CandidateMethodParm& par,
 		const int k, const double pRefine);
 
 	//GraphProb mergeGraphs(const std::vector<Graph>& gs);
 
 	// learn candidate motifs from given raw dataset
 	std::vector<std::pair<Motif, double>> candidateFromOne(const std::vector<Graph> & gs,
-		int smin, int smax, CandidateMethod* strategy, const SearchStrategyPara& par);
+		int smin, int smax, CandidateMethod* strategy, const CandidateMethodParm& par);
 
 	std::vector<std::tuple<Motif, double, double>> filterByNegative(
 		const std::vector<std::tuple<Motif, double, double>>& motifs,

@@ -12,7 +12,7 @@ StrategyInfreq::StrategyInfreq()
 }
 
 std::vector<std::pair<Motif, double>> StrategyInfreq::getCandidantMotifs(const std::vector<Graph>& gs,
-	const int smin, const int smax, const SearchStrategyPara& par)
+	const int smin, const int smax, const CandidateMethodParm& par)
 {
 	this->smin = smin;
 	this->smax = smax;

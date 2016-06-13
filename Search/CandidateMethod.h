@@ -2,7 +2,7 @@
 #include "Motif.h"
 #include "Graph.h"
 
-struct SearchStrategyPara;
+struct CandidateMethodParm;
 
 class CandidateMethod
 {
@@ -11,17 +11,17 @@ public:
 	~CandidateMethod();
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
-		const int smin, const int smax, const SearchStrategyPara& par) = 0;
+		const int smin, const int smax, const CandidateMethodParm& par) = 0;
 
 	static double probOfMotif(const Motif& m, const std::vector<Graph>& gs);
 	static double probOfMotif(const Motif& m, const int newS, const int newD, const std::vector<Graph>& gs);
 };
 
-struct SearchStrategyPara 
+struct CandidateMethodParm 
 {
-	SearchStrategyPara() = default;
-	SearchStrategyPara(const SearchStrategyPara&) = default;
-	SearchStrategyPara(SearchStrategyPara&&) = default;
+	CandidateMethodParm() = default;
+	CandidateMethodParm(const CandidateMethodParm&) = default;
+	CandidateMethodParm(CandidateMethodParm&&) = default;
 
 	virtual void construct(const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg) = 0;
 };

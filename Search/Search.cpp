@@ -6,10 +6,10 @@
 #include "GraphProb.h"
 #include "Motif.h"
 #include "Option.h"
-#include "Searcher.h"
+#include "StrategyCandidate.h"
 #include "CandidateMethodFactory.h"
-#include "SearcherFreqPN.h"
-#include "CandidateFreq.h"
+#include "StrategyCandidatePN.h"
+#include "CandidateMthdFreq.h"
 
 using namespace std;
 
@@ -84,10 +84,10 @@ int main(int argc, char* argv[])
 	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
 	
 	CandidateMethodFactory::init();
-	Searcher searcher;
-	SearchStrategyPara* pssp = nullptr;
-	if(opt.stgName == CandidateFreq::name) {
-		StrategyFreqPara* p=new StrategyFreqPara();
+	StrategyCandidate searcher;
+	CandidateMethodParm* pssp = nullptr;
+	if(opt.stgName == CandidateMthdFreq::name) {
+		CandidateMthdFreqParm* p=new CandidateMthdFreqParm();
 		p->pMin = opt.pMotifInd;
 		pssp = p;
 	}
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 	*/
 	// next part
 	cout << "PN mechanism" << endl;
-	SearcherFreqPN searcher2;
+	StrategyCandidatePN searcher2;
 	vector<tuple<Motif, double, double>> res = searcher2.search(
 		gPos, gNeg, opt.sMotifMin, opt.sMotifMax, opt.stgName, *pssp, opt.topK, opt.pMotifRef);
 
