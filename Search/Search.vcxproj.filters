@@ -39,9 +39,6 @@
     <ClInclude Include="Motif.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StrategyInfreq.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CandidateMethodFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,6 +52,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StrategyCandidatePN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMthdInfreq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,9 +77,6 @@
     <ClCompile Include="Motif.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyInfreq.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CandidateMethodFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -93,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyCandidatePN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdInfreq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

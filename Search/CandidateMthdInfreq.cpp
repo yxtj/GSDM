@@ -1,17 +1,17 @@
 #include "stdafx.h"
-#include "StrategyInfreq.h"
+#include "CandidateMthdInfreq.h"
 
 #include <iostream>
 
 using namespace std;
 
-const std::string StrategyInfreq::name("Infreq");
+const std::string CandidateMthdInfreq::name("Infreq");
 
-StrategyInfreq::StrategyInfreq()
+CandidateMthdInfreq::CandidateMthdInfreq()
 {
 }
 
-std::vector<std::pair<Motif, double>> StrategyInfreq::getCandidantMotifs(const std::vector<Graph>& gs,
+std::vector<std::pair<Motif, double>> CandidateMthdInfreq::getCandidantMotifs(const std::vector<Graph>& gs,
 	const int smin, const int smax, const CandidateMethodParm& par)
 {
 	this->smin = smin;
@@ -61,7 +61,7 @@ expNode is contained by curr.first
 Postcondition:
 all return motifs contains curr.first and
 */
-std::vector<std::pair<Motif, double>> StrategyInfreq::dfsMotif4(
+std::vector<std::pair<Motif, double>> CandidateMthdInfreq::dfsMotif4(
 	const std::pair<Motif, double>& curr, const int expNode,
 	const std::vector<Graph>& gs, const GraphProb & gp)
 {
@@ -99,7 +99,7 @@ std::vector<std::pair<Motif, double>> StrategyInfreq::dfsMotif4(
 }
 
 // layer expansion
-std::vector<std::pair<Motif, double>> StrategyInfreq::dfsMotif5(const std::pair<Motif, double>& curr, const int expNode, const std::vector<Graph>& gs, const GraphProb & gp)
+std::vector<std::pair<Motif, double>> CandidateMthdInfreq::dfsMotif5(const std::pair<Motif, double>& curr, const int expNode, const std::vector<Graph>& gs, const GraphProb & gp)
 {
 	return std::vector<std::pair<Motif, double>>();
 }

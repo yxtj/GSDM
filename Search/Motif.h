@@ -56,6 +56,8 @@ public:
 
 	int getnNode() const;
 	int getnEdge() const;
+	size_t size() const; // same as getnEdge()
+	bool empty() const;
 private:
 	void sortUpEdges();
 };
@@ -69,4 +71,14 @@ inline int Motif::getnNode() const {
 }
 inline int Motif::getnEdge() const {
 	return edges.size();
+}
+
+inline size_t Motif::size() const
+{
+	return edges.size();
+}
+
+inline bool Motif::empty() const
+{
+	return edges.empty();
 }

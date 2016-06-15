@@ -2,7 +2,6 @@
 #include "StrategyCandidatePN.h"
 #include "CandidateMethodFactory.h"
 #include "CandidateMthdFreq.h"
-#include "StrategyInfreq.h"
 
 using namespace std;
 

@@ -9,7 +9,7 @@
 
 struct StrategyInfreqPara;
 
-class StrategyInfreq :
+class CandidateMthdInfreq :
 	public CandidateMethod
 {
 	int nNode; // size of original graph
@@ -18,7 +18,7 @@ class StrategyInfreq :
 	const StrategyInfreqPara* par;
 public:
 	static const std::string name;
-	StrategyInfreq();
+	CandidateMthdInfreq();
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
 		const int smin, const int smax, const CandidateMethodParm& par);
