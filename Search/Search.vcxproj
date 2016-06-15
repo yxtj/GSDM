@@ -161,7 +161,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
     <ClInclude Include="CandidateMthdInfreq.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp" />

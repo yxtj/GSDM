@@ -156,7 +156,6 @@
     <ClInclude Include="Option.h" />
     <ClInclude Include="power_law_distribution.hpp" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp" />
