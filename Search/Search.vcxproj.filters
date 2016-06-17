@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Searchers">
-      <UniqueIdentifier>{cc012e00-2ed4-4e02-995f-9eb724b834f7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Strategies">
       <UniqueIdentifier>{109a830d-cd50-4292-ad0d-47df5e4044e9}</UniqueIdentifier>
     </Filter>
