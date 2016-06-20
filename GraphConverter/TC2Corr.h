@@ -10,6 +10,7 @@ public:
 
 	corr_t getCorr(const tc_t& TC);
 private:
+	// implementation specific data and functions
 	using pfunCorr_t= double(*)(const std::vector<double>& a, const std::vector<double>& b);
 	pfunCorr_t pfunCorr;
 	bool symmetric;

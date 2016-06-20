@@ -25,7 +25,15 @@
     <ClCompile Include="TCLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TCCutter.cpp" />
+    <ClCompile Include="IOfunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Subject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TCCutter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Corr2Graph.h">
@@ -52,7 +60,15 @@
     <ClInclude Include="TypeDef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TCCutter.h" />
+    <ClInclude Include="IOfunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Subject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCCutter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

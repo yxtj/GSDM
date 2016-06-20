@@ -1,5 +1,6 @@
 #pragma once
 #include "TypeDef.h"
+#include "Subject.h"
 #include <string>
 
 /************************************************************************/
@@ -8,7 +9,7 @@
 class TCLoader
 {
 public:
-	virtual std::vector<std::pair<std::string, int>> loadValidList(const std::string& fn) = 0;
+	virtual std::vector<Subject> loadValidList(const std::string& fn) = 0;
 
 	virtual tc_t loadTimeCourse(const std::string& fn) = 0;
 };

@@ -22,7 +22,7 @@ bool LoaderADHD200::checkHeader(const string& line) {
 	return true;
 }
 
-std::vector<std::pair<std::string, int>> LoaderADHD200::loadValidList(const std::string & fn)
+std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -52,21 +52,22 @@ std::vector<std::pair<std::string, int>> LoaderADHD200::loadValidList(const std:
 		throw invalid_argument("file header does not match that of the specific dataset");
 	}
 
-	std::vector<std::pair<std::string, int>> res;
+	std::vector<Subject> res;
 	while(getline(fin, line)) {
 		bool valid;
 		string sid; 
 		int type;
 		tie(valid, sid, type) = parsePhenotypeLine(line);
 		if(valid) {
-			res.push_back(make_pair(move(sid), type));
+			res.push_back(Subject{ move(sid), type });
 		}
 	}
 	fin.close();
 	return res;
 }
 
-std::vector<std::vector<double>> LoaderADHD200::loadTimeCourse(const std::string & fn)
+// tc_t = std::vector<std::vector<double>>
+tc_t LoaderADHD200::loadTimeCourse(const std::string & fn)
 {
 	std::vector<std::vector<double>> res;
 	ifstream fin(fn);
