@@ -17,6 +17,8 @@ bool Option::parseInput(int argc, char* argv[]) {
 		("graphPath", value<string>(&graphPath), "the folder for graph data (output)")
 		("nGraph,g", value<int>(&nGraph)->default_value(-1), "[integer] specific number of graphs, conflict with --nScan")
 		("nScan,s", value<int>(&nScan)->default_value(-1), "[integer] specific number of scan per graph, conflict with --nGraph")
+		("cmethod,m", value<string>(&corrMethod)->default_value(string("pearson")), "method for calculating correlation between ROI,"
+			"supports: pearson, spearman, mutialinfo")
 		("cthreshold", value<double>(&conThrshd)->default_value(0.5), "the threshold for determining connectivity")
 		;
 

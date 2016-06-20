@@ -15,6 +15,7 @@ public:
 	int nGraph; // evenly divides the data into given number of graphs
 	int nScan; // number of scans for each graph, no fixed number of graphs
 
+	std::string corrMethod; // method of calculating correlation
 	double conThrshd; // the correlation threshold for determine connectivity
 
 public:

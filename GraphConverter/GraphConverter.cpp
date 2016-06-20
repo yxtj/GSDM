@@ -12,15 +12,16 @@ using namespace std;
 
 // <subject id, DX type>
 multimap<string, corr_t> loadInputData(const Option& opt) {
+	using namespace boost::filesystem;
 	auto p = opt.getInputFolder();
 	multimap<string, corr_t> res;
 	if(p.first == Option::FileType::TC) {
-		using namespace boost::filesystem;
 		path root(opt.tcPath);
 		if(!is_directory(root)) {
 			cerr << "Given time course path is invalid" << endl;
 			throw invalid_argument("Given time course path is invalid");
 		}
+		// get all sub-folders:
 		vector<path> ids;
 		for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
 			if(is_directory(*it))
@@ -28,10 +29,6 @@ multimap<string, corr_t> loadInputData(const Option& opt) {
 		}
 
 		TCLoader* loader = LoaderFactory::generate(opt.dataset);
-		if(!loader) {
-			cerr << "Cannot generate a data loader by name " << opt.dataset << endl;
-			throw invalid_argument("Cannot generate data loader");
-		}
 		TC2Corr t2c;
 
 		for(auto& id : ids) {
@@ -74,6 +71,8 @@ int main(int argc, char* argv[])
 		<< "Cutting method: " << (opt.getCutType().first == Option::CutType::NGRAPH ? "nGraph" : "nScan") << "\n"
 		<< "Cutting method parameter - nGraph: " << opt.nGraph << "\n"
 		<< "Cutting method parameter - nScan: " << opt.nScan << "\n"
+		<< "Correlation method: " << opt.corrMethod << "\n"
+		<< "Correlation threshold: " << opt.conThrshd << "\n"
 		<< endl;
 	
 	cout << "Generating correlation:" << endl;
