@@ -5,10 +5,11 @@ struct Subject
 {
 	std::string id;
 	int type;
+	int scanNum;
 
 	Subject() = default;
-	Subject(const std::string& id, const int type);
-	Subject(std::string&& id, const int type);
+	Subject(const std::string& id, const int type, const int scanNum = -1);
+	Subject(std::string&& id, const int type, const int scanNum = -1);
 };
 
 inline bool operator<(const Subject& a, const Subject& b) {

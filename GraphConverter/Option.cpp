@@ -47,7 +47,7 @@ bool Option::parseInput(int argc, char* argv[]) {
 			flag_help = true;
 			break;
 		}
-		if(!checkCutLogic()) {
+		if(!initCutLogic()) {
 			flag_help = true;
 			break;
 		}
@@ -66,13 +66,9 @@ bool Option::parseInput(int argc, char* argv[]) {
 	return true;
 }
 
-std::pair<Option::CutType, int> Option::getCutType() const
+std::string Option::getCutMethod() const
 {
-	if(nGraph > 0)
-		return pair<Option::CutType, int>(CutType::NGRAPH, nGraph);
-	else if(nScan> 0)
-		return pair<Option::CutType, int>(CutType::NSCAN, nScan);
-	return pair<Option::CutType, int>(CutType::NONE, 0);
+	return cutMethod;
 }
 
 std::pair<Option::FileType, std::string> Option::getInputFolder() const
@@ -85,21 +81,14 @@ std::pair<Option::FileType, std::string> Option::getInputFolder() const
 	return make_pair(FileType::NONE, string(""));
 }
 
-std::pair<bool, std::string> Option::getOutputFolder(FileType ft) const
+bool Option::isOutputFolder(FileType ft) const
 {
 	if(FileType::GRAPH == ft) {
-		if(graphPath.empty())
-			return make_pair(false, graphPath);
-		else
-			return make_pair(true, graphPath);
+		return !graphPath.empty();
+	} else if(FileType::CORR == ft) {
+		return !corrPath.empty();
 	}
-	if(FileType::CORR == ft) {
-		if(corrPath.empty())
-			return make_pair(false, corrPath);
-		else
-			return make_pair(true, corrPath);
-	}
-	return std::pair<bool, std::string>(false, "");
+	return false;
 }
 
 std::string& Option::sortUpPath(std::string & path)
@@ -126,14 +115,18 @@ bool Option::checkIOLogic()
 	return true;
 }
 
-bool Option::checkCutLogic()
+bool Option::initCutLogic()
 {
 	if(nGraph >= 0 && nScan >= 0) {
 		cerr << "Method nGraph and nScan conflicts" << endl;
 		return false;
 	} else if(nGraph <= 0 && nScan <= 0) {
-		cerr << "Method nGraph or nScan is not set" << endl;
+		cerr << "None of method nGraph or nScan is set" << endl;
 		return false;
 	}
+	if(nGraph > 0)
+		corrMethod = "nGraph";
+	else if(nScan > 0)
+		corrMethod = "nScan";
 	return true;
 }

@@ -4,7 +4,7 @@
 using namespace std;
 
 TCCutter::TCCutter(tc_t & data, const std::string & method, const int parm)
-	: data(data), method(method), parm(parm)
+	: data(data), parm(parm)
 {
 	if("nGraph" == method)
 		init_nGraph();

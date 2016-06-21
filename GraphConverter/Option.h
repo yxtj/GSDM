@@ -11,7 +11,7 @@ public:
 	// path for input/output data folder:
 	std::string tcPath, corrPath, graphPath; // time course data, correlation data path, graph data path
 
-	CutType cutType;
+	std::string cutMethod;
 	int nGraph; // evenly divides the data into given number of graphs
 	int nScan; // number of scans for each graph, no fixed number of graphs
 
@@ -20,12 +20,12 @@ public:
 
 public:
 	bool parseInput(int argc, char *argv[]);
-	std::pair<CutType, int> getCutType() const;
+	std::string getCutMethod() const;
 	std::pair<FileType, std::string> getInputFolder() const;
-	std::pair<bool, std::string> getOutputFolder(FileType ft) const;
+	bool isOutputFolder(FileType ft) const;
 private:
 	std::string& sortUpPath(std::string& path);
 	bool checkIOLogic();
-	bool checkCutLogic();
+	bool initCutLogic();
 };
 

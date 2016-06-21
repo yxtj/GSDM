@@ -5,7 +5,7 @@ class TC2Corr
 {
 	std::string method;
 public:
-	TC2Corr() = default;
+//	TC2Corr() = default;
 	TC2Corr(const std::string& method);
 
 	corr_t getCorr(const tc_t& TC);

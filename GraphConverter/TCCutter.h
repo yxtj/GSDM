@@ -4,11 +4,11 @@
 
 class TCCutter
 {
-	std::string method;
+//	std::string method;
 	const int parm;
 	tc_t& data;
 public:
-	TCCutter() = default;
+	//TCCutter() = default;
 	TCCutter(tc_t& data, const std::string& method, const int parm);
 
 	bool haveNext() const;
