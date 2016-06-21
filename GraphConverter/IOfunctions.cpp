@@ -5,6 +5,35 @@
 
 using namespace std;
 
+//---------------------------- Time Course ---------------------------------
+
+std::multimap<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::string& dataset)
+{
+	using namespace boost::filesystem;
+	path root(tcPath);
+	if(!is_directory(root)) {
+		throw invalid_argument("Given time course path is invalid");
+	}
+
+	TCLoader* loader = LoaderFactory::generate(dataset);
+	multimap<Subject, tc_t> res;
+
+	vector<Subject> slilst;
+	{
+		vector<Subject> validList = loader->loadValidList(tcPath);
+		slilst = loader->getAllSubjects(slilst, tcPath);
+	}
+	for(Subject& s : slilst) {
+		string fn = loader->getFilePath(s);
+		tc_t tc = loader->loadTimeCourse(tcPath + fn);
+		res.emplace(move(s), move(tc));
+	}
+	delete loader;
+
+	return res;
+}
+
+//---------------------------- Correlation ---------------------------------
 
 std::string genCorrFilename(const Subject & sub)
 {
@@ -48,39 +77,6 @@ bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
 		return false;
 	}
 	return true;
-}
-
-std::map<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::string& dataset)
-{
-	using namespace boost::filesystem;
-	path root(tcPath);
-	if(!is_directory(root)) {
-		throw invalid_argument("Given time course path is invalid");
-	}
-
-	TCLoader* loader = LoaderFactory::generate(dataset);
-	map<Subject, tc_t> res;
-
-	vector<Subject> validList = loader->loadValidList(tcPath);
-	// get all sub-folders:
-	vector<path> ids;
-	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
-		if(is_directory(*it))
-			ids.push_back(*it);
-	}
-
-	for(auto& id : ids) {
-		string leaf = id.filename().string();
-		//TODO: generalize to other dataset
-		//TODO: some folder may have several files
-		tc_t tc = loader->loadTimeCourse(tcPath + leaf + "/sfnwmrda"
-			+ leaf + "_session_1_rest_1_aal_TCs.1D");
-		//TODO: add cutter here
-		res.emplace(move(validList[0]), move(tc));
-	}
-	delete loader;
-
-	return res;
 }
 
 std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath)
@@ -151,6 +147,8 @@ void writeCorr(ostream& os, const corr_t& corr)
 		os << "\n";
 	}
 }
+
+//---------------------------- Graph ---------------------------------
 
 std::string genGraphFilename(const Subject & sub)
 {

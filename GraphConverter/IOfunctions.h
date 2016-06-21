@@ -8,7 +8,7 @@
 
 //---------------------------- Time Course ---------------------------------
 
-std::map<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::string& dataset);
+std::multimap<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::string& dataset);
 
 //---------------------------- Correlation ---------------------------------
 

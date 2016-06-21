@@ -16,6 +16,7 @@
 #include <vector>
 #include <map>
 #include <iterator>
+#include <regex>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>

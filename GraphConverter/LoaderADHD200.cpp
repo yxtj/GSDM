@@ -3,6 +3,9 @@
 
 using namespace std;
 
+std::string LoaderADHD200::filePrefix = "sfnwmrda";
+//std::string LoaderADHD200::filePrefix = "snwmrda";
+
 const std::vector<std::string> LoaderADHD200::header={
 	"ScanDir ID","Site","Gender","Age","Handedness",
 	"DX","Secondary Dx ","ADHD Measure","ADHD Index","Inattentive",
@@ -64,6 +67,35 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn)
 	}
 	fin.close();
 	return res;
+}
+
+std::vector<Subject> LoaderADHD200::getAllSubjects(
+	std::vector<Subject>& vldList, const std::string& root)
+{
+	using namespace boost::filesystem;
+	vector<Subject> res;
+	res.reserve(vldList.size() * 6 / 5);
+	regex reg(filePrefix + "(.+)_session_\\d+_rest_(\\d+)_.+?_TCs\\.1D");
+	for(Subject& s : vldList) {
+		path base(root + "/" + s.id);
+		for(auto it = directory_iterator(base); it != directory_iterator(); ++it) {
+			smatch m;
+			string fn = it->path().filename().string();
+			if(regex_search(fn, m, reg) && m[0].str()==s.id) {
+				int scanNum = stoi(m[2].str());
+				res.push_back(s);
+				res.back().scanNum = scanNum;
+			}
+		}
+
+	}
+	return res;
+}
+
+std::string LoaderADHD200::getFilePath(const Subject & sub)
+{
+	return sub.id + "/" + filePrefix + sub.id + "_session_1"
+		"_rest_" + to_string(sub.scanNum) + "_aal_TCs.1D";
 }
 
 // tc_t = std::vector<std::vector<double>>

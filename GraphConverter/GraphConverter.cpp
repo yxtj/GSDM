@@ -11,7 +11,7 @@
 
 using namespace std;
 
-multimap<Subject, corr_t> processTC2Corr(map<Subject, tc_t>& smtc, const Option& opt) {
+multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Option& opt) {
 	string cm = opt.corrMethod;
 	// TODO: use a delegate function to directly generate TCCutter
 	int cparm = cm == "nGraph" ? opt.nGraph : opt.nScan;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	try {
 		auto p = opt.getInputFolder();
 		if(p.first == Option::FileType::TC) {
-			map<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset);
+			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset);
 			corr = processTC2Corr(smtc, opt);
 		} else if(p.first == Option::FileType::CORR) {
 			corr = loadInputCorr(opt.corrPath);
