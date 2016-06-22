@@ -8,7 +8,9 @@
 
 //---------------------------- Time Course ---------------------------------
 
-std::multimap<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::string& dataset);
+// non-positive nSubject means all
+std::multimap<Subject, tc_t> loadInputTC(
+	const std::string& tcPath, const std::string& dataset, const int nSubject);
 
 //---------------------------- Correlation ---------------------------------
 
@@ -19,7 +21,8 @@ bool checkCorrFilename(const std::string& fn);
 Subject parseCorrFilename(const std::string& fn) noexcept(false);
 bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept;
 
-std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath);
+// non-positive nSubject means all
+std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int Subject = -1);
 
 corr_t readCorr(const std::string& fn);
 void writeCorr(std::ostream& os, const corr_t& corr);

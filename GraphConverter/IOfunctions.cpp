@@ -7,7 +7,8 @@ using namespace std;
 
 //---------------------------- Time Course ---------------------------------
 
-std::multimap<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::string& dataset)
+std::multimap<Subject, tc_t> loadInputTC(
+	const std::string& tcPath, const std::string& dataset, const int nSubject)
 {
 	using namespace boost::filesystem;
 	path root(tcPath);
@@ -20,8 +21,12 @@ std::multimap<Subject, tc_t> loadInputTC(const std::string& tcPath, const std::s
 
 	vector<Subject> slilst;
 	{
-		vector<Subject> validList = loader->loadValidList(tcPath);
-		slilst = loader->getAllSubjects(slilst, tcPath);
+		vector<Subject> validList = loader->loadValidList(tcPath, nSubject);
+		slilst = loader->getAllSubjects(validList, tcPath);
+	}
+	if(nSubject > 0 && slilst.size() > static_cast<size_t>(nSubject)) {
+		auto it = slilst.begin() + nSubject;
+		slilst.erase(it, slilst.end());
 	}
 	for(Subject& s : slilst) {
 		string fn = loader->getFilePath(s);
@@ -47,12 +52,11 @@ bool checkCorrFilename(const string & fn)
 
 Subject parseCorrFilename(const std::string & fn)
 {
-	if(fn.empty())
-		throw invalid_argument("filename '" + fn + "' is not a valid correlation file name");
 	size_t p1 = fn.find('-');
 	size_t p2 = fn.find('-', p1 + 1);
 	size_t pend = fn.rfind(".txt", string::npos, 4);
-	return Subject(fn.substr(p1 + 1, p2), stoi(fn.substr(0, p1)), stoi(fn.substr(p2 + 1, pend)));
+	return Subject(fn.substr(p1 + 1, p2 - p1 - 1), 
+		stoi(fn.substr(0, p1)), stoi(fn.substr(p2 + 1, pend -p2 - 1)));
 }
 
 bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
@@ -66,10 +70,10 @@ bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
 		return false;
 	try {
 		int type = stoi(fn.substr(0, p1));
-		int scanNum = stoi(fn.substr(p2 + 1, pend));
+		int scanNum = stoi(fn.substr(p2 + 1, pend - p2 - 1));
 		// keep old res if this operation cannot finish successfully
 		if(pRes) {
-			pRes->id = fn.substr(p1 + 1, p2);
+			pRes->id = fn.substr(p1 + 1, p2 -p1 -1);
 			pRes->type = type;
 			pRes->scanNum = scanNum;
 		}
@@ -79,7 +83,7 @@ bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
 	return true;
 }
 
-std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath)
+std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject)
 {
 	using namespace boost::filesystem;
 	path root(corrPath);
@@ -87,6 +91,7 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath)
 		throw invalid_argument("Given correlation path is invalid");
 	}
 
+	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::multimap<Subject, corr_t> res;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
 		const string&& fn = it->path().filename().string();
@@ -94,6 +99,8 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath)
 		if(is_regular_file(*it) && checknParseCorrFilename(fn, &sub)) { 
 			res.emplace(move(sub), readCorr(fn));
 		}
+		if(res.size() >= limit)
+			break;
 	}
 	return res;
 }
@@ -128,7 +135,7 @@ corr_t readCorr(const std::string & fn)
 		temp.reserve(n);
 		size_t plast = 0, p = line.find(' ');
 		while(p != string::npos) {
-			temp.push_back(stod(line.substr(plast, p)));
+			temp.push_back(stod(line.substr(plast, p - plast)));
 			plast = p + 1;
 			p = line.find(' ', plast);
 		}
@@ -181,7 +188,7 @@ graph_t readGraph(const std::string & fn)
 		plast = p + 1;
 		p = temp.find(' ', plast);
 		while(p != string::npos) {
-			int t = stoi(temp.substr(plast, p));
+			int t = stoi(temp.substr(plast, p - plast));
 			res[id].push_back(t);
 			plast = p + 1;
 			p = temp.find(' ', plast);

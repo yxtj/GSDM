@@ -20,7 +20,7 @@ TCCutter::TCCutter(tc_t & data, const std::string & method, const int parm)
 
 bool TCCutter::haveNext() const
 {
-	return pos + size < data.size();
+	return static_cast<size_t>(pos + size) < data.size();
 }
 
 corr_t TCCutter::getNext()
@@ -34,7 +34,8 @@ tc_t TCCutter::cut()
 {
 	tc_t res;
 	res.reserve(size);
-	auto itend = pos + size >= data.size() ? data.end() : data.begin() + size;
+	auto itend = static_cast<size_t>(pos + size) >= data.size()
+		? data.end() : data.begin() + pos + size;
 	copy(make_move_iterator(data.begin() + pos), make_move_iterator(itend), back_inserter(res));
 	return res;
 }

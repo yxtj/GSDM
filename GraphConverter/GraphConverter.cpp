@@ -12,14 +12,14 @@
 using namespace std;
 
 multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Option& opt) {
-	string cm = opt.corrMethod;
+	string cutm = opt.cutMethod;
 	// TODO: use a delegate function to directly generate TCCutter
-	int cparm = cm == "nGraph" ? opt.nGraph : opt.nScan;
+	int cutParm = cutm == "nGraph" ? opt.nGraph : opt.nScan;
 
 	TC2Corr t2c(opt.corrMethod);
 	multimap<Subject, corr_t> res;
 	for(auto& p : smtc) {
-		TCCutter cutter(p.second, cm, cparm);
+		TCCutter cutter(p.second, cutm, cutParm);
 		while(cutter.haveNext()) {
 			tc_t t = cutter.getNext();
 			res.emplace(p.first, t2c.getCorr(t));
@@ -46,15 +46,18 @@ int main(int argc, char* argv[])
 		<< "Correlation threshold: " << opt.conThrshd << "\n"
 		<< endl;
 	
-	cout << "Generating correlation:" << endl;
+	cout << "Loading input data:" << endl;
 	multimap<Subject, corr_t> corr;
 	try {
 		auto p = opt.getInputFolder();
 		if(p.first == Option::FileType::TC) {
-			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset);
+			cout << "  Loading time course data:" << endl;
+			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject);
+			cout << "  Generating correlation:" << endl;
 			corr = processTC2Corr(smtc, opt);
 		} else if(p.first == Option::FileType::CORR) {
-			corr = loadInputCorr(opt.corrPath);
+			cout << "  Loading correlation data:" << endl;
+			corr = loadInputCorr(opt.corrPath, opt.nSubject);
 		}
 	} catch(exception& e) {
 		cerr << e.what() << endl;

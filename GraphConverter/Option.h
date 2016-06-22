@@ -9,7 +9,8 @@ public:
 
 	std::string dataset; // specific which dataset is going to be use
 	// path for input/output data folder:
-	std::string tcPath, corrPath, graphPath; // time course data, correlation data path, graph data path
+	std::string tcPath, corrPath, graphPath; // time course data, correlation data path, graph data 
+	int nSubject; // number of subject need to be loaded from the dataset
 
 	std::string cutMethod;
 	int nGraph; // evenly divides the data into given number of graphs

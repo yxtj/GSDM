@@ -11,6 +11,8 @@ bool Option::parseInput(int argc, char* argv[]) {
 	desc.add_options()
 		("help", "Print help messages")
 		("dataset", value<string>(&dataset), "specific which dataset is going to be used (ADHD, ).")
+		("nSubject,n", value<int>(&nSubject)->default_value(-1), "[integer] # of subjects to load from dataset "
+			"non-positive means load all)")
 		("tcPath", value<string>(&tcPath), "the folder for time course data (input)")
 		("corrPath", value<string>(&corrPath), "the folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output)")
@@ -125,8 +127,8 @@ bool Option::initCutLogic()
 		return false;
 	}
 	if(nGraph > 0)
-		corrMethod = "nGraph";
+		cutMethod = "nGraph";
 	else if(nScan > 0)
-		corrMethod = "nScan";
+		cutMethod = "nScan";
 	return true;
 }

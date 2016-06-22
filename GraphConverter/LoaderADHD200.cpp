@@ -16,7 +16,8 @@ const std::vector<std::string> LoaderADHD200::header={
 bool LoaderADHD200::checkHeader(const string& line) {
 	int count = 0;
 	for(size_t plast = 0, p = line.find(','); p != string::npos;) {
-		if(line.substr(plast, p) != header[count])
+		if(header[count] != (line[plast] != '"' ? line.substr(plast, p - plast) 
+			: line.substr(plast + 1, p - plast - 2)))
 			return false;
 		plast = p + 1;
 		p = line.find(',', plast);
@@ -25,7 +26,7 @@ bool LoaderADHD200::checkHeader(const string& line) {
 	return true;
 }
 
-std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn)
+std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const int nSubject)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -34,12 +35,12 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn)
 		// case 1: .../folder/
 		// case 2: .../folder
 		pos_f = pos_l = filename.find_last_of("/\\");
-		if(pos_f == filename.length()) //case 1
-			pos_f = filename.find_last_of("/\\", pos_f - 1);
-		else // case 2
+		if(pos_f == filename.length() - 1) { //case 1
+			pos_f = filename.find_last_of("/\\", pos_f - 1) + 1;
+		} else // case 2
 			pos_l = string::npos;
-		string leaf = filename.substr(pos_f, pos_l);
-		filename += "/" + leaf + "_phenotypic.csv";
+		string leaf = filename.substr(pos_f, pos_l - pos_f);
+		filename += leaf + "_phenotypic.csv";
 	}
 	ifstream fin(filename);
 	if(!fin) {
@@ -54,7 +55,7 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn)
 		cerr << "Header line of file '" << fn << "' is not correct!" << endl;
 		throw invalid_argument("file header does not match that of the specific dataset");
 	}
-
+	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::vector<Subject> res;
 	while(getline(fin, line)) {
 		bool valid;
@@ -64,6 +65,8 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn)
 		if(valid) {
 			res.push_back(Subject{ move(sid), type });
 		}
+		if(res.size() >= limit)
+			break;
 	}
 	fin.close();
 	return res;
@@ -75,14 +78,14 @@ std::vector<Subject> LoaderADHD200::getAllSubjects(
 	using namespace boost::filesystem;
 	vector<Subject> res;
 	res.reserve(vldList.size() * 6 / 5);
-	regex reg(filePrefix + "(.+)_session_\\d+_rest_(\\d+)_.+?_TCs\\.1D");
+	regex reg("^" + filePrefix + "(.+?)_session_\\d+?_rest_(\\d+)_.+?_TCs\\.1D$");
 	for(Subject& s : vldList) {
 		path base(root + "/" + s.id);
 		for(auto it = directory_iterator(base); it != directory_iterator(); ++it) {
 			smatch m;
 			string fn = it->path().filename().string();
-			if(regex_search(fn, m, reg) && m[0].str()==s.id) {
-				int scanNum = stoi(m[2].str());
+			if(regex_search(fn, m, reg) && m[1].str()==s.id) {
+				int scanNum = stoi(m[2].str()) - 1;
 				res.push_back(s);
 				res.back().scanNum = scanNum;
 			}
@@ -95,7 +98,7 @@ std::vector<Subject> LoaderADHD200::getAllSubjects(
 std::string LoaderADHD200::getFilePath(const Subject & sub)
 {
 	return sub.id + "/" + filePrefix + sub.id + "_session_1"
-		"_rest_" + to_string(sub.scanNum) + "_aal_TCs.1D";
+		"_rest_" + to_string(sub.scanNum + 1) + "_aal_TCs.1D";
 }
 
 // tc_t = std::vector<std::vector<double>>
@@ -151,10 +154,10 @@ std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(const std::
 			if(POS_ID == count) {
 				id = line.substr(plast, p);
 			} else if(POS_DX == count) {
-				dx = stoi(line.substr(plast, p));
+				dx = stoi(line.substr(plast, p - plast));
 			} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
-				string qc_str = line.substr(plast, p);
-				if("N/A" != qc_str)
+				string qc_str = line.substr(plast, p - plast);
+				if("\"N/A\"" != qc_str && "N/A" != qc_str)
 					qc = qc && stoi(qc_str) == 1;
 			}
 			plast = p + 1;
