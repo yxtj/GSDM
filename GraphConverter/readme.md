@@ -19,24 +19,24 @@ If --tcPath is not given, the correlation is the input source.
 
 - Implementation:
 
--- Structure:
+  - Structure:
 
-load input data -> (process into correlation) -> output the correlation -> process into graph -> output generated graph
+  load input data -> (process into correlation) -> output the correlation -> process into graph -> output generated graph
 
--- Extension:
+  - Extension:
 
---- Data Source：
+    - Data Source：
 
-Derive a new class from class TCLoader.
-And implement its functions: loadValidList, getFilePath, loadTimeCourse and getAllSubjects if necessary.
+    Derive a new class from class TCLoader.
+    And implement its functions: loadValidList, getFilePath, loadTimeCourse and getAllSubjects if necessary.
+    
+    - Cutter method:
 
---- Cutter method:
-
-Write related constructor and init function for class TCCutter.
+    Write related constructor and init function for class TCCutter.
 
 
---- Correlation method:
+    - Correlation method:
 
-Write new related calculating function in class TC2Corr.
-Add the initialization for symmetric and pFunCorr in the constructor of TC2Corr.
+    Write new related calculating function in class TC2Corr.
+    Add the initialization for symmetric and pFunCorr in the constructor of TC2Corr.
 
