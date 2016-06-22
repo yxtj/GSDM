@@ -23,20 +23,30 @@ If --tcPath is not given, the correlation is the input source.
 
   load input data -> (process into correlation) -> output the correlation -> process into graph -> output generated graph
 
+  While loading the input correlation data (called in IOfunctions.cpp, defined in class TCLoader):
+  
+    1. read a description file for subject id, subject type
+    
+    2. check data folders for all the scan files for each subject
+    
+    3. construct the path of each scan file
+    
+    4. parse the file and load the data
+
   - Extension:
 
-    - Data Source：
+    - Data Source:
 
     Derive a new class from class TCLoader.
     And implement its functions: loadValidList, getFilePath, loadTimeCourse and getAllSubjects if necessary.
     
     - Cutter method:
-
+  
     Write related constructor and init function for class TCCutter.
 
-
+  
     - Correlation method:
-
+  
     Write new related calculating function in class TC2Corr.
     Add the initialization for symmetric and pFunCorr in the constructor of TC2Corr.
 
