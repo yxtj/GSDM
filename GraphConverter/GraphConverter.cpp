@@ -35,9 +35,14 @@ int main(int argc, char* argv[])
 	if(!opt.parseInput(argc, argv))
 		return 1;
 
+	ios::sync_with_stdio(false);
 	cout << "Time Course Path: " << opt.tcPath << "\n"
 		<< "Correlation Path: " << opt.corrPath << "\n"
 		<< "Graph Path: " << opt.graphPath << "\n"
+		<< "  Input data: " << opt.getInputFolder().second << "\n"
+		<< ios::boolalpha
+		<< "  Output to correlation: " << opt.isOutputFolder(Option::FileType::CORR) << "\t"
+		<< "  Output to graph: " << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
 		<< "Dataset name: " << opt.dataset << "\n"
 		<< "Cutting method: " << opt.getCutMethod() << "\n"
 		<< "Cutting method parameter - nGraph: " << opt.nGraph << "\n"
@@ -53,12 +58,14 @@ int main(int argc, char* argv[])
 		if(p.first == Option::FileType::TC) {
 			cout << "  Loading time course data:" << endl;
 			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject);
+			cout << " Loaded " << smtc.size() << endl;
 			cout << "  Generating correlation:" << endl;
 			corr = processTC2Corr(smtc, opt);
 		} else if(p.first == Option::FileType::CORR) {
 			cout << "  Loading correlation data:" << endl;
 			corr = loadInputCorr(opt.corrPath, opt.nSubject);
 		}
+		cout << " Loaded " << corr.size() << endl;
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return 2;
@@ -66,6 +73,7 @@ int main(int argc, char* argv[])
 
 	if(opt.isOutputFolder(Option::FileType::CORR)) {
 		cout << "Outputting correlations:" << endl;
+		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.corrPath + genCorrFilename(p.first);
 			ofstream fout(fn);
@@ -74,12 +82,16 @@ int main(int argc, char* argv[])
 				continue;
 			}
 			writeCorr(fout, p.second);
+			if(++cnt % 100 == 0)
+				cout << "  Outputted " << cnt << endl;
 		}
+		cout << "  Outputted " << cnt << endl;
 	}
 
 	if(opt.isOutputFolder(Option::FileType::GRAPH)) {
 		cout << "Generate graphs:" << endl;
 		Corr2Graph c2g(opt.conThrshd);
+		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.graphPath + genGraphFilename(p.first);
 			ofstream fout(fn);
@@ -88,9 +100,13 @@ int main(int argc, char* argv[])
 				continue;
 			}
 			writeGraph(fout, c2g.getGraph(p.second));
+			if(++cnt % 100 == 0)
+				cout << "  Outputted " << cnt << endl;
 		}
-
+		cout << "  Outputted " << cnt << endl;
 	}
+
+	cout << "Finished" << endl;
     return 0;
 }
 
