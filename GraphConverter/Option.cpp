@@ -4,9 +4,10 @@
 
 using namespace std;
 
-bool Option::parseInput(int argc, char* argv[]) {
-	//define
-	boost::program_options::options_description desc("Options");
+Option::Option()
+	:desc("Options")
+{
+	// define
 	using boost::program_options::value;
 	desc.add_options()
 		("help", "Print help messages")
@@ -24,6 +25,19 @@ bool Option::parseInput(int argc, char* argv[]) {
 		("cthreshold", value<double>(&conThrshd)->default_value(0.5), "the threshold for determining connectivity")
 		;
 
+}
+
+boost::program_options::options_description & Option::getDesc()
+{
+	return desc;
+}
+
+void Option::addParser(std::function<bool()>& fun)
+{
+	paramParser.push_back(move(fun));
+}
+
+bool Option::parseInput(int argc, char* argv[]) {
 	//parse
 	bool flag_help = false;
 	boost::program_options::variables_map var_map;
@@ -32,6 +46,9 @@ bool Option::parseInput(int argc, char* argv[]) {
 			boost::program_options::parse_command_line(argc, argv, desc), var_map);
 		boost::program_options::notify(var_map);
 
+		if(var_map.count("help")) {
+			flag_help = true;
+		}
 	} catch(std::exception& excep) {
 		cerr << "error: " << excep.what() << "\n";
 		flag_help = true;
@@ -41,10 +58,6 @@ bool Option::parseInput(int argc, char* argv[]) {
 	}
 
 	while(!flag_help) { // technique for condition checking
-		if(var_map.count("help")) {
-			flag_help = true;
-			break;
-		}
 		if(!checkIOLogic()) {
 			flag_help = true;
 			break;

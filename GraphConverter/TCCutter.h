@@ -1,5 +1,6 @@
 #pragma once
 #include "TypeDef.h"
+#include "Option.h"
 #include <string>
 
 class TCCutter
@@ -14,6 +15,7 @@ public:
 	bool haveNext() const;
 	tc_t getNext();
 
+	static void regOption(Option& opt);
 private:
 	int nNode;
 	int pos, step, size;

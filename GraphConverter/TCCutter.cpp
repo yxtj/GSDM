@@ -30,6 +30,15 @@ corr_t TCCutter::getNext()
 	return res;
 }
 
+void TCCutter::regOption(Option & opt)
+{
+	using boost::program_options::value;
+	int x;
+	auto& desc = opt.getDesc();
+	desc.add_options()
+		("x", value<int>(&x));
+}
+
 tc_t TCCutter::cut()
 {
 	tc_t res;

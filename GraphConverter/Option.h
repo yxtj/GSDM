@@ -1,8 +1,13 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <functional>
+#include <boost/program_options.hpp>
 
 class Option
 {
+	boost::program_options::options_description desc;
+	std::vector<std::function<bool()>> paramParser;
 public:
 	enum class CutType { NGRAPH, NSCAN, NONE };
 	enum class FileType { TC, CORR, GRAPH, NONE };
@@ -20,6 +25,10 @@ public:
 	double conThrshd; // the correlation threshold for determine connectivity
 
 public:
+	Option();
+	boost::program_options::options_description& getDesc();
+	void addParser(std::function<bool()>& fun);
+
 	bool parseInput(int argc, char *argv[]);
 	std::string getCutMethod() const;
 	std::pair<FileType, std::string> getInputFolder() const;
