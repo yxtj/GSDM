@@ -32,7 +32,7 @@ void writeCorr(std::ostream& os, const corr_t& corr);
 // graph file name functions:
 // filename format: <type>-<subject Id>-<scan Id>.txt
 std::string genGraphFilename(const Subject& sub);
-bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept;
+bool checknParseGraphFilename(const std::string& fn, Subject* pRes) noexcept;
 
 
 // data format:
