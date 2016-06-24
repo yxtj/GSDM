@@ -36,8 +36,8 @@ bool TCCutterParam::parse()
 bool TCCutterParam::parseEach()
 {
 	numberCheck(1);
-	nTotal = stoi(param[1]);
-	return nTotal > 0;
+	nEach = stoi(param[1]);
+	return nEach > 0;
 }
 
 bool TCCutterParam::parseTotal()

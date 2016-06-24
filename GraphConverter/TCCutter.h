@@ -17,6 +17,7 @@ public:
 private:
 	int nNode;
 	int pos, step, size;
+	bool reuse;
 
 	corr_t cut();
 	void movePointer();

@@ -11,9 +11,9 @@ struct TCCutterParam
 	// M-each use: nEach
 	// M-total use: nTotal
 	// M-slide use: nEach, nStep
-	int nEach;
-	int nTotal;
-	int nStep;
+	int nEach = -1;
+	int nTotal = -1;
+	int nStep = -1;
 public:
 	void reg(Option& opt);
 	virtual bool parse();

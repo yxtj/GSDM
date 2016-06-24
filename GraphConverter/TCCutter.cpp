@@ -36,8 +36,12 @@ tc_t TCCutter::cut()
 	tc_t res;
 	res.reserve(size);
 	auto itend = static_cast<size_t>(pos + size) >= data.size()
-		? data.end() : data.begin() + pos + size;
-	copy(make_move_iterator(data.begin() + pos), make_move_iterator(itend), back_inserter(res));
+		? data.end() : data.begin() + (pos + size);
+	if(reuse) {
+		copy(data.begin() + pos, itend, back_inserter(res));
+	} else {
+		copy(make_move_iterator(data.begin() + pos), make_move_iterator(itend), back_inserter(res));
+	}
 	return res;
 }
 
@@ -51,13 +55,15 @@ void TCCutter::initTotal(const int nTotal)
 	pos = 0;
 	step = data.size() / nTotal;
 	size = step;
+	reuse = false;
 }
 
 void TCCutter::initEach(const int nEach)
 {
 	pos = 0;
+	step = nEach;
 	size = nEach;
-	step = data.size() / size;
+	reuse = false;
 }
 
 void TCCutter::initSlideWindow(const int winSize, const int step)
@@ -65,4 +71,5 @@ void TCCutter::initSlideWindow(const int winSize, const int step)
 	pos = 0;
 	size = winSize;
 	this->step = step;
+	reuse = true;
 }
