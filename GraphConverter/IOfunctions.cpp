@@ -24,10 +24,10 @@ std::multimap<Subject, tc_t> loadInputTC(
 		vector<Subject> validList = loader->loadValidList(tcPath, nSubject);
 		slilst = loader->getAllSubjects(validList, tcPath);
 	}
-	if(nSubject > 0 && slilst.size() > static_cast<size_t>(nSubject)) {
-		auto it = slilst.begin() + nSubject;
-		slilst.erase(it, slilst.end());
-	}
+// 	if(nSubject > 0 && slilst.size() > static_cast<size_t>(nSubject)) {
+// 		auto it = slilst.begin() + nSubject;
+// 		slilst.erase(it, slilst.end());
+// 	}
 	for(Subject& s : slilst) {
 		string fn = loader->getFilePath(s);
 		tc_t tc = loader->loadTimeCourse(tcPath + fn);
@@ -94,7 +94,7 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const 
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::multimap<Subject, corr_t> res;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
-		const string&& fn = it->path().filename().string();
+		string fn = it->path().filename().string();
 		Subject sub;
 		if(is_regular_file(*it) && checknParseCorrFilename(fn, &sub)) { 
 			res.emplace(move(sub), readCorr(fn));

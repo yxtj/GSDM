@@ -1,4 +1,5 @@
 #pragma once
+#include "TCCutterParam.h"
 #include <string>
 #include <vector>
 #include <functional>
@@ -13,16 +14,15 @@ public:
 	enum class FileType { TC, CORR, GRAPH, NONE };
 
 	std::string dataset; // specific which dataset is going to be use
-	// path for input/output data folder:
-	std::string tcPath, corrPath, graphPath; // time course data, correlation data path, graph data 
 	int nSubject; // number of subject need to be loaded from the dataset
 
-	std::string cutMethod;
-	int nGraph; // evenly divides the data into given number of graphs
-	int nScan; // number of scans for each graph, no fixed number of graphs
+	// path for input/output data folder:
+	std::string tcPath, corrPath, graphPath; // time course data, correlation data path, graph data 
+
+	TCCutterParam cutp;
 
 	std::string corrMethod; // method of calculating correlation
-	double conThrshd; // the correlation threshold for determine connectivity
+	double graphThrshd; // the correlation threshold for determine connectivity
 
 public:
 	Option();
@@ -30,7 +30,9 @@ public:
 	void addParser(std::function<bool()>& fun);
 
 	bool parseInput(int argc, char *argv[]);
-	std::string getCutMethod() const;
+	std::string getCutMethod() const {
+		return cutp.method;
+	}
 	std::pair<FileType, std::string> getInputFolder() const;
 	bool isOutputFolder(FileType ft) const;
 private:

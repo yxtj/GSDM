@@ -18,13 +18,11 @@ Option::Option()
 		("corrPath", value<string>(&corrPath), "the folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output)")
 		("graphPath", value<string>(&graphPath), "the folder for graph data (output)")
-		("nGraph,g", value<int>(&nGraph)->default_value(-1), "[integer] specific number of graphs, conflict with --nScan")
-		("nScan,s", value<int>(&nScan)->default_value(-1), "[integer] specific number of scan per graph, conflict with --nGraph")
-		("cmethod,m", value<string>(&corrMethod)->default_value(string("pearson")), "method for calculating correlation between ROI,"
+		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")), "method for calculating correlation between ROI,"
 			"supports: pearson, spearman, mutialinfo")
-		("cthreshold", value<double>(&conThrshd)->default_value(0.5), "the threshold for determining connectivity")
+		("cthreshold", value<double>(&graphThrshd)->default_value(0.5), "the threshold for determining connectivity")
 		;
-
+	cutp.reg(*this);
 }
 
 boost::program_options::options_description & Option::getDesc()
@@ -62,11 +60,18 @@ bool Option::parseInput(int argc, char* argv[]) {
 			flag_help = true;
 			break;
 		}
-		if(!initCutLogic()) {
+		try {
+			for(auto& fun : paramParser) {
+				if(!fun()) {
+					flag_help = true;
+					break;
+				}
+			}
+		} catch(exception& e) {
+			cerr << e.what() << endl;
 			flag_help = true;
 			break;
 		}
-		
 
 		sortUpPath(tcPath);
 		sortUpPath(corrPath);
@@ -79,11 +84,6 @@ bool Option::parseInput(int argc, char* argv[]) {
 		return false;
 	}
 	return true;
-}
-
-std::string Option::getCutMethod() const
-{
-	return cutMethod;
 }
 
 std::pair<Option::FileType, std::string> Option::getInputFolder() const
@@ -132,16 +132,16 @@ bool Option::checkIOLogic()
 
 bool Option::initCutLogic()
 {
-	if(nGraph >= 0 && nScan >= 0) {
-		cerr << "Method nGraph and nScan conflicts" << endl;
-		return false;
-	} else if(nGraph <= 0 && nScan <= 0) {
-		cerr << "None of method nGraph or nScan is set" << endl;
-		return false;
-	}
-	if(nGraph > 0)
-		cutMethod = "nGraph";
-	else if(nScan > 0)
-		cutMethod = "nScan";
+// 	if(nGraph >= 0 && nScan >= 0) {
+// 		cerr << "Method nGraph and nScan conflicts" << endl;
+// 		return false;
+// 	} else if(nGraph <= 0 && nScan <= 0) {
+// 		cerr << "None of method nGraph or nScan is set" << endl;
+// 		return false;
+// 	}
+// 	if(nGraph > 0)
+// 		cutMethod = "nGraph";
+// 	else if(nScan > 0)
+// 		cutMethod = "nScan";
 	return true;
 }

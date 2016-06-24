@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="ComplexParamBase.h" />
     <ClInclude Include="Corr2Graph.h" />
+    <ClInclude Include="TCCutterParam.h" />
     <ClInclude Include="IOfunctions.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="TCCutter.h" />
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComplexParamBase.cpp" />
+    <ClCompile Include="TCCutterParam.cpp" />
     <ClCompile Include="IOfunctions.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="TCCutter.cpp" />
@@ -178,6 +180,9 @@
     </ClCompile>
     <ClCompile Include="TC2Corr.cpp" />
     <ClCompile Include="TCLoader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

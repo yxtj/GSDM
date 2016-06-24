@@ -3,15 +3,16 @@
 
 using namespace std;
 
-TCCutter::TCCutter(tc_t & data, const std::string & method, const int parm)
-	: data(data), parm(parm)
+
+TCCutter::TCCutter(tc_t & data, const TCCutterParam& parm)
+	: data(data)
 {
-	if("nGraph" == method)
-		init_nGraph();
-	else if("nScan" == method)
-		init_nScan();
-	else if("slide" == method)
-		init_slideWindow();
+	if("total" == parm.method)
+		initTotal(parm.nTotal);
+	else if("each" == parm.method)
+		initEach(parm.nEach);
+	else if("slide" == parm.method)
+		initSlideWindow(parm.nEach, parm.nStep);
 	else {
 		throw invalid_argument("given cutting method is not supported");
 	}
@@ -30,15 +31,6 @@ corr_t TCCutter::getNext()
 	return res;
 }
 
-void TCCutter::regOption(Option & opt)
-{
-	using boost::program_options::value;
-	int x;
-	auto& desc = opt.getDesc();
-	desc.add_options()
-		("x", value<int>(&x));
-}
-
 tc_t TCCutter::cut()
 {
 	tc_t res;
@@ -54,21 +46,23 @@ void TCCutter::movePointer()
 	pos += step;
 }
 
-void TCCutter::init_nGraph()
+void TCCutter::initTotal(const int nTotal)
 {
 	pos = 0;
-	step = data.size() / parm;
+	step = data.size() / nTotal;
 	size = step;
 }
 
-void TCCutter::init_nScan()
+void TCCutter::initEach(const int nEach)
 {
 	pos = 0;
-	size = parm;
+	size = nEach;
 	step = data.size() / size;
 }
 
-void TCCutter::init_slideWindow()
+void TCCutter::initSlideWindow(const int winSize, const int step)
 {
-	init_nScan();
+	pos = 0;
+	size = winSize;
+	this->step = step;
 }

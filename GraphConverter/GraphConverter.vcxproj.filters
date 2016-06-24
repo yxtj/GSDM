@@ -34,7 +34,12 @@
     <ClCompile Include="TCCutter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComplexParamBase.cpp" />
+    <ClCompile Include="ComplexParamBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TCCutterParam.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Corr2Graph.h">
@@ -70,7 +75,12 @@
     <ClInclude Include="TCCutter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ComplexParamBase.h" />
+    <ClInclude Include="ComplexParamBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCCutterParam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -79,5 +89,8 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{ee894258-537b-4de2-a3cb-3688f0cc27d8}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
   </ItemGroup>
 </Project>

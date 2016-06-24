@@ -42,7 +42,9 @@ If --tcPath is not given, the correlation is the input source.
     
     - Cutter method:
   
-    Write related constructor and init function for class TCCutter.
+	  1. Modify class TCCutterParm to add necessary method parser.
+
+	  2. Modify class TCCutter to support this new cutter method.
 
   
     - Correlation method:

@@ -12,14 +12,10 @@
 using namespace std;
 
 multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Option& opt) {
-	string cutm = opt.cutMethod;
-	// TODO: use a delegate function to directly generate TCCutter
-	int cutParm = cutm == "nGraph" ? opt.nGraph : opt.nScan;
-
 	TC2Corr t2c(opt.corrMethod);
 	multimap<Subject, corr_t> res;
 	for(auto& p : smtc) {
-		TCCutter cutter(p.second, cutm, cutParm);
+		TCCutter cutter(p.second, opt.cutp);
 		while(cutter.haveNext()) {
 			tc_t t = cutter.getNext();
 			res.emplace(p.first, t2c.getCorr(t));
@@ -45,10 +41,15 @@ int main(int argc, char* argv[])
 		<< "  Output to graph: " << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
 		<< "Dataset name: " << opt.dataset << "\n"
 		<< "Cutting method: " << opt.getCutMethod() << "\n"
-		<< "Cutting method parameter - nGraph: " << opt.nGraph << "\n"
-		<< "Cutting method parameter - nScan: " << opt.nScan << "\n"
-		<< "Correlation method: " << opt.corrMethod << "\n"
-		<< "Correlation threshold: " << opt.conThrshd << "\n"
+//		<< "Cutting method parameter - nGraph: " << opt.nGraph << "\n"
+//		<< "Cutting method parameter - nScan: " << opt.nScan << "\n"
+//		<< "Correlation method: " << opt.corrMethod << "\n"
+		<< "Correlation threshold: " << opt.graphThrshd << "\n"
+		<< endl;
+	cout << "Cutting method: " << opt.cutp.method << "\n" 
+		<< "Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
+		<< "Cutting method parameter - nTotal: " << opt.cutp.nTotal << "\n"
+		<< "Cutting method parameter - nStep: " << opt.cutp.nStep << "\n"
 		<< endl;
 	
 	cout << "Loading input data:" << endl;
@@ -56,23 +57,23 @@ int main(int argc, char* argv[])
 	try {
 		auto p = opt.getInputFolder();
 		if(p.first == Option::FileType::TC) {
-			cout << "  Loading time course data:" << endl;
+			cout << "  Loading time course data..." << endl;
 			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject);
-			cout << " Loaded " << smtc.size() << endl;
-			cout << "  Generating correlation:" << endl;
+			cout << "    # of Loaded: " << smtc.size() << endl;
+			cout << "  Generating correlation..." << endl;
 			corr = processTC2Corr(smtc, opt);
 		} else if(p.first == Option::FileType::CORR) {
 			cout << "  Loading correlation data:" << endl;
 			corr = loadInputCorr(opt.corrPath, opt.nSubject);
 		}
-		cout << " Loaded " << corr.size() << endl;
+		cout << "    # of Loaded " << corr.size() << endl;
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return 2;
 	}
 
 	if(opt.isOutputFolder(Option::FileType::CORR)) {
-		cout << "Outputting correlations:" << endl;
+		cout << "Outputting correlations..." << endl;
 		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.corrPath + genCorrFilename(p.first);
@@ -89,8 +90,8 @@ int main(int argc, char* argv[])
 	}
 
 	if(opt.isOutputFolder(Option::FileType::GRAPH)) {
-		cout << "Generate graphs:" << endl;
-		Corr2Graph c2g(opt.conThrshd);
+		cout << "Generate graphs...s" << endl;
+		Corr2Graph c2g(opt.graphThrshd);
 		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.graphPath + genGraphFilename(p.first);
