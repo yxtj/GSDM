@@ -14,11 +14,20 @@ using namespace std;
 multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Option& opt) {
 	TC2Corr t2c(opt.corrMethod);
 	multimap<Subject, corr_t> res;
+	string lastID;
+	int gid = 0;
 	for(auto& p : smtc) {
 		TCCutter cutter(p.second, opt.cutp);
+		Subject sub = p.first;
+		if(sub.id != lastID) {
+			lastID = sub.id;
+			gid = 0;
+		}
 		while(cutter.haveNext()) {
 			tc_t t = cutter.getNext();
-			res.emplace(p.first, t2c.getCorr(t));
+			// use sgId as graphID
+			sub.sgId = gid++;
+			res.emplace(sub, t2c.getCorr(t));
 		}
 	}
 	return res;
@@ -35,15 +44,12 @@ int main(int argc, char* argv[])
 	cout << "Time Course Path: " << opt.tcPath << "\n"
 		<< "Correlation Path: " << opt.corrPath << "\n"
 		<< "Graph Path: " << opt.graphPath << "\n"
-		<< "  Input data: " << opt.getInputFolder().second << "\n"
-		<< ios::boolalpha
-		<< "  Output to correlation: " << opt.isOutputFolder(Option::FileType::CORR) << "\t"
-		<< "  Output to graph: " << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
+		<< "  Input path: " << opt.getInputFolder().second << "\n"
+		<< "  Output to correlation: " << boolalpha << opt.isOutputFolder(Option::FileType::CORR) << "\n"
+		<< "  Output to graph: " << boolalpha << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
 		<< "Dataset name: " << opt.dataset << "\n"
-		<< "Cutting method: " << opt.getCutMethod() << "\n"
-//		<< "Cutting method parameter - nGraph: " << opt.nGraph << "\n"
-//		<< "Cutting method parameter - nScan: " << opt.nScan << "\n"
-//		<< "Correlation method: " << opt.corrMethod << "\n"
+		<< "  Number of subjects " << opt.nSubject << "\n"
+		<< "Correlation method: " << opt.corrMethod << "\n"
 		<< "Correlation threshold: " << opt.graphThrshd << "\n"
 		<< endl;
 	cout << "Cutting method: " << opt.cutp.method << "\n" 
@@ -90,7 +96,7 @@ int main(int argc, char* argv[])
 	}
 
 	if(opt.isOutputFolder(Option::FileType::GRAPH)) {
-		cout << "Generate graphs...s" << endl;
+		cout << "Generate graphs..." << endl;
 		Corr2Graph c2g(opt.graphThrshd);
 		int cnt = 0;
 		for(auto p : corr) {

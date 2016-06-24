@@ -42,7 +42,7 @@ std::multimap<Subject, tc_t> loadInputTC(
 
 std::string genCorrFilename(const Subject & sub)
 {
-	return to_string(sub.type) + "-" + sub.id + "-" + to_string(sub.scanNum) + ".txt";
+	return to_string(sub.type) + "-" + sub.id + "-" + to_string(sub.sgId) + ".txt";
 }
 
 bool checkCorrFilename(const string & fn)
@@ -75,7 +75,7 @@ bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
 		if(pRes) {
 			pRes->id = fn.substr(p1 + 1, p2 -p1 -1);
 			pRes->type = type;
-			pRes->scanNum = scanNum;
+			pRes->sgId = scanNum;
 		}
 	} catch(...) {
 		return false;
@@ -90,14 +90,14 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const 
 	if(!is_directory(root)) {
 		throw invalid_argument("Given correlation path is invalid");
 	}
-
+	
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::multimap<Subject, corr_t> res;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
 		string fn = it->path().filename().string();
 		Subject sub;
 		if(is_regular_file(*it) && checknParseCorrFilename(fn, &sub)) { 
-			res.emplace(move(sub), readCorr(fn));
+			res.emplace(move(sub), readCorr(corrPath + fn));
 		}
 		if(res.size() >= limit)
 			break;

@@ -88,7 +88,6 @@ bool Option::parseInput(int argc, char* argv[]) {
 
 std::pair<Option::FileType, std::string> Option::getInputFolder() const
 {
-	return std::pair<FileType, std::string>();
 	if(!tcPath.empty())
 		return make_pair(FileType::TC, tcPath);
 	if(!corrPath.empty())

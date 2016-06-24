@@ -87,7 +87,7 @@ std::vector<Subject> LoaderADHD200::getAllSubjects(
 			if(regex_search(fn, m, reg) && m[1].str()==s.id) {
 				int scanNum = stoi(m[2].str()) - 1;
 				res.push_back(s);
-				res.back().scanNum = scanNum;
+				res.back().sgId = scanNum;
 			}
 		}
 
@@ -98,7 +98,7 @@ std::vector<Subject> LoaderADHD200::getAllSubjects(
 std::string LoaderADHD200::getFilePath(const Subject & sub)
 {
 	return sub.id + "/" + filePrefix + sub.id + "_session_1"
-		"_rest_" + to_string(sub.scanNum + 1) + "_aal_TCs.1D";
+		"_rest_" + to_string(sub.sgId + 1) + "_aal_TCs.1D";
 }
 
 // tc_t = std::vector<std::vector<double>>

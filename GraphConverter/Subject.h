@@ -5,7 +5,7 @@ struct Subject
 {
 	std::string id;
 	int type;
-	int scanNum;
+	int sgId; // reused as both doctor's scan id for TC, and algorithm's graph id for Corr/Graph
 
 	Subject() = default;
 	Subject(const std::string& id, const int type, const int scanNum = -1);
