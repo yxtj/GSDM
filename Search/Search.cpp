@@ -10,6 +10,7 @@
 #include "CandidateMethodFactory.h"
 #include "StrategyCandidatePN.h"
 #include "CandidateMthdFreq.h"
+#include "IOfunctions.h"
 
 using namespace std;
 
@@ -34,6 +35,47 @@ vector<vector<Graph> > loadData(const string& pre,const int n, const int m) {
 	return res;
 }
 
+vector<vector<Graph> > loadData(
+	const string& folder, const string& fprefix, const int nSub, const int nSnap) 
+{
+	size_t limitSub = nSub > 0 ? nSub : numeric_limits<size_t>::max();
+	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
+	vector<vector<Graph> > res;
+	if(nSub>0)
+		res.reserve(nSub);
+	unordered_map<decltype(Subject::id), size_t> id2off;
+
+	using namespace boost::filesystem;
+	boost::filesystem::path root(folder);
+	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
+		Subject sub;
+		string fn = it->path().filename().string();
+		if(fn.find(fprefix) != 0)
+			continue;
+		if(is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+			auto jt = id2off.find(sub.id);
+			if(jt == id2off.end()){
+				// find a new subject
+				if(res.size() >= limitSub)
+					break;
+				jt = id2off.emplace(sub.id, res.size()).first;
+				res.push_back(vector<Graph>());
+			} 
+			// going to add new snapshot to existing subject
+			if(res[jt->second].size() >= limitSnp) {
+				continue;
+			}
+			ifstream fin(folder + fn);
+			if(!fin) {
+				cerr << "cannot open file: " << fn << endl;
+			}
+			res[jt->second].push_back(loadGraph(fin));
+		}
+	}
+	return res;
+}
+
+
 void outputMotifAbstract(ostream& os, const Motif& m, const double probExist, const double avgProbOccur) {
 	os << m.getnNode() << "\t" << m.getnEdge() << "\t"
 		<< std::fixed << probExist << "\t"
@@ -50,39 +92,31 @@ void outputFoundMotifs(ostream& os, const vector<tuple<Motif, double, double>>& 
 	}
 }
 
-void test() {
-//	StrategyFreqPara sfp;
-//	sfp.pMin = 0.5;
-//	StrategyFreq sf;
-//	sf.motifOnIndTopK(vector<Graph>(), 10, 1, 3, sfp);
-
-}
-
 int main(int argc, char* argv[])
 {
 	Option opt;
 	if(!opt.parseInt(argc, argv)) {
 		return 1;
 	}
-	cout << "Data folder prefix: " << opt.prefix <<"\tGraph sub-folder: " << opt.subFolderGraph
-		<< "\nNodes: " << opt.nNode
-		<< "\nData folder prefix: "
-		<< "\n# Individual +/-: " << opt.nPosInd << " - " << opt.nNegInd
-		<< "\t# snapshots: " << opt.nSnapshot
-		<< "\n# Motif +/-: " << opt.nPosMtf << " - " << opt.nNegMtf
-		<< "\nThe min prob. of a valid motif on single patient: " << opt.pMotifInd
-		<< "\nThe min prob. of a valid motif for all patients: " << opt.pMotifRef
-		<< "\nMotif size min/max: " << opt.sMotifMin << " - " << opt.sMotifMax
-		<< "\nStrategy name: "<<opt.stgName
-		<< "\nTop K: "<<opt.topK
+	cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
+		<< "Nodes: " << opt.nNode << "\n"
+		<< "Data parameters: "
+		<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
+		<< "  # snapshots: " << opt.nSnapshot << "\n"
+		<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
+		<< "The min prob. of a valid motif on single patient: " << opt.pMotifInd << "\n"
+		<< "The min prob. of a valid motif for all patients: " << opt.pMotifRef << "\n"
+		<< "Motif size min - max: " << opt.sMotifMin << " - " << opt.sMotifMax << "\n"
+		<< "Strategy name: " << opt.stgName << "\n"
+		<< "Top K: " << opt.topK << "\n"
 		<< endl;
 
-//	test()
-//	return 0;
-
-	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
-	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
+//	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
+//	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
 	
+	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, "0-", opt.nPosInd, opt.nSnapshot);
+	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, "1-", opt.nNegInd, opt.nSnapshot);
+
 	CandidateMethodFactory::init();
 	StrategyCandidate searcher;
 	CandidateMethodParm* pssp = nullptr;

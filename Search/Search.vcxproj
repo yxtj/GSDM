@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="Graph.h" />
     <ClInclude Include="GraphProb.h" />
+    <ClInclude Include="IOfunctions.h" />
     <ClInclude Include="Motif.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="StrategyCandidate.h" />
@@ -161,10 +162,12 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
     <ClInclude Include="CandidateMthdInfreq.h" />
+    <ClInclude Include="Subject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphProb.cpp" />
+    <ClCompile Include="IOfunctions.cpp" />
     <ClCompile Include="Motif.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="Search.cpp" />
@@ -180,6 +183,10 @@
     </ClCompile>
     <ClCompile Include="CandidateMthdFreq.cpp" />
     <ClCompile Include="CandidateMthdInfreq.cpp" />
+    <ClCompile Include="Subject.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

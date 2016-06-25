@@ -28,7 +28,6 @@ public:
 	// pick the top k motifs from given candidate set, where each one with a minimum probability
 	// return <motif, prob. showing up over individuals, mean prob. of happening of single individual>
 	std::vector<std::tuple<Motif, double, double>> refineByAll(
-		const std::vector<std::vector<std::pair<Motif, double>>>& motifs,
-		const int k, const double pRef);
+		const std::vector<std::vector<std::pair<Motif, double>>>& motifs, const double pRef);
 };
 

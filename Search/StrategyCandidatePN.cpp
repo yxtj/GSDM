@@ -30,12 +30,12 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::search(
 	delete strategy;
 
 	cout << "Phase 2 (refine frequent):" << endl;
-	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1, k, pRefine);
+	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1, pRefine);
 	cout << phase2.size() << " motifs after refinement." << endl;
 
 	cout << "Phase 3 (filter by negative infrequent):" << endl;
-	double pdis = 0.8; // (x/(x+y)>pdis
-	double pMax = static_cast<const CandidateMthdFreqParm&>(par).pMin * (1.0 / pdis - 1);
+	double disScore = 0.5; // (x/(x+y)>disScore
+	double pMax = static_cast<const CandidateMthdFreqParm&>(par).pMin * (1.0 / disScore - 1);
 	vector<tuple<Motif, double, double>> phase3 = filterByNegative(phase2, pMax, gNeg);
 	cout << phase3.size() << " motifs after removal of negative frequent ones." << endl;
 
@@ -105,7 +105,7 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::filterByNega
 }
 
 std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::refineByAll(
-	const std::vector<std::vector<std::pair<Motif, double>>>& motifs, const int k, const double pRef)
+	const std::vector<std::vector<std::pair<Motif, double>>>& motifs, const double pRef)
 {
 	// count occurrence of each motif
 	map<Motif, pair<int, double>> cont;
@@ -124,18 +124,17 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::refineByAll(
 		}
 	}
 	// generate output
-	const int maxV = max<int>(k, valid.size());
 	double dev = motifs.size();
 	vector<tuple<Motif, double, double>> res;
-	res.reserve(maxV);
+	res.reserve(valid.size());
 	int count = 0;
 	for(auto it = valid.rbegin(); it != valid.rend(); ++it) {
 		res.emplace_back(move(it->second->first), it->first / dev, it->second->second.second / dev);
-		if(++count >= k)
-			break;
 	}
-	sort(res.begin(), res.end(), [](const tuple<Motif, double, double>& l, const tuple<Motif, double, double>& r) {
-		return get<1>(l) > get<1>(r) ? true : get<1>(l) == get<1>(r) && get<2>(l) > get<2>(r);
+	// sort with <pIndividual, meanPHappen>
+	sort(res.begin(), res.end(), 
+		[](const tuple<Motif, double, double>& l, const tuple<Motif, double, double>& r) {
+			return get<1>(l) > get<1>(r) ? true : get<1>(l) == get<1>(r) && get<2>(l) > get<2>(r);
 	});
 	return res;
 }
