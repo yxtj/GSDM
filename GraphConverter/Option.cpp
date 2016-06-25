@@ -100,7 +100,7 @@ bool Option::isOutputFolder(FileType ft) const
 	if(FileType::GRAPH == ft) {
 		return !graphPath.empty();
 	} else if(FileType::CORR == ft) {
-		return !corrPath.empty();
+		return !corrPath.empty() && !tcPath.empty();
 	}
 	return false;
 }
