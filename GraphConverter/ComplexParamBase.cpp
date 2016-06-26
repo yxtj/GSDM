@@ -15,5 +15,5 @@ void ComplexParamBase::reg(Option & opt, const std::string& name, const std::str
 		(name.c_str(), value<vector<string>>(&param)->multitoken(), des.c_str());
 
 	function<bool()> fun = [this]() { return this->parse(); };
-	opt.addParser(move(fun));
+	opt.addParser(fun);
 }
