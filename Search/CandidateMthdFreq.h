@@ -23,7 +23,12 @@ public:
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
 		const int smin, const int smax, const CandidateMethodParm& par);
 private:
-	void dfsMotif(std::vector<std::pair<Motif, double>>& mps, const int expNode,
+	// enumerate
+	std::vector<std::pair<Motif, double>> dfsMotif0(
+		const unsigned p, const std::pair<Motif, double>& curr,
+		const std::vector<Graph>& gs, const GraphProb& gp, const std::vector<Edge>& edges);
+
+	void dfsMotif1(std::vector<std::pair<Motif, double>>& mps, const int expNode,
 		const std::vector<Graph>& gs, const CandidateMthdFreqParm& par, const GraphProb& gp);
 	void dfsMotif2(std::vector<std::pair<Motif, double>>& res,
 		const std::pair<Motif, double>& curr, const int expNode,

@@ -27,8 +27,19 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 	vector<pair<Motif, double>> mps;
 	pair<Motif, double> dummy;
 	dummy.second = 1.0;
+	{
+		vector<Edge> edges;
+		for(int i = 0; i < nNode; ++i) {
+			for(int j = i + 1; j < nNode; ++j)
+				if(gp.matrix[i][j] >= param.pMin)
+					edges.emplace_back(i, j);
+		}
+		mps = dfsMotif0(0, dummy, gs, gp, edges);
+		sort(mps.begin(), mps.end());
+	}
+
 /*	for(int s = 0; s < nNode; ++s) {
-//		dfsMotif(mps, s, gs, param, gp);
+//		dfsMotif1(mps, s, gs, param, gp);
 		dfsMotif2(mps, dummy, s, gs, gp);
 	}
 */
@@ -41,7 +52,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 			mps.push_back(move(open[i]));
 	}
 */
-	for(int s = 0; s < nNode; ++s) {
+/*	for(int s = 0; s < nNode; ++s) {
 		auto t = dfsMotif4(dummy, s, gs, gp);
 		for(auto it = t.begin(); it != t.end(); ++it)
 			if(it->first.getnEdge() >= smin)
@@ -52,6 +63,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 	auto itend = unique(mps.begin(), mps.end());
 	cout << mps.end() - itend << " / " << mps.size() << " redundant motifs " << endl;
 	mps.erase(itend, mps.end());
+*/
 
 	this->par = nullptr;
 /*	// Pick the top K result:
@@ -66,54 +78,31 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 	return mps;
 }
 
-// Return all the qualified edge combinations of the expPoints
-// require: expPoints to be sorted
-vector<vector<Edge>> dfsEdgeCom(vector<Edge>& curr, const int pExp, const int pDest,
-	const Motif& m, const double prob, const vector<int>& expPoints,
-	const GraphProb& gp, const double pMin, const int smax, const int nNode)
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::dfsMotif0(
+	const unsigned p, const std::pair<Motif, double>& curr,
+	const std::vector<Graph>& gs, const GraphProb & gp, const std::vector<Edge>& edges)
 {
-	if(m.getnEdge() + curr.size() >= smax) {
-		vector<vector<Edge>> res;
+	std::vector<std::pair<Motif, double>> res;
+	if(curr.first.getnEdge() >= smax) {
 		res.push_back(curr);
 		return res;
-	} else if(pExp == expPoints.size() && pDest == nNode) {
-		vector<vector<Edge>> res;
-		res.push_back(curr);
+	} else if(p >= edges.size()) {
+		if(curr.first.getnEdge() >= smin)
+			res.push_back(curr);
 		return res;
 	}
-
-	const int edgeLeft = smax - m.getnEdge();
-	const double probReq = pMin / prob;
-	vector<vector<Edge>> res;
-	
-	// move to next acceptable edge
-	int pDestNew = pDest + 1;
-	int pExpNew = pExp;
-	while(pExpNew < expPoints.size()) {
-		while(pDestNew < nNode && gp.matrix[expPoints[pExpNew]][pDestNew] < probReq) {
-			++pDestNew;
-		}
-		if(pDestNew == nNode) {
-			++pExpNew;
-			// only expand to nodes with greater id
-			pDestNew = pExpNew + 1;
-		} else {
-			break;
+	res = dfsMotif0(p + 1, curr, gs, gp, edges);
+	if(curr.first.size() == 0 
+		|| curr.first.containNode(edges[p].s) || curr.first.containNode(edges[p].d)) 
+	{
+		pair<Motif, double> mp(curr);
+		mp.first.addEdge(edges[p].s, edges[p].d);
+		mp.second = probOfMotif(mp.first, gs);
+		if(mp.second >= par->pMin) {
+			auto t = dfsMotif0(p + 1, mp, gs, gp, edges);
+			move(t.begin(), t.end(), back_inserter(res));
 		}
 	}
-
-	vector<vector<Edge>> t;
-	t = dfsEdgeCom(curr, pExpNew, pDestNew, m, prob, expPoints, gp, pMin, smax, nNode);
-	for(auto& v : t) {
-		res.push_back(move(v));
-	}
-	if(pExpNew >= expPoints.size())
-		return res;
-
-	curr.push_back(Edge{ expPoints[pExp],pDest });
-	double p = gp.matrix[expPoints[pExpNew]][pDestNew];
-	dfsEdgeCom(curr, pExpNew, pDestNew, m, prob*p, expPoints, gp, pMin, smax, nNode);
-
 	return res;
 }
 
@@ -123,7 +112,7 @@ vector<vector<Edge>> dfsEdgeCom(vector<Edge>& curr, const int pExp, const int pD
 // Prune: 
 //	1, maximum probability ( <= that motif in indenpendent uncertain graph)
 //	2, expand to nodes with greater id
-void CandidateMthdFreq::dfsMotif(std::vector<std::pair<Motif, double>>& mps, const int expNode,
+void CandidateMthdFreq::dfsMotif1(std::vector<std::pair<Motif, double>>& mps, const int expNode,
 	const std::vector<Graph>& gs, const CandidateMthdFreqParm& par, const GraphProb& gp)
 {
 	for(int i = expNode + 1; i < nNode; ++i) {
@@ -154,7 +143,7 @@ void CandidateMthdFreq::dfsMotif(std::vector<std::pair<Motif, double>>& mps, con
 				double p = probOfMotif(t, gs);
 				if(p >= par.pMin) {
 					mps.emplace_back(t, p);
-					//dfsMotif(mps, i, gs, par);
+					//dfsMotif1(mps, i, gs, par);
 				}
 			}
 		}
