@@ -54,6 +54,8 @@ public:
 	bool containEdge(const int s, const int d) const;
 	const Edge& lastEdge() const;
 
+	bool connected() const;
+
 	int getnNode() const;
 	int getnEdge() const;
 	size_t size() const; // same as getnEdge()

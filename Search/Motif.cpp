@@ -4,6 +4,7 @@
 
 void Motif::sortUpEdges()
 {
+	nodes.clear();
 	for(const Edge& e : edges) {
 		nodes.insert(e.s);
 		nodes.insert(e.d);
@@ -68,6 +69,43 @@ bool Motif::containEdge(const int s, const int d) const
 const Edge & Motif::lastEdge() const
 {
 	return *edges.rbegin();
+}
+
+bool Motif::connected() const
+{
+	if(edges.empty())
+		return true;
+	unordered_map<int, int> color(nodes.size());
+	for(int nid : nodes)
+		color[nid] = nid;
+	auto fun = [&color](int p) {
+		vector<int> stack;
+		while(color[p] != p) {
+			p = color[p];
+			stack.push_back(p);
+		}
+		for(int v : stack)
+			color[v] = p;
+		return p;
+	};
+	auto foo = [&color](int p, const int v) {
+		while(color[p] != v) {
+			int pn = color[p];
+			color[p]= v;
+			p = pn;
+		}
+	};
+	for(const Edge& e : edges) {
+		int nc = min(fun(e.s), fun(e.d));
+		foo(e.s, nc);
+		foo(e.d, nc);
+	}
+	int v = color.begin()->second;
+	for(auto& n : nodes) {
+		if(fun(n) != v)
+			return false;
+	}
+	return true;
 }
 
 bool operator==(const Motif& lth, const Motif& rth) {
