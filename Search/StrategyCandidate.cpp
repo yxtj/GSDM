@@ -43,14 +43,18 @@ std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 	*/
 
 	// searching
-	CandidateMethod* strategy = CandidateMethodFactory::generate(searchStrategyName);
+	CandidateMethod* method = CandidateMethodFactory::generate(searchStrategyName);
 	vector<vector<pair<Motif,double> > > phase1;
 	cout << "Phase 1 (find positive):"<<endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
-		phase1.push_back(candidateFromOne(gPos[i], smin, smax, strategy, par));
-		cout << "  On individual " << i << " found " << phase1[i].size() << " motifs." << endl;
+		chrono::system_clock::time_point _time = chrono::system_clock::now();
+		phase1.push_back(candidateFromOne(gPos[i], smin, smax, method, par));
+		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
+			chrono::system_clock::now() - _time).count();
+		cout << "  On individual " << i << " found " << phase1[i].size()
+			<< " motifs within " << _time_ms << " miliseconds" << endl;
 	}
-	delete strategy;
+	delete method;
 
 	cout << "Phase 2 (refine frequent):" << endl;
 	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1, k, pRefine);

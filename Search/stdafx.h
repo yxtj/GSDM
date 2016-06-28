@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <iterator>
 #include <tuple>
+#include <chrono>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
