@@ -27,9 +27,9 @@ debug:
 	$(eval CXXFLAGS += -g)
 	
 Searcher: $(OBJS)
-	cd ../$FDR
-	$(echo SRCS1)
-	$(echo SRCS)
+	cd ../$(FDR)
+	$(echo $(SRCS1))
+	$(echo $(SRCS))
 
 clean:
 	rm -rf Debug
