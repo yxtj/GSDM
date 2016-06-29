@@ -161,7 +161,6 @@
     <ClInclude Include="CandidateMethodFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
-    <ClInclude Include="CandidateMthdInfreq.h" />
     <ClInclude Include="Subject.h" />
   </ItemGroup>
   <ItemGroup>
@@ -182,7 +181,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CandidateMthdFreq.cpp" />
-    <ClCompile Include="CandidateMthdInfreq.cpp" />
     <ClCompile Include="Subject.cpp" />
   </ItemGroup>
   <ItemGroup>
