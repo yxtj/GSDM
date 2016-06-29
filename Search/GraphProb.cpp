@@ -10,10 +10,10 @@ GraphProb::GraphProb(const int n)
 
 GraphProb::GraphProb(const std::vector<Graph>& gs)
 {
-	mergeWith(gs);
+	init(gs);
 }
 
-void GraphProb::mergeWith(const std::vector<Graph>& gs)
+void GraphProb::init(const std::vector<Graph>& gs)
 {
 	nSample = gs.size();
 	if(nSample == 0) {
@@ -26,24 +26,17 @@ void GraphProb::mergeWith(const std::vector<Graph>& gs)
 		initMatrix();
 	}
 	// accumulate
+	double inc = 1.0 / nSample;
 	for(const Graph& g : gs) {
 		for(int i = 0; i < nNode; ++i) {
 			const vector<bool>& line = g.matrix[i];
 			for(int j = 0; j < nNode; ++j) {
-				if(line[j])
-					matrix[i][j] += 1;
+				matrix[i][j] += line[j] ? inc : 0.0;
 			}
 		}
 	}
-	// normalize
-	nEdge = 0;
-	for(auto& line : matrix) {
-		for(auto& v : line)
-			if(v != 0.0) {
-				v /= nSample;
-				++nEdge;
-			}
-	}
+	// conut
+	countEdges();
 }
 
 bool GraphProb::merge(const GraphProb & g)
@@ -56,6 +49,32 @@ bool GraphProb::merge(const GraphProb & g)
 			matrix[i][j] = (matrix[i][j] * nSample + g.matrix[i][j] * g.nSample) / n;
 		}
 	}
+	nSample = n;
+	return true;
+}
+
+bool GraphProb::merge(const std::vector<Graph>& gs)
+{
+	if(gs.empty()) {
+		return true;
+	}
+	if(nNode != gs.front().nNode) {
+		return false;
+	}
+	size_t n = nSample + gs.size();
+	double scale = static_cast<double>(nSample) / n;
+	double inc = 1.0 / n;
+	for(const Graph& g : gs) {
+		for(int i = 0; i < nNode; ++i) {
+			const vector<bool>& line = g.matrix[i];
+			for(int j = 0; j < nNode; ++j) {
+				matrix[i][j] *= scale;
+				matrix[i][j] += line[j] ? inc : 0.0;
+			}
+		}
+	}
+	nSample = n;
+	countEdges();
 	return true;
 }
 
@@ -101,4 +120,17 @@ void GraphProb::initMatrix()
 {
 	matrix.clear();
 	matrix.resize(nNode, vector<double>(nNode, 0.0));
+}
+
+void GraphProb::countEdges()
+{
+	int n= 0;
+	for(auto& line : matrix) {
+		for(auto& v : line)
+			if(v != 0.0) {
+				++n;
+			}
+	}
+	nEdge = n;
+
 }
