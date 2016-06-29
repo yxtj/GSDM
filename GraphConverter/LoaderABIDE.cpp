@@ -89,7 +89,7 @@ std::vector<Subject> LoaderABIDE::loadValidList(const std::string &fn, const int
 
 string LoaderABIDE::getFilePath(const Subject &sub){
     string path;
-    path = "ROISignals_FunimgARCWF/"+filePrefix + string(sub.id); //TODO: results/ is not the directory
+    path = "ROISignals_FunimgARCWF/"+filePrefix + string(sub.id);
     return path;
 }
 
