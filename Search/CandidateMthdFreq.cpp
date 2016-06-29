@@ -11,29 +11,33 @@ CandidateMthdFreq::CandidateMthdFreq()
 {
 }
 
-std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs,
-	const int smin, const int smax, const CandidateMethodParm& par)
+void CandidateMthdFreq::setMotifSize(const int smin, const int smax)
 {
 	this->smin = smin;
 	this->smax = smax;
-	const CandidateMthdFreqParm& param = static_cast<const CandidateMthdFreqParm&>(par);
-	this->par = &param;
+}
+
+void CandidateMthdFreq::setParam(const CandidateMethodParm & par)
+{
+	this->par = &static_cast<const CandidateMthdFreqParm&>(par);
+}
+
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs,
+	const int smin, const int smax, const CandidateMethodParm& param)
+{
+	setMotifSize(smin, smax);
+	setParam(param);
 	GraphProb gp(gs);
 	this->nNode = gp.nNode;
 //	cout << "test in StrategyFreq::motifOnIndTopK" << endl;
-//	cout << param.pMin << endl;
+//	cout << par->pMin << endl;
 
 	
 	vector<pair<Motif, double>> mps;
 	pair<Motif, double> dummy;
 	dummy.second = 1.0;
 	{
-		vector<Edge> edges;
-		for(int i = 0; i < nNode; ++i) {
-			for(int j = i + 1; j < nNode; ++j)
-				if(gp.matrix[i][j] >= param.pMin)
-					edges.emplace_back(i, j);
-		}
+		vector<Edge> edges = getEdges(gp);
 		mps = dfsMotif0(0, dummy, gs, gp, edges);
 		sort(mps.begin(), mps.end());
 	}
@@ -78,33 +82,37 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 	return mps;
 }
 
+
+// ------------------- methods -------------------------
+
+
 std::vector<std::pair<Motif, double>> CandidateMthdFreq::dfsMotif0(
 	const unsigned p, const std::pair<Motif, double>& curr,
 	const std::vector<Graph>& gs, const GraphProb & gp, const std::vector<Edge>& edges)
 {
 	std::vector<std::pair<Motif, double>> res;
 	if(curr.first.getnEdge() >= smax) {
-		res.push_back(curr);
+		if(curr.first.connected())
+			res.push_back(curr);
 		return res;
 	} else if(p >= edges.size()) {
-		if(curr.first.getnEdge() >= smin)
+		if(curr.first.getnEdge() >= smin && curr.first.connected())
 			res.push_back(curr);
 		return res;
 	}
 	res = dfsMotif0(p + 1, curr, gs, gp, edges);
-	if(curr.first.size() == 0 
-		|| curr.first.containNode(edges[p].s) || curr.first.containNode(edges[p].d)) 
-	{
-		pair<Motif, double> mp(curr);
-		mp.first.addEdge(edges[p].s, edges[p].d);
-		mp.second = probOfMotif(mp.first, gs);
-		if(mp.second >= par->pMin) {
-			auto t = dfsMotif0(p + 1, mp, gs, gp, edges);
-			move(t.begin(), t.end(), back_inserter(res));
-		}
+
+	pair<Motif, double> mp(curr);
+	mp.first.addEdge(edges[p].s, edges[p].d);
+	mp.second = probOfMotif(mp.first, gs);
+	if(mp.second >= par->pMin) {
+		auto t = dfsMotif0(p + 1, mp, gs, gp, edges);
+		move(t.begin(), t.end(), back_inserter(res));
 	}
 	return res;
 }
+
+// ------------------- method 1 -------------------------
 
 // only explore edges with greater lexicographical order
 // edges are compared with pair (s,d) where s<d
@@ -150,6 +158,8 @@ void CandidateMthdFreq::dfsMotif1(std::vector<std::pair<Motif, double>>& mps, co
 	}
 
 }
+
+// ------------------- method 2 -------------------------
 
 class _DfsEdgeComSearcher {
 	const std::pair<Motif, double>& startMP;
@@ -260,6 +270,8 @@ void CandidateMthdFreq::dfsMotif2(std::vector<std::pair<Motif, double>>& res,
 	}
 }
 
+// ------------------- method 3 -------------------------
+
 /************************************************************************/
 /* 
 return:
@@ -325,6 +337,8 @@ void CandidateMthdFreq::dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
 	}
 }
 
+// ------------------- method 4 -------------------------
+
 // node expansion
 /*
 Return: the valid motifs generated from curr by expanding at expNode (exclude curr)
@@ -375,6 +389,17 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::dfsMotif4(
 std::vector<std::pair<Motif, double>> CandidateMthdFreq::dfsMotif5(const std::pair<Motif, double>& curr, const int expNode, const std::vector<Graph>& gs, const GraphProb & gp)
 {
 	return std::vector<std::pair<Motif, double>>();
+}
+
+std::vector<Edge> CandidateMthdFreq::getEdges(const GraphProb & gp)
+{
+	vector<Edge> edges;
+	for(int i = 0; i < nNode; ++i) {
+		for(int j = i + 1; j < nNode; ++j)
+			if(gp.matrix[i][j] >= par->pMin)
+				edges.emplace_back(i, j);
+	}
+	return edges;
 }
 
 

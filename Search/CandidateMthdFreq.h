@@ -19,6 +19,8 @@ class CandidateMthdFreq :
 public:
 	static const std::string name;
 	CandidateMthdFreq();
+	void setMotifSize(const int smin=1, const int smax=std::numeric_limits<int>::max());
+	void setParam(const CandidateMethodParm& par);
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
 		const int smin, const int smax, const CandidateMethodParm& par);
@@ -44,6 +46,8 @@ private:
 	std::vector<std::pair<Motif, double>> dfsMotif5(
 		const std::pair<Motif, double>& curr, const int expNode,
 		const std::vector<Graph>& gs, const GraphProb& gp);
+private:
+	std::vector<Edge> getEdges(const GraphProb& gp);
 };
 
 struct CandidateMthdFreqParm :

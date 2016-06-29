@@ -2,7 +2,7 @@
 #include "CandidateMethodFactory.h"
 // include conclude strategies:
 #include "CandidateMthdFreq.h"
-#include "CandidateMthdInfreq.h"
+//#include "CandidateMthdInfreq.h"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ void CandidateMethodFactory::init()
 {
 	registerStrategy<CandidateMthdFreq>();
 	// TODO: add new strategy here
-	registerStrategy<CandidateMthdInfreq>();
+//	registerStrategy<CandidateMthdInfreq>();
 }
 
 CandidateMethod * CandidateMethodFactory::generate(const std::string & strategyName)

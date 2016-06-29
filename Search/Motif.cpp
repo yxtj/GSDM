@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Motif.h"
 
+using namespace std;
 
 void Motif::sortUpEdges()
 {
