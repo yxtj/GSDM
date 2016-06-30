@@ -97,6 +97,15 @@
     <ClCompile Include="CandidateMthdFreq.cpp">
       <Filter>Method\Source</Filter>
     </ClCompile>
+    <ClCompile Include="CandidateMthdFreq-enum.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreq-node.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreq-edge.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />
