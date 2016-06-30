@@ -8,6 +8,11 @@ SRCS = stdafx.cpp Search.cpp Graph.cpp Option.cpp GraphProb.cpp Motif.cpp Candid
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
 CXXFLAGS = -std=c++11
+ifeq ($(OS),Windows_NT)
+   LIBS = -lboost-program-options -lboost-filesystem -lboost-system
+else
+	LIBS = -lboost_program_options -lboost_filesystem -lboost_system
+endif
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -18,20 +23,20 @@ release:
 	FDR=Release
 	@mkdir -p Release
 	@mkdir -p ../Release
-	CXXFLAGS = $CXXFLAGS -O2
+	$(eval CXXFLAGS += -O2)
 
 debug: 
 	FDR=Debug
 	@mkdir -p Debug
-	@mkdir -p ../Debug
+	@mkdir  -p ../Debug
 	$(eval CXXFLAGS += -g)
 	
 Searcher: $(OBJS)
-	cd ../$(FDR)
-	$(echo $(SRCS1))
-	$(echo $(SRCS))
+	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) $^ -o ../$(FDR)/$@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $^ -c -o $(FDR)/$@
 
 clean:
 	rm -rf Debug
 	rm -rf Release
-
