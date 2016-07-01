@@ -52,7 +52,7 @@ std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
 			chrono::system_clock::now() - _time).count();
 		cout << "  On individual " << i << " found " << phase1[i].size()
-			<< " motifs within " << _time_ms << " miliseconds" << endl;
+			<< " motifs within " << _time_ms << " ms" << endl;
 	}
 	delete method;
 

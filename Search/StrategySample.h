@@ -5,10 +5,10 @@
 #include "CandidateMethod.h"
 #include <vector>
 
-class StrategyCandidatePN
+class StrategySample
 {
 public:
-	StrategyCandidatePN();
+	StrategySample();
 
 	std::vector<std::tuple<Motif, double, double>> search(
 		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
@@ -18,6 +18,8 @@ public:
 	//GraphProb mergeGraphs(const std::vector<Graph>& gs);
 private:
 	// learn candidate motifs from given raw dataset
+	std::vector<int> sampleGraphs(const std::vector<std::vector<Graph>>& gs, const double por);
+
 	std::vector<std::pair<Motif, double>> candidateFromOne(const std::vector<Graph> & gs,
 		int smin, int smax, CandidateMethod* strategy, const CandidateMethodParm& par);
 
@@ -26,8 +28,14 @@ private:
 	std::vector<std::tuple<Motif, double, double>> refineByAll(
 		std::vector<std::vector<std::pair<Motif, double>>>& motifs, const double pRef);
 
+	std::vector<std::tuple<Motif, double, double>> checkMotifOnAll(
+		std::vector<std::tuple<Motif, double, double>>& motifs,
+		const std::vector<std::vector<Graph>> & gs, const std::vector<int>& sampled,
+		const double pMin, const double pRef);
+	
 	std::vector<std::tuple<Motif, double, double>> filterByNegative(
 		const std::vector<std::tuple<Motif, double, double>>& motifs,
 		const double pMax, const std::vector<std::vector<Graph>>& gNeg);
+
 };
 
