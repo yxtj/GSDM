@@ -131,6 +131,29 @@ void CandidateMthdFreq::_node2_layer(std::vector<std::pair<Motif, double>>& res,
 
 // ------------------- method 3 -------------------------
 
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::method_node3()
+{
+	vector<pair<Motif, double>> mps;
+	pair<Motif, double> dummy;
+	dummy.second = 1.0;
+
+	vector<pair<Motif, double>> open;
+	for(int s = 0; s < nNode; ++s) {
+		_node3(mps, open, dummy, s);
+	}
+	for(size_t i = 0; i < open.size(); ++i) {
+		if(open[i].first.getnEdge() >= smin)
+			mps.push_back(move(open[i]));
+	}
+
+	sort(mps.begin(), mps.end());
+	auto itend = unique(mps.begin(), mps.end());
+	cout << mps.end() - itend << " / " << mps.size() << " redundant motifs " << endl;
+	mps.erase(itend, mps.end());
+
+	return mps;
+}
+
 /************************************************************************/
 /*
 return:
@@ -143,10 +166,9 @@ expNode: the node to expand from, contained by the common root motif
 
 */
 /************************************************************************/
-void CandidateMthdFreq::dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
+void CandidateMthdFreq::_node3(std::vector<std::pair<Motif, double>>& closed,
 	std::vector<std::pair<Motif, double>>& open,
-	const std::pair<Motif, double>& rootMP, const int expNode,
-	const std::vector<Graph>& gs, const GraphProb& gp)
+	const std::pair<Motif, double>& rootMP, const int expNode)
 {
 	int nEdge = rootMP.first.getnEdge();
 	if(nEdge >= smax) {
@@ -174,7 +196,7 @@ void CandidateMthdFreq::dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
 			m.addEdge(expNode, newNode);
 			double p = gp.matrix[expNode][newNode];
 			if(p >= par->pMin) {
-				dfsMotif3(closed, open, make_pair(move(m), p), newNode, gs, gp);
+				_node3(closed, open, make_pair(move(m), p), newNode);
 			}
 			continue;
 		}
@@ -187,9 +209,9 @@ void CandidateMthdFreq::dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
 			{
 				Motif m(mp.first);
 				m.addEdge(expNode, newNode);
-				double p = probOfMotif(m, gs);
+				double p = probOfMotif(m, *gs);
 				if(p >= par->pMin) {
-					dfsMotif3(closed, open, make_pair(move(m), p), newNode, gs, gp);
+					_node3(closed, open, make_pair(move(m), p), newNode);
 				}
 			} // if condition
 		} // for open

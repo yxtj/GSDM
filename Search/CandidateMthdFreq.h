@@ -41,25 +41,32 @@ private:
 		const unsigned p, const std::pair<Motif, double>& curr,
 		std::vector<bool>& used);
 
-	// expand node by all possible edge combination
+	// expand node (all possible edge combination each attempt)
 	std::vector<std::pair<Motif, double>> method_node2_layer();
 	void _node2_layer(std::vector<std::pair<Motif, double>>& res,
 		const std::pair<Motif, double>& curr, const int expNode);
 	
-	void dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
+	// expand node (3 type)
+	std::vector<std::pair<Motif, double>> method_node3();
+	void _node3(std::vector<std::pair<Motif, double>>& closed,
 		std::vector<std::pair<Motif, double>>& open,
-		const std::pair<Motif, double>& curr, const int expNode,
-		const std::vector<Graph>& gs, const GraphProb& gp);
+		const std::pair<Motif, double>& curr, const int expNode);
 
-	// expand node by one edge
+	// expand node (one edge each attempt)
 	std::vector<std::pair<Motif, double>> method_node4();
 	std::vector<std::pair<Motif, double>> _node4(
 		const std::pair<Motif, double>& curr, const int expNode);
 
-	// expand by edge
-	std::vector<std::pair<Motif, double>> method_edge1();
-	std::vector<std::pair<Motif, double>> _edge1(
-		const std::pair<Motif, double>& curr, const int expNode);
+	// expand by edge (add one edge to last layer in the subgraph tree)
+	std::vector<std::pair<Motif, double>> method_edge1_bfs();
+	std::vector<std::pair<Motif, double>> _edge1_bfs(
+		const std::vector<std::pair<Motif, double>>& last, const std::vector<Edge>& edges);
+
+	// expand by edge (add one edge to found set)
+	std::vector<std::pair<Motif, double>> method_edge2_dp();
+	std::vector<std::pair<Motif, double>> _edge2_dp(
+		const std::vector<std::pair<Motif, double>>& last, const Edge& e);
+
 private:
 	std::vector<Edge> getEdges(const GraphProb& gp);
 };

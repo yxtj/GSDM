@@ -40,36 +40,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 //	cout << par->pMin << endl;
 
 	
-	vector<pair<Motif, double>> mps = method_enum1();
-	pair<Motif, double> dummy;
-	dummy.second = 1.0;
-
-/*	for(int s = 0; s < nNode; ++s) {
-//		dfsMotif1(mps, s, gs, param, gp);
-		_node2_layer(mps, dummy, s, gs, gp);
-	}
-*/
-/*	vector<pair<Motif, double>> open;
-	for(int s = 0; s < nNode; ++s) {
-		dfsMotif3(mps, open, dummy, s, gs, gp);
-	}
-	for(size_t i = 0; i < open.size(); ++i) {
-		if(open[i].first.getnEdge() >= smin)
-			mps.push_back(move(open[i]));
-	}
-*/
-/*	for(int s = 0; s < nNode; ++s) {
-		auto t = _node4(dummy, s, gs, gp);
-		for(auto it = t.begin(); it != t.end(); ++it)
-			if(it->first.getnEdge() >= smin)
-				mps.push_back(move(*it));
-	}
-
-	sort(mps.begin(), mps.end());
-	auto itend = unique(mps.begin(), mps.end());
-	cout << mps.end() - itend << " / " << mps.size() << " redundant motifs " << endl;
-	mps.erase(itend, mps.end());
-*/
+	vector<pair<Motif, double>> mps = method_edge2_dp();
 
 	this->par = nullptr;
 /*	// Pick the top K result:
