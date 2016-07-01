@@ -227,8 +227,12 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::method_node4()
 	dummy.second = 1.0;
 	for(int s = 0; s < nNode; ++s) {
 		auto t = _node4(dummy, s);
-		mps.reserve(mps.size() + t.size());
-		move(t.begin(), t.end(), back_inserter(mps));
+		//mps.reserve(mps.size() + t.size());
+		for(auto& mp : t) {
+			if(mp.first.getnEdge() >= smin)
+				mps.push_back(move(mp));
+		}
+		//move(t.begin(), t.end(), back_inserter(mps));
 	}
 	sort(mps.begin(), mps.end());
 	auto itend = unique(mps.begin(), mps.end());

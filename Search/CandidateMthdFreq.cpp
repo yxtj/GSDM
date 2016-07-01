@@ -26,6 +26,8 @@ void CandidateMthdFreq::setGraphSet(const std::vector<Graph>& gs)
 {
 	this->gs = &gs;
 	gp.init(gs);
+	for(int i = 0; i < gp.nNode; ++i)
+		gp.matrix[i][i] = 0.0;
 	this->nNode = gs.front().nNode;
 }
 
@@ -40,7 +42,11 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 //	cout << par->pMin << endl;
 
 	
-	vector<pair<Motif, double>> mps = method_edge2_dp();
+	vector<pair<Motif, double>> mps;
+	//mps = method_enum1();
+	//mps = method_node4();
+	mps = method_edge2_dp();
+
 
 	this->par = nullptr;
 /*	// Pick the top K result:
