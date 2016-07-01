@@ -11,7 +11,7 @@ StrategyCandidatePN::StrategyCandidatePN()
 
 std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::search(
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchStrategyName, const CandidateMethodParm& par,
+	const int smin, const int smax, const std::string& searchMethodyName, const CandidateMethodParm& par,
 	const int k, const double pRefine)
 {
 	if(gPos.size() == 0 || gPos.front().size() == 0
@@ -20,7 +20,7 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::search(
 	// initial probability graphs for future usage
 
 	// searching
-	CandidateMethod* method = CandidateMethodFactory::generate(searchStrategyName);
+	CandidateMethod* method = CandidateMethodFactory::generate(searchMethodyName);
 	vector<vector<pair<Motif, double> > > phase1;
 	cout << "Phase 1 (find positive):" << endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
@@ -86,9 +86,9 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::search(
 
 
 std::vector<std::pair<Motif, double>> StrategyCandidatePN::candidateFromOne(const std::vector<Graph> & gs,
-	int smin, int smax, CandidateMethod* strategy, const CandidateMethodParm& par)
+	int smin, int smax, CandidateMethod* method, const CandidateMethodParm& par)
 {
-	return strategy->getCandidantMotifs(gs, smin, smax, par);
+	return method->getCandidantMotifs(gs, smin, smax, par);
 }
 
 std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::filterByNegative(
