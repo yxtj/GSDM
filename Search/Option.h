@@ -2,8 +2,11 @@
 #include <boost/program_options.hpp>
 #include <string>
 
-struct Option
+class Option
 {
+	boost::program_options::options_description desc;
+	std::vector<std::function<bool()>> paramParser;
+public:
 	int sMotifMin, sMotifMax;//min and max size of a motif
 	int nNode;//number of nodes;
 	int nPosInd, nNegInd;//number of +/- individuals
@@ -20,6 +23,9 @@ public:
 	Option();
 	~Option();
 
-	bool parseInt(int argc, char* argv[]);
+	boost::program_options::options_description& getDesc();
+	void addParser(std::function<bool()>& fun);
+
+	bool parseInput(int argc, char* argv[]);
 };
 

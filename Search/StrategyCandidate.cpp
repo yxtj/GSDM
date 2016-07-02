@@ -4,13 +4,30 @@
 
 using namespace std;
 
+StrategyCandidateParam::~StrategyCandidateParam()
+{
+	delete searchMethodParam;
+}
+
+bool StrategyCandidateParam::parse()
+{
+	return false;
+}
+
+void StrategyCandidateParam::reg(Option & opt)
+{
+	StrategyBaseParam::reg(opt, "strategy", "");
+}
+
+// ----------- StrategyCandidate --------------
+
 StrategyCandidate::StrategyCandidate()
 {
 }
 
 std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchMethodyName, const CandidateMethodParm& par,
+	const int smin, const int smax, const std::string& searchMethodName, const CandidateMethodParm& par,
 	const int k, const double pRefine)
 {
 	if(gPos.size()==0 || gPos.front().size() == 0 
@@ -43,7 +60,7 @@ std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 	*/
 
 	// searching
-	CandidateMethod* method = CandidateMethodFactory::generate(searchMethodyName);
+	CandidateMethod* method = CandidateMethodFactory::generate(searchMethodName);
 	vector<vector<pair<Motif,double> > > phase1;
 	cout << "Phase 1 (find positive):"<<endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
@@ -104,3 +121,4 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
 	});
 	return res;
 }
+

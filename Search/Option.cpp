@@ -4,17 +4,8 @@
 using namespace std;
 
 Option::Option()
+	:desc("Options")
 {
-}
-
-
-Option::~Option()
-{
-}
-
-bool Option::parseInt(int argc, char * argv[])
-{
-	boost::program_options::options_description desc("Options");
 	using boost::program_options::value;
 	desc.add_options()
 		("help", "Print help messages")
@@ -34,7 +25,25 @@ bool Option::parseInt(int argc, char * argv[])
 		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
 			"a motif as existed all on individual (num over individual)")
 		("topk", value<int>(&topK)->default_value(10), "number of returned results");
+}
 
+
+Option::~Option()
+{
+}
+
+boost::program_options::options_description & Option::getDesc()
+{
+	return desc;
+}
+
+void Option::addParser(std::function<bool()>& fun)
+{
+	paramParser.push_back(move(fun));
+}
+
+bool Option::parseInput(int argc, char * argv[])
+{
 	//parse
 	bool flag_help = false;
 	try {
@@ -49,10 +58,22 @@ bool Option::parseInt(int argc, char * argv[])
 		if(!subFolderGraph.empty() && subFolderGraph.back() != '/') {
 			subFolderGraph.push_back('/');
 		}
+		do {
+			if(var_map.count("help")) {
+				flag_help = true;
+				break;
+			}
 
-		if(var_map.count("help")) {
-			flag_help = true;
-		}
+			for(auto& fun : paramParser) {
+				if(!fun()) {
+					flag_help = true;
+					break;
+				}
+			}
+			if(flag_help)
+				break;
+
+		} while(false);
 
 	} catch(std::exception& excep) {
 		cerr << "error: " << excep.what() << "\n";

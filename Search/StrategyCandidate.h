@@ -3,7 +3,24 @@
 #include "GraphProb.h"
 #include "Motif.h"
 #include "CandidateMethod.h"
+#include "StrategyBase.h"
 #include <vector>
+
+class Option;
+
+struct StrategyCandidateParam
+	:public StrategyBaseParam
+{
+	int smin, smax;
+	int k;
+	double pMin, pRefine;
+	std::string searchMethodName;
+	CandidateMethodParm* searchMethodParam;
+
+	~StrategyCandidateParam();
+	virtual bool parse();
+	void reg(Option& opt);
+};
 
 class StrategyCandidate
 {
@@ -12,7 +29,7 @@ public:
 	
 	std::vector<std::tuple<Motif, double, double>> search(
 		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-		const int smin, const int smax, const std::string& searchMethodyName, const CandidateMethodParm& par,
+		const int smin, const int smax, const std::string& searchMethodName, const CandidateMethodParm& par,
 		const int k, const double pRefine);
 
 	//GraphProb mergeGraphs(const std::vector<Graph>& gs);

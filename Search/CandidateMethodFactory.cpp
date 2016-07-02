@@ -20,11 +20,11 @@ void CandidateMethodFactory::init()
 //	registerStrategy<CandidateMthdInfreq>();
 }
 
-CandidateMethod * CandidateMethodFactory::generate(const std::string & strategyName)
+CandidateMethod * CandidateMethodFactory::generate(const std::string & methodName)
 {
 	CandidateMethod* res = nullptr;
-	if(isValid(strategyName)) {
-		res = cont.at(strategyName)();
+	if(isValid(methodName)) {
+		res = cont.at(methodName)();
 	}
 	return res;
 }

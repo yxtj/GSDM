@@ -154,7 +154,7 @@ void test(const vector<vector<Graph>>& gPos, const vector<vector<Graph>>& gNeg)
 int main(int argc, char* argv[])
 {
 	Option opt;
-	if(!opt.parseInt(argc, argv)) {
+	if(!opt.parseInput(argc, argv)) {
 		return 1;
 	}
 	cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, "0-", opt.nPosInd, opt.nSnapshot);
 	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, "1-", opt.nNegInd, opt.nSnapshot);
 	
-	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
+//	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 
 	CandidateMethodFactory::init();
