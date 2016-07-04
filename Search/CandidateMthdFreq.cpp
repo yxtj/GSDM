@@ -5,10 +5,29 @@
 
 using namespace std;
 
-const std::string CandidateMthdFreq::name("Freq");
+const std::string CandidateMthdFreq::name("freq");
+const std::string CandidateMthdFreq::usage(
+	"Find the frequent motifs with given size.\n"
+	"  " + CandidateMthdFreq::name + " <min size> <max size> <min prob.>\n"
+	"<min prob.>: the frequency threshold for accepted motifs");
 
 CandidateMthdFreq::CandidateMthdFreq()
 {
+}
+
+bool CandidateMthdFreq::parse(const std::vector<std::string>& param)
+{
+	try {
+		checkParam(param, 3, name);
+		smin = stoi(param[1]);
+		smax = stoi(param[2]);
+		pMin = stod(param[3]);
+	} catch(exception& e) {
+		cerr << e.what() << endl;
+		return false;
+
+	}
+	return true;
 }
 
 void CandidateMthdFreq::setMotifSize(const int smin, const int smax)
@@ -17,9 +36,10 @@ void CandidateMthdFreq::setMotifSize(const int smin, const int smax)
 	this->smax = smax;
 }
 
-void CandidateMthdFreq::setParam(const CandidateMethodParm & par)
+void CandidateMthdFreq::setParam(const CandidateMethodParam & par)
 {
 	this->par = &static_cast<const CandidateMthdFreqParm&>(par);
+	pMin = this->par->pMin;
 }
 
 void CandidateMthdFreq::setGraphSet(const std::vector<Graph>& gs)
@@ -32,7 +52,7 @@ void CandidateMthdFreq::setGraphSet(const std::vector<Graph>& gs)
 }
 
 std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs,
-	const int smin, const int smax, const CandidateMethodParm& param)
+	const int smin, const int smax, const CandidateMethodParam& param)
 {
 	setMotifSize(smin, smax);
 	setParam(param);
@@ -61,13 +81,23 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 	return mps;
 }
 
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs)
+{
+	setGraphSet(gs);
+	vector<pair<Motif, double>> mps;
+	//mps = method_enum1();
+	//mps = method_node4();
+	mps = method_edge2_dp();
+	return mps;
+}
+
 
 std::vector<Edge> CandidateMthdFreq::getEdges(const GraphProb & gp)
 {
 	vector<Edge> edges;
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = i + 1; j < nNode; ++j)
-			if(gp.matrix[i][j] >= par->pMin)
+			if(gp.matrix[i][j] >= pMin)
 				edges.emplace_back(i, j);
 	}
 	return edges;

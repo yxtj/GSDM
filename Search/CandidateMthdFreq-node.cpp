@@ -98,7 +98,7 @@ void CandidateMthdFreq::_node2_layer(std::vector<std::pair<Motif, double>>& res,
 			return;
 	}
 	// enumerate all surrounding edge combinations of current motif at current expanding node
-	_DfsEdgeComSearcher openSetSearcher(curr, expNode, gs, gp, nNode, par->pMin, smax);
+	_DfsEdgeComSearcher openSetSearcher(curr, expNode, gs, gp, nNode, pMin, smax);
 	vector<tuple<Motif, double, vector<int>>> edgeCom =
 		openSetSearcher.search(0, make_tuple(curr.first, curr.second, vector<int>()));
 	// expand to all these new edge sets
@@ -116,13 +116,13 @@ void CandidateMthdFreq::_node2_layer(std::vector<std::pair<Motif, double>>& res,
 		  // pre-condition: m.getnEdge() is in the range [0, smax-1]
 		for(size_t i = 0; i < edgeComN.size(); ++i) {
 			int newNode = edgeComN[i];
-			if(edgeComP*gp.matrix[expNode][newNode] >= par->pMin
+			if(edgeComP*gp.matrix[expNode][newNode] >= pMin
 				&& (edgeComM.getnEdge() == 0 || *edgeComM.edges.rbegin() < Edge{ expNode, newNode }) //gSpan's idea (lexicographical order on edge)
 				&& !edgeComM.containEdge(expNode, newNode)) {
 				Motif m(edgeComM);
 				m.addEdge(expNode, newNode);
 				double prob = probOfMotif(m, *gs);
-				if(prob >= par->pMin)
+				if(prob >= pMin)
 					_node2_layer(res, make_pair(move(m), prob), newNode);
 			}
 		}
@@ -182,7 +182,7 @@ void CandidateMthdFreq::_node3(std::vector<std::pair<Motif, double>>& closed,
 	vector<int> validNeighbors;
 	validNeighbors.reserve(nNode / 2 - rootMP.first.getnNode());
 	for(int i = 0; i < nNode; ++i) {
-		if(rootMP.second*gp.matrix[expNode][i] >= par->pMin
+		if(rootMP.second*gp.matrix[expNode][i] >= pMin
 			&& !rootMP.first.containEdge(expNode, i)) {
 			validNeighbors.push_back(i);
 		}
@@ -195,7 +195,7 @@ void CandidateMthdFreq::_node3(std::vector<std::pair<Motif, double>>& closed,
 			Motif m;
 			m.addEdge(expNode, newNode);
 			double p = gp.matrix[expNode][newNode];
-			if(p >= par->pMin) {
+			if(p >= pMin) {
 				_node3(closed, open, make_pair(move(m), p), newNode);
 			}
 			continue;
@@ -203,14 +203,14 @@ void CandidateMthdFreq::_node3(std::vector<std::pair<Motif, double>>& closed,
 		for(size_t i = 0; i < currOpenSize; ++i) {
 			pair<Motif, double> mp = open[i];
 			if(mp.first.containNode(expNode)
-				&& min(mp.second, gp.matrix[expNode][newNode]) >= par->pMin
+				&& min(mp.second, gp.matrix[expNode][newNode]) >= pMin
 				&& (mp.first.getnEdge() == 0 || *mp.first.edges.rbegin() < Edge{ expNode, newNode }))
 				//the last line is gSpan condition, which ensures "!mp.first.containEdge(expNode, newNode)"
 			{
 				Motif m(mp.first);
 				m.addEdge(expNode, newNode);
 				double p = probOfMotif(m, *gs);
-				if(p >= par->pMin) {
+				if(p >= pMin) {
 					_node3(closed, open, make_pair(move(m), p), newNode);
 				}
 			} // if condition
@@ -245,7 +245,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::method_node4()
 /*
 Return: the valid motifs generated from curr by expanding at expNode (exclude curr)
 Precondition:
-curr.first is a valid motif (prob.>=par->pMin && size<=smax)
+curr.first is a valid motif (prob.>=pMin && size<=smax)
 expNode is contained by curr.first
 Postcondition:
 all return motifs contains curr.first and
@@ -262,7 +262,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::_node4(
 	// expand to each valid neighbor
 	for(int i = 0; i < nNode; ++i) {
 		// pre-prune: only expand to frequent edges
-		if(gp.matrix[expNode][i] < par->pMin && !curr.first.containEdge(expNode, i))
+		if(gp.matrix[expNode][i] < pMin && !curr.first.containEdge(expNode, i))
 			continue;
 		size_t currResSize = res.size();
 		for(size_t j = 0; j < currResSize; ++j) {
@@ -272,7 +272,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::_node4(
 				Motif m(mp.first);
 				m.addEdge(expNode, i);
 				double p = probOfMotif(m, *gs);
-				if(p >= par->pMin) {
+				if(p >= pMin) {
 					auto next = make_pair(move(m), p);
 					auto t = _node4(next, i);
 					res.reserve(res.size() + t.size());

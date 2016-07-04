@@ -55,7 +55,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::_edge1_bfs(
 				Motif t(m);
 				t.addEdge(e.s, e.d);
 				double p = probOfMotif(t, *gs);
-				if(p >= par->pMin) {
+				if(p >= pMin) {
 					res.push_back(make_pair(move(t), p));
 				}
 			}
@@ -104,7 +104,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::_edge2_dp(
 			Motif t(mp.first);
 			t.addEdge(e.s, e.d);
 			double p = probOfMotif(t, *gs);
-			if(p >= par->pMin) {
+			if(p >= pMin) {
 				res.push_back(make_pair(move(t), p));
 			}
 		}

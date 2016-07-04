@@ -65,6 +65,9 @@
     <ClInclude Include="ComplexParamBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyFactory.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -123,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="ComplexParamBase.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFactory.cpp">
+      <Filter>Strategies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

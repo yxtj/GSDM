@@ -31,7 +31,7 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::_enum1(
 	pair<Motif, double> mp(curr);
 	mp.first.addEdge(edges[p].s, edges[p].d);
 	mp.second = probOfMotif(mp.first, *gs);
-	if(mp.second >= par->pMin) {
+	if(mp.second >= pMin) {
 		auto t = _enum1(p + 1, mp, edges);
 		move(t.begin(), t.end(), back_inserter(res));
 	}

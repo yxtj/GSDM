@@ -14,6 +14,7 @@ class CandidateMthdFreq :
 {
 	int nNode; // size of original graph
 	int smin, smax;// size of motif [smin, smax]
+	double pMin; // minimum accept prob. of a motif on the graphs of a subject
 	
 	const CandidateMthdFreqParm* par;
 
@@ -21,13 +22,21 @@ class CandidateMthdFreq :
 	GraphProb gp;
 public:
 	static const std::string name;
+	static const std::string usage;
+
 	CandidateMthdFreq();
-	void setMotifSize(const int smin=1, const int smax=std::numeric_limits<int>::max());
-	void setParam(const CandidateMethodParm& par);
-	void setGraphSet(const std::vector<Graph>& gs);
+
+	virtual bool parse(const std::vector<std::string>& param);
 
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
-		const int smin, const int smax, const CandidateMethodParm& par);
+		const int smin, const int smax, const CandidateMethodParam& par);
+
+	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs);
+
+private:
+	void setMotifSize(const int smin=1, const int smax=std::numeric_limits<int>::max());
+	void setParam(const CandidateMethodParam& par);
+	void setGraphSet(const std::vector<Graph>& gs);
 private:
 	// enumerate edge-dfs
 	std::vector<std::pair<Motif, double>> method_enum1();
@@ -72,7 +81,7 @@ private:
 };
 
 struct CandidateMthdFreqParm :
-	public CandidateMethodParm
+	public CandidateMethodParam
 {
 	double pMin;
 	std::function<bool(double, double)> op_freq = std::less<double>();

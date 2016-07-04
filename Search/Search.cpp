@@ -9,6 +9,7 @@
 #include "StrategyCandidate.h"
 #include "StrategySample.h"
 #include "CandidateMethodFactory.h"
+#include "StrategyFactory.h"
 #include "StrategyCandidatePN.h"
 #include "CandidateMthdFreq.h"
 #include "IOfunctions.h"
@@ -151,8 +152,16 @@ void test(const vector<vector<Graph>>& gPos, const vector<vector<Graph>>& gNeg)
 	
 }
 
+ostream& operator<<(ostream& os, const vector<string>& param) {
+	for(auto& p : param)
+		os << p << " ";
+	return os;
+}
+
 int main(int argc, char* argv[])
 {
+	StrategyFactory::init();
+	CandidateMethodFactory::init();
 	Option opt;
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
@@ -163,10 +172,12 @@ int main(int argc, char* argv[])
 		<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
 		<< "  # snapshots: " << opt.nSnapshot << "\n"
 		<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
-		<< "The min prob. of a valid motif on single patient: " << opt.pMotifInd << "\n"
-		<< "The min prob. of a valid motif for all patients: " << opt.pMotifRef << "\n"
-		<< "Motif size min - max: " << opt.sMotifMin << " - " << opt.sMotifMax << "\n"
-		<< "Strategy name: " << opt.stgName << "\n"
+//		<< "The min prob. of a valid motif on single patient: " << opt.pMotifInd << "\n"
+//		<< "The min prob. of a valid motif for all patients: " << opt.pMotifRef << "\n"
+//		<< "Motif size min - max: " << opt.sMotifMin << " - " << opt.sMotifMax << "\n"
+//		<< "Strategy name: " << opt.stgName << "\n"
+		<< "Strategy parameters: " << opt.stgParam << "\n"
+		<< "Searching method pararmeters: " << opt.mtdParam << "\n"
 		<< "Top K: " << opt.topK << "\n"
 		<< endl;
 
@@ -179,18 +190,24 @@ int main(int argc, char* argv[])
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 
-	CandidateMethodFactory::init();
-	CandidateMethodParm* pssp = nullptr;
-	if(opt.stgName == CandidateMthdFreq::name) {
+	CandidateMethodParam* pssp = nullptr;
+	if(opt.getStrategyName() == CandidateMthdFreq::name) {
 		CandidateMthdFreqParm* p=new CandidateMthdFreqParm();
-		p->pMin = opt.pMotifInd;
+		//p->pMin = opt.pMotifInd;
 		pssp = p;
 	}
 
+	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
+	strategy->parse(opt.stgParam);
+	auto out=strategy->search(opt, gPos, gNeg);
+	cout << out.size() << endl;
+	return 0;
+
+	/*
 //	cout << "PN mechanism" << endl;
-//	StrategyCandidate searcher;
+	StrategyCandidate searcher;
 //	StrategyCandidatePN searcher;
-	StrategySample searcher;
+//	StrategySample searcher;
 	vector<tuple<Motif, double, double>> res = searcher.search(
 		gPos, gNeg, opt.sMotifMin, opt.sMotifMax, opt.stgName, *pssp, opt.topK, opt.pMotifRef);
 
@@ -201,8 +218,7 @@ int main(int argc, char* argv[])
 		ofstream fout(opt.prefix + "dig-pn.txt");
 		outputFoundMotifs(fout, res);
 	}
-
-
+*/
 
 	return 0;
 }

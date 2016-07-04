@@ -11,7 +11,7 @@ StrategySample::StrategySample()
 
 std::vector<std::tuple<Motif, double, double>> StrategySample::search(
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchMethodyName, const CandidateMethodParm& par,
+	const int smin, const int smax, const std::string& searchMethodyName, const CandidateMethodParam& par,
 	const int k, const double pRefine)
 {
 	if(gPos.size() == 0 || gPos.front().size() == 0
@@ -92,7 +92,7 @@ std::vector<int> StrategySample::sampleGraphs(const std::vector<std::vector<Grap
 
 std::vector<std::pair<Motif, double>> StrategySample::candidateFromOne(
 	const std::vector<Graph>& gs, int smin, int smax,
-	CandidateMethod * method, const CandidateMethodParm & par)
+	CandidateMethod * method, const CandidateMethodParam & par)
 {
 	return method->getCandidantMotifs(gs, smin, smax, par);
 }
@@ -101,18 +101,18 @@ std::vector<std::tuple<Motif, double, double>> StrategySample::refineByAll(
 	std::vector<std::vector<std::pair<Motif, double>>>& motifs, const double pRef)
 {
 	// count occurrence of each motif
-	map<Motif, pair<int, double>> cont;
+	map<Motif, pair<int, double>> contGen;
 	for(auto it = motifs.begin(); it != motifs.end(); ++it) {
 		for(auto jt = it->begin(); jt != it->end(); ++jt) {
-			cont[jt->first].first++;
-			cont[jt->first].second += jt->second;
+			contGen[jt->first].first++;
+			contGen[jt->first].second += jt->second;
 		}
 		it->clear();
 	}
 	// sort motifs by occurrence count (remove those occurred too infrequent)
 	const int minFre = static_cast<int>(pRef*motifs.size());
-	multimap<int, decltype(cont.begin())> valid;
-	for(auto it = cont.begin(); it != cont.end(); ++it) {
+	multimap<int, decltype(contGen.begin())> valid;
+	for(auto it = contGen.begin(); it != contGen.end(); ++it) {
 		if(it->second.first > minFre) {
 			valid.emplace(it->second.first, it);
 		}
