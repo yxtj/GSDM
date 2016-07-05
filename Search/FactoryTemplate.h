@@ -1,18 +1,21 @@
 #pragma once
-#include "StrategyBase.h"
+#include "FactoryProductTemplate.h"
 #include <string>
+#include <vector>
 #include <map>
 #include <functional>
 
-class StrategyFactory
+class FactoryTemplate
 {
-	static const std::string optName;
-	static const std::string usagePrefix;
+	static std::string optName;
+	static std::string usagePrefix;
 
-	using createFun = std::function<StrategyBase*()>;
+	using createFun = std::function<FactoryProductTemplate*()>;
 	static std::map<std::string, createFun> contGen;
 	static std::map<std::string, std::string> contUsage;
 public:
+	FactoryTemplate() = delete;
+
 	template <class T>
 	static void registerClass(const std::string& name);
 	static void registerUsage(const std::string& name, const std::string& usage);
@@ -24,21 +27,24 @@ public:
 
 	static bool isValid(const std::string& name);
 	static void init();
-	static std::string getOptName();
-	static std::string getUsage();
 
-	static StrategyBase* generate(const std::string& name);
+	static std::string getOptName();
+	static void setOptName(const std::string& name);
+	static std::string getUsage();
+	static void setUsage(const std::string& usage);
+
+	static FactoryProductTemplate* generate(const std::string& name);
 };
 
 template <class T>
-void StrategyFactory::registerClass(const std::string& name) {
+void FactoryTemplate::registerClass(const std::string& name) {
 	contGen[name] = []() {
 		return new T();
 	};
 }
 
 template <class T>
-void StrategyFactory::registerClass() {
+void FactoryTemplate::registerClass() {
 	registerClass<T>(T::name);
 	//contGen[T::name] = []() {
 	//	return new T();
@@ -46,6 +52,6 @@ void StrategyFactory::registerClass() {
 }
 
 template <class T>
-void StrategyFactory::registerUsage() {
+void FactoryTemplate::registerUsage() {
 	registerUsage(T::name, T::usage);
 }

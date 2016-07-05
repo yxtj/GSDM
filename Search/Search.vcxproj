@@ -151,6 +151,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ComplexParamBase.h" />
+    <ClInclude Include="FactoryProductTemplate.h" />
+    <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="GraphProb.h" />
     <ClInclude Include="IOfunctions.h" />
@@ -171,7 +173,9 @@
     <ClCompile Include="CandidateMthdFreq-edge.cpp" />
     <ClCompile Include="CandidateMthdFreq-enum.cpp" />
     <ClCompile Include="CandidateMthdFreq-node.cpp" />
+    <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="ComplexParamBase.cpp" />
+    <ClCompile Include="FactoryTemplate.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphProb.cpp" />
     <ClCompile Include="IOfunctions.cpp" />

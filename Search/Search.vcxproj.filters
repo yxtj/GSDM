@@ -38,9 +38,6 @@
     <ClInclude Include="Subject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IOfunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyCandidate.h">
       <Filter>Strategies</Filter>
     </ClInclude>
@@ -67,6 +64,15 @@
     </ClInclude>
     <ClInclude Include="StrategyFactory.h">
       <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="FactoryProductTemplate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FactoryTemplate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IOfunctions.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -124,11 +130,17 @@
     <ClCompile Include="StrategyBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComplexParamBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyFactory.cpp">
       <Filter>Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="FactoryTemplate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComplexParamBase.cpp">
+      <Filter>Method</Filter>
+    </ClCompile>
+    <ClCompile Include="FactoryProductTemplate.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
