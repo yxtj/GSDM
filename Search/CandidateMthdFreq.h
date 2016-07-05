@@ -5,19 +5,15 @@
 #include "GraphProb.h"
 #include <vector>
 #include <utility>
-#include <functional>
-
-struct CandidateMthdFreqParm;
 
 class CandidateMthdFreq :
 	public CandidateMethod
 {
 	int nNode; // size of original graph
+
 	int smin, smax;// size of motif [smin, smax]
 	double pMin; // minimum accept prob. of a motif on the graphs of a subject
 	
-	const CandidateMthdFreqParm* par;
-
 	const std::vector<Graph>* gs;
 	GraphProb gp;
 public:
@@ -28,15 +24,13 @@ public:
 
 	virtual bool parse(const std::vector<std::string>& param);
 
-	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
-		const int smin, const int smax, const CandidateMethodParam& par);
-
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs);
 
 private:
 	void setMotifSize(const int smin=1, const int smax=std::numeric_limits<int>::max());
-	void setParam(const CandidateMethodParam& par);
 	void setGraphSet(const std::vector<Graph>& gs);
+	std::vector<Edge> getEdges(const GraphProb& gp);
+
 private:
 	// enumerate edge-dfs
 	std::vector<std::pair<Motif, double>> method_enum1();
@@ -75,15 +69,5 @@ private:
 	std::vector<std::pair<Motif, double>> method_edge2_dp();
 	std::vector<std::pair<Motif, double>> _edge2_dp(
 		const std::vector<std::pair<Motif, double>>& last, const Edge& e);
-
-private:
-	std::vector<Edge> getEdges(const GraphProb& gp);
 };
 
-struct CandidateMthdFreqParm :
-	public CandidateMethodParam
-{
-	double pMin;
-	std::function<bool(double, double)> op_freq = std::less<double>();
-	virtual void construct(const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
-};

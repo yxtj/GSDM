@@ -190,13 +190,6 @@ int main(int argc, char* argv[])
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 
-	CandidateMethodParam* pssp = nullptr;
-	if(opt.getStrategyName() == CandidateMthdFreq::name) {
-		CandidateMthdFreqParm* p=new CandidateMthdFreqParm();
-		//p->pMin = opt.pMotifInd;
-		pssp = p;
-	}
-
 	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
 	strategy->parse(opt.stgParam);
 	auto out=strategy->search(opt, gPos, gNeg);

@@ -36,12 +36,6 @@ void CandidateMthdFreq::setMotifSize(const int smin, const int smax)
 	this->smax = smax;
 }
 
-void CandidateMthdFreq::setParam(const CandidateMethodParam & par)
-{
-	this->par = &static_cast<const CandidateMthdFreqParm&>(par);
-	pMin = this->par->pMin;
-}
-
 void CandidateMthdFreq::setGraphSet(const std::vector<Graph>& gs)
 {
 	this->gs = &gs;
@@ -51,24 +45,14 @@ void CandidateMthdFreq::setGraphSet(const std::vector<Graph>& gs)
 	this->nNode = gs.front().nNode;
 }
 
-std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs,
-	const int smin, const int smax, const CandidateMethodParam& param)
+std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs)
 {
-	setMotifSize(smin, smax);
-	setParam(param);
 	setGraphSet(gs);
-
-//	cout << "test in StrategyFreq::motifOnIndTopK" << endl;
-//	cout << par->pMin << endl;
-
-	
 	vector<pair<Motif, double>> mps;
 	//mps = method_enum1();
 	//mps = method_node4();
 	mps = method_edge2_dp();
 
-
-	this->par = nullptr;
 /*	// Pick the top K result:
 	if(mps.size() > k) {
 		partial_sort(mps.begin(), mps.begin()+k, mps.end(),
@@ -78,16 +62,6 @@ std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(cons
 		mps.erase(mps.begin() + k, mps.end());
 	}
 */
-	return mps;
-}
-
-std::vector<std::pair<Motif, double>> CandidateMthdFreq::getCandidantMotifs(const std::vector<Graph>& gs)
-{
-	setGraphSet(gs);
-	vector<pair<Motif, double>> mps;
-	//mps = method_enum1();
-	//mps = method_node4();
-	mps = method_edge2_dp();
 	return mps;
 }
 
@@ -103,18 +77,3 @@ std::vector<Edge> CandidateMthdFreq::getEdges(const GraphProb & gp)
 	return edges;
 }
 
-
-
-// ---------------------------- Parameter Class: ----------------------------
-
-void CandidateMthdFreqParm::construct(
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
-{
-	//gp.startAccum(gPos.front().size());
-	//for(const auto& line : gPos) {
-	//	for(const Graph& g : line) {
-	//		gp.iterAccum(g);
-	//	}
-	//}
-	//gp.finishAccum();
-}

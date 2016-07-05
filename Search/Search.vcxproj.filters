@@ -56,12 +56,6 @@
     <ClInclude Include="StrategySample.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="StrategyBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ComplexParamBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyFactory.h">
       <Filter>Strategies</Filter>
     </ClInclude>
@@ -73,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="IOfunctions.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyBase.h">
+      <Filter>Strategies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,9 +93,6 @@
     </ClCompile>
     <ClCompile Include="IOfunctions.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyCandidatePN.cpp">
-      <Filter>Strategies</Filter>
     </ClCompile>
     <ClCompile Include="StrategyCandidate.cpp">
       <Filter>Strategies</Filter>
@@ -124,22 +118,22 @@
     <ClCompile Include="StrategySample.cpp">
       <Filter>Strategies</Filter>
     </ClCompile>
-    <ClCompile Include="Subject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyFactory.cpp">
       <Filter>Strategies</Filter>
     </ClCompile>
     <ClCompile Include="FactoryTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComplexParamBase.cpp">
-      <Filter>Method</Filter>
-    </ClCompile>
     <ClCompile Include="FactoryProductTemplate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyBase.cpp">
+      <Filter>Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyCandidatePN.cpp">
+      <Filter>Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="Subject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

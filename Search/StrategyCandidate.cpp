@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "StrategyCandidate.h"
 #include "CandidateMethodFactory.h"
+#include "Option.h"
 
 using namespace std;
 
@@ -28,44 +29,8 @@ std::vector<Motif> StrategyCandidate::search(const Option& opt,
 {
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
-
-	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
-	method->parse(opt.mtdParam);
-
-	vector<vector<pair<Motif, double> > > phase1;
-	cout << "Phase 1 (find positive):" << endl;
-	for(size_t i = 0; i < gPos.size(); ++i) {
-		chrono::system_clock::time_point _time = chrono::system_clock::now();
-		phase1.push_back(method->getCandidantMotifs(gPos[i]));
-//			candidateFromOne(gPos[i], smin, smax, method, par));
-		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
-			chrono::system_clock::now() - _time).count();
-		cout << "  On individual " << i << " found " << phase1[i].size()
-			<< " motifs within " << _time_ms << " ms" << endl;
-	}
-	delete method;
-
-	cout << "Phase 2 (refine frequent):" << endl;
-	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1, k, pRefine);
-
-	vector<Motif> res;
-	for(auto& tp : phase2) {
-		res.push_back(move(get<0>(tp)));
-	}
-	return res;
-
-}
-
-std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchMethodName, const CandidateMethodParam& par,
-	const int k, const double pRefine)
-{
-	if(gPos.size()==0 || gPos.front().size() == 0 
-		|| gNeg.size()==0 || gNeg.front().size() == 0)
-		return std::vector<tuple<Motif, double, double>>();
 	// initial probability graphs for future usage
-	/*
+/*
 	vector<GraphProb> gpp, gpn;
 	GraphProb gppt, gpnt; // gp on all graphs
 	for(const auto& line : gPos) {
@@ -88,15 +53,17 @@ std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 		gpn.push_back(move(t));
 	}
 	gpnt.finishAccum();
-	*/
+*/
 
-	// searching
-	CandidateMethod* method = CandidateMethodFactory::generate(searchMethodName);
-	vector<vector<pair<Motif,double> > > phase1;
-	cout << "Phase 1 (find positive):"<<endl;
+	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
+	method->parse(opt.mtdParam);
+
+	vector<vector<pair<Motif, double> > > phase1;
+	cout << "Phase 1 (find positive):" << endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
 		chrono::system_clock::time_point _time = chrono::system_clock::now();
-		phase1.push_back(candidateFromOne(gPos[i], smin, smax, method, par));
+		phase1.push_back(method->getCandidantMotifs(gPos[i]));
+//			candidateFromOne(gPos[i], smin, smax, method, par));
 		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
 			chrono::system_clock::now() - _time).count();
 		cout << "  On individual " << i << " found " << phase1[i].size()
@@ -105,20 +72,24 @@ std::vector<std::tuple<Motif,double,double>> StrategyCandidate::search(
 	delete method;
 
 	cout << "Phase 2 (refine frequent):" << endl;
-	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1, k, pRefine);
+	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
 
-	return phase2;
+	vector<Motif> res;
+	for(auto& tp : phase2) {
+		res.push_back(move(get<0>(tp)));
+	}
+	return res;
+
 }
 
-
-std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(const std::vector<Graph> & gs,
-	int smin, int smax, CandidateMethod* method, const CandidateMethodParam& par)
+std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(
+	CandidateMethod* method, const std::vector<Graph> & gs)
 {
-	return method->getCandidantMotifs(gs, smin, smax, par);
+	return method->getCandidantMotifs(gs);
 }
 
 std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
-	const std::vector<std::vector<std::pair<Motif,double>>>& motifs, const int k, const double pRef)
+	const std::vector<std::vector<std::pair<Motif,double>>>& motifs)
 {
 	// count occurrence of each motif
 	map<Motif, pair<int,double>> contGen;
@@ -129,7 +100,7 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
 		}
 	}
 	// sort motifs by occurrence count (remove those occurred too infrequent)
-	const int minFre = static_cast<int>(pRef*motifs.size());
+	const int minFre = static_cast<int>(pRefine*motifs.size());
 	multimap<int, decltype(contGen.begin())> valid;
 	for(auto it = contGen.begin(); it != contGen.end(); ++it) {
 		if(it->second.first > minFre) {

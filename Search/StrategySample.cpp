@@ -2,33 +2,52 @@
 #include "StrategySample.h"
 #include "CandidateMethodFactory.h"
 #include "CandidateMthdFreq.h"
+#include "Option.h"
 
 using namespace std;
 
-StrategySample::StrategySample()
+const std::string StrategySample::name("sample");
+const std::string StrategySample::usage(
+	"Select the common frequent motifs in sampled dataset.\n"
+	"  " + StrategySample::name + " <sample ratio> <# of result> <occurence ratio>\n"
+	"<OC>: used to refine the motifs among subjects");
+
+bool StrategySample::parse(const std::vector<std::string>& param)
 {
+	try {
+		checkParam(param, 3, name);
+		pSample = stod(param[1]);
+		k = stoi(param[2]);
+		pRefine = stod(param[3]);
+		if(pSample <= 0.0 || pSample > 1.0)
+			throw invalid_argument("<sample ratio> should be in range (0.0, 1.0]");
+	} catch(exception& e) {
+		cerr << e.what() << endl;
+		return false;
+	}
+	return true;
 }
 
-std::vector<std::tuple<Motif, double, double>> StrategySample::search(
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg,
-	const int smin, const int smax, const std::string& searchMethodyName, const CandidateMethodParam& par,
-	const int k, const double pRefine)
+
+
+std::vector<Motif> StrategySample::search(const Option& opt,
+	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
-	if(gPos.size() == 0 || gPos.front().size() == 0
-		|| gNeg.size() == 0 || gNeg.front().size() == 0)
-		return std::vector<std::tuple<Motif, double, double>>();
+	if(checkInput(gPos, gNeg))
+		return std::vector<Motif>();
 
 	cout << "Phase 1 (sameple some sparse graphs):" << endl;
-	vector<int> sampled = sampleGraphs(gPos, 0.5);
+	vector<int> sampled = sampleGraphs(gPos);
 	sort(sampled.begin(), sampled.end());
 	cout << sampled.size() << " graphs are sampled" << endl;
 
 	cout << "Phase 2 (find positive on sampled):" << endl;
-	CandidateMethod* method = CandidateMethodFactory::generate(searchMethodyName);
+	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
+
 	vector<vector<pair<Motif, double> > > phase2;
 	for(size_t i = 0; i < sampled.size(); ++i) {
 		chrono::system_clock::time_point _time = chrono::system_clock::now();
-		phase2.push_back(candidateFromOne(gPos[sampled[i]], smin, smax, method, par));
+		phase2.push_back(candidateFromOne(method, gPos[sampled[i]]));
 		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
 			chrono::system_clock::now() - _time).count();
 		cout << "  On individual " << sampled[i] << " found " << phase2[i].size()
@@ -42,7 +61,7 @@ std::vector<std::tuple<Motif, double, double>> StrategySample::search(
 	cout << phase3.size() << " motifs after refinement." << endl;
 
 	cout << "Phase 3' (refine on all positive):" << endl;
-	double pMin = static_cast<const CandidateMthdFreqParm&>(par).pMin;
+//	double pMin = static_cast<const CandidateMthdFreqParm&>(par).pMin;
 //	phase3 = checkMotifOnAll(phase3, gPos, sampled, pMin, pRefine);
 	cout << phase3.size() << " motifs after refinement." << endl;
 
@@ -66,14 +85,20 @@ std::vector<std::tuple<Motif, double, double>> StrategySample::search(
 	phase3.clear();
 	cout << phase4.size() << " motifs after removal of negative frequent ones." << endl;
 
-	return phase4;
+//	return phase4;
+
+	vector<Motif> res;
+	for(auto& tp : phase4) {
+		res.push_back(move(get<0>(tp)));
+	}
+	return res;
 }
 
-std::vector<int> StrategySample::sampleGraphs(const std::vector<std::vector<Graph>>& gs, const double por)
+std::vector<int> StrategySample::sampleGraphs(const std::vector<std::vector<Graph>>& gs)
 {
 	vector<double> density(gs.size());
 	vector<int> offset(gs.size());
-	size_t nRes = static_cast<size_t>(por*gs.size());
+	size_t nRes = static_cast<size_t>(pSample*gs.size());
 	int nNode = gs.front().front().nEdge;
 	for(size_t i = 0; i < gs.size(); ++i) {
 		int nEdge = 0;
@@ -91,10 +116,9 @@ std::vector<int> StrategySample::sampleGraphs(const std::vector<std::vector<Grap
 }
 
 std::vector<std::pair<Motif, double>> StrategySample::candidateFromOne(
-	const std::vector<Graph>& gs, int smin, int smax,
-	CandidateMethod * method, const CandidateMethodParam & par)
+	CandidateMethod * method, const std::vector<Graph>& gs)
 {
-	return method->getCandidantMotifs(gs, smin, smax, par);
+	return method->getCandidantMotifs(gs);
 }
 
 std::vector<std::tuple<Motif, double, double>> StrategySample::refineByAll(
@@ -136,7 +160,7 @@ std::vector<std::tuple<Motif, double, double>> StrategySample::refineByAll(
 std::vector<std::tuple<Motif, double, double>> StrategySample::checkMotifOnAll(
 	std::vector<std::tuple<Motif, double, double>>& motifs,
 	const std::vector<std::vector<Graph>> & gs, const std::vector<int>& sampled,
-	const double pMin, const double pRef)
+	const double pMin)
 {
 	vector<tuple<Motif, double, double>> res;
 	for(std::tuple<Motif, double, double>& t : motifs) {
@@ -159,7 +183,7 @@ std::vector<std::tuple<Motif, double, double>> StrategySample::checkMotifOnAll(
 		//double pMotif = (cnt + get<1>(t) * sampled.size()) / gs.size();
 		double pMotif = static_cast<double>(cnt) / gs.size();
 		get<1>(t) = pMotif;
-		if(pMotif > pRef) {
+		if(pMotif > pRefine) {
 			res.push_back(move(t));
 		}
 	}
