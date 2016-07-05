@@ -14,40 +14,74 @@ class CandidateMthdFreq :
 {
 	int nNode; // size of original graph
 	int smin, smax;// size of motif [smin, smax]
+	double pMin; // minimum accept prob. of a motif on the graphs of a subject
 	
 	const CandidateMthdFreqParm* par;
+
+	const std::vector<Graph>* gs;
+	GraphProb gp;
 public:
 	static const std::string name;
+	static const std::string usage;
+
 	CandidateMthdFreq();
 
+	virtual bool parse(const std::vector<std::string>& param);
+
 	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs,
-		const int smin, const int smax, const CandidateMethodParm& par);
+		const int smin, const int smax, const CandidateMethodParam& par);
+
+	virtual std::vector<std::pair<Motif, double>> getCandidantMotifs(const std::vector<Graph> & gs);
+
 private:
-	// enumerate
-	std::vector<std::pair<Motif, double>> dfsMotif0(
+	void setMotifSize(const int smin=1, const int smax=std::numeric_limits<int>::max());
+	void setParam(const CandidateMethodParam& par);
+	void setGraphSet(const std::vector<Graph>& gs);
+private:
+	// enumerate edge-dfs
+	std::vector<std::pair<Motif, double>> method_enum1();
+	std::vector<std::pair<Motif, double>> _enum1(
 		const unsigned p, const std::pair<Motif, double>& curr,
-		const std::vector<Graph>& gs, const GraphProb& gp, const std::vector<Edge>& edges);
+		const std::vector<Edge>& edges);
 
-	void dfsMotif1(std::vector<std::pair<Motif, double>>& mps, const int expNode,
-		const std::vector<Graph>& gs, const CandidateMthdFreqParm& par, const GraphProb& gp);
-	void dfsMotif2(std::vector<std::pair<Motif, double>>& res,
-		const std::pair<Motif, double>& curr, const int expNode,
-		const std::vector<Graph>& gs, const GraphProb& gp);
-	void dfsMotif3(std::vector<std::pair<Motif, double>>& closed,
+	// enumerate mask by node
+	std::vector<std::pair<Motif, double>> method_enum2();
+	std::vector<std::pair<Motif, double>> _enum2(
+		const unsigned p, const std::pair<Motif, double>& curr,
+		std::vector<bool>& used);
+
+	// expand node (all possible edge combination each attempt)
+	std::vector<std::pair<Motif, double>> method_node2_layer();
+	void _node2_layer(std::vector<std::pair<Motif, double>>& res,
+		const std::pair<Motif, double>& curr, const int expNode);
+	
+	// expand node (3 type)
+	std::vector<std::pair<Motif, double>> method_node3();
+	void _node3(std::vector<std::pair<Motif, double>>& closed,
 		std::vector<std::pair<Motif, double>>& open,
-		const std::pair<Motif, double>& curr, const int expNode,
-		const std::vector<Graph>& gs, const GraphProb& gp);
+		const std::pair<Motif, double>& curr, const int expNode);
 
-	std::vector<std::pair<Motif, double>> dfsMotif4(
-		const std::pair<Motif, double>& curr, const int expNode,
-		const std::vector<Graph>& gs, const GraphProb& gp);
-	std::vector<std::pair<Motif, double>> dfsMotif5(
-		const std::pair<Motif, double>& curr, const int expNode,
-		const std::vector<Graph>& gs, const GraphProb& gp);
+	// expand node (one edge each attempt)
+	std::vector<std::pair<Motif, double>> method_node4();
+	std::vector<std::pair<Motif, double>> _node4(
+		const std::pair<Motif, double>& curr, const int expNode);
+
+	// expand by edge (add one edge to last layer in the subgraph tree)
+	std::vector<std::pair<Motif, double>> method_edge1_bfs();
+	std::vector<std::pair<Motif, double>> _edge1_bfs(
+		const std::vector<std::pair<Motif, double>>& last, const std::vector<Edge>& edges);
+
+	// expand by edge (add one edge to found set)
+	std::vector<std::pair<Motif, double>> method_edge2_dp();
+	std::vector<std::pair<Motif, double>> _edge2_dp(
+		const std::vector<std::pair<Motif, double>>& last, const Edge& e);
+
+private:
+	std::vector<Edge> getEdges(const GraphProb& gp);
 };
 
 struct CandidateMthdFreqParm :
-	public CandidateMethodParm
+	public CandidateMethodParam
 {
 	double pMin;
 	std::function<bool(double, double)> op_freq = std::less<double>();

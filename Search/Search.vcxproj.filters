@@ -9,12 +9,14 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Strategies">
       <UniqueIdentifier>{109a830d-cd50-4292-ad0d-47df5e4044e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Method">
+      <UniqueIdentifier>{31cab0ca-8939-4e44-a6e7-cf941d6a3980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Method\Source">
+      <UniqueIdentifier>{951be530-4fcd-4483-bcf6-a3c63f421cf6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,29 +35,38 @@
     <ClInclude Include="Motif.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CandidateMethodFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateMethod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateMthdFreq.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyCandidate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyCandidatePN.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateMthdInfreq.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Subject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IOfunctions.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyCandidate.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyCandidatePN.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMethod.h">
+      <Filter>Method</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMethodFactory.h">
+      <Filter>Method</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMthdFreq.h">
+      <Filter>Method</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategySample.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComplexParamBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyFactory.h">
+      <Filter>Strategies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -77,29 +88,47 @@
     <ClCompile Include="Motif.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CandidateMethodFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMethod.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMthdFreq.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyCandidate.cpp">
+    <ClCompile Include="IOfunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyCandidatePN.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Strategies</Filter>
     </ClCompile>
-    <ClCompile Include="CandidateMthdInfreq.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="StrategyCandidate.cpp">
+      <Filter>Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMethod.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMethodFactory.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreq.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreq-enum.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreq-node.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreq-edge.cpp">
+      <Filter>Method\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategySample.cpp">
+      <Filter>Strategies</Filter>
     </ClCompile>
     <ClCompile Include="Subject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IOfunctions.cpp">
+    <ClCompile Include="StrategyBase.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComplexParamBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFactory.cpp">
+      <Filter>Strategies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

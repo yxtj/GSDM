@@ -40,6 +40,9 @@
     <ClCompile Include="TCCutterParam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoaderABIDE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Corr2Graph.h">
@@ -79,6 +82,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TCCutterParam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderABIDE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

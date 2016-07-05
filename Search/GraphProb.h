@@ -17,8 +17,9 @@ public:
 	GraphProb(const std::vector<Graph>& gs);
 	
 public:
-	void mergeWith(const std::vector<Graph>& gs);
+	void init(const std::vector<Graph>& gs);
 	bool merge(const GraphProb& g);
+	bool merge(const std::vector<Graph>& gs);
 
 	// a set of iterative accumulative calculation functions
 	void startAccum(const int nNode);
@@ -27,5 +28,6 @@ public:
 
 private:
 	void initMatrix();
+	void countEdges();
 };
 

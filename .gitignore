@@ -244,5 +244,10 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 
+# linux temporary files
+*.o
+*.so
+*.a
+
 # data folder
 [dD]ata*/

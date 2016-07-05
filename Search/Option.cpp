@@ -1,20 +1,13 @@
 #include "stdafx.h"
 #include "Option.h"
+#include "StrategyFactory.h"
+#include "CandidateMethodFactory.h"
 
 using namespace std;
 
 Option::Option()
+	:desc("Options")
 {
-}
-
-
-Option::~Option()
-{
-}
-
-bool Option::parseInt(int argc, char * argv[])
-{
-	boost::program_options::options_description desc("Options");
 	using boost::program_options::value;
 	desc.add_options()
 		("help", "Print help messages")
@@ -25,16 +18,37 @@ bool Option::parseInt(int argc, char * argv[])
 		("npm", value<int>(&nPosMtf)->default_value(10), "[integer] number of positive motifs")
 		("nnm", value<int>(&nNegMtf)->default_value(10), "[integer] number of negative motifs")
 		("ns", value<int>(&nSnapshot)->default_value(10), "[integer] number of snapshots, non-positive means load all")
-		("smmin", value<int>(&sMotifMin)->default_value(2), "[integer] minimum size of a motif")
-		("smmax", value<int>(&sMotifMax)->default_value(2), "[integer] maximum size of a motif")
-		("n", value<int>(&nNode)->default_value(77), "size of each graph")
-		("strategy", value<string>(&stgName)->default_value(string("Freq")), "name of the searching strategy")
-		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
-			"a motif as existed on a individual (num over snapshot)")
-		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
-			"a motif as existed all on individual (num over individual)")
+		("n", value<int>(&nNode)->default_value(-1), "size of each graph")
+//		("smmin", value<int>(&sMotifMin)->default_value(2), "[integer] minimum size of a motif")
+//		("smmax", value<int>(&sMotifMax)->default_value(2), "[integer] maximum size of a motif")
+//		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
+//			"a motif as existed on a individual (num over snapshot)")
+		(CandidateMethodFactory::getOptName().c_str(), value<vector<string>>(&mtdParam)->multitoken(), CandidateMethodFactory::getUsage().c_str())
+//		("strategy", value<string>(&stgName)->default_value(string("Freq")), "name of the searching strategy")
+//		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
+//			"a motif as existed all on individual (num over individual)")
+		(StrategyFactory::getOptName().c_str(), value<vector<string>>(&stgParam)->multitoken(), StrategyFactory::getUsage().c_str())
 		("topk", value<int>(&topK)->default_value(10), "number of returned results");
 
+}
+
+
+Option::~Option()
+{
+}
+
+boost::program_options::options_description & Option::getDesc()
+{
+	return desc;
+}
+
+void Option::addParser(std::function<bool()>& fun)
+{
+	paramParser.push_back(move(fun));
+}
+
+bool Option::parseInput(int argc, char * argv[])
+{
 	//parse
 	bool flag_help = false;
 	try {
@@ -49,10 +63,29 @@ bool Option::parseInt(int argc, char * argv[])
 		if(!subFolderGraph.empty() && subFolderGraph.back() != '/') {
 			subFolderGraph.push_back('/');
 		}
+		do {
+			if(var_map.count("help")) {
+				flag_help = true;
+				break;
+			}
+			if(nNode <= 0) {
+				throw invalid_argument("nNode is not given.");
+			}
 
-		if(var_map.count("help")) {
-			flag_help = true;
-		}
+			for(auto& fun : paramParser) {
+				if(!fun()) {
+					throw invalid_argument("failed in parsing a complex parameter.");
+				}
+			}
+
+			if(stgParam.empty() || !StrategyFactory::isValid(stgParam[0])) {
+				throw invalid_argument("strategy is not given or not supported.");
+			}
+			if(mtdParam.empty() || !CandidateMethodFactory::isValid(mtdParam[0])) {
+				throw invalid_argument("method is not given or not supported.");
+			}
+
+		} while(false);
 
 	} catch(std::exception& excep) {
 		cerr << "error: " << excep.what() << "\n";
@@ -67,4 +100,14 @@ bool Option::parseInt(int argc, char * argv[])
 		return false;
 	}
 	return true;
+}
+
+std::string Option::getStrategyName() const
+{
+	return stgParam[0];
+}
+
+std::string Option::getMethodName() const
+{
+	return mtdParam[0];
 }
