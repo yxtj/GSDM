@@ -12,11 +12,11 @@
 	- test
 
 	```
-		--n=50 --npi=10 --nni=10 --ns=10 --smmin=2 --smmax=2 --pmi=0.4 --pmr=0.7 --topk=20
+		--n=50 --npi=10 --nni=10 --ns=10 --method freq 2 2 0.3 --strategy candidatePN 20 0.7
 	```
 
 	- adhd200
 
 	```
-		--prefix=../data_adhd/ --n=115 --npi=50 --nni=50 --ns=0 --smain=2 --smmax=2 --pmi=0.4 --pmr=0.7 --topk=50
+		--prefix=../data_adhd/ --n=115 --npi=50 --nni=50 --ns=0 --method freq 1 10 0.3 --strategy candidatePN 20 0.3
 	```
