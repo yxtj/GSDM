@@ -40,10 +40,10 @@ vector<vector<Graph> > loadData(const string& pre,const int n, const int m) {
 vector<vector<Graph> > loadData(
 	const string& folder, const string& fprefix, const int nSub, const int nSnap) 
 {
-	size_t limitSub = nSub > 0 ? nSub : numeric_limits<size_t>::max();
-	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
+	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
+	size_t limitSnp= nSnap >= 0 ? nSnap : numeric_limits<size_t>::max();
 	vector<vector<Graph> > res;
-	if(nSub>0)
+	if(nSub >= 0)
 		res.reserve(nSub);
 	unordered_map<decltype(Subject::id), size_t> id2off;
 
