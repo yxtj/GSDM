@@ -57,7 +57,7 @@ std::vector<Motif> StrategyCandidate::search(const Option& opt,
 
 	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
 	method->parse(opt.mtdParam);
-/*
+	/*
 	vector<vector<pair<Motif, double> > > phase1;
 	cout << "Phase 1 (find positive):" << endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
@@ -72,30 +72,31 @@ std::vector<Motif> StrategyCandidate::search(const Option& opt,
 	delete method;
 
 	cout << "Phase 2 (refine frequent):" << endl;
+	chrono::system_clock::time_point _time = chrono::system_clock::now();
 	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
 
 	vector<Motif> res;
 	for(auto& tp : phase2) {
 		res.push_back(move(get<0>(tp)));
 	}
+	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
+		chrono::system_clock::now() - _time).count();
+	cout << "  refine and pick top " << res.size()
+		<< " motifs within " << _time_ms << " ms" << endl;
+	return res;
+
 */
-	map<Motif, pair<int, double>> phase1;
 	cout << "Phase 1 (find all)" << endl;
-	for(size_t i = 0; i < gPos.size(); ++i) {
-		chrono::system_clock::time_point _time = chrono::system_clock::now();
-		auto vec = method->getCandidantMotifs(gPos[i]);
-		countMotif(phase1, vec);
-		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
-			chrono::system_clock::now() - _time).count();
-		cout << "  On individual " << i << " found " << vec.size()
-			<< " motifs within " << _time_ms << " ms"
-			<< ". All unique motifs: " << phase1.size() << endl;
-	}
+	unordered_map<Motif, pair<int, double>> phase1 = freqOnSet(method, gPos);
 	delete method;
 
-	cout << "Phase 2 (pick top k)" << endl;
+	cout << "Phase 2 (refine & pick top k)" << endl;
+	chrono::system_clock::time_point _time = chrono::system_clock::now();
 	vector<Motif> phase2 = pickTopK(phase1, gPos.size());
+	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - _time).count();
+	cout << "  pick top " << phase2.size() << " motifs within " << _time_ms << " ms" << endl;
 	return phase2;
+
 }
 
 std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(
@@ -104,7 +105,25 @@ std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(
 	return method->getCandidantMotifs(gs);
 }
 
-void StrategyCandidate::countMotif(std::map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
+std::unordered_map<Motif, std::pair<int, double>> StrategyCandidate::freqOnSet(
+	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs)
+{
+	unordered_map<Motif, pair<int, double>> phase1;
+	for(size_t i = 0; i < gs.size(); ++i) {
+		chrono::system_clock::time_point _time = chrono::system_clock::now();
+		auto vec = method->getCandidantMotifs(gs[i]);
+		countMotif(phase1, vec);
+		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
+			chrono::system_clock::now() - _time).count();
+		cout << "  On individual " << i << " found " << vec.size()
+			<< " motifs within " << _time_ms << " ms"
+			<< ". All unique motifs: " << phase1.size() << endl;
+	}
+	return phase1;
+}
+
+void StrategyCandidate::countMotif(
+	std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
 {
 	for(auto& p : vec) {
 		auto& ref = res[p.first];
@@ -114,21 +133,21 @@ void StrategyCandidate::countMotif(std::map<Motif, std::pair<int, double>>& res,
 }
 
 std::vector<Motif> StrategyCandidate::pickTopK(
-	std::map<Motif, std::pair<int, double>>& data, const size_t gsize)
+	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize)
 {
 	vector<pair<int, decltype(data.begin())>> idx;
 	int minOcc = static_cast<int>(ceil(pRefine*gsize));
 	auto it = data.begin();
 	for(size_t i = 0; i < data.size(); ++i, ++it) {
 		if(it->second.first >= minOcc) {
-			//it->second.second /= it->second.first;
+			it->second.second /= it->second.first;
 			idx.emplace_back(i, it);
 		}
 	}
 	sort(idx.begin(), idx.end(),
 		[](const pair<int, decltype(data.begin())>& a, const pair<int, decltype(data.begin())>& b) {
-		return a.first > b.first;
-		//return a.first > b.first || a.first == b.first && a.second->second > b.second->second;
+		return a.first > b.first || a.first == b.first && a.second->second > b.second->second;
+		//return a.first > b.first;
 	});
 	cout << "  valid motif: " << idx.size() << endl;
 
@@ -143,7 +162,8 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
 	const std::vector<std::vector<std::pair<Motif,double>>>& motifs)
 {
 	// count occurrence of each motif
-	map<Motif, pair<int,double>> contGen;
+//	map<Motif, pair<int,double>> contGen;
+	unordered_map<Motif, pair<int, double>> contGen;
 	for(auto it = motifs.begin(); it != motifs.end(); ++it) {
 		for(auto jt = it->begin(); jt != it->end(); ++jt) {
 			contGen[jt->first].first++;
@@ -152,25 +172,18 @@ std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
 	}
 	// sort motifs by occurrence count (remove those occurred too infrequent)
 	const int minFre = static_cast<int>(pRefine*motifs.size());
-	multimap<int, decltype(contGen.begin())> valid;
-	for(auto it = contGen.begin(); it != contGen.end(); ++it) {
-		if(it->second.first > minFre) {
-			valid.emplace(it->second.first, it);
-		}
-	}
-	// generate output
-	const int maxV = max<int>(k, valid.size());
 	double dev = motifs.size();
 	vector<tuple<Motif, double, double>> res;
-	res.reserve(maxV);
-	int count = 0;
-	for(auto it = valid.rbegin(); it != valid.rend(); ++it) {
-		res.emplace_back(move(it->second->first), it->first / dev, it->second->second.second / dev);
-		if(++count >= k)
-			break;
+	for(auto it = contGen.begin(); it != contGen.end(); ++it) {
+		if(it->second.first > minFre) {
+			it->second.second /= it->second.first;
+			res.emplace_back(move(it->first), it->second.first/dev, it->second.second);
+		}
 	}
-	sort(res.begin(), res.end(), [](const tuple<Motif, double, double>& l, const tuple<Motif, double, double>& r) {
-		return get<1>(l) > get<1>(r) ? true : get<1>(l) == get<1>(r) && get<2>(l) > get<2>(r);
+	contGen.clear();
+	sort(res.begin(), res.end(),
+		[](const tuple<Motif, double, double>& a, const tuple<Motif, double, double>& b) {
+		return get<1>(a) > get<1>(b) || get<1>(a) == get<1>(b) && get<2>(a) == get<2>(b);
 	});
 	return res;
 }
