@@ -113,26 +113,29 @@ void StrategyCandidate::countMotif(std::map<Motif, std::pair<int, double>>& res,
 	}
 }
 
-std::vector<Motif> StrategyCandidate::pickTopK(std::map<Motif, std::pair<int, double>>& data, const size_t gsize)
+std::vector<Motif> StrategyCandidate::pickTopK(
+	std::map<Motif, std::pair<int, double>>& data, const size_t gsize)
 {
-	vector<pair<int, decltype(data.begin())>> phase2;
-	{
-		int minOcc = static_cast<int>(ceil(pRefine*gsize));
-		auto it = data.begin();
-		for(size_t i = 0; i < data.size(); ++i, ++it) {
-			if(it->second.first >= minOcc)
-				phase2.emplace_back(i, it);
+	vector<pair<int, decltype(data.begin())>> idx;
+	int minOcc = static_cast<int>(ceil(pRefine*gsize));
+	auto it = data.begin();
+	for(size_t i = 0; i < data.size(); ++i, ++it) {
+		if(it->second.first >= minOcc) {
+			//it->second.second /= it->second.first;
+			idx.emplace_back(i, it);
 		}
-		sort(phase2.begin(), phase2.end(),
-			[](const pair<int, decltype(data.begin())>& a, const pair<int, decltype(data.begin())>& b) {
-			return a.first > b.first;
-		});
 	}
-	cout << "  valid motif: " << phase2.size() << endl;
+	sort(idx.begin(), idx.end(),
+		[](const pair<int, decltype(data.begin())>& a, const pair<int, decltype(data.begin())>& b) {
+		return a.first > b.first;
+		//return a.first > b.first || a.first == b.first && a.second->second > b.second->second;
+	});
+	cout << "  valid motif: " << idx.size() << endl;
 
 	vector<Motif> res;
-	for(int i = 0; i < k; ++i)
-		res.push_back(move(phase2[i].second->first));
+	size_t end = min(static_cast<size_t>(k), idx.size());
+	for(size_t i = 0; i < end; ++i)
+		res.push_back(move(idx[i].second->first));
 	return res;
 }
 
