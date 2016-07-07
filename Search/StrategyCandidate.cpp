@@ -57,7 +57,7 @@ std::vector<Motif> StrategyCandidate::search(const Option& opt,
 
 	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
 	method->parse(opt.mtdParam);
-
+/*
 	vector<vector<pair<Motif, double> > > phase1;
 	cout << "Phase 1 (find positive):" << endl;
 	for(size_t i = 0; i < gPos.size(); ++i) {
@@ -78,14 +78,62 @@ std::vector<Motif> StrategyCandidate::search(const Option& opt,
 	for(auto& tp : phase2) {
 		res.push_back(move(get<0>(tp)));
 	}
-	return res;
+*/
+	map<Motif, pair<int, double>> phase1;
+	cout << "Phase 1 (find all)" << endl;
+	for(size_t i = 0; i < gPos.size(); ++i) {
+		chrono::system_clock::time_point _time = chrono::system_clock::now();
+		auto vec = method->getCandidantMotifs(gPos[i]);
+		countMotif(phase1, vec);
+		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
+			chrono::system_clock::now() - _time).count();
+		cout << "  On individual " << i << " found " << vec.size()
+			<< " motifs within " << _time_ms << " ms"
+			<< ". All unique motifs: " << phase1.size() << endl;
+	}
+	delete method;
 
+	cout << "Phase 2 (pick top k)" << endl;
+	vector<Motif> phase2 = pickTopK(phase1, gPos.size());
+	return phase2;
 }
 
 std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(
 	CandidateMethod* method, const std::vector<Graph> & gs)
 {
 	return method->getCandidantMotifs(gs);
+}
+
+void StrategyCandidate::countMotif(std::map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
+{
+	for(auto& p : vec) {
+		auto& ref = res[p.first];
+		ref.first++;
+		ref.second += p.second;
+	}
+}
+
+std::vector<Motif> StrategyCandidate::pickTopK(std::map<Motif, std::pair<int, double>>& data, const size_t gsize)
+{
+	vector<pair<int, decltype(data.begin())>> phase2;
+	{
+		int minOcc = static_cast<int>(ceil(pRefine*gsize));
+		auto it = data.begin();
+		for(size_t i = 0; i < data.size(); ++i, ++it) {
+			if(it->second.first >= minOcc)
+				phase2.emplace_back(i, it);
+		}
+		sort(phase2.begin(), phase2.end(),
+			[](const pair<int, decltype(data.begin())>& a, const pair<int, decltype(data.begin())>& b) {
+			return a.first > b.first;
+		});
+	}
+	cout << "  valid motif: " << phase2.size() << endl;
+
+	vector<Motif> res;
+	for(int i = 0; i < k; ++i)
+		res.push_back(move(phase2[i].second->first));
+	return res;
 }
 
 std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
