@@ -8,8 +8,8 @@ using namespace std;
 const std::string StrategyCandidate::name("candidate");
 const std::string StrategyCandidate::usage(
 	"Select the common frequent motifs as result.\n"
-	"  " + StrategyCandidate::name + " <# of result> <occurence ratio>\n"
-	"<OC>: used to refine the motifs among subjects");
+	"Usage: " + StrategyCandidate::name + " <# of result> <occurence ratio>\n"
+	"  <OC>: used to refine the motifs among subjects");
 
 bool StrategyCandidate::parse(const std::vector<std::string>& param)
 {

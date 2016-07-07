@@ -178,7 +178,6 @@ int main(int argc, char* argv[])
 //		<< "Strategy name: " << opt.stgName << "\n"
 		<< "Strategy parameters: " << opt.stgParam << "\n"
 		<< "Searching method pararmeters: " << opt.mtdParam << "\n"
-		<< "Top K: " << opt.topK << "\n"
 		<< endl;
 
 //	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);

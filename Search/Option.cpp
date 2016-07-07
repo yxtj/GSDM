@@ -24,7 +24,6 @@ Option::Option()
 //		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
 //			"a motif as existed on a individual (num over snapshot)")
 		(CandidateMethodFactory::optName.c_str(), value<vector<string>>(&mtdParam)->multitoken(), CandidateMethodFactory::getUsage().c_str())
-//		("strategy", value<string>(&stgName)->default_value(string("Freq")), "name of the searching strategy")
 //		("topk", value<int>(&topK)->default_value(10), "number of returned results")
 //		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
 //			"a motif as existed all on individual (num over individual)")

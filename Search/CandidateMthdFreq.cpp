@@ -8,8 +8,8 @@ using namespace std;
 const std::string CandidateMthdFreq::name("freq");
 const std::string CandidateMthdFreq::usage(
 	"Find the frequent motifs with given size.\n"
-	"  " + CandidateMthdFreq::name + " <min size> <max size> <min prob.>\n"
-	"<min prob.>: the frequency threshold for accepted motifs");
+	"Usage: " + CandidateMthdFreq::name + " <min size> <max size> <min prob.>\n"
+	"  <min prob.>: the frequency threshold for accepted motifs");
 
 CandidateMthdFreq::CandidateMthdFreq()
 {

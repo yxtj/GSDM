@@ -9,8 +9,8 @@ using namespace std;
 const std::string StrategySample::name("sample");
 const std::string StrategySample::usage(
 	"Select the common frequent motifs in sampled dataset.\n"
-	"  " + StrategySample::name + " <sample ratio> <# of result> <occurence ratio>\n"
-	"<OC>: used to refine the motifs among subjects");
+	"Usage: " + StrategySample::name + " <sample ratio> <# of result> <occurence ratio>\n"
+	"  <OC>: used to refine the motifs among subjects");
 
 bool StrategySample::parse(const std::vector<std::string>& param)
 {

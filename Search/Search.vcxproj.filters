@@ -18,6 +18,9 @@
     <Filter Include="Method\Source">
       <UniqueIdentifier>{951be530-4fcd-4483-bcf6-a3c63f421cf6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Strategies\Source">
+      <UniqueIdentifier>{72e1f70d-7819-41de-b646-442980977487}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -94,9 +97,6 @@
     <ClCompile Include="IOfunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyCandidate.cpp">
-      <Filter>Strategies</Filter>
-    </ClCompile>
     <ClCompile Include="CandidateMethod.cpp">
       <Filter>Method\Source</Filter>
     </ClCompile>
@@ -115,23 +115,26 @@
     <ClCompile Include="CandidateMthdFreq-edge.cpp">
       <Filter>Method\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategySample.cpp">
-      <Filter>Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFactory.cpp">
-      <Filter>Strategies</Filter>
-    </ClCompile>
     <ClCompile Include="FactoryProductTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyBase.cpp">
-      <Filter>Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyCandidatePN.cpp">
-      <Filter>Strategies</Filter>
-    </ClCompile>
     <ClCompile Include="Subject.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyBase.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyCandidate.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyCandidatePN.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFactory.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategySample.cpp">
+      <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

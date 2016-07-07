@@ -9,8 +9,8 @@ using namespace std;
 const std::string StrategyCandidatePN::name("candidatePN");
 const std::string StrategyCandidatePN::usage(
 	"Select the common frequent motifs as result.\n"
-	"  " + StrategyCandidatePN::name + " <# of result> <occurence ratio>\n"
-	"<OC>: used to refine the motifs among subjects");
+	"Usage: " + StrategyCandidatePN::name + " <# of result> <occurence ratio>\n"
+	"  <OC>: used to refine the motifs among subjects");
 
 bool StrategyCandidatePN::parse(const std::vector<std::string>& param)
 {
@@ -51,7 +51,7 @@ std::vector<Motif> StrategyCandidatePN::search(const Option& opt,
 	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
 	cout << phase2.size() << " motifs after refinement." << endl;
 
-	ofstream fout("graph.txt");
+	ofstream fout(opt.prefix + "graph.txt");
 	for(auto& tp : phase2) {
 		Motif& m = get<0>(tp);
 		fout << m.getnNode() << "\t" << m.getnEdge() << "\t"
