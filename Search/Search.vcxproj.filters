@@ -121,9 +121,6 @@
     <ClCompile Include="StrategyFactory.cpp">
       <Filter>Strategies</Filter>
     </ClCompile>
-    <ClCompile Include="FactoryTemplate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FactoryProductTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

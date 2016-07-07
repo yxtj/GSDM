@@ -4,9 +4,11 @@
 #include <string>
 
 class StrategyFactory
-	: public FactoryTemplate
+	: public FactoryTemplate<StrategyBase>
 {
 public:
+	using parent_t = FactoryTemplate<StrategyBase>;
+
 	static void init();
 
 	static StrategyBase* generate(const std::string& name);

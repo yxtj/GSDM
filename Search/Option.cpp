@@ -23,13 +23,13 @@ Option::Option()
 //		("smmax", value<int>(&sMotifMax)->default_value(2), "[integer] maximum size of a motif")
 //		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
 //			"a motif as existed on a individual (num over snapshot)")
-		(CandidateMethodFactory::getOptName().c_str(), value<vector<string>>(&mtdParam)->multitoken(), CandidateMethodFactory::getUsage().c_str())
+		(CandidateMethodFactory::optName.c_str(), value<vector<string>>(&mtdParam)->multitoken(), CandidateMethodFactory::getUsage().c_str())
 //		("strategy", value<string>(&stgName)->default_value(string("Freq")), "name of the searching strategy")
+//		("topk", value<int>(&topK)->default_value(10), "number of returned results")
 //		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
 //			"a motif as existed all on individual (num over individual)")
-		(StrategyFactory::getOptName().c_str(), value<vector<string>>(&stgParam)->multitoken(), StrategyFactory::getUsage().c_str())
-		("topk", value<int>(&topK)->default_value(10), "number of returned results");
-
+		(StrategyFactory::optName.c_str(), value<vector<string>>(&stgParam)->multitoken(), StrategyFactory::getUsage().c_str())
+		;
 }
 
 

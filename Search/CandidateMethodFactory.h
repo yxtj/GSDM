@@ -1,5 +1,6 @@
 #pragma once
 #include "CandidateMethod.h"
+//#include "FactoryTemplate.h"
 #include "FactoryTemplate.h"
 #include <string>
 
@@ -11,9 +12,11 @@
 /************************************************************************/ 
 
 class CandidateMethodFactory
-	: public FactoryTemplate
+	: public FactoryTemplate<CandidateMethod>
 {
 public:
+	using parent_t = FactoryTemplate<CandidateMethod>;
+
 	static void init();
 
 	static CandidateMethod* generate(const std::string& name);
