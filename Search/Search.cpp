@@ -41,9 +41,9 @@ vector<vector<Graph> > loadData(
 	const string& folder, const string& fprefix, const int nSub, const int nSnap) 
 {
 	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
-	size_t limitSnp= nSnap >= 0 ? nSnap : numeric_limits<size_t>::max();
+	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
 	vector<vector<Graph> > res;
-	if(nSub >= 0)
+	if(nSub > 0)
 		res.reserve(nSub);
 	unordered_map<decltype(Subject::id), size_t> id2off;
 
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 	}
 	cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
 		<< "Nodes: " << opt.nNode << "\n"
-		<< "Data parameters: "
+		<< "Data parameters:\n"
 		<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
 		<< "  # snapshots: " << opt.nSnapshot << "\n"
 		<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
