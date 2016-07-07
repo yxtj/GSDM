@@ -29,6 +29,18 @@ inline bool operator<(const Edge &lth, const Edge &rth) {
 	return lth.s < rth.s ? true : lth.s == rth.s && lth.d < rth.d;
 }
 
+namespace std {
+	template <>
+	struct hash<Edge> {
+		typedef Edge argument_type;
+		typedef std::size_t result_type;
+		result_type operator()(argument_type const& e) const {
+			return hash<int>()(e.s) * 137 + hash<int>()(e.d);
+		}
+	};
+}
+
+
 class Motif
 {
 public:
@@ -83,4 +95,21 @@ inline size_t Motif::size() const
 inline bool Motif::empty() const
 {
 	return edges.empty();
+}
+
+namespace std {
+	template <>
+	struct hash<Motif> {
+		typedef Motif argument_type;
+		typedef std::size_t result_type;
+		result_type operator()(argument_type const& m) const {
+			hash<Edge> fun;
+			size_t res = 0;
+			int cnt = 0;
+			for(auto it = m.edges.begin(); cnt <= 3 && it != m.edges.end(); ++it, ++cnt) {
+				res = res * 107 + fun(*it);
+			}
+			return res;
+		}
+	};
 }
