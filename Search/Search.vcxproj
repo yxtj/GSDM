@@ -165,6 +165,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
     <ClInclude Include="StrategyFactory.h" />
+    <ClInclude Include="StrategyXorFreq.h" />
     <ClInclude Include="StrategySample.h" />
     <ClInclude Include="Subject.h" />
   </ItemGroup>
@@ -192,6 +193,7 @@
     </ClCompile>
     <ClCompile Include="CandidateMthdFreq.cpp" />
     <ClCompile Include="StrategyFactory.cpp" />
+    <ClCompile Include="StrategyXorFreq.cpp" />
     <ClCompile Include="StrategySample.cpp" />
     <ClCompile Include="Subject.cpp" />
   </ItemGroup>

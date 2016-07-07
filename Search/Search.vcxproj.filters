@@ -74,6 +74,9 @@
     <ClInclude Include="StrategyBase.h">
       <Filter>Strategies</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyXorFreq.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -134,6 +137,9 @@
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategySample.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyXorFreq.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>
