@@ -190,7 +190,9 @@ int main(int argc, char* argv[])
 //	test(gPos, gNeg); return 0;
 
 	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
-	strategy->parse(opt.stgParam);
+	if(!strategy->parse(opt.stgParam)) {
+		return 1;
+	}
 	auto out=strategy->search(opt, gPos, gNeg);
 	cout << out.size() << endl;
 	return 0;
