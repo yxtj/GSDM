@@ -14,7 +14,7 @@ TCCutter::TCCutter(tc_t & data, const TCCutterParam& parm)
 	else if("slide" == parm.method)
 		initSlideWindow(parm.nEach, parm.nStep);
 	else {
-		throw invalid_argument("given cutting method is not supported");
+		throw invalid_argument("given cutting method is not given or not supported");
 	}
 	nNode = data.empty() ? 0 : data.front().size();
 }

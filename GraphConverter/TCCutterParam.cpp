@@ -18,7 +18,7 @@ void TCCutterParam::reg(Option & opt)
 bool TCCutterParam::parse()
 {
 	if(param.empty())
-		return false;
+		return true;
 	method = param[0];
 	bool res = false;
 	if(method == "each") {
