@@ -41,7 +41,7 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	method->parse(opt.mtdParam);
 
 	cout << "Phase 1 (find positive):" << endl;
-	unordered_map<Motif, pair<int, double>> phase1 = freqOnSet(method, gPos);
+	unordered_map<Motif, pair<int, double>> phase1 = freqOnSet(method, gPos, opt.blacklist);
 	cout << "  rank " << rank << " motifs found: " << phase1.size() << endl;
 	delete method;
 	
@@ -171,7 +171,7 @@ static vector<Motif> deserializeVM(char *p) {
 }
 
 std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet(
-	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs)
+	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs, const std::vector<int>& blacklist)
 {
 	int rank, size;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -182,6 +182,8 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 	
 	unordered_map<Motif, pair<int, double>> phase1;
 	for(size_t i = start; i < end; ++i) {
+		if(binary_search(blacklist.begin(), blacklist.end(), static_cast<int>(i)))
+			continue;
 		chrono::system_clock::time_point _time = chrono::system_clock::now();
 		auto vec = method->getCandidantMotifs(gs[i]);
 		countMotif(phase1, vec);

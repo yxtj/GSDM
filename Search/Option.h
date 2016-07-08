@@ -16,9 +16,9 @@ public:
 	int nPosMtf, nNegMtf;//number of +/- motifs
 	int nSnapshot;//number of snapshots for each individual
 
+	std::vector<int> blacklist;
+
 	std::string prefix, subFolderGraph;//data folder prefix and graph sub-folder
-
-
 
 public:
 	Option();

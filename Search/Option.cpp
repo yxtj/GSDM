@@ -13,6 +13,7 @@ Option::Option()
 		("help", "Print help messages")
 		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
 		("prefix-graph", value<string>(&subFolderGraph)->default_value(string("graph/")), "[string] the subfolder for graph files")
+		("blacklist", value<vector<int>>(&blacklist)->default_value(vector<int>(),""),"[integer]s of individuals removed")
 		("npi", value<int>(&nPosInd)->default_value(10), "[integer] number of positive individuals (negative means read all)")
 		("nni", value<int>(&nNegInd)->default_value(10), "[integer] number of negative individuals (negative means read all)")
 		("npm", value<int>(&nPosMtf)->default_value(10), "[integer] number of positive motifs")
@@ -85,6 +86,8 @@ bool Option::parseInput(int argc, char * argv[])
 			}
 
 		} while(false);
+
+		sort(blacklist.begin(), blacklist.end());
 
 	} catch(std::exception& excep) {
 		cerr << "error: " << excep.what() << "\n";

@@ -29,7 +29,7 @@ public:
 private:
 
 	std::unordered_map<Motif, std::pair<int, double>> freqOnSet(
-		CandidateMethod* method, const std::vector<std::vector<Graph>>& gPos);
+		CandidateMethod* method, const std::vector<std::vector<Graph>>& gPos, const std::vector<int>& blacklist);
 
 	void countMotif(std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>> &vec);
 
