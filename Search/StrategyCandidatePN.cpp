@@ -9,15 +9,19 @@ using namespace std;
 const std::string StrategyCandidatePN::name("candidatePN");
 const std::string StrategyCandidatePN::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyCandidatePN::name + " <# of result> <occurence ratio>\n"
-	"  <OC>: used to refine the motifs among subjects");
+	"Usage: " + StrategyCandidatePN::name + " <# of result> <ratio Pos.> <acpt Neg.> <ratio Neg.>\n"
+	"  <RP>: minium motif occurence among positive samples\n"
+	"  <AP>: minium show-up ratio among negative snapshots, used to judge occurence or not\n"
+	"  <RN>: maxium motif occurence among negative samples\n");
 
 bool StrategyCandidatePN::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 2, name);
+		checkParam(param, 4, name);
 		k = stoi(param[1]);
 		pRefine = stod(param[2]);
+		pPickNeg = stod(param[3]);
+		pRefineNeg = stod(param[4]);
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -28,30 +32,24 @@ bool StrategyCandidatePN::parse(const std::vector<std::string>& param)
 std::vector<Motif> StrategyCandidatePN::search(const Option& opt,
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
-	if(checkInput(gPos, gNeg))
+	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
 	// initial probability graphs for future usage
 
 	// searching
 	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
+	method->parse(opt.mtdParam);
 
-	vector<vector<pair<Motif, double> > > phase1;
 	cout << "Phase 1 (find positive):" << endl;
-	for(size_t i = 0; i < gPos.size(); ++i) {
-		chrono::system_clock::time_point _time = chrono::system_clock::now();
-		phase1.push_back(candidateFromOne(method, gPos[i]));
-		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
-			chrono::system_clock::now() - _time).count();
-		cout << "  On individual " << i << " found " << phase1[i].size()
-			<< " motifs within " << _time_ms << " ms" << endl;
-	}
+	unordered_map<Motif, pair<int, double>> phase1 = freqOnSet(method, gPos);
 	delete method;
 
 	cout << "Phase 2 (refine frequent):" << endl;
-	vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
+	//vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
+	vector<Motif> phase2 = pickTopK(phase1, gPos.size());
 	cout << phase2.size() << " motifs after refinement." << endl;
 
-	ofstream fout(opt.prefix + "graph.txt");
+/*	ofstream fout(opt.prefix + "graph.txt");
 	for(auto& tp : phase2) {
 		Motif& m = get<0>(tp);
 		fout << m.getnNode() << "\t" << m.getnEdge() << "\t"
@@ -62,61 +60,25 @@ std::vector<Motif> StrategyCandidatePN::search(const Option& opt,
 		}
 		fout << "\n";
 	}
-	fout.close();
+	fout.close();*/
 
-	cout << "Phase 3 (filter by negative infrequent):" << endl;
-	double disScore = 0.5; // (x/(x+y)>disScore
-	//double pMax = static_cast<const CandidateMthdFreqParm&>(par).pMin * (1.0 / disScore - 1);
-	double pMax = 0.5;
-	vector<tuple<Motif, double, double>> phase3 = filterByNegative(phase2, pMax, gNeg);
+	cout << "Phase 3 (filter out negative frequent ones):" << endl;
+	vector<Motif> phase3 = filterByNegative(phase2, gNeg);
+	phase2.clear();
 	cout << phase3.size() << " motifs after removal of negative frequent ones." << endl;
 
-	vector<Motif> res;
-	for(auto& tp : phase3) {
-		res.push_back(move(get<0>(tp)));
+	cout << "Phase 4 (pick top k):" << endl;
+	vector<Motif> phase4;
+	if(phase3.size() <= static_cast<size_t>(k)) {
+		phase4 = move(phase3);
+	} else {
+		for(int i = 0; i < k; ++i) {
+			phase4.push_back(move(phase3[i]));
+		}
 	}
 
-	return res;
-
-	// search negative
-/*
-// 	double pDis = 0.8;
-// 	double pX = static_cast<const StrategyInfreqPara&>(par).pMin;
-// 	StrategyInfreqPara* parNeg = new StrategyInfreqPara();
-// 	parNeg->pMin = pX / pDis - pX;
-// 
-// 	SearchStrategy* strategyN = SearchStrategyFactory::generate("Infreq");
-// 	vector<vector<pair<Motif, double> > > phase3;
-// 	cout << "Phase 3 (find negative):" << endl;
-// 	for(size_t i = 0; i < gNeg.size(); ++i) {
-// 		phase3.push_back(candidateFromOne(gNeg[i], smin, smax, strategyN, *parNeg));
-// 		cout << "  On individual " << i << " found " << phase3[i].size() << " motifs." << endl;
-// 	}
-// 	delete strategyN;
-// 	delete parNeg;
-// 
-// 	cout << "Phase 4 (refine infrequent):" << endl;
-// 	vector<tuple<Motif, double, double>> phase4 = refineByAll(phase3, k, pRefine);
-// 
-// 	// remove negative from positive
-// 	vector<tuple<Motif, double, double>> phase5;
-// 	for(const auto& tpos : phase2) {
-// 		bool useful = true;
-// 		for(const auto& tneg : phase4) {
-// 			if(get<0>(tpos) == get<0>(tneg)) {
-// 				useful = false;
-// 				break;
-// 			}
-// 		}
-// 		if(useful)
-// 			phase5.push_back(tpos);
-// 	}
-
-	return phase5;
-*/
-
+	return phase4;
 }
-
 
 std::vector<std::pair<Motif, double>> StrategyCandidatePN::candidateFromOne(
 	CandidateMethod* method, const std::vector<Graph> & gs)
@@ -124,55 +86,74 @@ std::vector<std::pair<Motif, double>> StrategyCandidatePN::candidateFromOne(
 	return method->getCandidantMotifs(gs);
 }
 
-std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::refineByAll(
-	std::vector<std::vector<std::pair<Motif, double>>>& motifs)
+std::unordered_map<Motif, std::pair<int, double>> StrategyCandidatePN::freqOnSet(
+	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs)
 {
-	// count occurrence of each motif
-	map<Motif, pair<int, double>> contGen;
-	for(auto it = motifs.begin(); it != motifs.end(); ++it) {
-		for(auto jt = it->begin(); jt != it->end(); ++jt) {
-			contGen[jt->first].first++;
-			contGen[jt->first].second += jt->second;
+	unordered_map<Motif, pair<int, double>> phase1;
+	for(size_t i = 0; i < gs.size(); ++i) {
+		chrono::system_clock::time_point _time = chrono::system_clock::now();
+		auto vec = method->getCandidantMotifs(gs[i]);
+		countMotif(phase1, vec);
+		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
+			chrono::system_clock::now() - _time).count();
+		cout << "  On individual " << i << " found " << vec.size()
+			<< " motifs within " << _time_ms << " ms"
+			<< ". All unique motifs: " << phase1.size() << endl;
+	}
+	return phase1;
+}
+
+void StrategyCandidatePN::countMotif(
+	std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
+{
+	for(auto& p : vec) {
+		auto& ref = res[p.first];
+		ref.first++;
+		ref.second += p.second;
+	}
+}
+
+std::vector<Motif> StrategyCandidatePN::pickTopK(
+	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize, const int k)
+{
+	vector<pair<int, decltype(data.begin())>> idx;
+	int minOcc = static_cast<int>(ceil(pRefine*gsize));
+	auto it = data.begin();
+	for(size_t i = 0; i < data.size(); ++i, ++it) {
+		if(it->second.first >= minOcc) {
+			it->second.second /= it->second.first;
+			idx.emplace_back(i, it);
 		}
-		it->clear();
 	}
-	// sort motifs by occurrence count (remove those occurred too infrequent)
-	const int minFre = static_cast<int>(pRefine*motifs.size());
-	multimap<int, decltype(contGen.begin())> valid;
-	for(auto it = contGen.begin(); it != contGen.end(); ++it) {
-		if(it->second.first > minFre) {
-			valid.emplace(it->second.first, it);
-		}
-	}
-	// generate output
-	double dev = motifs.size();
-	vector<tuple<Motif, double, double>> res;
-	res.reserve(valid.size());
-	int count = 0;
-	for(auto it = valid.rbegin(); it != valid.rend(); ++it) {
-		res.emplace_back(move(it->second->first), it->first / dev, it->second->second.second / dev);
-	}
-	// sort with <pIndividual, meanPHappen>
-	sort(res.begin(), res.end(), 
-		[](const tuple<Motif, double, double>& l, const tuple<Motif, double, double>& r) {
-			return get<1>(l) > get<1>(r) ? true : get<1>(l) == get<1>(r) && get<2>(l) > get<2>(r);
+	sort(idx.begin(), idx.end(),
+		[](const pair<int, decltype(data.begin())>& a, const pair<int, decltype(data.begin())>& b) {
+		return a.first > b.first || a.first == b.first && a.second->second > b.second->second;
+		//return a.first > b.first;
 	});
+
+	vector<Motif> res;
+	size_t end = min(static_cast<size_t>(k), idx.size());
+	for(size_t i = 0; i < end; ++i)
+		res.push_back(move(idx[i].second->first));
 	return res;
 }
 
-std::vector<std::tuple<Motif, double, double>> StrategyCandidatePN::filterByNegative(
-	const std::vector<std::tuple<Motif, double, double>>& motifs,
-	const double pMax, const std::vector<std::vector<Graph>>& gNeg)
+
+std::vector<Motif> StrategyCandidatePN::filterByNegative(
+	std::vector<Motif>& motifs,
+	const std::vector<std::vector<Graph>>& gNeg)
 {
-	std::vector<std::tuple<Motif, double, double>> res;
-	for(auto &tp : motifs) {
-		double d = 0.0;
+	std::vector<Motif> res;
+	const int acpt = static_cast<int>(ceil(pRefineNeg*gNeg.size()));
+	for(auto &m : motifs) {
+		int cnt = 0;
 		for(auto& line : gNeg) {
-			d += CandidateMethod::probOfMotif(get<0>(tp), line);
+			double d = CandidateMethod::probOfMotif(m, line);
+			if(d >= pPickNeg)
+				++cnt;
 		}
-		d /= gNeg.size();
-		if(d <= pMax)
-			res.push_back(move(tp));
+		if(cnt >= acpt)
+			res.push_back(move(m));
 	}
 	return res;
 }

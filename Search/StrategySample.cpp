@@ -33,7 +33,7 @@ bool StrategySample::parse(const std::vector<std::string>& param)
 std::vector<Motif> StrategySample::search(const Option& opt,
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
-	if(checkInput(gPos, gNeg))
+	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
 
 	cout << "Phase 1 (sameple some sparse graphs):" << endl;
