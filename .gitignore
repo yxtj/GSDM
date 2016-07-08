@@ -245,9 +245,11 @@ ModelManifest.xml
 .fake/
 
 # linux temporary files
+*.gch
 *.o
 *.so
 *.a
 
 # data folder
 [dD]ata*/
+conf/

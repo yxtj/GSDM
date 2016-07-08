@@ -84,10 +84,10 @@ inline void FactoryTemplate<PRDCT>::registerInOne()
 template<class PRDCT>
 std::string FactoryTemplate<PRDCT>::getUsage()
 {
-	string res = usagePrefix;
+	std::string res = usagePrefix;
 	int cnt = 0;
 	for(const auto& usg : contUsage) {
-		res += "Option " + to_string(++cnt) + ": " + usg.first
+		res += "Option " + std::to_string(++cnt) + ": " + usg.first
 			+ "\n" + usg.second + "\n";
 	}
 	return res;
