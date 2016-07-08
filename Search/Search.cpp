@@ -180,6 +180,8 @@ int main(int argc, char* argv[])
 		<< "Searching method pararmeters: " << opt.mtdParam << "\n"
 		<< endl;
 
+	MPI_Init(&argc, &argv);
+
 //	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
 //	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
 	
@@ -191,29 +193,13 @@ int main(int argc, char* argv[])
 
 	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
 	if(!strategy->parse(opt.stgParam)) {
+		MPI_Finalize();
 		return 1;
 	}
 	auto out=strategy->search(opt, gPos, gNeg);
 	cout << out.size() << endl;
-	return 0;
 
-	/*
-//	cout << "PN mechanism" << endl;
-	StrategyCandidate searcher;
-//	StrategyCandidatePN searcher;
-//	StrategySample searcher;
-	vector<tuple<Motif, double, double>> res = searcher.search(
-		gPos, gNeg, opt.sMotifMin, opt.sMotifMax, opt.stgName, *pssp, opt.topK, opt.pMotifRef);
-
-	cout << "Found " << res.size() << " motifs" << endl;
-
-	{
-		cout << "Output result" << endl;
-		ofstream fout(opt.prefix + "dig-pn.txt");
-		outputFoundMotifs(fout, res);
-	}
-*/
-
+	MPI_Finalize();
 	return 0;
 }
 

@@ -7,6 +7,7 @@
 #include "StrategyCandidatePN.h"
 #include "StrategySample.h"
 #include "StrategyXorFreq.h"
+#include "StrategyParaFreqPmN.h"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ void StrategyFactory::init()
 	registerInOne<StrategyCandidatePN>();
 	registerInOne<StrategySample>();
 	registerInOne<StrategyXorFreq>();
+	registerInOne<StrategyParaFreqPmN>();
 }
 
 StrategyBase * StrategyFactory::generate(const std::string & name)
