@@ -3,40 +3,89 @@ CC ?= gcc
 #CMAKE = cmake
 #TOP = $(shell pwd)
 MAKE := $(MAKE) --no-print-directory
-SRCS1 = $(shell ls *.cpp)
-SRCS = stdafx.cpp Search.cpp Graph.cpp Option.cpp GraphProb.cpp Motif.cpp CandidateMethodFactory.cpp CandidateMethod.cpp CandidateMthdFreq.cpp StrategyCandidate.cpp StrategyCandidatePN.cpp Subject.cpp IOfunctions.cpp
+MPI_COMPILE_FLAGS = $(shell mpic++ --showme:compile)
+MPI_LINK_FLAGS = $(shell mpic++ --showme:link)
+SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
+EXE = Search
 CXXFLAGS = -std=c++11
+INC = 
 ifeq ($(OS),Windows_NT)
-   LIBS = -lboost-program-options -lboost-filesystem -lboost-system
+  LIBS = -lboost-program-options -lboost-filesystem -lboost-system
 else
-	LIBS = -lboost_program_options -lboost_filesystem -lboost_system
+  LIBS = -lboost_program_options -lboost_filesystem -lboost_system
 endif
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
-all: debug Searcher
+#
+# Debug build settings
+#
+DBGDIR = Debug
+DBGEXE = $(DBGDIR)/$(EXE)
+DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
+DBGCFLAGS = -g -O0 -DDEBUG
+
+#
+# Release build settings
+#
+RELDIR = Release
+RELEXE = $(RELDIR)/$(EXE)
+RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
+RELCFLAGS = -O2 -DNDEBUG
+
+#---------------------------------------------------------------------------------
+#DO NOT EDIT BELOW THIS LINE
+#---------------------------------------------------------------------------------
+
+#Defauilt Make
+all: release
+
+#Debug:
+debug: $(DBGEXE)
+	@mkdir -p ../$(DBGDIR)
+	cp $(DBGEXE) ../$(DBGEXE)
 	
+$(DBGEXE): $(DBGOBJS)
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $(LIBS) -o $(DBGEXE) $^
 
-release: 
-	FDR=Release
-	@mkdir -p Release
-	@mkdir -p ../Release
-	$(eval CXXFLAGS += -O2)
+$(DBGDIR)/%.o: %.cpp stdafx.h.gch
+	@mkdir -p $(DBGDIR)
+	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
 
-debug: 
-	FDR=Debug
-	@mkdir -p Debug
-	@mkdir  -p ../Debug
-	$(eval CXXFLAGS += -g)
+#
+# Release rules
+#
+
+release: $(RELEXE)
+	@mkdir -p ../$(RELDIR)
+	cp $(RELEXE) ../$(RELEXE)
+
+$(RELEXE): $(RELOBJS)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $(LIBS) -o $(RELEXE) $^
+
+$(RELDIR)/%.o: %.cpp stdafx.h.gch
+	@mkdir -p $(RELDIR)
+	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(MPI_COMPILE_FLAGS) #(INC) -o $@ $<
+
+#
+# common rules
+#
+
+#Make the Directories
+directories:
+	@mkdir -p $(DBGDIR)
+	@mkdir -p ../$(DBGDIR)
+	@mkdir -p $(RELDIR)
+	@mkdir -p ../$(RELDIR)
+
+stdafx.h.gch: stdafx.h
+	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.h -o stdafx.h.gch
 	
-Searcher: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) $^ -o ../$(FDR)/$@
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $^ -c -o $(FDR)/$@
-
 clean:
-	rm -rf Debug
-	rm -rf Release
+	rm -rf $(DBGDIR)
+	rm -rf $(RELDIR)
+
+#Non-File Targets
+.PHONY: all clean 
