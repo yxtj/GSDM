@@ -15,7 +15,15 @@ For detailed command line usage, please run this program without any parameter o
 If --tcPath is given, the time-course is the input source and --corrPath is an output (if provided).
 If --tcPath is not given, the correlation is the input source.
 
+Example command parameters:
 
+```
+%start from time courses, generate correlation and graph, using sliding windows method and pearson correlation:
+--dataset=ADHD -n 0 --tcPath=~/Data/ADHD200/ADHD200_AAL_TCs_filtfix/KKI --corrPath=../data_adhd/corr --graphPath=../data_adhd/graph-0.7 --cut-method slide 30 12 --corr-method pearson --cthreshold 0.7
+
+%start from correlation, generate graph, using pearson correlation:
+--dataset=ADHD -n 0 --corrPath=../data_adhd/corr --graphPath=../data_adhd/graph-0.7 --cut-method slide 30 12 --corr-method pearson --cthreshold 0.8
+```
 
 - Implementation:
 

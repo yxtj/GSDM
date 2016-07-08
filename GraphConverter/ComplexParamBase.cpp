@@ -12,7 +12,7 @@ void ComplexParamBase::reg(Option & opt, const std::string& name, const std::str
 	using boost::program_options::value;
 	auto& desc = opt.getDesc();
 	desc.add_options()
-		(name.c_str(), value<vector<string>>(&param)->multitoken(), des.c_str());
+		(name.c_str(), value<vector<string>>(&param)->multitoken()->default_value(vector<string>(),""), des.c_str());
 
 	function<bool()> fun = [this]() { return this->parse(); };
 	opt.addParser(fun);
