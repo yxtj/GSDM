@@ -26,6 +26,15 @@ bool LoaderADHD200::checkHeader(const string& line) {
 	return true;
 }
 
+std::string LoaderADHD200::fixSubjectID(std::string id) const
+{
+	if(id.size() >= 7)
+		return id;
+	while(id.size() < 7)
+		id = "0" + id;
+	return id;
+}
+
 std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const int nSubject)
 {
 	string filename(fn);
@@ -63,6 +72,7 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 		int type;
 		tie(valid, sid, type) = parsePhenotypeLine(line);
 		if(valid) {
+			sid = fixSubjectID(sid);
 			res.push_back(Subject{ move(sid), type });
 		}
 		if(res.size() >= limit)
@@ -157,8 +167,8 @@ std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(const std::
 				dx = stoi(line.substr(plast, p - plast));
 			} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
 				string qc_str = line.substr(plast, p - plast);
-				if("\"N/A\"" != qc_str && "N/A" != qc_str)
-					qc = qc && stoi(qc_str) == 1;
+				if(qc && "\"N/A\"" != qc_str && "N/A" != qc_str)
+					qc = qc && !qc_str.empty() && stoi(qc_str) == 1;
 			}
 			plast = p + 1;
 			p = line.find(',', plast);

@@ -23,6 +23,8 @@ public:
 private:
 	static const std::vector<std::string> header;
 	bool checkHeader(const std::string& line);
+	// the folder and file names have 0 in high digits. total # of digits is 7
+	std::string fixSubjectID(std::string id) const;
 	// return <QC passed, scan id, diagnosis result>
 	std::tuple<bool, std::string, int> parsePhenotypeLine(const std::string& line);
 };
