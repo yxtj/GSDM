@@ -3,6 +3,8 @@ CC ?= gcc
 #CMAKE = cmake
 #TOP = $(shell pwd)
 MAKE := $(MAKE) --no-print-directory
+MPI_COMPILE_FLAGS = $(shell mpic++ --showme:compile)
+MPI_LINK_FLAGS = $(shell mpic++ --showme:link)
 SRCS1 = $(shell ls *.cpp)
 SRCS = stdafx.cpp Search.cpp Graph.cpp Option.cpp GraphProb.cpp Motif.cpp CandidateMethodFactory.cpp CandidateMethod.cpp CandidateMthdFreq.cpp StrategyCandidate.cpp StrategyCandidatePN.cpp Subject.cpp IOfunctions.cpp
 HDRS = $(SRCS:.cpp=.h) 
@@ -32,10 +34,13 @@ debug:
 	$(eval CXXFLAGS += -g)
 	
 Searcher: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) $^ -o ../$(FDR)/$@
+	$(CXX) $(CXXFLAGS) $(MPI_LINK_FLAGS) $(OBJS) $(LIBS) $^ -o ../$(FDR)/$@
+
+precomp: stdafx.h
+	$(CXX) -c stdafx.h -o stdafx.h.gch
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $^ -c -o $(FDR)/$@
+	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) $^ -c -o $(FDR)/$@
 
 clean:
 	rm -rf Debug

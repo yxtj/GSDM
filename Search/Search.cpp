@@ -94,6 +94,18 @@ void outputFoundMotifs(ostream& os, const vector<tuple<Motif, double, double>>& 
 	}
 }
 
+
+void outputFoundMotifs(ostream& os, const vector<Motif>& res) {
+	for(const Motif& m : res) {
+		os << m.getnNode() << "\t" << m.getnEdge() << "\t";
+		for(const Edge& e : m.edges) {
+			os << "(" << e.s << "," << e.d << ") ";
+		}
+		os << '\n';
+	}
+}
+
+
 double probOnGS(const vector<vector<Graph>>& gs, const Motif& m)
 {
 	double pp = 0.0;
@@ -181,6 +193,9 @@ int main(int argc, char* argv[])
 		<< endl;
 
 	MPI_Init(&argc, &argv);
+	int rank, size;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 //	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
 //	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
@@ -196,8 +211,11 @@ int main(int argc, char* argv[])
 		MPI_Finalize();
 		return 1;
 	}
-	auto out=strategy->search(opt, gPos, gNeg);
-	cout << out.size() << endl;
+	auto res=strategy->search(opt, gPos, gNeg);
+	cout << res.size() << endl;
+	ofstream fout(opt.prefix + "out-" + to_string(rank) + ".txt");
+	outputFoundMotifs(fout, res);
+	fout.close();
 
 	MPI_Finalize();
 	return 0;

@@ -107,7 +107,7 @@ namespace std {
 			size_t res = 0;
 			int cnt = 0;
 			for(auto it = m.edges.begin(); cnt <= 3 && it != m.edges.end(); ++it, ++cnt) {
-				res = res * 107 + fun(*it);
+				res = res * 23 + fun(*it);
 			}
 			return res;
 		}

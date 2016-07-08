@@ -195,6 +195,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 	char *buf = new char[4096];
 	if(rank == 0) {
 		int cntFinish = 1;
+		cout << "  gathering motifs..." << endl;
 		while(cntFinish != size) {
 			MPI_Status st;
 			MPI_Recv(buf, 4096, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
@@ -225,6 +226,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			cout << "\n";
 		}*/
 	} else {
+		cout << "  sending motifs from " << rank << endl;
 		char *p;
 		auto it = phase1.cbegin();
 		do {
@@ -290,6 +292,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 	char *buf = new char[4096];
 	if(rank == 0) {
 		for(int r = 1; r < size; ++r) {
+			cout << "  sending motifs to " << r << endl;
 			auto it = motifs.cbegin() + start;
 			auto itend = motifs.cbegin() + end;
 			do {
@@ -302,6 +305,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 		motifs.erase(motifs.begin() + end, motifs.end());
 	} else {
 		bool finish = false;
+		cout << "  receiving motifs at " << rank << endl;
 		do {
 			MPI_Status st;
 			MPI_Recv(buf, 4096, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
