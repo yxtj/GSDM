@@ -38,7 +38,7 @@ vector<vector<Graph> > loadData(const string& pre,const int n, const int m) {
 }
 
 vector<vector<Graph> > loadData(
-	const string& folder, const string& fprefix, const int nSub, const int nSnap) 
+	const string& folder, const string& fprefix, const int nSub, const int nSnap)
 {
 	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
 	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
@@ -62,12 +62,12 @@ vector<vector<Graph> > loadData(
 					break;
 				jt = id2off.emplace(sub.id, res.size()).first;
 				res.push_back(vector<Graph>());
-			} 
+			}
 			// going to add new snapshot to existing subject
 			if(res[jt->second].size() >= limitSnp) {
 				continue;
 			}
-			ifstream fin(folder + fn);
+            std::ifstream fin(folder + fn);
 			if(!fin) {
 				cerr << "cannot open file: " << fn << endl;
 			}
@@ -149,7 +149,7 @@ void test(const vector<vector<Graph>>& gPos, const vector<vector<Graph>>& gNeg)
 		double pn = probOnGS(gNeg, m);
 		cout << "prob. pos=" << pp << "\t" << "prob. neg=" << pn << endl;
 	}
-	
+
 }
 
 ostream& operator<<(ostream& os, const vector<string>& param) {
@@ -182,10 +182,10 @@ int main(int argc, char* argv[])
 
 //	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
 //	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
-	
+
 	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, "0-", opt.nPosInd, opt.nSnapshot);
 	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, "1-", opt.nNegInd, opt.nSnapshot);
-	
+
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 
