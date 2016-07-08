@@ -11,7 +11,6 @@ class Option;
 class StrategyParaFreqPmN
 	: public StrategyBase
 {
-	int k;
 	double pRefine;
 	double pPickNeg;
 	double pRefineNeg;
@@ -36,11 +35,6 @@ private:
 
 	std::vector<Motif> pickTopK(std::unordered_map<Motif, std::pair<int, double>>& data,
 		const size_t gsize, const int k = std::numeric_limits<int>::max());
-
-	// pick the top k motifs from given candidate set, where each one with a minimum probability
-	// return <motif, prob. showing up over individuals, mean prob. of happening of single individual>
-	std::vector<std::tuple<Motif, double, double>> refineByAll(
-		std::vector<std::vector<std::pair<Motif, double>>>& motifs);
 
 	std::vector<Motif> filterByNegative(std::vector<Motif>& motifs,
 		const std::vector<std::vector<Graph>>& gNeg);

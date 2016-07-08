@@ -9,7 +9,7 @@ using namespace std;
 const std::string StrategyParaFreqPmN::name("paraPmN");
 const std::string StrategyParaFreqPmN::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyParaFreqPmN::name + " <# of result> <ratio Pos.> <acpt Neg.> <ratio Neg.>\n"
+	"Usage: " + StrategyParaFreqPmN::name + " <ratio Pos.> <acpt Neg.> <ratio Neg.>\n"
 	"  <RP>: minium motif occurence among positive samples\n"
 	"  <AP>: minium show-up ratio among negative snapshots, used to judge occurence or not\n"
 	"  <RN>: maxium motif occurence among negative samples\n");
@@ -17,11 +17,10 @@ const std::string StrategyParaFreqPmN::usage(
 bool StrategyParaFreqPmN::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 4, name);
-		k = stoi(param[1]);
-		pRefine = stod(param[2]);
-		pPickNeg = stod(param[3]);
-		pRefineNeg = stod(param[4]);
+		checkParam(param, 3, name);
+		pRefine = stod(param[1]);
+		pPickNeg = stod(param[2]);
+		pRefineNeg = stod(param[3]);
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -34,7 +33,8 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 {
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
-	// initial probability graphs for future usage
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	// searching
 	CandidateMethod* method = CandidateMethodFactory::generate(opt.getMethodName());
@@ -42,12 +42,17 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 
 	cout << "Phase 1 (find positive):" << endl;
 	unordered_map<Motif, pair<int, double>> phase1 = freqOnSet(method, gPos);
+	cout << "  rank " << rank << " motifs found: " << phase1.size() << endl;
 	delete method;
-
-	cout << "Phase 2 (refine frequent):" << endl;
-	//vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
-	vector<Motif> phase2 = pickTopK(phase1, gPos.size());
-	cout << phase2.size() << " motifs after refinement." << endl;
+	
+	vector<Motif> phase2;
+	if(rank == 0) {
+		cout << "Phase 2 (refine frequent):" << endl;
+		//vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
+		phase2 = pickTopK(phase1, gPos.size());
+		cout << "  " << phase2.size() << " motifs after refinement." << endl;
+	} else {
+	}
 
 	/*	ofstream fout(opt.prefix + "graph.txt");
 	for(auto& tp : phase2) {
@@ -65,19 +70,9 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	cout << "Phase 3 (filter out negative frequent ones):" << endl;
 	vector<Motif> phase3 = filterByNegative(phase2, gNeg);
 	phase2.clear();
-	cout << phase3.size() << " motifs after removal of negative frequent ones." << endl;
+	cout << "  rank " << rank << " motifs after removal: "<< phase3.size() << endl;
 
-	cout << "Phase 4 (pick top k):" << endl;
-	vector<Motif> phase4;
-	if(phase3.size() <= static_cast<size_t>(k)) {
-		phase4 = move(phase3);
-	} else {
-		for(int i = 0; i < k; ++i) {
-			phase4.push_back(move(phase3[i]));
-		}
-	}
-
-	return phase4;
+	return phase3;
 }
 
 // (de)seralizes
@@ -110,6 +105,7 @@ static pair<char*, unordered_map<Motif, pair<int, double>>::const_iterator> seri
 {
 	size_t* numObj = reinterpret_cast<size_t*>(res);
 	res += sizeof(size_t);
+	bufSize -= sizeof(size_t);
 	size_t count = 0;
 	for(; it != itend; ++it) {
 		int n = it->first.getnEdge();
@@ -143,7 +139,7 @@ static unordered_map<Motif, pair<int, double>> deserializeMP(char* p) {
 	return res;
 }
 
-static char* serializeVM(char* res, int bufSize,
+static pair<char*, vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
 	vector<Motif>::const_iterator it, vector<Motif>::const_iterator itend) 
 {
 	size_t* numObj = reinterpret_cast<size_t*>(res);
@@ -151,7 +147,7 @@ static char* serializeVM(char* res, int bufSize,
 	size_t count = 0;
 	for(; it != itend; ++it) {
 		int n = it->getnEdge();
-		int size = sizeof(int) + n * 2 * sizeof(int) + sizeof(int) + sizeof(double);
+		int size = sizeof(int) + n * 2 * sizeof(int);
 		if(size > bufSize)
 			break;
 		res = serialize(res, *it);
@@ -159,7 +155,7 @@ static char* serializeVM(char* res, int bufSize,
 		++count;
 	}
 	*numObj = count;
-	return res;
+	return make_pair(res, it);
 }
 
 static vector<Motif> deserializeVM(char *p) {
@@ -180,7 +176,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 	int rank, size;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	size_t part = (gs.size() + size) / size;
+	size_t part = (gs.size() + size - 1) / size;
 	size_t start = part*rank;
 	size_t end = min(part*(rank + 1), gs.size());
 	
@@ -212,7 +208,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 				}
 			}
 		}
-		auto p = serializeMP(buf, 256, phase1.cbegin(), phase1.cend());
+/*		auto p = serializeMP(buf, 256, phase1.cbegin(), phase1.cend());
 		cout << "bytes used: " << p.first - buf << "\t unit: " << distance(phase1.cbegin(), p.second) << endl;
 		for(auto it = phase1.cbegin(); it != p.second; ++it) {
 			cout<<it->second.first<<" - "<<it->second.second<<"\t" << it->first.getnEdge() << ":";
@@ -227,7 +223,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			for(const Edge& e : it->first.edges)
 				cout << " (" << e.s << "," << e.d << ")";
 			cout << "\n";
-		}
+		}*/
 	} else {
 		char *p;
 		auto it = phase1.cbegin();
@@ -287,11 +283,48 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 	int rank, size;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	size_t part = (motifs.size() + size - 1) / size;
+	size_t start = part*rank;
+	size_t end = min(part*(rank + 1), motifs.size());
+
+	char *buf = new char[4096];
+	if(rank == 0) {
+		for(int r = 1; r < size; ++r) {
+			auto it = motifs.cbegin() + start;
+			auto itend = motifs.cbegin() + end;
+			do {
+				char* p;
+				tie(p, it) = serializeVM(buf, 4096, it, itend);
+				MPI_Send(buf, p - buf, MPI_CHAR, r, 0, MPI_COMM_WORLD);
+			} while(it != itend);
+			MPI_Send(buf, 1, MPI_CHAR, r, 1, MPI_COMM_WORLD);
+		}
+		motifs.erase(motifs.begin() + end, motifs.end());
+	} else {
+		bool finish = false;
+		do {
+			MPI_Status st;
+			MPI_Recv(buf, 4096, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
+			if(st.MPI_TAG == 1) {
+				finish = true;
+			} else {
+				auto v = deserializeVM(buf);
+				if(motifs.empty()) {
+					motifs = move(v);
+				} else {
+					//motifs.reserve(motifs.size() + v.size());
+					for(auto& m : v)
+						motifs.push_back(move(m));
+				}
+			}
+		} while(finish);
+	}
+	delete[] buf;
 
 	// normal logic
 	std::vector<Motif> res;
 	const int acpt = static_cast<int>(ceil(pRefineNeg*gNeg.size()));
-	for(auto &m : motifs) {
+	for(auto& m: motifs) {
 		int cnt = 0;
 		for(auto& line : gNeg) {
 			double d = CandidateMethod::probOfMotif(m, line);
