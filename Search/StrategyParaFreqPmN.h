@@ -33,7 +33,7 @@ private:
 
 	void countMotif(std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>> &vec);
 
-	std::vector<Motif> pickTopK(std::unordered_map<Motif, std::pair<int, double>>& data,
+	std::vector<Motif> refineByPositive(std::unordered_map<Motif, std::pair<int, double>>& data,
 		const size_t gsize, const int k = std::numeric_limits<int>::max());
 
 	std::vector<Motif> filterByNegative(std::vector<Motif>& motifs,

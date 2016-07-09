@@ -49,23 +49,22 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	if(rank == 0) {
 		cout << "Phase 2 (refine frequent):" << endl;
 		//vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
-		phase2 = pickTopK(phase1, gPos.size()-opt.blacklist.size());
+		size_t nList = lower_bound(opt.blacklist.begin(), opt.blacklist.end(), static_cast<int>(gPos.size())) - opt.blacklist.begin();
+		phase2 = refineByPositive(phase1, gPos.size() - nList);
 		cout << "  " << phase2.size() << " motifs after refinement." << endl;
+
+		ofstream fout(opt.prefix + "phase2.txt");
+		for(auto& m : phase2) {
+			fout << m.getnEdge() << '\t';
+			for(const Edge&e : m.edges) {
+				fout << '(' << e.s << ',' << e.d << ") ";
+			}
+			fout << '\n';
+		}
+		fout.close();
+
 	} else {
 	}
-
-	/*	ofstream fout(opt.prefix + "graph.txt");
-	for(auto& tp : phase2) {
-	Motif& m = get<0>(tp);
-	fout << m.getnNode() << "\t" << m.getnEdge() << "\t"
-	<< std::fixed << get<1>(tp) << "\t"
-	<< std::fixed << get<2>(tp) << "\t";
-	for(const Edge&e : m.edges) {
-	fout << "(" << e.s << "," << e.d << ") ";
-	}
-	fout << "\n";
-	}
-	fout.close();*/
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	cout << "Phase 3 (filter out negative frequent ones):" << endl;
@@ -192,19 +191,20 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			chrono::system_clock::now() - _time).count();
 		cout << "  Rank "<< rank<<" individual " << i << " found " << vec.size()
 			<< " motifs within " << _time_ms << " ms"
-			<< ". All unique motifs: " << phase1.size() << endl;
+			<< ". All unique motifs: " << phase1.size() << "\n";
 	}
 	// MPI merge
-	char *buf = new char[4096];
+	constexpr int bufSize = 32 * 1024;
+	char *buf = size == 1 ? nullptr : new char[bufSize];
 	if(rank == 0) {
 		int cntFinish = 1;
 		cout << "  gathering motifs..." << endl;
 		while(cntFinish != size) {
 			MPI_Status st;
-			MPI_Recv(buf, 4096, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
-			if(st.MPI_TAG == 1)
+			MPI_Recv(buf, bufSize, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
+			if(st.MPI_TAG == 1) {
 				cntFinish++;
-			else {
+			} else {
 				auto mp = deserializeMP(buf);
 				for(auto& p : mp) {
 					phase1[p.first].first += p.second.first;
@@ -229,16 +229,16 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			cout << "\n";
 		}*/
 	} else {
-		cout << "  sending motifs from " << rank << endl;
+		cout << "  " << rank << " is sending motifs " << phase1.size() << endl;
 		char *p;
 		auto it = phase1.cbegin();
 		do {
-			tie(p, it) = serializeMP(buf, 4096, it, phase1.cend());
+			tie(p, it) = serializeMP(buf, bufSize, it, phase1.cend());
 			MPI_Send(buf, p - buf, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
 		} while(it != phase1.cend());
 		MPI_Send(buf, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
 		phase1.clear();
-		cout << "  finsihed sending motifs from " << rank << endl;
+		cout << "  " << rank<< " finsihed sending motifs " << phase1.size() << endl;
 	}
 	delete[] buf;
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -255,28 +255,29 @@ void StrategyParaFreqPmN::countMotif(
 	}
 }
 
-std::vector<Motif> StrategyParaFreqPmN::pickTopK(
+std::vector<Motif> StrategyParaFreqPmN::refineByPositive(
 	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize, const int k)
 {
-	vector<pair<int, decltype(data.begin())>> idx;
+	vector<decltype(data.begin())> idx;
 	int minOcc = static_cast<int>(ceil(pRefine*gsize));
 	auto it = data.begin();
 	for(size_t i = 0; i < data.size(); ++i, ++it) {
 		if(it->second.first >= minOcc) {
 			it->second.second /= it->second.first;
-			idx.emplace_back(i, it);
+			idx.push_back(it);
 		}
 	}
 	sort(idx.begin(), idx.end(),
-		[](const pair<int, decltype(data.begin())>& a, const pair<int, decltype(data.begin())>& b) {
-		return a.first > b.first || a.first == b.first && a.second->second > b.second->second;
-		//return a.first > b.first;
+		[](const decltype(data.begin())& a, const decltype(data.begin())& b) {
+		return a->second.first > b->second.first 
+			|| a->second.first == b->second.first && a->second.second > b->second.second;
+		//return a->second.first > b->second.first 
 	});
 
 	vector<Motif> res;
 	size_t end = min(static_cast<size_t>(k), idx.size());
 	for(size_t i = 0; i < end; ++i)
-		res.push_back(move(idx[i].second->first));
+		res.push_back(move(idx[i]->first));
 	return res;
 }
 
@@ -293,15 +294,16 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 	size_t start = part*rank;
 	size_t end = min(part*(rank + 1), motifs.size());
 
-	char *buf = new char[4096];
+	const size_t bufSize = 32 * 1024;
+	char *buf = size == 1 ? nullptr : new char[bufSize];
 	if(rank == 0) {
 		for(int r = 1; r < size; ++r) {
 			cout << "  sending motifs to " << r << endl;
-			auto it = motifs.cbegin() + start;
-			auto itend = motifs.cbegin() + end;
+			auto it = motifs.cbegin() + part*r;
+			auto itend = motifs.cbegin() + min(part*(r + 1), motifs.size());
 			do {
 				char* p;
-				tie(p, it) = serializeVM(buf, 4096, it, itend);
+				tie(p, it) = serializeVM(buf, bufSize, it, itend);
 				MPI_Send(buf, p - buf, MPI_CHAR, r, 0, MPI_COMM_WORLD);
 			} while(it != itend);
 			MPI_Send(buf, 1, MPI_CHAR, r, 1, MPI_COMM_WORLD);
@@ -313,7 +315,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 		cout << "  receiving motifs at " << rank << endl;
 		do {
 			MPI_Status st;
-			MPI_Recv(buf, 4096, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
+			MPI_Recv(buf, bufSize, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
 			if(st.MPI_TAG == 1) {
 				finish = true;
 			} else {
@@ -332,15 +334,15 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 
 	// normal logic
 	std::vector<Motif> res;
-	const int acpt = static_cast<int>(ceil(pRefineNeg*gNeg.size()));
+	const int thrshd= static_cast<int>(ceil(pRefineNeg*gNeg.size()));
 	for(auto& m: motifs) {
 		int cnt = 0;
-		for(auto& line : gNeg) {
-			double d = CandidateMethod::probOfMotif(m, line);
+		for(auto it = gNeg.begin(); cnt < thrshd && it != gNeg.end(); ++it) {
+			double d = CandidateMethod::probOfMotif(m, *it);
 			if(d >= pPickNeg)
 				++cnt;
 		}
-		if(cnt >= acpt)
+		if(cnt < thrshd)
 			res.push_back(move(m));
 	}
 	// MPI merge
