@@ -178,24 +178,23 @@ int main(int argc, char* argv[])
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
 	}
-	cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
-		<< "Nodes: " << opt.nNode << "\n"
-		<< "Data parameters:\n"
-		<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
-		<< "  # snapshots: " << opt.nSnapshot << "\n"
-		<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
-//		<< "The min prob. of a valid motif on single patient: " << opt.pMotifInd << "\n"
-//		<< "The min prob. of a valid motif for all patients: " << opt.pMotifRef << "\n"
-//		<< "Motif size min - max: " << opt.sMotifMin << " - " << opt.sMotifMax << "\n"
-//		<< "Strategy name: " << opt.stgName << "\n"
-		<< "Strategy parameters: " << opt.stgParam << "\n"
-		<< "Searching method pararmeters: " << opt.mtdParam << "\n"
-		<< endl;
-
 	MPI_Init(&argc, &argv);
 	int rank, size;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+	if(rank == 0) {
+		cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
+			<< "Nodes: " << opt.nNode << "\n"
+			<< "Data parameters:\n"
+			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
+			<< "  # snapshots: " << opt.nSnapshot << "\n"
+			<< "  blacklist size: " << opt.blacklist.size() << "\n"
+			<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
+			<< "Searching method pararmeters: " << opt.mtdParam << "\n"
+			<< "Strategy parameters: " << opt.stgParam << "\n"
+			<< endl;
+	}
 
 //	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
 //	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);

@@ -49,7 +49,7 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	if(rank == 0) {
 		cout << "Phase 2 (refine frequent):" << endl;
 		//vector<tuple<Motif, double, double>> phase2 = refineByAll(phase1);
-		phase2 = pickTopK(phase1, gPos.size());
+		phase2 = pickTopK(phase1, gPos.size()-opt.blacklist.size());
 		cout << "  " << phase2.size() << " motifs after refinement." << endl;
 	} else {
 	}
@@ -67,6 +67,7 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	}
 	fout.close();*/
 
+	MPI_Barrier(MPI_COMM_WORLD);
 	cout << "Phase 3 (filter out negative frequent ones):" << endl;
 	vector<Motif> phase3 = filterByNegative(phase2, gNeg);
 	phase2.clear();
@@ -237,6 +238,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 		} while(it != phase1.cend());
 		MPI_Send(buf, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
 		phase1.clear();
+		cout << "  finsihed sending motifs from " << rank << endl;
 	}
 	delete[] buf;
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -303,6 +305,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 				MPI_Send(buf, p - buf, MPI_CHAR, r, 0, MPI_COMM_WORLD);
 			} while(it != itend);
 			MPI_Send(buf, 1, MPI_CHAR, r, 1, MPI_COMM_WORLD);
+			cout << "  finished sending motifs to " << r << endl;
 		}
 		motifs.erase(motifs.begin() + end, motifs.end());
 	} else {
