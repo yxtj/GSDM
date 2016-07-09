@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
 	}
 	auto res=strategy->search(opt, gPos, gNeg);
 	cout << res.size() << endl;
-	ofstream fout(opt.prefix + "out-" + to_string(rank) + ".txt");
+	ofstream fout(opt.prefix + opt.outName + to_string(rank) + ".txt");
 	outputFoundMotifs(fout, res);
 	fout.close();
 
