@@ -164,7 +164,8 @@ void test(const vector<vector<Graph>>& gPos, const vector<vector<Graph>>& gNeg)
 	
 }
 
-ostream& operator<<(ostream& os, const vector<string>& param) {
+template<typename T>
+ostream& operator<<(ostream& os, const vector<T>& param) {
 	for(auto& p : param)
 		os << p << " ";
 	return os;
@@ -189,7 +190,8 @@ int main(int argc, char* argv[])
 			<< "Data parameters:\n"
 			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
 			<< "  # snapshots: " << opt.nSnapshot << "\n"
-			<< "  blacklist size: " << opt.blacklist.size() << "\n"
+			<< "Blacklist size: " << opt.blacklist.size() << "\n"
+			<< "  " << opt.blacklist << "\n"
 			<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
 			<< "Searching method pararmeters: " << opt.mtdParam << "\n"
 			<< "Strategy parameters: " << opt.stgParam << "\n"
