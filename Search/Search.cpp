@@ -186,6 +186,7 @@ int main(int argc, char* argv[])
 
 	if(rank == 0) {
 		cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
+			<< "Output prefix: " << opt.outName << "\n"
 			<< "Nodes: " << opt.nNode << "\n"
 			<< "Data parameters:\n"
 			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
