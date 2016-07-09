@@ -19,6 +19,8 @@ public:
 	std::vector<int> blacklist;
 
 	std::string prefix, subFolderGraph;//data folder prefix and graph sub-folder
+	std::string outName;//the file name prefix for output files
+
 
 public:
 	Option();
