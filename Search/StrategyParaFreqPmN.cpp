@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "StrategyParaFreqPmN.h"
 #include "CandidateMethodFactory.h"
-#include "CandidateMthdFreq.h"
 #include "Option.h"
+#include "serialization.h"
 
 using namespace std;
 
@@ -75,101 +75,6 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	return phase3;
 }
 
-// (de)seralizes
-
-static char* serialize(char* res, const Motif& m) {
-	int* pint = reinterpret_cast<int*>(res);
-	*pint++ = m.getnEdge();
-	for(const Edge& e : m.edges) {
-		*pint++ = e.s;
-		*pint++ = e.d;
-	}
-	return reinterpret_cast<char*>(pint);
-}
-
-static pair<Motif, char*> deserialize(char* p) {
-	int* pint = reinterpret_cast<int*>(p);
-	int ne = *pint++;
-	Motif m;
-	while(ne--) {
-		int s = *pint++;
-		int d = *pint++;
-		m.addEdge(s, d);
-	}
-	return make_pair(move(m), reinterpret_cast<char*>(pint));
-}
-
-static pair<char*, unordered_map<Motif, pair<int, double>>::const_iterator> serializeMP(
-	char* res, int bufSize, unordered_map<Motif, pair<int, double>>::const_iterator it,
-	unordered_map<Motif, pair<int, double>>::const_iterator itend)
-{
-	size_t* numObj = reinterpret_cast<size_t*>(res);
-	res += sizeof(size_t);
-	bufSize -= sizeof(size_t);
-	size_t count = 0;
-	for(; it != itend; ++it) {
-		int n = it->first.getnEdge();
-		int size = sizeof(int) + n * 2 * sizeof(int) + sizeof(int) + sizeof(double);
-		if(size > bufSize)
-			break;
-		char *p = serialize(res, it->first);
-		*reinterpret_cast<int*>(p) = it->second.first;
-		*reinterpret_cast<double*>(p+sizeof(int)) = it->second.second;
-		res += size;
-		bufSize -= size;
-		++count;
-	}
-	*numObj = count;
-	return make_pair(res, it);
-}
-
-static unordered_map<Motif, pair<int, double>> deserializeMP(char* p) {
-	size_t n = *reinterpret_cast<size_t*>(p);
-	p += sizeof(size_t);
-	unordered_map<Motif, pair<int, double>> res;
-	while(n--) {
-		auto mp = deserialize(p);
-		p = mp.second;
-		int count = *reinterpret_cast<int*>(p);
-		p += sizeof(int);
-		double prob = *reinterpret_cast<double*>(p);
-		p += sizeof(double);
-		res[mp.first] = make_pair(count, prob);
-	}
-	return res;
-}
-
-static pair<char*, vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
-	vector<Motif>::const_iterator it, vector<Motif>::const_iterator itend) 
-{
-	size_t* numObj = reinterpret_cast<size_t*>(res);
-	res += sizeof(size_t);
-	size_t count = 0;
-	for(; it != itend; ++it) {
-		int n = it->getnEdge();
-		int size = sizeof(int) + n * 2 * sizeof(int);
-		if(size > bufSize)
-			break;
-		res = serialize(res, *it);
-		bufSize -= size;
-		++count;
-	}
-	*numObj = count;
-	return make_pair(res, it);
-}
-
-static vector<Motif> deserializeVM(char *p) {
-	size_t n = *reinterpret_cast<size_t*>(p);
-	p += sizeof(size_t);
-	vector<Motif> res;
-	while(n--) {
-		auto mp = deserialize(p);
-		res.push_back(move(mp.first));
-		p = mp.second;
-	}
-	return res;
-}
-
 std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet(
 	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs, const std::vector<int>& blacklist)
 {
@@ -237,8 +142,8 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			MPI_Send(buf, p - buf, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
 		} while(it != phase1.cend());
 		MPI_Send(buf, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
-		phase1.clear();
 		cout << "  " << rank<< " finsihed sending motifs " << phase1.size() << endl;
+		phase1.clear();
 	}
 	delete[] buf;
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -328,10 +233,12 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 						motifs.push_back(move(m));
 				}
 			}
-		} while(finish);
+		} while(!finish);
+		cout << "  received " << motifs.size() << " motifs at " << rank << endl;
 	}
 	delete[] buf;
 
+	cout << "  " << rank << " processing " << motifs.size() << " motifs";
 	// normal logic
 	std::vector<Motif> res;
 	const int thrshd= static_cast<int>(ceil(pRefineNeg*gNeg.size()));
@@ -345,6 +252,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 		if(cnt < thrshd)
 			res.push_back(move(m));
 	}
+	cout << "  " << rank << " finished processing motifs: " << res.size();
 	// MPI merge
 
 	return res;
