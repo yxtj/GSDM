@@ -21,6 +21,9 @@
     <Filter Include="Strategies\Source">
       <UniqueIdentifier>{72e1f70d-7819-41de-b646-442980977487}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Serialization">
+      <UniqueIdentifier>{5998694e-5f8e-46e7-8c6c-8f076f16ccb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -74,11 +77,17 @@
     <ClInclude Include="StrategyBase.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="StrategyXorFreq.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyParaFreqPmN.h">
       <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="serialization.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyXor.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="MotifCommunicator.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -136,17 +145,23 @@
     <ClCompile Include="StrategyCandidatePN.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyFactory.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
     <ClCompile Include="StrategySample.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyXorFreq.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyParaFreqPmN.cpp">
       <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="serialization.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFactory.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyXor.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MotifCommunicator.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

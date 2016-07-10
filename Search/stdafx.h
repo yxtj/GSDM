@@ -23,6 +23,9 @@
 #include <iterator>
 #include <tuple>
 #include <chrono>
+#include <functional>
+#include <thread>
+#include <future>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
