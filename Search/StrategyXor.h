@@ -6,7 +6,7 @@
 #include <vector>
 
 
-class StrategyXorFreq
+class StrategyXor
 	: public StrategyBase
 {
 	double pRefine;
@@ -14,7 +14,7 @@ public:
 	static const std::string name;
 	static const std::string usage;
 
-	StrategyXorFreq() = default;
+	StrategyXor() = default;
 
 	virtual bool parse(const std::vector<std::string>& param);
 
@@ -26,12 +26,11 @@ private:
 
 	void countMotif(std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>> &vec);
 
-	std::vector<Motif> pickTopK(std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize);
+	std::vector<Motif> refineByPostive(std::unordered_map<Motif, std::pair<int, double>>& data,
+		const size_t gsize, const size_t topk=std::numeric_limits<size_t>::max());
+
+	std::vector<Motif> shuttfle(std::vector<Motif>& motifs);
 
 	std::vector<Motif> symmetricDifference(std::vector<Motif>& a, std::vector<Motif>& b);
 
-	// pick the top k motifs from given candidate set, where each one with a minimum probability
-	// return <motif, prob. showing up over individuals, mean prob. of happening of single individual>
-	std::vector<std::tuple<Motif, double, double>> refineByAll(
-		const std::vector<std::vector<std::pair<Motif, double>>>& motifs);
 };

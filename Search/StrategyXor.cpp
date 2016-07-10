@@ -1,17 +1,18 @@
 #include "stdafx.h"
-#include "StrategyXorFreq.h"
+#include "StrategyXor.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
+#include "MotifCommunicator.h"
 
-const std::string StrategyXorFreq::name("xor");
-const std::string StrategyXorFreq::usage(
+const std::string StrategyXor::name("xor");
+const std::string StrategyXor::usage(
 	"get the symmetric difference of the frequent sets between positive samples and negative samples.\n"
-	"Usage: " + StrategyXorFreq::name + " <occurence ratio>\n"
+	"Usage: " + StrategyXor::name + " <occurence ratio>\n"
 	"  <OC>: used to refine the motifs among subjects");
 
 using namespace std;
 
-bool StrategyXorFreq::parse(const std::vector<std::string>& param)
+bool StrategyXor::parse(const std::vector<std::string>& param)
 {
 	try {
 		checkParam(param, 1, name);
@@ -23,7 +24,7 @@ bool StrategyXorFreq::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-std::vector<Motif> StrategyXorFreq::search(const Option& opt,
+std::vector<Motif> StrategyXor::search(const Option& opt,
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	if(!checkInput(gPos, gNeg))
@@ -36,7 +37,7 @@ std::vector<Motif> StrategyXorFreq::search(const Option& opt,
 
 	cout << "Phase 2 (refine postive)" << endl;
 	chrono::system_clock::time_point _time = chrono::system_clock::now();
-	vector<Motif> phase2 = pickTopK(phase1, gPos.size());
+	vector<Motif> phase2 = refineByPostive(phase1, gPos.size());
 	phase1.clear();
 	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - _time).count();
 	cout << "  refined " << phase2.size() << " motifs within " << _time_ms << " ms" << endl;
@@ -46,7 +47,7 @@ std::vector<Motif> StrategyXorFreq::search(const Option& opt,
 
 	cout << "Phase 4 (refine negative)" << endl;
 	_time = chrono::system_clock::now();
-	vector<Motif> phase4 = pickTopK(phase3, gPos.size());
+	vector<Motif> phase4 = refineByPostive(phase3, gPos.size());
 	phase3.clear();
 	_time_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - _time).count();
 	cout << "  refined " << phase4.size() << " motifs within " << _time_ms << " ms" << endl;
@@ -62,7 +63,7 @@ std::vector<Motif> StrategyXorFreq::search(const Option& opt,
 
 }
 
-std::unordered_map<Motif, std::pair<int, double>> StrategyXorFreq::freqOnSet(
+std::unordered_map<Motif, std::pair<int, double>> StrategyXor::freqOnSet(
 	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs)
 {
 	unordered_map<Motif, pair<int, double>> phase1;
@@ -79,7 +80,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyXorFreq::freqOnSet(
 	return phase1;
 }
 
-void StrategyXorFreq::countMotif(
+void StrategyXor::countMotif(
 	std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
 {
 	for(auto& p : vec) {
@@ -89,8 +90,8 @@ void StrategyXorFreq::countMotif(
 	}
 }
 
-std::vector<Motif> StrategyXorFreq::pickTopK(
-	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize)
+std::vector<Motif> StrategyXor::refineByPostive(
+	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize, const size_t topk)
 {
 	vector<pair<int, decltype(data.begin())>> idx;
 	int minOcc = static_cast<int>(ceil(pRefine*gsize));
@@ -109,14 +110,19 @@ std::vector<Motif> StrategyXorFreq::pickTopK(
 	cout << "  valid motif: " << idx.size() << endl;
 
 	vector<Motif> res;
-//	size_t end = min(static_cast<size_t>(k), idx.size());
-	size_t end = idx.size();
+	size_t end = min(topk, idx.size());
 	for(size_t i = 0; i < end; ++i)
 		res.push_back(move(idx[i].second->first));
 	return res;
 }
 
-std::vector<Motif> StrategyXorFreq::symmetricDifference(std::vector<Motif>& a, std::vector<Motif>& b)
+std::vector<Motif> StrategyXor::shuttfle(std::vector<Motif>& motifs)
+{
+	MotifCommunicator comm;
+	return comm.shuffle(motifs);
+}
+
+std::vector<Motif> StrategyXor::symmetricDifference(std::vector<Motif>& a, std::vector<Motif>& b)
 {
 	sort(a.begin(), a.end());
 	sort(b.begin(), b.end());
