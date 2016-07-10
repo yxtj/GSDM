@@ -299,13 +299,13 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 	if(rank == 0) {
 		for(int r = 1; r < size; ++r) {
 			cout << "  sending motifs to " << r << endl;
-			auto it = motifs.cbegin() + part*r;
+			auto it = motifs.cbegin() + min(part*r, motifs.size());
 			auto itend = motifs.cbegin() + min(part*(r + 1), motifs.size());
-			do {
+			while(it != itend) {
 				char* p;
 				tie(p, it) = serializeVM(buf, bufSize, it, itend);
 				MPI_Send(buf, p - buf, MPI_CHAR, r, 0, MPI_COMM_WORLD);
-			} while(it != itend);
+			}
 			MPI_Send(buf, 1, MPI_CHAR, r, 1, MPI_COMM_WORLD);
 			cout << "  finished sending motifs to " << r << endl;
 		}
