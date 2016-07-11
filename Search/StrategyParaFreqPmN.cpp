@@ -212,12 +212,12 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 				MPI_Send(buf, p - buf, MPI_CHAR, r, 0, MPI_COMM_WORLD);
 			}
 			MPI_Send(buf, 1, MPI_CHAR, r, 1, MPI_COMM_WORLD);
-			cout << "  finished sending motifs to " << r << endl;
+//			cout << "  finished sending motifs to " << r << endl;
 		}
 		motifs.erase(motifs.begin() + end, motifs.end());
 	} else {
 		bool finish = false;
-		cout << "  receiving motifs at " << rank << endl;
+//		cout << "  receiving motifs at " << rank << endl;
 		do {
 			MPI_Status st;
 			MPI_Recv(buf, bufSize, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
@@ -238,7 +238,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 	}
 	delete[] buf;
 
-	cout << "  " << rank << " processing " << motifs.size() << " motifs";
+//	cout << "  " << rank << " processing " << motifs.size() << " motifs";
 	// normal logic
 	std::vector<Motif> res;
 	const int thrshd= static_cast<int>(ceil(pRefineNeg*gNeg.size()));
@@ -252,7 +252,7 @@ std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
 		if(cnt < thrshd)
 			res.push_back(move(m));
 	}
-	cout << "  " << rank << " finished processing motifs: " << res.size();
+//	cout << "  " << rank << " finished processing motifs: " << res.size();
 	// MPI merge
 
 	return res;

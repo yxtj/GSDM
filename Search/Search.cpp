@@ -213,12 +213,12 @@ int main(int argc, char* argv[])
 		MPI_Finalize();
 		return 1;
 	}
-	auto res=strategy->search(opt, gPos, gNeg);
-	cout << res.size() << endl;
 	if(!opt.outName.empty() && (opt.outName.back() == '/' || opt.outName.back() == '\\')) {
 		boost::filesystem::path p(opt.prefix + opt.outName);
 		boost::filesystem::create_directories(p);
 	}
+	auto res=strategy->search(opt, gPos, gNeg);
+	cout << res.size() << endl;
 	ofstream fout(opt.prefix + opt.outName + "res-" + to_string(rank) + ".txt");
 	outputFoundMotifs(fout, res);
 	fout.close();
