@@ -53,7 +53,7 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 		phase2 = refineByPositive(phase1, gPos.size() - nList);
 		cout << "  " << phase2.size() << " motifs after refinement." << endl;
 
-		ofstream fout(opt.prefix + opt.outName + "phase2.txt");
+		ofstream fout(opt.prefix + opt.outName + "freq-pos.txt");
 		for(auto& m : phase2) {
 			fout << m.getnEdge() << '\t';
 			for(const Edge&e : m.edges) {
