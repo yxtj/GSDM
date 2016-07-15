@@ -185,16 +185,17 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 	if(rank == 0) {
+		cout << "Number of MPI instances: " << size << endl;
 		cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
-			<< "Output prefix: " << opt.outName << "\n"
-			<< "Nodes: " << opt.nNode << "\n"
+			<< "Output prefix: " << opt.subFolderOut << "\n"
 			<< "Data parameters:\n"
+			<< "  # Nodes: " << opt.nNode << "\n"
 			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
-			<< "  # snapshots: " << opt.nSnapshot << "\n"
-			<< "Blacklist size: " << opt.blacklist.size() << "\n"
-			<< "  " << opt.blacklist << "\n"
-			<< "# Motif +/-: " << opt.nPosMtf << " / " << opt.nNegMtf << "\n"
-			<< "Searching method pararmeters: " << opt.mtdParam << "\n"
+			<< "  # Snapshots: " << opt.nSnapshot << "\n"
+			<< "Blacklist size: " << opt.blacklist.size() << "\n";
+		if(!opt.blacklist.empty())
+			cout << "  " << opt.blacklist << "\n";
+		cout << "Searching method pararmeters: " << opt.mtdParam << "\n"
 			<< "Strategy parameters: " << opt.stgParam << "\n"
 			<< endl;
 	}
@@ -202,8 +203,8 @@ int main(int argc, char* argv[])
 //	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
 //	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
 	
-	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, "0-", opt.nPosInd, opt.nSnapshot);
-	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, "1-", opt.nNegInd, opt.nSnapshot);
+	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, "1-", opt.nPosInd, opt.nSnapshot);
+	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, "0-", opt.nNegInd, opt.nSnapshot);
 	
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
@@ -213,13 +214,13 @@ int main(int argc, char* argv[])
 		MPI_Finalize();
 		return 1;
 	}
-	if(!opt.outName.empty() && (opt.outName.back() == '/' || opt.outName.back() == '\\')) {
-		boost::filesystem::path p(opt.prefix + opt.outName);
+	if(!opt.subFolderOut.empty() && (opt.subFolderOut.back() == '/' || opt.subFolderOut.back() == '\\')) {
+		boost::filesystem::path p(opt.prefix + opt.subFolderOut);
 		boost::filesystem::create_directories(p);
 	}
 	auto res=strategy->search(opt, gPos, gNeg);
 	cout << res.size() << endl;
-	ofstream fout(opt.prefix + opt.outName + "res-" + to_string(rank) + ".txt");
+	ofstream fout(opt.prefix + opt.subFolderOut + "res-" + to_string(rank) + ".txt");
 	outputFoundMotifs(fout, res);
 	fout.close();
 

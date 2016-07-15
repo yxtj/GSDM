@@ -13,13 +13,12 @@ public:
 
 	int nNode;//number of nodes;
 	int nPosInd, nNegInd;//number of +/- individuals
-	int nPosMtf, nNegMtf;//number of +/- motifs
 	int nSnapshot;//number of snapshots for each individual
 
 	std::vector<int> blacklist;
 
 	std::string prefix, subFolderGraph;//data folder prefix and graph sub-folder
-	std::string outName;//the file name prefix for output files
+	std::string subFolderOut;//the file name prefix for output files
 
 
 public:

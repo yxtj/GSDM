@@ -13,12 +13,10 @@ Option::Option()
 		("help", "Print help messages")
 		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
 		("prefix-graph", value<string>(&subFolderGraph)->default_value(string("graph/")), "[string] the subfolder for graph files")
-		("out", value<string>(&outName)->default_value(string("out-")), "[string] the file name prefix for output files")
+		("out", value<string>(&subFolderOut)->default_value(string("out-")), "[string] the file name prefix for output files")
 		("blacklist", value<vector<int>>(&blacklist)->multitoken()->default_value(vector<int>(),""),"[integer]s of individuals removed")
 		("npi", value<int>(&nPosInd)->default_value(10), "[integer] number of positive individuals (negative means read all)")
 		("nni", value<int>(&nNegInd)->default_value(10), "[integer] number of negative individuals (negative means read all)")
-		("npm", value<int>(&nPosMtf)->default_value(10), "[integer] number of positive motifs")
-		("nnm", value<int>(&nNegMtf)->default_value(10), "[integer] number of negative motifs")
 		("ns", value<int>(&nSnapshot)->default_value(10), "[integer] number of snapshots, non-positive means load all")
 		("n", value<int>(&nNode)->default_value(-1), "[integer] size of each graph")
 //		("smmin", value<int>(&sMotifMin)->default_value(2), "[integer] minimum size of a motif")
@@ -58,11 +56,14 @@ bool Option::parseInput(int argc, char * argv[])
 			boost::program_options::parse_command_line(argc, argv, desc), var_map);
 		boost::program_options::notify(var_map);
 
-		if(!prefix.empty() && prefix.back()!='/') {
+		if(!prefix.empty() && prefix.back()!='/' && prefix.back() != '\\') {
 			prefix.push_back('/');
 		}
-		if(!subFolderGraph.empty() && subFolderGraph.back() != '/') {
+		if(!subFolderGraph.empty() && subFolderGraph.back() != '/' && subFolderGraph.back() != '\\') {
 			subFolderGraph.push_back('/');
+		}
+		if(!subFolderOut.empty() && subFolderOut.back() != '/' && subFolderOut.back() != '\\') {
+			subFolderOut.push_back('/');
 		}
 		do {
 			if(var_map.count("help")) {

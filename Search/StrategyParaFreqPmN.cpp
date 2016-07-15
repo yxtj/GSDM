@@ -53,7 +53,7 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 		phase2 = refineByPositive(phase1, gPos.size() - nList);
 		cout << "  " << phase2.size() << " motifs after refinement." << endl;
 
-		ofstream fout(opt.prefix + opt.outName + "freq-pos.txt");
+		ofstream fout(opt.prefix + opt.subFolderOut + "freq-pos.txt");
 		for(auto& m : phase2) {
 			fout << m.getnEdge() << '\t';
 			for(const Edge&e : m.edges) {
@@ -96,7 +96,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			chrono::system_clock::now() - _time).count();
 		cout << "  Rank "<< rank<<" individual " << i << " found " << vec.size()
 			<< " motifs within " << _time_ms << " ms"
-			<< ". All unique motifs: " << phase1.size() << "\n";
+			<< ". All unique motifs: " << phase1.size() << endl;
 	}
 	// MPI merge
 	constexpr int bufSize = 32 * 1024;
@@ -142,7 +142,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 			MPI_Send(buf, p - buf, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
 		} while(it != phase1.cend());
 		MPI_Send(buf, 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
-		cout << "  " << rank<< " finsihed sending motifs " << phase1.size() << endl;
+		cout << "  " << rank<< " finished sending motifs " << phase1.size() << endl;
 		phase1.clear();
 	}
 	delete[] buf;
