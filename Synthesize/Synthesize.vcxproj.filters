@@ -38,9 +38,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Synthetize.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,5 +50,12 @@
     <ClCompile Include="MotifSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Synthesize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+    <None Include="readme.md" />
   </ItemGroup>
 </Project>

@@ -9,7 +9,6 @@ public:
 	int nPosMtf, nNegMtf;//number of +/- motifs
 	int sMotifMin, sMotifMax;//min and max size of a motif
 	int nNode;//number of nodes;
-//	double pEdge;//probability of non-motif edge, should be very small
 	double degAlpha;//the alpha value of the degree power law distribution
 	double pMotif;//mean probability of the motifs, should not be too small
 	

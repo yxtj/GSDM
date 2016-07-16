@@ -69,18 +69,13 @@ void outputGraphAbstract(ostream& os, const string& name, const Graph& g) {
 	os << '\n';
 }
 
-vector<vector<int>> outputData(const string& prefix, const string& prePos, const string& preNeg,
+vector<vector<int>> outputData(const string& prePos, const string& preNeg,
 	const Option& opt, default_random_engine& engin, const std::vector<Motif>& motifs,
 	const vector<double>& probMotifPos, const vector<double>& probMotifNeg)
 {
-	ofstream foutGP(prefix + "graphs-pos.txt");
-	ofstream foutGN(prefix + "graphs-neg.txt");
-	outputGraphAbstractHeader(foutGP);
-	outputGraphAbstractHeader(foutGN);
 	// statistical info motif occurrence on each individual:
 	vector<vector<int>> stat(opt.nPosInd + opt.nNegInd, vector<int>(opt.nPosMtf + opt.nNegMtf, 0));
 
-	cout << "Generating graphs for positive individuals..." << endl;
 	auto fun = [&](const int i, const vector<double>& probMotifReference, const string& pre, ostream& osSmry) {
 		// generate a list of used motif ID for each snapshot
 		// ensure that the generated data will result a no-less probability
@@ -97,48 +92,26 @@ vector<vector<int>> outputData(const string& prefix, const string& prePos, const
 				++stat[i][mid];
 			}
 		}
+		delete selector;
 	};
+	cout << "Generating graphs for positive individuals..." << endl;
+	ofstream foutGP(opt.prefix + prePos + "graphs.txt");
+	outputGraphAbstractHeader(foutGP);
 	for(int i = 0; i < opt.nPosInd; ++i) {
 		cout << "Generating graphs for individual " << i << endl;
-		fun(i, probMotifPos, prePos, foutGP);
+		fun(i, probMotifPos, opt.prefix + opt.subFolderGraph + prePos, foutGP);
 	}
+	foutGP.close();
+
 	cout << "Generating graphs for negative individuals..." << endl;
+	ofstream foutGN(opt.prefix + preNeg+ "graphs.txt");
+	outputGraphAbstractHeader(foutGN);
 	for(int i = 0; i < opt.nNegInd; ++i) {
 		cout << "Generating graphs for individual " << i << endl;
-		fun(opt.nPosInd + i, probMotifNeg, preNeg, foutGN);
+		fun(opt.nPosInd + i, probMotifNeg, opt.prefix + opt.subFolderGraph + preNeg, foutGN);
 	}
-
-/*
-	for(int j = 0; j < opt.nSnapshot; ++j) {
-		cout << "Generating graphs for snapshot " << j << endl;
-		for(int i = 0; i < opt.nPosInd; ++i) {
-			auto toUse = selectMotifs(engin, motifs, probMotifPos);
-			string gName = to_string(i) + "-" + to_string(j);
-			Graph g = genGraph(engin, opt, motifs, toUse);
-			ofstream fout(prePos + gName + ".txt");
-			fout << g << endl;
-			fout.close();
-			outputGraphAbstract(foutGP, gName, g);
-			for(int mid : g.motifID) {
-				++stat[i][mid];
-			}
-		}
-		for(int i = 0; i < opt.nNegInd; ++i) {
-			auto toUse = selectMotifs(engin, motifs, probMotifNeg);
-			string gName = to_string(i) + "-" + to_string(j);
-			Graph g = genGraph(engin, opt, motifs, toUse);
-			ofstream fout(preNeg + gName + ".txt");
-			fout << g << endl;
-			fout.close();
-			outputGraphAbstract(foutGN, gName, g);
-			for(int mid : g.motifID) {
-				++stat[opt.nPosInd + i][mid];
-			}
-		}
-	}
-*/
-	foutGP.close();
 	foutGN.close();
+
 	return stat;
 }
 
@@ -169,7 +142,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	string prefix = opt.prefix;
-	string prePos = prefix + opt.subFolderGraph + "p-", preNeg = prefix + opt.subFolderGraph + "n-";
+	string prePos("1-"), preNeg("0-");
 
 	default_random_engine engin(opt.seed);
 
@@ -195,7 +168,8 @@ int main(int argc, char* argv[])
 
 	// generate and output each graph
 	// returned statistics: row->individual, column->motif, content: occurrence times of a motif on the snapshots of a individual
-	vector<vector<int>> stat = outputData(prefix, prePos, preNeg, opt, engin, motifs, probMotifPos, probMotifNeg);
+	vector<vector<int>> stat = outputData(prePos, preNeg, opt,
+		engin, motifs, probMotifPos, probMotifNeg);
 
 	// output motif summary abstract information
 	cout << "Outputting motif summary information" << endl;
@@ -233,6 +207,6 @@ int main(int argc, char* argv[])
 	}
 
 
-    return 0;
+	return 0;
 }
 
