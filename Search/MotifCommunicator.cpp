@@ -4,6 +4,9 @@
 
 using namespace std;
 
+const int MotifCommunicator::TAG_DATA = 0;
+const int MotifCommunicator::TAG_END = 1;
+
 MotifCommunicator::MotifCommunicator()
 {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);

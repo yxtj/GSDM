@@ -6,8 +6,8 @@ class MotifCommunicator
 	int rank, size;
 	//static const int TAG_SHUFFLE = 0;
 	//static const int TAG_SHUFFLE_END = 1;
-	static const int TAG_DATA = 0;
-	static const int TAG_END = 1;
+	static const int TAG_DATA;// = 0;
+	static const int TAG_END;// = 1;
 public:
 	MotifCommunicator();
 

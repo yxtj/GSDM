@@ -47,14 +47,15 @@ vector<vector<Graph> > loadData(
 		res.reserve(nSub);
 	unordered_map<decltype(Subject::id), size_t> id2off;
 
-	using namespace boost::filesystem;
 	boost::filesystem::path root(folder);
-	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
+	for(auto it = boost::filesystem::directory_iterator(root);
+		it != boost::filesystem::directory_iterator(); ++it)
+	{
 		Subject sub;
 		string fn = it->path().filename().string();
 		if(fn.find(fprefix) != 0)
 			continue;
-		if(is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+		if(boost::filesystem::is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
 			auto jt = id2off.find(sub.id);
 			if(jt == id2off.end()){
 				// find a new subject
