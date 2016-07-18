@@ -170,6 +170,7 @@
     <ClInclude Include="CandidateMethodFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
+    <ClInclude Include="StrategyDUG.h" />
     <ClInclude Include="StrategyFactory.h" />
     <ClInclude Include="StrategyParaFreqPmN.h" />
     <ClInclude Include="StrategyXor.h" />
@@ -201,6 +202,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CandidateMthdFreq.cpp" />
+    <ClCompile Include="StrategyDUG.cpp" />
     <ClCompile Include="StrategyFactory.cpp" />
     <ClCompile Include="StrategyParaFreqPmN.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
