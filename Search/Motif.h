@@ -44,21 +44,15 @@ namespace std {
 class Motif
 {
 public:
-	std::unordered_set<int> nodes; // this is a redundant information to edges
-	std::set<Edge> edges; // kernel information
+	std::vector<Edge> edges;
 public:
 	Motif() = default;
-	Motif(const Motif& m) = default;
-	Motif(Motif&& m) = default;
-
 	Motif(const std::set<Edge>& edges);
 	Motif(const std::vector<Edge>& edges);
 
-	Motif& operator=(const Motif& m) = default;
-	Motif& operator=(Motif&& m);
-
 	// return whether new edge is added by this call
 	bool addEdge(const int s, const int d);
+	bool addEdgeCheck(const int s, const int d);
 	// return whether the edge is deleted by this call
 	bool removeEdge(const int s, const int d);
 
@@ -72,17 +66,11 @@ public:
 	int getnEdge() const;
 	size_t size() const; // same as getnEdge()
 	bool empty() const;
-private:
-	void sortUpEdges();
 };
 
 bool operator==(const Motif& lth, const Motif& rth);
 bool operator<(const Motif& lth, const Motif& rth);
 
-
-inline int Motif::getnNode() const {
-	return nodes.size();
-}
 inline int Motif::getnEdge() const {
 	return edges.size();
 }
@@ -113,3 +101,4 @@ namespace std {
 		}
 	};
 }
+
