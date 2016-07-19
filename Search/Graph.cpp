@@ -67,3 +67,19 @@ bool Graph::testMotif(const Motif & m) const
 	return res;
 }
 
+bool Graph::testMotif(const MotifBuilder & m) const
+{
+	bool res = true;
+	try {
+		for(const Edge& e : m.edges) {
+			if(!matrix.at(e.s).at(e.d)) {
+				res = false;
+				break;
+			}
+		}
+	} catch(...) {
+		res = false;
+	}
+	return res;
+}
+

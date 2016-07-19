@@ -1,7 +1,5 @@
 #pragma once
 #include "CandidateMethod.h"
-#include "Motif.h"
-#include "Graph.h"
 #include "GraphProb.h"
 #include <vector>
 #include <utility>
@@ -47,27 +45,27 @@ private:
 	// expand node (all possible edge combination each attempt)
 	std::vector<std::pair<Motif, double>> method_node2_layer();
 	void _node2_layer(std::vector<std::pair<Motif, double>>& res,
-		const std::pair<Motif, double>& curr, const int expNode);
+		const std::pair<MotifBuilder, double>& curr, const int expNode);
 	
 	// expand node (3 type)
 	std::vector<std::pair<Motif, double>> method_node3();
 	void _node3(std::vector<std::pair<Motif, double>>& closed,
-		std::vector<std::pair<Motif, double>>& open,
-		const std::pair<Motif, double>& curr, const int expNode);
+		std::vector<std::pair<MotifBuilder, double>>& open,
+		const std::pair<MotifBuilder, double>& curr, const int expNode);
 
 	// expand node (one edge each attempt)
 	std::vector<std::pair<Motif, double>> method_node4();
-	std::vector<std::pair<Motif, double>> _node4(
-		const std::pair<Motif, double>& curr, const int expNode);
+	std::vector<std::pair<MotifBuilder, double>> _node4(
+		const std::pair<MotifBuilder, double>& curr, const int expNode);
 
 	// expand by edge (add one edge to last layer in the subgraph tree)
 	std::vector<std::pair<Motif, double>> method_edge1_bfs();
-	std::vector<std::pair<Motif, double>> _edge1_bfs(
-		const std::vector<std::pair<Motif, double>>& last, const std::vector<Edge>& edges);
+	std::vector<std::pair<MotifBuilder, double>> _edge1_bfs(
+		const std::vector<std::pair<MotifBuilder, double>>& last, const std::vector<Edge>& edges);
 
 	// expand by edge (add one edge to found set)
 	std::vector<std::pair<Motif, double>> method_edge2_dp();
-	std::vector<std::pair<Motif, double>> _edge2_dp(
-		const std::vector<std::pair<Motif, double>>& last, const Edge& e);
+	std::vector<std::pair<MotifBuilder, double>> _edge2_dp(
+		const std::vector<std::pair<MotifBuilder, double>>& last, const Edge& e);
 };
 

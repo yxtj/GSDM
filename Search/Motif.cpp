@@ -3,55 +3,41 @@
 
 using namespace std;
 
-void Motif::sortUpEdges()
-{
-	nodes.clear();
-	for(const Edge& e : edges) {
-		nodes.insert(e.s);
-		nodes.insert(e.d);
-	}
-}
-
 Motif::Motif(const std::set<Edge>& edges)
 {
+	this->edges.reserve(edges.size());
 	for(const Edge& e : edges) {
-		this->edges.insert(e);
+		this->edges.push_back(e);
 	}
-	sortUpEdges();
 }
 
 Motif::Motif(const std::vector<Edge>& edges)
 {
+	this->edges.reserve(edges.size());
 	for(const Edge& e : edges) {
-		this->edges.insert(e);
+		this->edges.push_back(e);
 	}
-	sortUpEdges();
-}
-
-Motif & Motif::operator=(Motif && m)
-{
-	nodes = move(m.nodes);
-	edges = move(m.edges);
-	return *this;
 }
 
 bool Motif::addEdge(const int s, const int d) {
+	edges.push_back(Edge{ s,d });
+	return true;
+}
+
+bool Motif::addEdgeCheck(const int s, const int d)
+{
 	Edge e{ s,d };
-	if(edges.find(e) == edges.end()) {
-		edges.insert(e);
-		nodes.insert(s);
-		nodes.insert(d);
-		return true;
-	}
+	auto it = find(edges.begin(), edges.end(), e);
+	if(it != edges.end())
+		return addEdge(e.s, e.d);
 	return false;
 }
 
 bool Motif::removeEdge(const int s, const int d)
 {
-	auto it = edges.find(Edge{ s,d });
+	auto it = find(edges.begin(), edges.end(), Edge{ s,d });
 	if(it != edges.end()) {
 		edges.erase(it);
-		sortUpEdges();
 		return true;
 	}
 	return false;
@@ -59,26 +45,32 @@ bool Motif::removeEdge(const int s, const int d)
 
 bool Motif::containNode(const int n) const
 {
-	return nodes.find(n) != nodes.end();
+	for(const Edge& e : edges) {
+		if(n == e.s || n == e.d)
+			return true;
+	}
+	return false;
 }
 
 bool Motif::containEdge(const int s, const int d) const
 {
-	return edges.find(Edge{ s,d }) != edges.end();
+	return find(edges.begin(), edges.end(), Edge{ s,d }) != edges.end();
 }
 
 const Edge & Motif::lastEdge() const
 {
-	return *edges.rbegin();
+	return edges.back();
 }
 
 bool Motif::connected() const
 {
 	if(edges.empty())
 		return true;
-	unordered_map<int, int> color(nodes.size());
-	for(int nid : nodes)
-		color[nid] = nid;
+	unordered_map<int, int> color(edges.size());
+	for(const Edge& e : edges) {
+		color[e.s] = e.s;
+		color[e.d] = e.d;
+	}
 	auto fun = [&color](int p) {
 		vector<int> stack;
 		while(color[p] != p) {
@@ -102,16 +94,24 @@ bool Motif::connected() const
 		foo(e.d, nc);
 	}
 	int v = color.begin()->second;
-	for(auto& n : nodes) {
-		if(fun(n) != v)
+	for(auto& p : color) {
+		if(fun(p.first) != v)
 			return false;
 	}
 	return true;
 }
 
+int Motif::getnNode() const
+{
+	unordered_set<int> nodes;
+	for(auto& e : edges) {
+		nodes.insert(e.s);
+		nodes.insert(e.d);
+	}
+	return nodes.size();
+}
+
 bool operator==(const Motif& lth, const Motif& rth) {
-	if(lth.getnNode() != rth.getnNode() || lth.getnEdge() != rth.getnEdge())
-		return false;
 	return lth.edges == rth.edges;
 }
 

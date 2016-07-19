@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Motif.h"
+#include "MotifBuilder.h"
 
 class Graph
 {
@@ -18,5 +19,6 @@ public:
 	void loadDataFromStream(std::istream& is);
 
 	bool testMotif(const Motif& m) const;
+	bool testMotif(const MotifBuilder& m) const;
 };
 
