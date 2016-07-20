@@ -15,9 +15,13 @@ public:
 		//: nNode(g.nNode), nEdge(g.nEdge), nSample(g.nSample), matrix(g.matrix) {}
 	GraphProb(const int n);
 	GraphProb(const std::vector<Graph>& gs);
+
+	std::vector<double>& operator[](const size_t offset);
+	const std::vector<double>& operator[](const size_t offset) const;
 	
 public:
 	void init(const std::vector<Graph>& gs);
+	void init(const int n);
 	bool merge(const GraphProb& g);
 	bool merge(const std::vector<Graph>& gs);
 

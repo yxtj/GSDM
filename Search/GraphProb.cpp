@@ -13,6 +13,16 @@ GraphProb::GraphProb(const std::vector<Graph>& gs)
 	init(gs);
 }
 
+std::vector<double>& GraphProb::operator[](const size_t offset)
+{
+	return matrix[offset];
+}
+
+const std::vector<double>& GraphProb::operator[](const size_t offset) const
+{
+	return matrix[offset];
+}
+
 void GraphProb::init(const std::vector<Graph>& gs)
 {
 	nSample = gs.size();
@@ -39,9 +49,17 @@ void GraphProb::init(const std::vector<Graph>& gs)
 	countEdges();
 }
 
+void GraphProb::init(const int n)
+{
+	nNode = n;
+	nEdge = 0;
+	nSample = 0;
+	matrix.clear();
+}
+
 bool GraphProb::merge(const GraphProb & g)
 {
-	if(g.nNode != nNode)
+	if(nNode != 0 && g.nNode != nNode)
 		return false;
 	size_t n = nSample + g.nSample;
 	for(int i = 0; i < nNode; ++i) {
@@ -58,7 +76,7 @@ bool GraphProb::merge(const std::vector<Graph>& gs)
 	if(gs.empty()) {
 		return true;
 	}
-	if(nNode != gs.front().nNode) {
+	if(nNode != 0 && nNode != gs.front().nNode) {
 		return false;
 	}
 	size_t n = nSample + gs.size();
