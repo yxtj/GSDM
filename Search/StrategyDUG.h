@@ -10,6 +10,8 @@ class StrategyDUG
 	std::string dmethod;
 	std::string smethod;
 	double phi; // for phi-probability method
+	double minSup;
+	int smin, smax;
 	//
 	using DisSoreFun_t = double (*)(int, int, int, int);
 	DisSoreFun_t disScoreFun;
@@ -29,7 +31,7 @@ private:
 	bool parseSMethod();
 	std::vector<GraphProb> getUGfromCGs(const std::vector<std::vector<Graph>>& gs);
 
-	double probMotifOnUG(const Motif& m, const GraphProb& ug);
+	double probMotifOnUG(const MotifBuilder& m, const GraphProb& ug);
 	// DP method
 	std::vector<double> disMotifOnUDataset(const Motif& m, std::vector<GraphProb>& ugs);
 	
@@ -47,8 +49,18 @@ private:
 	double ssfMode(const std::vector<double>& disPos, const std::vector<double>& disNeg);
 	double ssfPhiProb(const std::vector<double>& disPos, const std::vector<double>& disNeg);
 
+// Candidate enumerator:
 private:
-	// local parameters for internal functions
+	std::vector<Edge> StrategyDUG::getEdges(const GraphProb & gp);
+	std::vector<Motif> method_edge2_dp(const GraphProb& ugall,
+		const std::vector<GraphProb>& ugp, const std::vector<GraphProb>& ugn);
+	std::vector<std::pair<MotifBuilder, double>> _edge2_dp(
+		const std::vector<std::pair<MotifBuilder, double>>& last, const Edge& e);
+private:
+	// local parameters shared by internal functions (valid during searching is called)
 	int nNode;
+	int minSupN;
+	std::vector<GraphProb>* pugp, *pugn;
+	GraphProb* pugall;
 };
 

@@ -13,7 +13,7 @@ const std::string StrategyDUG::usage("Discriminative Uncertain Graph\n"
 bool StrategyDUG::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 3, name);
+		checkParam(param, 6, name);
 		k = stoi(param[1]);
 		dmethod = param[2];
 		if(!parseDMethod())
@@ -23,6 +23,11 @@ bool StrategyDUG::parse(const std::vector<std::string>& param)
 		if(!parseSMethod())
 			throw invalid_argument("Strategy " + StrategyDUG::name
 				+ "cannot parse <SS method>: " + smethod);
+		minSup = stod(param[4]);
+		smin = stoi(param[5]);
+		smax = stoi(param[6]);
+		if(smax <= 0)
+			smax = numeric_limits<int>::max();
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -75,6 +80,10 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 	vector<GraphProb> ugp = getUGfromCGs(gPos);
 	vector<GraphProb> ugn = getUGfromCGs(gNeg);
 	GraphProb ugall(nNode);
+	pugp = &ugp;
+	pugn = &ugn;
+	pugall = &ugall;
+	minSupN = static_cast<int>((gPos.size() + gNeg.size())*minSup);
 	// uncertain data init
 	ugall.startAccum(nNode);
 	for(auto& ug : ugp) {
@@ -103,7 +112,7 @@ std::vector<GraphProb> StrategyDUG::getUGfromCGs(const std::vector<std::vector<G
 	return res;
 }
 
-double StrategyDUG::probMotifOnUG(const Motif & m, const GraphProb & ug)
+double StrategyDUG::probMotifOnUG(const MotifBuilder & m, const GraphProb & ug)
 {
 	double res = 1.0;
 	for(auto it = m.edges.begin(); res != 0.0 && it != m.edges.end(); ++it) {
@@ -234,6 +243,66 @@ double StrategyDUG::ssfPhiProb(const std::vector<double>& disPos, const std::vec
 		}
 	}
 	return res / nPos / nNeg;
+}
+
+std::vector<Edge> StrategyDUG::getEdges(const GraphProb & gp)
+{
+	vector<Edge> edges;
+	for(int i = 0; i < nNode; ++i) {
+		for(int j = i + 1; j < nNode; ++j)
+			if(gp.matrix[i][j] >= minSup)
+				edges.emplace_back(i, j);
+	}
+	return edges;
+}
+
+std::vector<Motif> StrategyDUG::method_edge2_dp(const GraphProb& ugall,
+	const std::vector<GraphProb>& ugp, const std::vector<GraphProb>& ugn)
+{
+	vector<Motif> mps;
+	vector<pair<MotifBuilder, double>> open;
+	open.emplace_back(MotifBuilder(), 1.0);
+
+	vector<Edge> edges = getEdges(ugall);
+	// maintain: mps: maxized result (s==smax)
+	//			open: expandable result (0<=s<=smax-1)
+	for(const Edge& e : edges) {
+		vector<pair<MotifBuilder, double>> t = _edge2_dp(open, e);
+		for(auto& mp : t) {
+			int n = mp.first.getnEdge();
+			if(n == smax) {
+				mps.push_back(mp.first.toMotif());
+			} else {
+				open.push_back(move(mp));
+			}
+		}
+	}
+
+	for(auto& mp : open) {
+		if(mp.first.getnEdge() >= smin)
+			mps.push_back(mp.first.toMotif());
+	}
+	return mps;
+}
+
+vector<pair<MotifBuilder, double>> StrategyDUG::_edge2_dp(
+	const std::vector<std::pair<MotifBuilder, double>>& last, const Edge & e)
+{
+	vector<std::pair<MotifBuilder, double>> res;
+	for(const auto& mp : last) {
+		if(mp.first.getnEdge() >= smax)
+			continue;
+		if(mp.first.empty() || mp.first.containNode(e.s) || mp.first.containNode(e.d)) {
+			MotifBuilder t(mp.first);
+			t.addEdge(e.s, e.d);
+			//double p = probMotifOnUG(t, *pugall);
+			double p = mp.second*pugall->matrix[e.s][e.d];
+			if(p >= minSup) {
+				res.push_back(make_pair(move(t), p));
+			}
+		}
+	}
+	return res;
 }
 
 

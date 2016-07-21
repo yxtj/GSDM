@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CandidateMthdFreqUG.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="Graph.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="CandidateMthdFreq-edge.cpp" />
     <ClCompile Include="CandidateMthdFreq-enum.cpp" />
     <ClCompile Include="CandidateMthdFreq-node.cpp" />
+    <ClCompile Include="CandidateMthdFreqUG.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphProb.cpp" />

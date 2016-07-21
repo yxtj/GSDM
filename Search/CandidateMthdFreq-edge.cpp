@@ -104,7 +104,7 @@ std::vector<std::pair<MotifBuilder, double>> CandidateMthdFreq::_edge2_dp(
 			MotifBuilder t(mp.first);
 			t.addEdge(e.s, e.d);
 			double p = probOfMotif(t, *gs);
-			if(testProbOfMotifGE(t, *gs, pMin)) {
+			if(p >= pMin) {
 				res.push_back(make_pair(move(t), p));
 			}
 		}

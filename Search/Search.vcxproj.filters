@@ -95,6 +95,9 @@
     <ClInclude Include="StrategyDUG.h">
       <Filter>Strategies</Filter>
     </ClInclude>
+    <ClInclude Include="CandidateMthdFreqUG.h">
+      <Filter>Method</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -174,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="MotifBuilder.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreqUG.cpp">
+      <Filter>Method\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
