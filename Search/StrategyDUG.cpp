@@ -76,6 +76,7 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
 
+	cout << "phase 1 (prepare uncertain graph):" << endl;
 	nNode = gPos.front().front().nNode;
 	vector<GraphProb> ugp = getUGfromCGs(gPos);
 	vector<GraphProb> ugn = getUGfromCGs(gNeg);
@@ -83,22 +84,54 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 	pugp = &ugp;
 	pugn = &ugn;
 	pugall = &ugall;
-	minSupN = static_cast<int>((gPos.size() + gNeg.size())*minSup);
-	// uncertain data init
+	// inti uncertain data
 	ugall.startAccum(nNode);
 	for(auto& ug : ugp) {
-		ugall.merge(ug);
+		ugall.iterAccum(ug, true);
 	}
 	for(auto& ug : gNeg) {
-		ugall.merge(ug);
+		ugall.iterAccum(ug, true);
 	}
 	ugall.finishAccum();
+	// init other local data
+	minSupN = static_cast<int>((gPos.size() + gNeg.size())*minSup);
+	topKScores.assign(k, numeric_limits<double>::min());
+	
+	{
+		int nep = 0, nen = 0;
+		double pep = 0.0, pen = 0.0;
+		for(auto&g : ugp) {
+			nep += g.nEdge;
+			pep += accumulate(g.matrix.begin(), g.matrix.end(), 0.0, [](double v, const vector<double>& line) {
+				return v + accumulate(line.begin(), line.end(), 0.0);
+			});
+		}
+		for(auto&g : ugn) {
+			nen += g.nEdge;
+			pen += accumulate(g.matrix.begin(), g.matrix.end(), 0.0, [](double v, const vector<double>& line) {
+				return v + accumulate(line.begin(), line.end(), 0.0);
+			});
+		}
+		double anep = static_cast<double>(nep) / ugp.size();
+		double anen = static_cast<double>(nen) / ugn.size();
+		double total = nNode*nNode;
+		cout << "avg edges on positive: " << anep << ", rate: " << anep / total << " avg. edge prob.: " << pep / nep << "\n";
+		cout << "avg edges on negative: " << anen << ", rate: " << anen / total << " avg. edge prob.: " << pen / nen << "\n";
+		cout << "avg edges on all: " << static_cast<double>(nep +nen)/ (ugp.size()+ugn.size())
+			<< ", rate: " << static_cast<double>(nep + nen) / (ugp.size() + ugn.size()) / total
+			<< " avg. edge prob.: " << (pep + pen) / (nep + nen) << endl;
+	}
 	
 	// start searching:
-	
-
-
+	cout << "phase 2 (search for discriminative frequent score):" << endl;
 	vector<Motif> res;
+	chrono::system_clock::time_point _time = chrono::system_clock::now();
+	res = method_edge2_dp();
+	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - _time).count();
+
+	// finish & clear up
+	cout << "  pick top " << res.size() << " motifs within " << _time_ms << " ms" << endl;
+	topKScores.clear();
 	return res;
 }
 
@@ -112,6 +145,15 @@ std::vector<GraphProb> StrategyDUG::getUGfromCGs(const std::vector<std::vector<G
 	return res;
 }
 
+double StrategyDUG::calMotifSupport(const MotifBuilder & m, const std::vector<GraphProb>& gs)
+{
+	double res = 0.0;
+	for(auto& g : gs) {
+		res += g.probOfMotif(m);
+	}
+	return res / gs.size();
+}
+
 double StrategyDUG::probMotifOnUG(const MotifBuilder & m, const GraphProb & ug)
 {
 	double res = 1.0;
@@ -121,7 +163,7 @@ double StrategyDUG::probMotifOnUG(const MotifBuilder & m, const GraphProb & ug)
 	return res;
 }
 
-std::vector<double> StrategyDUG::disMotifOnUDataset(const Motif & m, std::vector<GraphProb>& ugs)
+std::vector<double> StrategyDUG::disMotifOnUDataset(const MotifBuilder & m, std::vector<GraphProb>& ugs)
 {
 	size_t n = ugs.size();
 	// initialize:
@@ -142,13 +184,39 @@ std::vector<double> StrategyDUG::disMotifOnUDataset(const Motif & m, std::vector
 	return res;
 }
 
+double StrategyDUG::smryDisScore(const MotifBuilder & m)
+{
+	vector<double> disPos = disMotifOnUDataset(m, *pugp);
+	vector<double> disNeg = disMotifOnUDataset(m, *pugn);
+	return statSumFun(disPos, disNeg);
+}
+
+bool StrategyDUG::updateTopKScores(double newScore)
+{
+	int p;
+	for(p = k-1; p >= 0; --p) {
+		if(topKScores[p] >= newScore)
+			break;
+	}
+	++p;
+	if(p >= k)
+		return false;
+	for(int i = p + 1; i < k; ++i)
+		topKScores[i] = topKScores[i - 1];
+	topKScores[p] = newScore;
+	return true;
+}
+
 double StrategyDUG::dsfConfindence(int cMotifPos, int cMotifNeg, int cPos, int cNeg)
 {
-	return static_cast<double>(cMotifPos) / (cMotifPos + cMotifNeg);
+	int down = cMotifPos + cMotifNeg;
+	return down != 0 ? static_cast<double>(cMotifPos) / down : 0.0;
 }
 
 double StrategyDUG::dsfFreqRatio(int cMotifPos, int cMotifNeg, int cPos, int cNeg)
 {
+	if(cMotifNeg == 0 || cPos == 0)
+		return 0.0;
 	return abs(log2(static_cast<double>(cMotifPos*cNeg) / (cMotifNeg*cPos)));
 }
 
@@ -156,8 +224,9 @@ double StrategyDUG::dsfGtest(int cMotifPos, int cMotifNeg, int cPos, int cNeg)
 {
 	int difPos = cPos - cMotifPos;
 	int difNeg = cNeg - cMotifNeg;
-	return 2 * cMotifPos*log(static_cast<double>(cMotifPos*cNeg) / (cMotifNeg*cPos))
-		+ 2 * difPos*log(static_cast<double>(cNeg*difPos) / (cPos*difNeg));
+	double first= cMotifNeg==0 ? 0.0 : log(static_cast<double>(cMotifPos*cNeg) / (cMotifNeg*cPos));
+	double second = difNeg == 0 ? 0.0 : log(static_cast<double>(cNeg*difPos) / (cPos*difNeg));
+	return 2 * cMotifPos*first + 2 * difPos*second;
 }
 
 double StrategyDUG::dsfHSIC(int cMotifPos, int cMotifNeg, int cPos, int cNeg)
@@ -256,14 +325,13 @@ std::vector<Edge> StrategyDUG::getEdges(const GraphProb & gp)
 	return edges;
 }
 
-std::vector<Motif> StrategyDUG::method_edge2_dp(const GraphProb& ugall,
-	const std::vector<GraphProb>& ugp, const std::vector<GraphProb>& ugn)
+std::vector<Motif> StrategyDUG::method_edge2_dp()
 {
 	vector<Motif> mps;
 	vector<pair<MotifBuilder, double>> open;
 	open.emplace_back(MotifBuilder(), 1.0);
 
-	vector<Edge> edges = getEdges(ugall);
+	vector<Edge> edges = getEdges(*pugall);
 	// maintain: mps: maxized result (s==smax)
 	//			open: expandable result (0<=s<=smax-1)
 	for(const Edge& e : edges) {
@@ -271,7 +339,9 @@ std::vector<Motif> StrategyDUG::method_edge2_dp(const GraphProb& ugall,
 		for(auto& mp : t) {
 			int n = mp.first.getnEdge();
 			if(n == smax) {
-				mps.push_back(mp.first.toMotif());
+				if(mp.first.connected() && updateTopKScores(smryDisScore(mp.first))) {
+					mps.push_back(mp.first.toMotif());
+				}
 			} else {
 				open.push_back(move(mp));
 			}
@@ -280,7 +350,8 @@ std::vector<Motif> StrategyDUG::method_edge2_dp(const GraphProb& ugall,
 
 	for(auto& mp : open) {
 		if(mp.first.getnEdge() >= smin)
-			mps.push_back(mp.first.toMotif());
+			if(mp.first.connected() && updateTopKScores(smryDisScore(mp.first)))
+				mps.push_back(mp.first.toMotif());
 	}
 	return mps;
 }
@@ -290,15 +361,26 @@ vector<pair<MotifBuilder, double>> StrategyDUG::_edge2_dp(
 {
 	vector<std::pair<MotifBuilder, double>> res;
 	for(const auto& mp : last) {
-		if(mp.first.getnEdge() >= smax)
-			continue;
-		if(mp.first.empty() || mp.first.containNode(e.s) || mp.first.containNode(e.d)) {
+		//if(mp.first.empty() || mp.first.containNode(e.s) || mp.first.containNode(e.d))
+		{
 			MotifBuilder t(mp.first);
 			t.addEdge(e.s, e.d);
 			//double p = probMotifOnUG(t, *pugall);
 			double p = mp.second*pugall->matrix[e.s][e.d];
 			if(p >= minSup) {
-				res.push_back(make_pair(move(t), p));
+				vector<double> disPos = disMotifOnUDataset(t, *pugp);
+				vector<double> disNeg = disMotifOnUDataset(t, *pugn);
+				if(accumulate(disPos.begin(), disPos.end(), 0.0) + accumulate(disPos.begin(), disPos.end(), 0.0) < 2 * minSup)
+					continue;
+				double s = statSumFun(disPos, disNeg);
+				if(s >= topKScores.back())
+					res.push_back(make_pair(move(t), p));
+				//if(calMotifSupport(t, *pugp) + calMotifSupport(t, *pugn) < 2 * minSup)
+				//	continue;
+				//double s = smryDisScore(t);
+				//if(updateTopKScores(s)) {
+				//	res.push_back(make_pair(move(t), p));
+				//}
 			}
 		}
 	}

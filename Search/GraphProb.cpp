@@ -57,11 +57,11 @@ void GraphProb::init(const int n)
 	matrix.clear();
 }
 
-bool GraphProb::merge(const GraphProb & g)
+bool GraphProb::merge(const GraphProb & g, bool simple)
 {
 	if(nNode != 0 && g.nNode != nNode)
 		return false;
-	size_t n = nSample + g.nSample;
+	size_t n = nSample + simple ? 1 : g.nSample;
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = 0; j < nNode; ++j) {
 			matrix[i][j] = (matrix[i][j] * nSample + g.matrix[i][j] * g.nSample) / n;
@@ -121,6 +121,21 @@ bool GraphProb::iterAccum(const Graph & g)
 	return true;
 }
 
+bool GraphProb::iterAccum(const GraphProb & g, bool simple)
+{
+	if(nNode != g.nNode)
+		return false;
+	for(int i = 0; i < nNode; ++i) {
+		auto& local = matrix[i];
+		auto& line = g.matrix[i];
+		for(int j = 0; j < nNode; ++j) {
+			local[j] += line[j];
+		}
+	}
+	nSample += simple ? 1 : g.nSample;
+	return true;
+}
+
 void GraphProb::finishAccum()
 {
 	int cnt = 0;
@@ -132,6 +147,24 @@ void GraphProb::finishAccum()
 			}
 	}
 	nEdge = cnt;
+}
+
+double GraphProb::probOfMotif(const Motif & m) const
+{
+	double res = 1.0;
+	for(const Edge& e : m.edges) {
+		res *= matrix.at(e.s).at(e.d);
+	}
+	return res;
+}
+
+double GraphProb::probOfMotif(const MotifBuilder & m) const
+{
+	double res = 1.0;
+	for(const Edge& e : m.edges) {
+		res *= matrix.at(e.s).at(e.d);
+	}
+	return res;
 }
 
 void GraphProb::initMatrix()

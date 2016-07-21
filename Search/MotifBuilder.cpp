@@ -12,8 +12,11 @@ MotifBuilder::MotifBuilder(const Motif & m)
 
 Motif MotifBuilder::toMotif() const
 {
-
-	return Motif();
+	Motif m;
+	for(auto& e : edges) {
+		m.addEdge(e.s, e.d);
+	}
+	return m;
 }
 
 bool MotifBuilder::addEdge(const int s, const int d) {

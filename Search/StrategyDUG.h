@@ -9,10 +9,10 @@ class StrategyDUG
 	int k;
 	std::string dmethod;
 	std::string smethod;
-	double phi; // for phi-probability method
 	double minSup;
 	int smin, smax;
-	//
+	// helping parameters controlled by the options
+	double phi; // for phi-probability method
 	using DisSoreFun_t = double (*)(int, int, int, int);
 	DisSoreFun_t disScoreFun;
 	using StatSumFun_t = std::function<double(const std::vector<double>&, const std::vector<double>&)>;
@@ -31,10 +31,16 @@ private:
 	bool parseSMethod();
 	std::vector<GraphProb> getUGfromCGs(const std::vector<std::vector<Graph>>& gs);
 
+	double calMotifSupport(const MotifBuilder& m, const std::vector<GraphProb>& gs);
+
 	double probMotifOnUG(const MotifBuilder& m, const GraphProb& ug);
 	// DP method
-	std::vector<double> disMotifOnUDataset(const Motif& m, std::vector<GraphProb>& ugs);
-	
+	std::vector<double> disMotifOnUDataset(const MotifBuilder& m, std::vector<GraphProb>& ugs);
+
+	double smryDisScore(const MotifBuilder& m); //hidden parameters: ugPos, ugNeg
+	// return whether the top-k score is updated
+	bool updateTopKScores(double newScore);
+
 // Discriminative Score Functions:
 private:
 	static double dsfConfindence(int cMotifPos, int cMotifNeg, int cPos, int cNeg);
@@ -52,14 +58,14 @@ private:
 // Candidate enumerator:
 private:
 	std::vector<Edge> StrategyDUG::getEdges(const GraphProb & gp);
-	std::vector<Motif> method_edge2_dp(const GraphProb& ugall,
-		const std::vector<GraphProb>& ugp, const std::vector<GraphProb>& ugn);
+	std::vector<Motif> method_edge2_dp();
 	std::vector<std::pair<MotifBuilder, double>> _edge2_dp(
 		const std::vector<std::pair<MotifBuilder, double>>& last, const Edge& e);
 private:
 	// local parameters shared by internal functions (valid during searching is called)
 	int nNode;
 	int minSupN;
+	std::vector<double> topKScores;
 	std::vector<GraphProb>* pugp, *pugn;
 	GraphProb* pugall;
 };
