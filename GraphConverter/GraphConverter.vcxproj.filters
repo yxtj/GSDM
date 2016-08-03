@@ -43,6 +43,7 @@
     <ClCompile Include="LoaderABIDE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Corr2Graph.h">
@@ -87,6 +88,7 @@
     <ClInclude Include="LoaderABIDE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

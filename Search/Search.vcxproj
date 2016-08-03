@@ -176,6 +176,7 @@
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
     <ClInclude Include="Subject.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CandidateMthdFreq-edge.cpp" />
@@ -208,6 +209,7 @@
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />
     <ClCompile Include="Subject.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />

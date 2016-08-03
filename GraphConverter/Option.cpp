@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Option.h"
+#include "Util.h"
 #include <boost/program_options.hpp>
 
 using namespace std;
 
 Option::Option()
-	:desc("Options")
+	:desc("Options", getScreenSize().first)
 {
 	// define
 	using boost::program_options::value;

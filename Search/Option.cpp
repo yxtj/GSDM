@@ -2,11 +2,12 @@
 #include "Option.h"
 #include "StrategyFactory.h"
 #include "CandidateMethodFactory.h"
+#include "Util.h"
 
 using namespace std;
 
 Option::Option()
-	:desc("Options")
+	:desc("Options", getScreenSize().first)
 {
 	using boost::program_options::value;
 	desc.add_options()
