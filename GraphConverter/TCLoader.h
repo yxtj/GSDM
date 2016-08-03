@@ -22,5 +22,9 @@ public:
 	// return the name relative to the root tcPath (i.e. option.tcPath)
 	virtual std::string getFilePath(const Subject& sub) = 0;
 	virtual tc_t loadTimeCourse(const std::string& fn) = 0;
+
+public:
+	std::string padID2Head(std::string& id, const int nDig, const char PAD);
+	std::string padID2Tail(std::string& id, const int nDig, const char PAD);
 };
 

@@ -119,6 +119,7 @@ tc_t LoaderADHD200::loadTimeCourse(const std::string & fn)
 	if(!fin)
 		return res;
 	string line;
+	// there is a header line
 	getline(fin, line);
 	int nNodes=0;
 	for(size_t p = line.find('\t'); p != string::npos; p = line.find('\t', p + 1)) {
@@ -131,8 +132,11 @@ tc_t LoaderADHD200::loadTimeCourse(const std::string & fn)
 		vector<double> row;
 		row.reserve(nNodes);
 		size_t plast, p;
+		// first column: File
 		p = line.find('\t');
+		// second column: Sub-brick
 		p = line.find('\t', p + 1);
+		// valid data: start from the third column
 		plast = p + 1;
 		p = line.find('\t', plast);
 		if(p == string::npos)
@@ -152,11 +156,12 @@ tc_t LoaderADHD200::loadTimeCourse(const std::string & fn)
 // return <QC passed, scan id, diagnosis result>
 std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(const std::string & line)
 {
+	static const int POS_ID = 0, POS_DX = 5;
+	static const vector<int> POS_QC = { 17, 18, 19, 20, 21, 22 };
+
 	bool qc=true;
 	string id;
 	int dx;
-	static const int POS_ID = 0, POS_DX = 5;
-	static const vector<int> POS_QC = { 17, 18, 19, 20, 21, 22 };
 	int count = 0;
 	size_t plast = 0, p = line.find(',');
 	try {
@@ -178,5 +183,6 @@ std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(const std::
 		cerr << "Error when parsing line:\n" << line << endl;
 		qc = false;
 	}
+	id = padID2Head(id, ID_LENGTH_FILE, PADDING);
 	return make_tuple(qc, move(id), dx);
 }

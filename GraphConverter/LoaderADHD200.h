@@ -6,6 +6,9 @@ class LoaderADHD200
 	: public TCLoader
 {
 	static std::string filePrefix;
+	static const std::vector<std::string> header;
+	static const int ID_LENGTH_FILE = 7;
+	static const char PADDING = '0';
 public:
 	// 1st column: scan id, 6th column: Diagnosis (0-control, 1-ADHD-combined,
 	//  2-ADHD-Hyperactive/Impulsive, 3-ADHD-Inattentive)
@@ -21,7 +24,6 @@ public:
 	virtual tc_t loadTimeCourse(const std::string& fn);
 
 private:
-	static const std::vector<std::string> header;
 	bool checkHeader(const std::string& line);
 	// the folder and file names have 0 in high digits. total # of digits is 7
 	std::string fixSubjectID(std::string id) const;
