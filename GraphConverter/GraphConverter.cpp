@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 		auto p = opt.getInputFolder();
 		if(p.first == Option::FileType::TC) {
 			cout << "  Loading time course data..." << endl;
-			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject);
+			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubjectSkip, opt.nSubject);
 			cout << "    # of Loaded: " << smtc.size() << endl;
 			cout << "  Generating correlation..." << endl;
 			corr = processTC2Corr(smtc, opt);
