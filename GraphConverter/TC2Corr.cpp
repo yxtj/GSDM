@@ -59,7 +59,7 @@ double TC2Corr::pearsonCorrelation(const std::vector<double>& a, const std::vect
 	}
 	double n = size;
 	double down = (n*sa2 - sa*sa)*(n*sb2 - sb*sb);
-	return down == 0.0 ? 0.0 : abs((n*sab - sa*sb) / sqrt(down));
+	return down == 0.0 ? 0.0 : (n*sab - sa*sb) / sqrt(down);
 }
 
 double TC2Corr::spearmanCorrelation(const std::vector<double>& a, const std::vector<double>& b)
@@ -89,5 +89,6 @@ double TC2Corr::spearmanCorrelation(const std::vector<double>& a, const std::vec
 
 double TC2Corr::mutualInfomation(const std::vector<double>& a, const std::vector<double>& b)
 {
+	throw runtime_error("mutual information method is not implemented.");
 	return 0.0;
 }

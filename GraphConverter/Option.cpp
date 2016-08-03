@@ -9,18 +9,23 @@ Option::Option()
 {
 	// define
 	using boost::program_options::value;
+	vector<string>{"ge", "0.8"};
 	desc.add_options()
 		("help", "Print help messages")
-		("dataset", value<string>(&dataset), "specific which dataset is going to be used (ADHD, ).")
+		("dataset", value<string>(&dataset), "specific which dataset is going to be used (ADHD, ABIDE).")
+		("nSkip",value<int>(&nSubjectSkip)->default_value(0),"skip the first nSkip subjects. Used for failure recovery")
 		("nSubject,n", value<int>(&nSubject)->default_value(-1), "[integer] # of subjects to load from dataset "
 			"non-positive means load all)")
 		("tcPath", value<string>(&tcPath), "the folder for time course data (input)")
 		("corrPath", value<string>(&corrPath), "the folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output)")
 		("graphPath", value<string>(&graphPath), "the folder for graph data (output)")
-		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")), "method for calculating correlation between ROI,"
+		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")), "method for calculating correlation between ROI,\n"
 			"supports: pearson, spearman, mutialinfo")
-		("cthreshold", value<double>(&graphThrshd)->default_value(0.5), "the threshold for determining connectivity")
+		("graph-method", value<vector<string>>(&graphParam)->multitoken()->default_value(vector<string>{"ge", "0.8"}, "ge 0.8"),
+			"the methods and parameters for determining connectivity,\n"
+			"supports: gt <th>, ge <th>, lt <th>, le <th>, between <thLow> <thUp>, outside <thLow> <thUp>\n"
+			"between uses [thLow,thUp) range. outside is the oppsite to between.")
 		;
 	cutp.reg(*this);
 }

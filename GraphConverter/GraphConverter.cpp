@@ -33,6 +33,12 @@ multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Op
 	return res;
 }
 
+template<class T>
+ostream& operator<<(ostream& os, const vector<T>& vec) {
+	for(const auto& v : vec)
+		os << v << " ";
+	return os;
+}
 
 int main(int argc, char* argv[])
 {
@@ -50,7 +56,7 @@ int main(int argc, char* argv[])
 		<< "Dataset name: " << opt.dataset << "\n"
 		<< "  Number of subjects " << opt.nSubject << "\n"
 		<< "Correlation method: " << opt.corrMethod << "\n"
-		<< "Correlation threshold: " << opt.graphThrshd << "\n"
+		<< "Correlation threshold: " << opt.graphParam<< "\n"
 		<< endl;
 	cout << "Cutting method: " << opt.cutp.method << "\n" 
 		<< "Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
@@ -80,6 +86,9 @@ int main(int argc, char* argv[])
 
 	if(opt.isOutputFolder(Option::FileType::CORR)) {
 		cout << "Outputting correlations..." << endl;
+		if(!boost::filesystem::is_directory(opt.corrPath)) {
+			boost::filesystem::create_directories(opt.corrPath);
+		}
 		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.corrPath + genCorrFilename(p.first);
@@ -97,7 +106,10 @@ int main(int argc, char* argv[])
 
 	if(opt.isOutputFolder(Option::FileType::GRAPH)) {
 		cout << "Generate graphs..." << endl;
-		Corr2Graph c2g(opt.graphThrshd);
+		if(!boost::filesystem::is_directory(opt.graphPath)) {
+			boost::filesystem::create_directories(opt.graphPath);
+		}
+		Corr2Graph c2g(opt.graphParam);
 		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.graphPath + genGraphFilename(p.first);
@@ -114,6 +126,6 @@ int main(int argc, char* argv[])
 	}
 
 	cout << "Finished" << endl;
-    return 0;
+	return 0;
 }
 
