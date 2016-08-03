@@ -15,5 +15,6 @@ public:
 
 	graph_t getGraph(const corr_t& corr);
 private:
+	double parseNumber(const std::string& v);
 };
 

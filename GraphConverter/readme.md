@@ -24,10 +24,10 @@ Example command parameters:
 %start from correlation, generate graph, using pearson correlation, edges are told by absolute correlation values greater than 0.8:
 --dataset=ADHD -n 0 --corrPath=../data_adhd/corr --graphPath=../data_adhd/graph-0.7 --cut-method slide 30 12 --corr-method pearson --graph-method outside -0.8 0.8
 
---dataset=ADHD -n 0 --tcPath=E:\Data\ADHD200\ADHD200_AAL_TCs_filtfix\NYU --corrPath=../data_adhd/corr2 --cut-method slide 30 12 --corr-method pearson --graph-method outside -0.8 0.8
+--dataset=ADHD -n 0 --tcPath=E:\Data\ADHD200\ADHD200_AAL_TCs_filtfix\NYU --corrPath=../data_adhd/corr2 --cut-method slide 30 12 --corr-method pearson --graph-method outside n0.8 0.8
 
 %ABIDE
---dataset=ABIDE -n 5 --tcPath=E:\Data\ABIDE --corrPath=../data_abide/corr --cut-method slide 30 12 --corr-method pearson --graph-method outside -0.8 0.8
+--dataset=ABIDE -n 5 --tcPath=E:\Data\ABIDE --corrPath=../data_abide/corr --cut-method slide 30 12 --corr-method pearson --graph-method outside n0.8 0.8
 ```
 
 - Implementation:

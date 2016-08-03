@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Option.h"
 #include "Util.h"
-#include <boost/program_options.hpp>
 
 using namespace std;
 
@@ -10,7 +9,6 @@ Option::Option()
 {
 	// define
 	using boost::program_options::value;
-	vector<string>{"ge", "0.8"};
 	desc.add_options()
 		("help", "Print help messages")
 		("dataset", value<string>(&dataset), "specific which dataset is going to be used (ADHD, ABIDE).")
@@ -26,7 +24,8 @@ Option::Option()
 		("graph-method", value<vector<string>>(&graphParam)->multitoken()->default_value(vector<string>{"ge", "0.8"}, "ge 0.8"),
 			"the methods and parameters for determining connectivity,\n"
 			"supports: gt <th>, ge <th>, lt <th>, le <th>, between <thLow> <thUp>, outside <thLow> <thUp>\n"
-			"between uses [thLow,thUp) range. outside is the oppsite to between.")
+			"between uses [thLow,thUp) range. outside is the oppsite to between.\n"
+			"FOR NEGATIVE NUMBER, USE n0.8 instead of -0.8, because \"-x\" is regarded as an option")
 		;
 	cutp.reg(*this);
 }

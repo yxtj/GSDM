@@ -14,24 +14,24 @@ Corr2Graph::Corr2Graph(const std::vector<std::string>& param)
 		throw invalid_argument("no parameter for corr2graph.");
 	}
 	if(param[0] == "lt") {
-		double th = stod(param[1]);
+		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v < th; };
 	}else if(param[0] == "le") {
-		double th = stod(param[1]);
+		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v <= th; };
 	}else if(param[0] == "gt") {
-		double th = stod(param[1]);
+		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v > th; };
 	}else if(param[0] == "ge") {
-		double th = stod(param[1]);
+		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v >= th; };
 	} else if(param[0] == "between") {
-		double thLow = stod(param[1]);
-		double thUp = stod(param[2]);
+		double thLow = parseNumber(param[1]);
+		double thUp = parseNumber(param[2]);
 		pred = [=](const double v) {return thLow <= v && v < thUp; };
 	} else if(param[0] == "outsidde") {
-		double thLow = stod(param[1]);
-		double thUp = stod(param[2]);
+		double thLow = parseNumber(param[1]);
+		double thUp = parseNumber(param[2]);
 		pred = [=](const double v) {return v < thLow || thUp <= v; };
 	} else {
 		throw invalid_argument("unknown parameter for corr2graph: " + param[0]);
@@ -49,5 +49,12 @@ graph_t Corr2Graph::getGraph(const corr_t& corr)
 		}
 	}
 	return res;
+}
+
+double Corr2Graph::parseNumber(const std::string & v)
+{
+	if(v[0] == 'n')
+		return -stod(v.substr(1));
+	return stod(v);
 }
 
