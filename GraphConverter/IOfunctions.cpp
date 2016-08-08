@@ -8,7 +8,7 @@ using namespace std;
 //---------------------------- Time Course ---------------------------------
 
 std::multimap<Subject, tc_t> loadInputTC(
-	const std::string& tcPath, const std::string& dataset, const int nSkip, const int nSubject)
+	const std::string& tcPath, const std::string& dataset, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
 	path root(tcPath);
@@ -87,7 +87,7 @@ bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
 	return true;
 }
 
-std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject)
+std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
 	path root(corrPath);
@@ -97,7 +97,10 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const 
 	
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::multimap<Subject, corr_t> res;
+	int count = 0;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
+		if(++count <= nSkip)
+			continue;
 		string fn = it->path().filename().string();
 		Subject sub;
 		if(is_regular_file(*it) && checknParseCorrFilename(fn, &sub)) { 

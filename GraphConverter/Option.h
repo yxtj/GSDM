@@ -14,7 +14,7 @@ public:
 	enum class FileType { TC, CORR, GRAPH, NONE };
 
 	std::string dataset; // specific which dataset is going to be use
-	int nSubjectSkip; // skip some of the first subjects, to efficiently restart after failure
+	int nSkip; // skip some of the first items(subject/corr), to efficiently restart after failure
 	int nSubject; // number of subject need to be loaded from the dataset
 
 	// path for input/output data folder:

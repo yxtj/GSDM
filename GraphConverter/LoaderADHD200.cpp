@@ -95,7 +95,7 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 		throw invalid_argument("file header does not match that of the specific dataset");
 	} else if(headerType == 1) {
 		pPOS_QC = &POS_QC_1;
-	} else if(headerType == 1) {
+	} else if(headerType == 2) {
 		pPOS_QC = &POS_QC_2;
 	}
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();

@@ -16,6 +16,7 @@ multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Op
 	multimap<Subject, corr_t> res;
 	string lastID;
 	int gid = 0;
+	int cnt = 0;
 	for(auto& p : smtc) {
 		TCCutter cutter(p.second, opt.cutp);
 		Subject sub = p.first;
@@ -29,6 +30,8 @@ multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Op
 			sub.sgId = gid++;
 			res.emplace(sub, t2c.getCorr(t));
 		}
+		if(++cnt % 100 == 0)
+			cout << "  processed " << cnt << endl;
 	}
 	return res;
 }
@@ -70,15 +73,15 @@ int main(int argc, char* argv[])
 		auto p = opt.getInputFolder();
 		if(p.first == Option::FileType::TC) {
 			cout << "  Loading time course data..." << endl;
-			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubjectSkip, opt.nSubject);
-			cout << "    # of Loaded: " << smtc.size() << endl;
+			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject, opt.nSkip);
+			cout << "    # of loaded: " << smtc.size() << endl;
 			cout << "  Generating correlation..." << endl;
 			corr = processTC2Corr(smtc, opt);
 		} else if(p.first == Option::FileType::CORR) {
 			cout << "  Loading correlation data:" << endl;
 			corr = loadInputCorr(opt.corrPath, opt.nSubject);
 		}
-		cout << "    # of Loaded " << corr.size() << endl;
+		cout << "    # of loaded input data " << corr.size() << endl;
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return 2;
@@ -99,9 +102,9 @@ int main(int argc, char* argv[])
 			}
 			writeCorr(fout, p.second);
 			if(++cnt % 100 == 0)
-				cout << "  Outputted " << cnt << endl;
+				cout << "  # of  outputted " << cnt << endl;
 		}
-		cout << "  Outputted " << cnt << endl;
+		cout << "  # of outputted " << cnt << endl;
 	}
 
 	if(opt.isOutputFolder(Option::FileType::GRAPH)) {
@@ -120,9 +123,9 @@ int main(int argc, char* argv[])
 			}
 			writeGraph(fout, c2g.getGraph(p.second));
 			if(++cnt % 100 == 0)
-				cout << "  Outputted " << cnt << endl;
+				cout << "  # of outputted " << cnt << endl;
 		}
-		cout << "  Outputted " << cnt << endl;
+		cout << "  # of outputted " << cnt << endl;
 	}
 
 	cout << "Finished" << endl;

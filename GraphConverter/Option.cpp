@@ -12,8 +12,8 @@ Option::Option()
 	desc.add_options()
 		("help", "Print help messages")
 		("dataset", value<string>(&dataset), "specific which dataset is going to be used (ADHD, ABIDE).")
-		("nSkip",value<int>(&nSubjectSkip)->default_value(0),"skip the first nSkip subjects. Used for failure recovery")
-		("nSubject,n", value<int>(&nSubject)->default_value(-1), "[integer] # of subjects to load from dataset "
+		("nSkip",value<int>(&nSkip)->default_value(0),"skip the first nSkip items(subject/corr). Used for failure recovery")
+		("nSubject,n", value<int>(&nSubject)->default_value(-1), "[integer] # of items(subject/corr) to load from dataset "
 			"non-positive means load all)")
 		("tcPath", value<string>(&tcPath), "the folder for time course data (input)")
 		("corrPath", value<string>(&corrPath), "the folder for correlation data "
