@@ -3,7 +3,7 @@
 
 using namespace std;
 
-string LoaderABIDE::filePrefix = "ROISignals_FunimgARCWF/ROISignals_";
+const string LoaderABIDE::filePrefix = "ROISignals_FunimgARCWF/ROISignals_00";
 
 const std::vector<std::string> LoaderABIDE::header = {
 "SITE_ID","SUB_ID","DX_GROUP","DSM_IV_TR","AGE_AT_SCAN","SEX","HANDEDNESS_CATEGORY","HANDEDNESS_SCORES","FIQ","VIQ","PIQ","FIQ_TEST_TYPE",
@@ -155,6 +155,6 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(const std::st
 		p = line.find(',', plast);
 		++count;
 	}
-	id = padID2Head(id, ID_LENGTH_FILE, PADDING);
+//	id = padID2Head(id, ID_LENGTH_FILE, PADDING);
 	return make_tuple(reliable, move(id), dx);
 }
