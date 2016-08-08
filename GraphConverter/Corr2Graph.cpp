@@ -29,7 +29,7 @@ Corr2Graph::Corr2Graph(const std::vector<std::string>& param)
 		double thLow = parseNumber(param[1]);
 		double thUp = parseNumber(param[2]);
 		pred = [=](const double v) {return thLow <= v && v < thUp; };
-	} else if(param[0] == "outsidde") {
+	} else if(param[0] == "outside") {
 		double thLow = parseNumber(param[1]);
 		double thUp = parseNumber(param[2]);
 		pred = [=](const double v) {return v < thLow || thUp <= v; };
