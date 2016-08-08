@@ -5,8 +5,11 @@
 class LoaderADHD200
 	: public TCLoader
 {
-	static std::string filePrefix;
-	static const std::vector<std::string> header;
+	static const std::string filePrefix;
+	static const std::vector<std::string> header1, header2;
+	static const int POS_ID, POS_DX;
+	static const std::vector<int> POS_QC_1, POS_QC_2;
+
 	static const int ID_LENGTH_FILE = 7;
 	static const char PADDING = '0';
 public:
@@ -24,10 +27,10 @@ public:
 	virtual tc_t loadTimeCourse(const std::string& fn);
 
 private:
-	bool checkHeader(const std::string& line);
+	int checkHeader(const std::string& line);
 	// the folder and file names have 0 in high digits. total # of digits is 7
 	std::string fixSubjectID(std::string id) const;
 	// return <QC passed, scan id, diagnosis result>
-	std::tuple<bool, std::string, int> parsePhenotypeLine(const std::string& line);
+	std::tuple<bool, std::string, int> parsePhenotypeLine(const std::string& line, const std::vector<int>* pPOS_QC);
 };
 

@@ -3,27 +3,55 @@
 
 using namespace std;
 
-std::string LoaderADHD200::filePrefix = "sfnwmrda";
-//std::string LoaderADHD200::filePrefix = "snwmrda";
+const std::string LoaderADHD200::filePrefix = "sfnwmrda";
+//const std::string LoaderADHD200::filePrefix = "snwmrda";
 
-const std::vector<std::string> LoaderADHD200::header={
+const int LoaderADHD200::POS_ID = 0;
+const int LoaderADHD200::POS_DX = 5;
+
+const std::vector<std::string> LoaderADHD200::header1={
 	"ScanDir ID","Site","Gender","Age","Handedness",
 	"DX","Secondary Dx ","ADHD Measure","ADHD Index","Inattentive",
 	"Hyper/Impulsive","IQ Measure","Verbal IQ","Performance IQ","Full2 IQ",
 	"Full4 IQ","Med Status","QC_Rest_1","QC_Rest_2","QC_Rest_3",
 	"QC_Rest_4","QC_Anatomical_1","QC_Anatomical_2" };
+const vector<int> LoaderADHD200::POS_QC_1 = { 17, 18, 19, 20, 21, 22 };
 
-bool LoaderADHD200::checkHeader(const string& line) {
+const std::vector<std::string> LoaderADHD200::header2 = {
+	"ScanDirID","Site","Gender","Age","Handedness",
+	"DX","Secondary Dx ","ADHD Measure","ADHD Index","Inattentive",
+	"Hyper/Impulsive","IQ Measure","Verbal IQ","Performance IQ","Full2 IQ",
+	"Full4 IQ","Med Status","Study #","QC_S1_Rest_1","QC_S1_Rest_2",
+	"QC_S1_Rest_3","QC_S1_Rest_4","QC_S1_Rest_5","QC_S1_Rest_6","QC_S1_Anat",
+	"QC_S2_Rest_1","QC_S2_Rest_2","QC_S2_Anat"};
+const vector<int> LoaderADHD200::POS_QC_2 = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27 };
+
+int LoaderADHD200::checkHeader(const string& line) {
 	int count = 0;
+	int res = 1;
 	for(size_t plast = 0, p = line.find(','); p != string::npos;) {
-		if(header[count] != (line[plast] != '"' ? line.substr(plast, p - plast) 
-			: line.substr(plast + 1, p - plast - 2)))
-			return false;
+		if(header1[count] != line.substr(plast + 1, p - plast - 2)) {
+			res = 0;
+			break;
+		}
 		plast = p + 1;
 		p = line.find(',', plast);
 		++count;
 	}
-	return true;
+	if(res == 1)
+		return res;
+	res = 2;
+	count = 0;
+	for(size_t plast = 0, p = line.find(','); p != string::npos;) {
+		if(header2[count] != line.substr(plast + 1, p - plast - 2)) {
+			res = 0;
+			break;
+		}
+		plast = p + 1;
+		p = line.find(',', plast);
+		++count;
+	}
+	return res;
 }
 
 std::string LoaderADHD200::fixSubjectID(std::string id) const
@@ -60,9 +88,15 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 
 	string line;
 	getline(fin, line);
-	if(!checkHeader(line)) {
+	int headerType = checkHeader(line);
+	const vector<int>* pPOS_QC = nullptr;
+	if(headerType == 0) {
 		cerr << "Header line of file '" << fn << "' is not correct!" << endl;
 		throw invalid_argument("file header does not match that of the specific dataset");
+	} else if(headerType == 1) {
+		pPOS_QC = &POS_QC_1;
+	} else if(headerType == 1) {
+		pPOS_QC = &POS_QC_2;
 	}
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::vector<Subject> res;
@@ -70,7 +104,7 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 		bool valid;
 		string sid; 
 		int type;
-		tie(valid, sid, type) = parsePhenotypeLine(line);
+		tie(valid, sid, type) = parsePhenotypeLine(line, pPOS_QC);
 		if(valid) {
 			sid = fixSubjectID(sid);
 			res.push_back(Subject{ move(sid), type });
@@ -154,10 +188,9 @@ tc_t LoaderADHD200::loadTimeCourse(const std::string & fn)
 }
 
 // return <QC passed, scan id, diagnosis result>
-std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(const std::string & line)
+std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(
+	const std::string & line, const vector<int>* pPOS_QC)
 {
-	static const int POS_ID = 0, POS_DX = 5;
-	static const vector<int> POS_QC = { 17, 18, 19, 20, 21, 22 };
 
 	bool qc=true;
 	string id;
@@ -170,7 +203,7 @@ std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(const std::
 				id = line.substr(plast, p);
 			} else if(POS_DX == count) {
 				dx = stoi(line.substr(plast, p - plast));
-			} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
+			} else if(find(pPOS_QC->begin(), pPOS_QC->end(), count) != pPOS_QC->end()) {
 				string qc_str = line.substr(plast, p - plast);
 				if(qc && "\"N/A\"" != qc_str && "N/A" != qc_str)
 					qc = qc && !qc_str.empty() && stoi(qc_str) == 1;
