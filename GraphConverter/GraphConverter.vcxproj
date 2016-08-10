@@ -161,6 +161,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TC2Corr.h" />
     <ClInclude Include="TCLoader.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComplexParamBase.cpp" />
@@ -182,6 +183,7 @@
     </ClCompile>
     <ClCompile Include="TC2Corr.cpp" />
     <ClCompile Include="TCLoader.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />

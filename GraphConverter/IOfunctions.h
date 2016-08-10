@@ -10,7 +10,7 @@
 
 // non-positive nSubject means all
 std::multimap<Subject, tc_t> loadInputTC(
-	const std::string& tcPath, const std::string& dataset, const int nSubject);
+	const std::string& tcPath, const std::string& dataset, const int nSubject, const int nSkip = 0);
 
 //---------------------------- Correlation ---------------------------------
 
@@ -22,7 +22,7 @@ Subject parseCorrFilename(const std::string& fn) noexcept(false);
 bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept;
 
 // non-positive nSubject means all
-std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int Subject = -1);
+std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int Subject = -1, const int nSkip = 0);
 
 corr_t readCorr(const std::string& fn);
 void writeCorr(std::ostream& os, const corr_t& corr);

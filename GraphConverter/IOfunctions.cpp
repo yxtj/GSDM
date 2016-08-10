@@ -8,7 +8,7 @@ using namespace std;
 //---------------------------- Time Course ---------------------------------
 
 std::multimap<Subject, tc_t> loadInputTC(
-	const std::string& tcPath, const std::string& dataset, const int nSubject)
+	const std::string& tcPath, const std::string& dataset, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
 	path root(tcPath);
@@ -19,16 +19,20 @@ std::multimap<Subject, tc_t> loadInputTC(
 	TCLoader* loader = LoaderFactory::generate(dataset);
 	multimap<Subject, tc_t> res;
 
-	vector<Subject> slilst;
+	vector<Subject> slist;
 	{
 		vector<Subject> validList = loader->loadValidList(tcPath, nSubject);
-		slilst = loader->getAllSubjects(validList, tcPath);
+		slist = loader->getAllSubjects(validList, tcPath);
 	}
-// 	if(nSubject > 0 && slilst.size() > static_cast<size_t>(nSubject)) {
-// 		auto it = slilst.begin() + nSubject;
-// 		slilst.erase(it, slilst.end());
+// 	if(nSubject > 0 && slist.size() > static_cast<size_t>(nSubject)) {
+// 		auto it = slist.begin() + nSubject;
+// 		slist.erase(it, slist.end());
 // 	}
-	for(Subject& s : slilst) {
+	int count = 0;
+	for(Subject& s : slist) {
+		// skip the first nSkip subjects:
+		if(++count <= nSkip)
+			continue;
 		string fn = loader->getFilePath(s);
 		tc_t tc = loader->loadTimeCourse(tcPath + fn);
 		res.emplace(move(s), move(tc));
@@ -83,7 +87,7 @@ bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
 	return true;
 }
 
-std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject)
+std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
 	path root(corrPath);
@@ -93,7 +97,10 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const 
 	
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 	std::multimap<Subject, corr_t> res;
+	int count = 0;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
+		if(++count <= nSkip)
+			continue;
 		string fn = it->path().filename().string();
 		Subject sub;
 		if(is_regular_file(*it) && checknParseCorrFilename(fn, &sub)) { 

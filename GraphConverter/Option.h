@@ -14,6 +14,7 @@ public:
 	enum class FileType { TC, CORR, GRAPH, NONE };
 
 	std::string dataset; // specific which dataset is going to be use
+	int nSkip; // skip some of the first items(subject/corr), to efficiently restart after failure
 	int nSubject; // number of subject need to be loaded from the dataset
 
 	// path for input/output data folder:
@@ -22,7 +23,7 @@ public:
 	TCCutterParam cutp;
 
 	std::string corrMethod; // method of calculating correlation
-	double graphThrshd; // the correlation threshold for determine connectivity
+	std::vector<std::string> graphParam; // the correlation predicate for determine connectivity
 
 public:
 	Option();
