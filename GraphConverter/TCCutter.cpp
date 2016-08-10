@@ -21,7 +21,7 @@ TCCutter::TCCutter(tc_t & data, const TCCutterParam& parm)
 
 bool TCCutter::haveNext() const
 {
-	return static_cast<size_t>(pos + size) < data.size();
+	return static_cast<size_t>(pos + size) <= data.size();
 }
 
 corr_t TCCutter::getNext()
