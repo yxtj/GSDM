@@ -5,7 +5,7 @@ using namespace std;
 
 const std::string StrategyDUG::name("DUG");
 const std::string StrategyDUG::usage("Discriminative Uncertain Graph\n"
-	"Usage: " + StrategyDUG::name + " <top k> <DS method> <SS method>\n"
+	"Usage: " + StrategyDUG::name + " <top k> <DS method> <SS method> <minSup> <smin> <smax>\n"
 	"  <DS method>: Discriminative score method (conf, freq, gtest, hsic).\n"
 	"  <SS method>: Statistical summary method (exp, median, mode, phi<X>), where <X> of phi<X> can be any number.");
 
