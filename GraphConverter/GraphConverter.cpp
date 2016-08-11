@@ -57,7 +57,8 @@ int main(int argc, char* argv[])
 		<< "  Output to correlation: " << boolalpha << opt.isOutputFolder(Option::FileType::CORR) << "\n"
 		<< "  Output to graph: " << boolalpha << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
 		<< "Dataset name: " << opt.dataset << "\n"
-		<< "  Number of subjects " << opt.nSubject << "\n"
+		<< "  Number of skipped itmes " << opt.nSkip << "\n"
+		<< "  Number of items " << opt.nSubject << "\n"
 		<< "Correlation method: " << opt.corrMethod << "\n"
 		<< "Correlation threshold: " << opt.graphParam<< "\n"
 		<< endl;
@@ -79,7 +80,7 @@ int main(int argc, char* argv[])
 			corr = processTC2Corr(smtc, opt);
 		} else if(p.first == Option::FileType::CORR) {
 			cout << "  Loading correlation data:" << endl;
-			corr = loadInputCorr(opt.corrPath, opt.nSubject);
+			corr = loadInputCorr(opt.corrPath, opt.nSubject, opt.nSkip);
 		}
 		cout << "    # of loaded input data " << corr.size() << endl;
 	} catch(exception& e) {

@@ -10,7 +10,7 @@
 
 // non-positive nSubject means all
 std::multimap<Subject, tc_t> loadInputTC(
-	const std::string& tcPath, const std::string& dataset, const int nSubject, const int nSkip = 0);
+	const std::string& tcPath, const std::string& dataset, const int nSubject = -1, const int nSkip = 0);
 
 //---------------------------- Correlation ---------------------------------
 
