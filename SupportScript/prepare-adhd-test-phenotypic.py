@@ -92,7 +92,7 @@ def main(phenoFile, rootData):
 if __name__ == '__main__':
     if(len(sys.argv)!=3):
         print('usage: <path to test phenotypic file> <root path of data>')
-        exit
+        sys.exit()
     phenoFile=sys.argv[1]
     rootData=sys.argv[2]
     
