@@ -41,7 +41,9 @@ RELCFLAGS = -O2 -DNDEBUG
 all: release
 
 #Debug:
-debug: $(DBGEXE)
+debug: ../$(DEGEXE)
+
+../$(DEGEXE): $(DBGEXE)
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
@@ -56,7 +58,9 @@ $(DBGDIR)/%.o: %.cpp
 # Release rules
 #
 
-release: $(RELEXE)
+release: ../$(RELEXE)
+
+../$(RELEXE): $(RELEXE)
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
