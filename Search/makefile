@@ -43,22 +43,26 @@ RELCFLAGS = -O2 -DNDEBUG
 all: release
 
 #Debug:
-debug: $(DBGEXE)
+debug: ../$(DEGEXE)
+
+../$(DEGEXE): $(DBGEXE)
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $(LIBS) -o $(DBGEXE) $^
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(LIBS) -o $(DBGEXE) $^
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
-	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
 
 #
 # Release rules
 #
 
-release: $(RELEXE)
+release: ../$(RELEXE)
+
+../$(RELEXE): $(RELEXE)
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
