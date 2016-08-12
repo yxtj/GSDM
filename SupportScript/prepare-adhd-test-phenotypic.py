@@ -58,6 +58,7 @@ def processPhenotypicFile(rootData, folder, glPhentp):
     POS_I=lh.index('"Inattentive"')
     POS_H=lh.index('"Hyper/Impulsive"')
     POS_MS=lh.index('"Med Status"')
+    cnt=0
     for line in fin:
         row=line.split(','); # keep the last '\n'
         id=row[POS_ID]
@@ -71,12 +72,13 @@ def processPhenotypicFile(rootData, folder, glPhentp):
             row[POS_H]=v[5]
             row[POS_MS]=v[6]
             fout.write(','.join(row))
+            cnt+=1
         else:
             print('  id: '+str(id)+' is not fount in the global list')
     fin.close()
     fout.close()
-            
-            
+    return cnt
+
 
 def main(phenoFile, rootData):
     print('loading global list')
@@ -86,7 +88,8 @@ def main(phenoFile, rootData):
     for fn in os.listdir(rootData):
         if os.path.isdir(rootData+'/'+fn) and fn in validSite:
             print('processing folder: '+fn)
-            processPhenotypicFile(rootData,fn,glPhento)
+            cnt=processPhenotypicFile(rootData,fn,glPhento)
+            pritn('  processed: '+str(cnt))
     print('done')
 
 if __name__ == '__main__':
@@ -95,5 +98,7 @@ if __name__ == '__main__':
         sys.exit()
     phenoFile=sys.argv[1]
     rootData=sys.argv[2]
+    print('global phenotypic file: '+phenoFile)
+    print('root path of data folders: '+rootData)
     
     main(phenoFile, rootData)
