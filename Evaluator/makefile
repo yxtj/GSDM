@@ -3,12 +3,10 @@ CC ?= gcc
 #CMAKE = cmake
 #TOP = $(shell pwd)
 MAKE := $(MAKE) --no-print-directory
-MPI_COMPILE_FLAGS = $(shell mpic++ --showme:compile)
-MPI_LINK_FLAGS = $(shell mpic++ --showme:link)
 SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
-EXE = Search
+EXE = Evaluator
 CXXFLAGS = -std=c++11
 INC = 
 ifeq ($(OS),Windows_NT)
@@ -48,11 +46,11 @@ debug: $(DBGEXE)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $(LIBS) -o $(DBGEXE) $^
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(LIBS) -o $(DBGEXE) $^
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
-	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
 
 #
 # Release rules
@@ -63,11 +61,11 @@ release: $(RELEXE)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $(LIBS) -o $(RELEXE) $^
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(LIBS) -o $(RELEXE) $^
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
-	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
 
 #
 # common rules
@@ -81,7 +79,7 @@ directories:
 	@mkdir -p ../$(RELDIR)
 
 stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.h -o stdafx.h.gch
+	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.cpp -o stdafx.h.gch
 	
 clean:
 	rm -rf $(DBGDIR)
