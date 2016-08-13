@@ -204,9 +204,9 @@ std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(
 			} else if(POS_DX == count) {
 				dx = stoi(line.substr(plast, p - plast));
 			} else if(find(pPOS_QC->begin(), pPOS_QC->end(), count) != pPOS_QC->end()) {
-				string qc_str = line.substr(plast, p - plast);
-				if(qc && "\"N/A\"" != qc_str && "N/A" != qc_str)
-					qc = qc && !qc_str.empty() && stoi(qc_str) == 1;
+				//string qc_str = line.substr(plast, p - plast);
+				// acceptable case: 1, "N/A", N/A, <empty>
+				qc = qc && line.substr(plast, p - plast) != "0";
 			}
 			plast = p + 1;
 			p = line.find(',', plast);
