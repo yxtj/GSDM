@@ -89,7 +89,7 @@ def main(phenoFile, rootData):
         if os.path.isdir(rootData+'/'+fn) and fn in validSite:
             print('processing folder: '+fn)
             cnt=processPhenotypicFile(rootData,fn,glPhento)
-            pritn('  processed: '+str(cnt))
+            print('  processed: '+str(cnt))
     print('done')
 
 if __name__ == '__main__':
