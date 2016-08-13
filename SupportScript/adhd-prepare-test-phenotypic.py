@@ -19,6 +19,11 @@ SITE={
 '8': 'WashU',
 }
 
+def entryProcess(entry):
+    if entry=='N/A':
+        entry='"N/A"'
+    return entry
+
 def loadGlobalPhenotypicFile(fn):
     res={};
     with open(fn, 'r') as f:
@@ -36,7 +41,9 @@ def loadGlobalPhenotypicFile(fn):
         for row in csvin:
             if row[POS_DX]=='pending':
                 continue
-            res[row[POS_ID]]=[row[POS_DX], row[POS_DXS],row[POS_AM],row[POS_AI],row[POS_I],row[POS_H],row[POS_MS]]
+            res[row[POS_ID]]=[entryProcess(row[POS_DX]), entryProcess(row[POS_DXS]),
+             entryProcess(row[POS_AM]), entryProcess(row[POS_AI]), entryProcess(row[POS_I]), 
+             entryProcess(row[POS_H]), entryProcess(row[POS_MS])]
     return res
     
 def processPhenotypicFile(rootData, folder, glPhentp):
