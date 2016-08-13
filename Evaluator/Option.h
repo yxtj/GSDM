@@ -15,7 +15,9 @@ public:
 	std::string motifPath, motifPattern;
 	std::string graphPath;
 	std::vector<int> graphTypes;
-	std::string outputPath;
+
+	std::string logFile;
+	std::string outputFile;
 
 	double thrsldMotifSub; // the portion threshold for regarding a motif as existence on a subject
 

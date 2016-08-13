@@ -15,10 +15,10 @@ Option::Option()
 			"non-positive means load all)")
 		("nGraph", value<int>(&nGraph)->default_value(-1), "[integer] # of graph to load"
 			"non-positive means load all)")
-		("nSkipMotif",value<int>(&nSkipMotif)->default_value(0),"[integer] skip the first nSkip valid motifs.")
-		("nSkipGraph", value<int>(&nSkipGraph)->default_value(0), "[integer] skip the first nSkip valid graph.")
+		("nSkipMotif",value<int>(&nSkipMotif)->default_value(0),"[integer] skip the first k valid motifs.")
+		("nSkipGraph", value<int>(&nSkipGraph)->default_value(0), "[integer] skip the first k valid graph.")
 		("motifPath", value<string>(&motifPath), "the folder for motifs (input)")
-		("motifPattern", value<string>(&motifPattern)->default_value(string("res-*\\.txt")), 
+		("motifPattern", value<string>(&motifPattern)->default_value(string("res-.*\\.txt")), 
 			"the file name pattern for the motif files, in ECMAScript regular expressions syntax. "
 			"USE \"\" to contain the regular expression for special characters of the shell, like *")
 		("graphPath", value<string>(&graphPath), "the folder for graph data (input)")
@@ -27,7 +27,8 @@ Option::Option()
 //			"the file name pattern for the motif files, in ECMAScript regular expressions syntax.")
 		("thrsldMotifSub", value<double>(&thrsldMotifSub)->default_value(0.4), 
 			"the portion threshold for regarding a motif as existence on a subject")
-		("outputPath", value<string>(&outputPath), "the folder for outputting the result (output)")
+		("logFile", value<string>(&logFile), "the file for detailed motif checking log (output)")
+		("outputFile", value<string>(&outputFile), "the file for outputting the result (output)")
 		;
 }
 
@@ -60,7 +61,7 @@ bool Option::parseInput(int argc, char* argv[]) {
 	while(!flag_help) { // technique for condition checking
 		sortUpPath(motifPath);
 		sortUpPath(graphPath);
-		sortUpPath(outputPath);
+//		sortUpPath(outputFile);
 		break;
 	}
 

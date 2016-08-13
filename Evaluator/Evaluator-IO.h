@@ -14,8 +14,11 @@ std::vector<SubjectData> loadGraph(const std::string& folder, const std::vector<
 
 void outputFoundMotifs(std::ostream& os, const Motif& m);
 
-Motif readMotif(std::istream& os);
+Motif parseMotif(const std::string& line);
+std::vector<Motif> readMotif(std::istream& os);
 
 std::vector<Motif> loadMotif(const std::string& folder, const std::string& fnPattern, int limit, int nSkip);
 
-void writeConfusionMatrix(std::ostream& os, const std::vector<ConfusionMatrix>& cm);
+void showConfusionMatrixHead(std::ostream& os);
+void showConfusionMatrix(std::ostream& os, const ConfusionMatrix& cm);
+void showConfusionMatrix(std::ostream& os, const std::vector<ConfusionMatrix>& cm);

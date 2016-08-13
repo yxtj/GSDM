@@ -12,9 +12,10 @@ Graph loadGraph(istream& is) {
 	return res;
 }
 
-vector<SubjectData> loadGraph(const string& folder, const vector<int>& graphTypes, int limit, int nSkip) {
+vector<SubjectData> loadGraph(const string& folder, const vector<int>& graphTypes, int nGraph, int nSkip) {
 	using namespace boost::filesystem;
 	path root(folder);
+	int limit = nGraph > 0 ? nGraph : numeric_limits<int>::max();
 	Subject sub;
 	unordered_set<int> types(graphTypes.begin(), graphTypes.end());
 	int cnt = 0;
@@ -51,13 +52,11 @@ void outputFoundMotifs(ostream& os, const Motif& m) {
 	os << '\n';
 }
 
-Motif readMotif(istream& os) {
-	string line;
-	getline(os, line);
+Motif parseMotif(const std::string& line) {
 	size_t plast = line.find('\t') + 1;
 	size_t p = line.find('\t', plast);
 	int nEdge = stoi(line.substr(plast, p - plast));
-	plast = p + 1;
+	plast = p + 2;
 	Motif m;
 	while(nEdge--) {
 		size_t pmid = line.find(',', plast);
@@ -66,18 +65,29 @@ Motif readMotif(istream& os) {
 		p = line.find(')', pmid);
 		int d = stoi(line.substr(pmid, p - pmid));
 		m.addEdge(s, d);
-		plast = p + 2;
+		plast = p + 3;
 	}
 	return m;
 }
 
-vector<Motif> loadMotif(const string& folder, const string& fnPattern, int limit, int nSkip) {
+std::vector<Motif> readMotif(istream& os) {
+	std::vector<Motif> res;
+	string line;
+	while(getline(os, line)) {
+		if(line.empty())
+			continue;
+		res.push_back(parseMotif(line));
+	}
+	return res;
+}
+
+vector<Motif> loadMotif(const string& folder, const string& fnPattern, int nMotif, int nSkip) {
 	using namespace boost::filesystem;
 	path root(folder);
+	size_t limit = nMotif > 0 ? nMotif : numeric_limits<size_t>::max();
 	regex reg(fnPattern);
 	int cnt = 0;
 	vector<Motif> res;
-	res.reserve(limit);
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
 		string fn = it->path().filename().string();
 		if(!regex_match(fn, reg))
@@ -85,14 +95,32 @@ vector<Motif> loadMotif(const string& folder, const string& fnPattern, int limit
 		if(++cnt <= nSkip)
 			continue;
 		ifstream fin(folder + fn);
-		res.push_back(readMotif(fin));
+		auto temp = readMotif(fin);
+		move(temp.begin(), temp.end(), back_inserter(res));
 		if(res.size() >= limit)
 			break;
 	}
 	return res;
 }
 
-void writeConfusionMatrix(std::ostream & os, const std::vector<ConfusionMatrix>& cm)
+static const char sep = '\t';
+
+void showConfusionMatrixHead(std::ostream & os)
 {
-	// TODO
+	os << "tp" << sep << "fn" << sep << "fp" << sep << "tn";
+	os << sep << "accurancy" << sep << "precision" << sep << "recall" << sep << "f1";
+}
+
+void showConfusionMatrix(std::ostream & os, const ConfusionMatrix& cm) 
+{
+	os << cm.tp << sep << cm.fn << sep << cm.fp << sep << cm.tn;
+	os << sep << cm.accuracy() << sep << cm.precision() << sep << cm.recall() << sep << cm.f1();
+}
+
+void showConfusionMatrix(std::ostream & os, const std::vector<ConfusionMatrix>& cms)
+{
+	for(auto& cm : cms) {
+		showConfusionMatrix(os, cm);
+		os << "\n";
+	}
 }
