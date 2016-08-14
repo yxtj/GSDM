@@ -10,16 +10,19 @@ import os,sys
 def processOneFile(fn):
     cnt=0;
     accurancy=0.0
+    precision=0.0
     recall=0.0
     f1=0.0
     with open(fn) as fin:
         header=fin.readline()[:-1].split('\t')
         pACC=header.index('accurancy')
+        pPRE=header.index('precision')
         pREC=header.index('recall')
         pF1=header.index('f1')
         for line in fin:
             line=line[:-1].split('\t')
             accurancy+=float(line[pACC])
+            precision+=float(line[pPRE])
             recall+=float(line[pREC])
             f1+=float(line[pF1])
             cnt+=1
@@ -27,16 +30,16 @@ def processOneFile(fn):
         accurancy/=cnt
         recall/=cnt
         f1/=cnt
-    return (cnt, accurancy, recall, f1)
+    return (cnt, accurancy, precision, recall, f1)
 
 def output(outFn, data):
     fout=open(outFn, 'w')
     if not fout:
         print('cannot open output file')
         return
-    fout.write('\t'.join(['filename','count','accurancy','recall','f1'])+'\n')
-    for fn,t in data.items():
-        fout.write(fn+'\t'+'\t'.join([str(v) for v in t]))
+    fout.write('\t'.join(['filename','count','accurancy','precision','recall','f1'])+'\n')
+    for fn,t in sorted(data.items()):
+        fout.write(fn+'\t'+'\t'.join([str(v) if isinstance(v,int) else '%.6f'%v for v in t]))
         fout.write('\n')
 
 def main(folder, outFn):
