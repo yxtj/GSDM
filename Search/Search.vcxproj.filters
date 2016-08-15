@@ -95,6 +95,12 @@
     <ClInclude Include="Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyDUG.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="CandidateMthdFreqUG.h">
+      <Filter>Method</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -169,8 +175,14 @@
     <ClCompile Include="MotifCommunicator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StrategyDUG.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
     <ClCompile Include="MotifBuilder.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CandidateMthdFreqUG.cpp">
+      <Filter>Method\Source</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>

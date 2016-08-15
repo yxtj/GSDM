@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CandidateMthdFreqUG.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="Graph.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="CandidateMethodFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
+    <ClInclude Include="StrategyDUG.h" />
     <ClInclude Include="StrategyFactory.h" />
     <ClInclude Include="StrategyParaFreqPmN.h" />
     <ClInclude Include="StrategyXor.h" />
@@ -182,6 +184,7 @@
     <ClCompile Include="CandidateMthdFreq-edge.cpp" />
     <ClCompile Include="CandidateMthdFreq-enum.cpp" />
     <ClCompile Include="CandidateMthdFreq-node.cpp" />
+    <ClCompile Include="CandidateMthdFreqUG.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphProb.cpp" />
@@ -204,6 +207,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CandidateMthdFreq.cpp" />
+    <ClCompile Include="StrategyDUG.cpp" />
     <ClCompile Include="StrategyFactory.cpp" />
     <ClCompile Include="StrategyParaFreqPmN.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
