@@ -24,6 +24,6 @@ public:
 	static bool testProbOfMotifLE(const Motif& m, const std::vector<Graph>& gs, const double pMax);
 	static bool testProbOfMotifLE(const MotifBuilder& m, const std::vector<Graph>& gs, const double pMax);
 
-	std::vector<Motif> toMotif(const std::vector<MotifBuilder>& mbs);
+	static std::vector<Motif> toMotif(const std::vector<MotifBuilder>& mbs);
 
 };
