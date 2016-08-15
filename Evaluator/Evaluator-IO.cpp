@@ -15,6 +15,10 @@ Graph loadGraph(istream& is) {
 vector<SubjectData> loadGraph(const string& folder, const vector<int>& graphTypes, int nGraph, int nSkip) {
 	using namespace boost::filesystem;
 	path root(folder);
+	if(!exists(root)) {
+		cerr << "cannot open graph folder: " << folder << endl;
+		throw invalid_argument("cannot open graph folder: " + folder);
+	}
 	int limit = nGraph > 0 ? nGraph : numeric_limits<int>::max();
 	Subject sub;
 	unordered_set<int> types(graphTypes.begin(), graphTypes.end());
@@ -84,6 +88,10 @@ std::vector<Motif> readMotif(istream& os) {
 vector<Motif> loadMotif(const string& folder, const string& fnPattern, int nMotif, int nSkip) {
 	using namespace boost::filesystem;
 	path root(folder);
+	if(!exists(root)) {
+		cerr << "cannot open motif folder: " << folder << endl;
+		throw invalid_argument("cannot open motif folder: " + folder);
+	}
 	size_t limit = nMotif > 0 ? nMotif : numeric_limits<size_t>::max();
 	regex reg(fnPattern);
 	int cnt = 0;
@@ -108,7 +116,7 @@ static const char sep = '\t';
 void showConfusionMatrixHead(std::ostream & os)
 {
 	os << "tp" << sep << "fn" << sep << "fp" << sep << "tn";
-	os << sep << "accurancy" << sep << "precision" << sep << "recall" << sep << "f1";
+	os << sep << "accuracy" << sep << "precision" << sep << "recall" << sep << "f1";
 }
 
 void showConfusionMatrix(std::ostream & os, const ConfusionMatrix& cm) 

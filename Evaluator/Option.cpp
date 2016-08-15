@@ -22,9 +22,9 @@ Option::Option()
 			"the file name pattern for the motif files, in ECMAScript regular expressions syntax. "
 			"USE \"\" to contain the regular expression for special characters of the shell, like *")
 		("graphPath", value<string>(&graphPath), "the folder for graph data (input)")
-		("graphType", value<vector<int>>(&graphTypes)->multitoken(),"the type of graph needed to be read")
-//		("graphPattern", value<string>(&graphPattern)->default_value(string("[01]-*\\.txt")), 
-//			"the file name pattern for the motif files, in ECMAScript regular expressions syntax.")
+		("graphTypePos", value<vector<int>>(&graphTypePos)->multitoken(), "the type(s) of positive graph")
+		("graphTypeNeg", value<vector<int>>(&graphTypeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
+			"the type(s) of negative graphs")
 		("thrsldMotifSub", value<double>(&thrsldMotifSub)->default_value(0.4), 
 			"the portion threshold for regarding a motif as existence on a subject")
 		("logFile", value<string>(&logFile), "the file for detailed motif checking log (output)")
@@ -61,7 +61,7 @@ bool Option::parseInput(int argc, char* argv[]) {
 	while(!flag_help) { // technique for condition checking
 		sortUpPath(motifPath);
 		sortUpPath(graphPath);
-//		sortUpPath(outputFile);
+		mergeGraphType();
 		break;
 	}
 
@@ -77,5 +77,15 @@ std::string& Option::sortUpPath(std::string & path)
 	if(!path.empty() && path.back() != '/')
 		path.push_back('/');
 	return path;
+}
+
+void Option::mergeGraphType()
+{
+	graphTypes.clear();
+	graphTypes.reserve(graphTypePos.size() + graphTypeNeg.size());
+	graphTypes = graphTypePos;
+	for(auto& v : graphTypeNeg)
+		graphTypes.push_back(v);
+	sort(graphTypes.begin(), graphTypes.end());
 }
 

@@ -26,15 +26,19 @@ bool testMotifOnSubject(const vector<Graph>& gs, const Motif& m, const Option& o
 	return cnt >= thre;
 }
 
-ConfusionMatrix evaluate(const vector<SubjectData>& gs, const Motif& m, const Option& opt) {
+ConfusionMatrix evaluate(const vector<SubjectData>& gs, const Motif& m,
+	const unordered_set<int>& typeNeg, const Option& opt)
+{
 	ConfusionMatrix cm;
 	for(auto& g : gs) {
 		bool predPos = testMotifOnSubject(g.snapshots, m, opt);
-		if(g.type == 0) { // real negative
+		if(typeNeg.find(g.type) != typeNeg.end()) { // real negative
 			if(predPos)
 				cm.fp++;
 			else
 				cm.tn++;
+			//int& v = predPos ? cm.fp : cm.tn;
+			//v++;
 		} else { // real positive
 			if(predPos)
 				cm.tp++;
@@ -49,8 +53,10 @@ vector<ConfusionMatrix> evaluate(const vector<SubjectData>& gs, const vector<Mot
 {
 	vector<ConfusionMatrix> res;
 	res.reserve(ms.size());
+	unordered_set<int> typePos(opt.graphTypePos.begin(), opt.graphTypePos.end());
+	//unordered_set<int> typeNeg(opt.graphTypeNeg.begin(), opt.graphTypeNeg.end());
 	for(auto& m : ms) {
-		res.push_back(evaluate(gs, m, opt));
+		res.push_back(evaluate(gs, m, typePos, opt));
 	}
 	return res;
 }
@@ -79,17 +85,29 @@ int main(int argc, char* argv[])
 		<< "  # of skipped: " << opt.nSkipMotif << "\n";
 	cout << "Input Graph:\n"
 		<< "  Folder: " << opt.graphPath << "\n"
-		<< "  Types of cared graph: " << opt.graphTypes<< "\n"
+		<< "  Types of positive graph: " << opt.graphTypePos << "\n"
+		<< "  Types of negative graph: " << opt.graphTypeNeg << "\n"
 		<< "  # of graph: " << opt.nGraph<< "\n"
 		<< "  # of skipped: " << opt.nSkipGraph<< "\n";
 	cout << "Output file: " << opt.outputFile << "\n"
 		<< "Log file: " << opt.logFile << endl;
 
-	cout << "Loading graph data..." << endl;
-	vector<SubjectData> gts = loadGraph(opt.graphPath, opt.graphTypes, opt.nGraph, opt.nSkipGraph);
-	cout << "Loading motif data..." << endl;
-	vector<Motif> ms = loadMotif(opt.motifPath, opt.motifPattern, opt.nMotif, opt.nSkipMotif);
-	
+	vector<SubjectData> gts;
+	vector<Motif> ms;
+	try {
+		cout << "Loading graph data...";
+		cout.flush();
+		gts = loadGraph(opt.graphPath, opt.graphTypes, opt.nGraph, opt.nSkipGraph);
+		cout << "  # loaded: " << gts.size() << endl;
+		cout << "Loading motif data...";
+		cout.flush();
+		ms = loadMotif(opt.motifPath, opt.motifPattern, opt.nMotif, opt.nSkipMotif);
+		cout << "  # loaded: " << ms.size() << endl;
+	} catch(exception& e) {
+		cerr << "load data failed!\n" << e.what() << endl;
+		return 2;
+	}
+
 	cout << "Evalating..." << endl;
 	vector<ConfusionMatrix> res = evaluate(gts, ms, opt);
 	

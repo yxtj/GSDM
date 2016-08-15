@@ -14,7 +14,7 @@ public:
 	// path for input/output data folder:
 	std::string motifPath, motifPattern;
 	std::string graphPath;
-	std::vector<int> graphTypes;
+	std::vector<int> graphTypePos, graphTypeNeg, graphTypes;
 
 	std::string logFile;
 	std::string outputFile;
@@ -28,5 +28,6 @@ public:
 	bool parseInput(int argc, char *argv[]);
 private:
 	std::string& sortUpPath(std::string& path);
+	void mergeGraphType();
 };
 
