@@ -7,8 +7,8 @@ using namespace std;
 void TCCutterParam::reg(Option & opt)
 {
 	ComplexParamBase::reg(opt, "cut-method", "cutting method, should be one of the following:\n"
-		"  nEach <size of each>, fix # of points of each piece\n"
-		"  nTotal <# of total>, fix the total # of pieces\n"
+		"  each <size of each>, fix # of points of each piece\n"
+		"  total <# of total>, fix the total # of pieces\n"
 		"  slide <size of window> <size of step>, use slide-window method"
 	);
 //	function<bool()> f = bind(&CutterParam::parse, this);
@@ -28,7 +28,7 @@ bool TCCutterParam::parse()
 	} else if(method == "slide") {
 		res = parseSlide();
 	} else {
-		throw invalid_argument("Do not support this method");
+		throw invalid_argument("unknown parameter for cut-method: " + param[0]);
 	}
 	return res;
 }
