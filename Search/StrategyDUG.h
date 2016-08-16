@@ -57,7 +57,7 @@ private:
 
 // Candidate enumerator:
 private:
-	std::vector<Edge> StrategyDUG::getEdges(const GraphProb & gp);
+	std::vector<Edge> getEdges(const GraphProb & gp);
 	std::vector<Motif> method_edge2_dp();
 	std::vector<std::pair<MotifBuilder, double>> _edge2_dp(
 		const std::vector<std::pair<MotifBuilder, double>>& last, const Edge& e);
