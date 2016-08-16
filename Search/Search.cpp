@@ -38,24 +38,29 @@ vector<vector<Graph> > loadData(const string& pre,const int n, const int m) {
 }
 
 vector<vector<Graph> > loadData(
-	const string& folder, const string& fprefix, const int nSub, const int nSnap) 
+	const string& folder, const vector<int>& types, const int nSub, const int nSnap) 
 {
+	boost::filesystem::path root(folder);
+	if(!exists(root)) {
+		cerr << "cannot open graph folder: " << folder << endl;
+		throw invalid_argument("cannot open graph folder: " + folder);
+	}
 	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
 	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
 	vector<vector<Graph> > res;
 	if(nSub > 0)
 		res.reserve(nSub);
 	unordered_map<decltype(Subject::id), size_t> id2off;
+	unordered_set<int> validType(types.begin(), types.end());
 
-	boost::filesystem::path root(folder);
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
 		Subject sub;
 		string fn = it->path().filename().string();
-		if(fn.find(fprefix) != 0)
-			continue;
 		if(boost::filesystem::is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+			if(validType.find(sub.type) == validType.end())
+				continue;
 			auto jt = id2off.find(sub.id);
 			if(jt == id2off.end()){
 				// find a new subject
@@ -193,6 +198,8 @@ int main(int argc, char* argv[])
 			<< "  # Nodes: " << opt.nNode << "\n"
 			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
 			<< "  # Snapshots: " << opt.nSnapshot << "\n"
+			<< "  Type(s) of positive subject: " << opt.typePos<< "\n"
+			<< "  Type(s) of negative subject: " << opt.typeNeg<< "\n"
 			<< "Blacklist size: " << opt.blacklist.size() << "\n";
 		if(!opt.blacklist.empty())
 			cout << "  " << opt.blacklist << "\n";
@@ -201,11 +208,8 @@ int main(int argc, char* argv[])
 			<< endl;
 	}
 
-//	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph + "p-", opt.nPosInd, opt.nSnapshot);
-//	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph + "n-", opt.nNegInd, opt.nSnapshot);
-	
-	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, "1-", opt.nPosInd, opt.nSnapshot);
-	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, "0-", opt.nNegInd, opt.nSnapshot);
+	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, opt.nPosInd, opt.nSnapshot);
+	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, opt.nNegInd, opt.nSnapshot);
 	
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;

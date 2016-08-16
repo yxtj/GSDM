@@ -14,6 +14,7 @@ public:
 	int nNode;//number of nodes;
 	int nPosInd, nNegInd;//number of +/- individuals
 	int nSnapshot;//number of snapshots for each individual
+	std::vector<int> typePos, typeNeg;//type of the positive and negative individual
 
 	std::vector<int> blacklist;
 

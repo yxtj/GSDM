@@ -16,10 +16,14 @@ Option::Option()
 		("prefix-graph", value<string>(&subFolderGraph)->default_value(string("graph/")), "[string] the subfolder for graph files")
 		("out", value<string>(&subFolderOut)->default_value(string("out-")), "[string] the file name prefix for output files")
 		("blacklist", value<vector<int>>(&blacklist)->multitoken()->default_value(vector<int>(),""),"[integer]s of individuals removed")
+		("n", value<int>(&nNode)->default_value(-1), "[integer] size of each graph (number of nodes)")
 		("npi", value<int>(&nPosInd)->default_value(10), "[integer] number of positive individuals (negative means read all)")
 		("nni", value<int>(&nNegInd)->default_value(10), "[integer] number of negative individuals (negative means read all)")
 		("ns", value<int>(&nSnapshot)->default_value(10), "[integer] number of snapshots, non-positive means load all")
-		("n", value<int>(&nNode)->default_value(-1), "[integer] size of each graph")
+		("typePos", value<vector<int>>(&typePos)->multitoken()->default_value(vector<int>(1, 1), "1"), 
+			"the type(s) of positive individual")
+		("typeNeg", value<vector<int>>(&typeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
+			"the type(s) of negative individual")
 //		("smmin", value<int>(&sMotifMin)->default_value(2), "[integer] minimum size of a motif")
 //		("smmax", value<int>(&sMotifMax)->default_value(2), "[integer] maximum size of a motif")
 //		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
