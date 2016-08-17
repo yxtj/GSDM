@@ -61,6 +61,31 @@ bool Option::parseInput(int argc, char* argv[]) {
 	}
 
 	while(!flag_help) { // technique for condition checking
+		if(motifPath.empty()) {
+			cerr << "motif path is not given" << endl;
+			flag_help = true;
+			break;
+		}
+		if(graphPath.empty()) {
+			cerr << "graph path is not given" << endl;
+			flag_help = true;
+			break;
+		}
+		if(motifPattern.empty()) {
+			cerr << "motif file name pattern is not given" << endl;
+			flag_help = true;
+			break;
+		}
+		if(graphTypePos.empty()) {
+			cerr << "positive graph type list is not given" << endl;
+			flag_help = true;
+			break;
+		}
+		if(graphTypeNeg.empty()) {
+			cerr << "negative graph type list is not given" << endl;
+			flag_help = true;
+			break;
+		}
 		sortUpPath(motifPath);
 		sortUpPath(graphPath);
 		mergeGraphType();
