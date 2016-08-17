@@ -23,7 +23,8 @@ Option::Option()
 			"the file name pattern for the motif files, in ECMAScript regular expressions syntax. "
 			"USE \"\" to contain the regular expression for special characters of the shell, like *")
 		("graphPath", value<string>(&graphPath), "the folder for graph data (input)")
-		("graphTypePos", value<vector<int>>(&graphTypePos)->multitoken(), "the type(s) of positive graph")
+		("graphTypePos", value<vector<int>>(&graphTypePos)->multitoken()->default_value(vector<int>(1, 1), "0"),
+			"the type(s) of positive graph")
 		("graphTypeNeg", value<vector<int>>(&graphTypeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
 			"the type(s) of negative graphs")
 		//("thrsldMotifSub", value<double>(&thrsldMotifSub)->default_value(0.4, "0.4"), 

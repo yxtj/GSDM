@@ -102,6 +102,10 @@ int main(int argc, char* argv[])
 	vector<ConfusionMatrix> res = evaluate(gts, ms, opt);
 	
 	cout << "Outputing result..." << endl;
+	{
+		boost::filesystem::path p(opt.outputFile);
+		boost::filesystem::create_directories(p.parent_path());
+	}
 	ofstream fout(opt.outputFile);
 	if(!fout) {
 		cerr << "Cannot open output file: " << opt.outputFile << endl;

@@ -101,6 +101,9 @@
     <ClInclude Include="CandidateMthdFreqUG.h">
       <Filter>Method</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyFuncFreq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -185,6 +188,9 @@
       <Filter>Method\Source</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFuncFreq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
