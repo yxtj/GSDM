@@ -48,6 +48,12 @@
     <ClInclude Include="Evaluator-IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MotifTester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphProb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -81,6 +87,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Evaluator-IO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MotifTester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphProb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
