@@ -17,6 +17,7 @@
 #include <random>
 #include <vector>
 #include <set>
+#include <forward_list>
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>

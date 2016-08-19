@@ -51,6 +51,16 @@ void Graph::loadDataFromStream(std::istream & is)
 	}
 }
 
+bool Graph::testEdge(const Edge & e) const
+{
+	return matrix.at(e.s).at(e.d);
+}
+
+bool Graph::testEdge(const int s, const int d) const
+{
+	return matrix.at(s).at(d);
+}
+
 bool Graph::testMotif(const Motif & m) const
 {
 	bool res = true;

@@ -18,6 +18,8 @@ public:
 	bool init();
 	void loadDataFromStream(std::istream& is);
 
+	bool testEdge(const Edge& e) const;
+	bool testEdge(const int s, const int d) const;
 	bool testMotif(const Motif& m) const;
 	bool testMotif(const MotifBuilder& m) const;
 };
