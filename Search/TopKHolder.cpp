@@ -9,6 +9,11 @@ TopKHolder::TopKHolder(const size_t k)
 	data.reserve(k);
 }
 
+size_t TopKHolder::size() const
+{
+	return data.size();
+}
+
 bool TopKHolder::updatable(const double s) const
 {
 	return data.size() < k || s > lastScore();

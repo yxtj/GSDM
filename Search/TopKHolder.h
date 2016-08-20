@@ -8,6 +8,7 @@ struct TopKHolder {
 	std::vector<std::pair<Motif, double>> data;
 
 	TopKHolder(const size_t k);
+	size_t size() const;
 	bool updatable(const double s) const;
 	bool update(Motif& m, const double s);
 	double lastScore() const;

@@ -211,6 +211,9 @@ int main(int argc, char* argv[])
 	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, opt.nPosInd, opt.nSnapshot);
 	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, opt.nNegInd, opt.nSnapshot);
 	
+	cout << "Finished loading:\n"
+		<< "  # positive subjects: " << gPos.size() << "\n"
+		<< "  # negative subjects: " << gNeg.size() << endl;
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 

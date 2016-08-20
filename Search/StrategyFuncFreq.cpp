@@ -108,6 +108,7 @@ std::vector<Edge> StrategyFuncFreq::getEdges()
 
 std::vector<Motif> StrategyFuncFreq::method_enum1()
 {
+	cout << "Phase 1 (meta-data prepare)" << endl;
 	slist supPos, supNeg;
 	for(auto& s : *pgp)
 		supPos.push(&s);
@@ -115,9 +116,17 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 		supNeg.push(&s);
 	vector<Edge> edges = getEdges();
 
+	cout << "Phase 2 (calculate)" << endl;
 	Motif dummy;
 	TopKHolder holder(k);
+	chrono::system_clock::time_point _time = chrono::system_clock::now();
 	_enum1(0, dummy, supPos, supNeg, holder, edges);
+	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
+		chrono::system_clock::now() - _time).count();
+	cout << "  # of result: " << holder.size() << ", last score: " << holder.lastScore()
+		<< "\n  time: " << _time_ms << " ms" << endl;
+
+	cout << "Phase 3 (output)" << endl;
 	vector<Motif> res;
 	for(auto& mp : holder.data)
 		res.push_back(move(mp.first));
