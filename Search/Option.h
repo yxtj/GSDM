@@ -18,9 +18,9 @@ public:
 
 	std::vector<int> blacklist;
 
+	bool graphFolderShared; //for distributed case, whether the input data folder contains all the graphs
 	std::string prefix, subFolderGraph;//data folder prefix and graph sub-folder
 	std::string subFolderOut;//the file name prefix for output files
-
 
 public:
 	Option();

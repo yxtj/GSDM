@@ -37,8 +37,32 @@ vector<vector<Graph> > loadData(const string& pre,const int n, const int m) {
 	return res;
 }
 
+int getTotalSubjectNumber(const string& folder, const vector<int>& types) {
+	boost::filesystem::path root(folder);
+	if(!exists(root)) {
+		cerr << "cannot open graph folder: " << folder << endl;
+		throw invalid_argument("cannot open graph folder: " + folder);
+	}
+	unordered_set<int> validType(types.begin(), types.end());
+
+	Subject sub;
+	unordered_set<decltype(Subject::id)> subjects;
+	for(auto it = boost::filesystem::directory_iterator(root);
+		it != boost::filesystem::directory_iterator(); ++it)
+	{
+		string fn = it->path().filename().string();
+		if(boost::filesystem::is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+			// check type
+			if(validType.find(sub.type) == validType.end())
+				continue;
+			subjects.insert(sub.id);
+		}
+	}
+	return subjects.size();
+}
+
 vector<vector<Graph> > loadData(
-	const string& folder, const vector<int>& types, const int nSub, const int nSnap) 
+	const string& folder, const vector<int>& types, const int nSub, const int nSnap, const int nSkip = 0) 
 {
 	boost::filesystem::path root(folder);
 	if(!exists(root)) {
@@ -53,23 +77,28 @@ vector<vector<Graph> > loadData(
 	unordered_map<decltype(Subject::id), size_t> id2off;
 	unordered_set<int> validType(types.begin(), types.end());
 
+	int cntSub = 0;
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
 		Subject sub;
 		string fn = it->path().filename().string();
 		if(boost::filesystem::is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+			// check type
 			if(validType.find(sub.type) == validType.end())
 				continue;
+			// check subject
 			auto jt = id2off.find(sub.id);
 			if(jt == id2off.end()){
 				// find a new subject
+				if(++cntSub < nSkip)
+					continue;
 				if(res.size() >= limitSub)
 					break;
 				jt = id2off.emplace(sub.id, res.size()).first;
 				res.push_back(vector<Graph>());
 			} 
-			// going to add new snapshot to existing subject
+			// add a new snapshot to an existing subject
 			if(res[jt->second].size() >= limitSnp) {
 				continue;
 			}
@@ -208,8 +237,26 @@ int main(int argc, char* argv[])
 			<< endl;
 	}
 
-	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, opt.nPosInd, opt.nSnapshot);
-	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, opt.nNegInd, opt.nSnapshot);
+	int nPosSub = opt.nPosInd, nPosSkip = 0;
+	int nNegSub = opt.nNegInd, nNegSkip = 0;
+	if(size != 1) {
+		// need to set different number and starting point of different worker
+		if(nPosSub == -1)
+			nPosSub = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typePos);
+		double partPos = static_cast<double>(nPosSub) / size;
+		nPosSkip = static_cast<int>(floor(partPos*rank));
+		nPosSub = (rank == size ? nPosSub : static_cast<int>(floor(partPos*(1 + rank)))) - nPosSkip;
+		if(nNegSub == -1)
+			nNegSub = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typeNeg);
+		double partNeg = static_cast<double>(nNegSub) / size;
+		nNegSkip = static_cast<int>(floor(partNeg*rank));
+		nNegSub = (rank == size ? nNegSub : static_cast<int>(floor(partNeg*(1 + rank)))) - nNegSkip;
+		if(!opt.graphFolderShared) {
+			nPosSkip = nNegSkip = 0;
+		}
+	}
+	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
+	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);
 	
 	cout << "Finished loading:\n"
 		<< "  # positive subjects: " << gPos.size() << "\n"
