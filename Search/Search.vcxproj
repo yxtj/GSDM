@@ -179,7 +179,7 @@
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
     <ClInclude Include="Subject.h" />
-    <ClInclude Include="TopKHolder.h" />
+    <ClInclude Include="TopKHolder.hpp" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
@@ -216,7 +216,6 @@
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />
     <ClCompile Include="Subject.cpp" />
-    <ClCompile Include="TopKHolder.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>

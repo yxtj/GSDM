@@ -118,7 +118,7 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 
 	cout << "Phase 2 (calculate)" << endl;
 	Motif dummy;
-	TopKHolder holder(k);
+	TopKHolder<Motif, double> holder(k);
 	chrono::system_clock::time_point _time = chrono::system_clock::now();
 	_enum1(0, dummy, supPos, supNeg, holder, edges);
 	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
@@ -134,7 +134,7 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 }
 
 void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, slist& supNeg,
-	TopKHolder& res, const std::vector<Edge>& edges)
+	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges)
 {
 	if(p >= edges.size() || curr.size() == smax) {
 		if(curr.size() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
@@ -149,16 +149,18 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 		return;
 	}
 
+	_enum1(p + 1, curr, supPos, supNeg, res, edges);
+
 	vector<const subject_t*> rmvPos, rmvNeg;
 	removeSupport(supPos, rmvPos, edges[p]);
 	removeSupport(supNeg, rmvNeg, edges[p]);
 	curr.addEdge(edges[p].s, edges[p].d);
 	_enum1(p + 1, curr, supPos, supNeg, res, edges);
 	curr.removeEdge(edges[p].s, edges[p].d);
-	for(auto s : rmvPos)	supPos.push(s);
-	for(auto s : rmvNeg)	supNeg.push(s);
-
-	_enum1(p + 1, curr, supPos, supNeg, res, edges);
+	for(auto s : rmvPos)
+		supPos.push(s);
+	for(auto s : rmvNeg)
+		supNeg.push(s);
 }
 
 std::vector<Motif> StrategyFuncFreq::_enum1_nofun(const unsigned p, Motif & curr,

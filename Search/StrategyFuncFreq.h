@@ -3,7 +3,7 @@
 #include "Motif.h"
 #include "CandidateMethod.h"
 #include "StrategyBase.h"
-#include "TopKHolder.h"
+#include "TopKHolder.hpp"
 #include <vector>
 #include <forward_list>
 
@@ -69,7 +69,7 @@ private:
 	void removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e);
 
 	void _enum1(const unsigned p, Motif& curr, slist& supPos, slist& supNeg,
-		TopKHolder& res, const std::vector<Edge>& edges);
+		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
 	std::vector<Motif> _enum1_nofun(const unsigned p, Motif& curr,
 		slist& supPos, slist& supNeg, const std::vector<Edge>& edges);
 };
