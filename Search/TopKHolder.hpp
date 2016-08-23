@@ -11,6 +11,8 @@ struct TopKHolder {
 	bool updatable(const S s) const;
 	bool update(T& m, const S s);
 	S lastScore() const;
+	std::vector<T> getResult() const;
+	std::vector<T> getResultMove();
 };
 
 template<class T, typename S>
@@ -34,7 +36,7 @@ bool TopKHolder<T, S>::updatable(const S s) const
 template<class T, typename S>
 bool TopKHolder<T, S>::update(T& m, const S s)
 {
-	size_t p = find_if(data.rbegin(), data.rend(), [s](const pair<T, S>& p) {
+	size_t p = find_if(data.rbegin(), data.rend(), [s](const std::pair<T, S>& p) {
 		return p.second >= s;
 	}) - data.rbegin();
 	p = data.size() - p; // p is the place to insert the new value
@@ -52,5 +54,25 @@ bool TopKHolder<T, S>::update(T& m, const S s)
 template<class T, typename S>
 S TopKHolder<T, S>::lastScore() const
 {
-	return data.empty() ? -numeric_limits<S>::min() : data.back().second;
+	return data.empty() ? - std::numeric_limits<S>::min() : data.back().second;
+}
+
+template<class T, typename S>
+inline std::vector<T> TopKHolder<T, S>::getResult() const
+{
+	std::vector<T> res;
+	res.reserve(data.size());
+	for(auto& p : data)
+		res.push_back(p.first);
+	return res;
+}
+
+template<class T, typename S>
+inline std::vector<T> TopKHolder<T, S>::getResultMove()
+{
+	std::vector<T> res;
+	res.reserve(data.size());
+	for(auto& p : data)
+		res.push_back(move(p.first));
+	return res;
 }
