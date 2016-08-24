@@ -250,17 +250,17 @@ int main(int argc, char* argv[])
 			<< endl;
 	}
 
+	if(opt.nPosInd == -1)
+		opt.nPosInd = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typePos);
+	if(opt.nNegInd == -1)
+		opt.nNegInd = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typeNeg);
 	int nPosSub = opt.nPosInd, nPosSkip = 0;
 	int nNegSub = opt.nNegInd, nNegSkip = 0;
 	if(size != 1) {
 		// need to set different number and starting point of different worker
-		if(nPosSub == -1)
-			nPosSub = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typePos);
 		double partPos = static_cast<double>(nPosSub) / size;
 		nPosSkip = static_cast<int>(floor(partPos*rank));
 		nPosSub = (rank == size ? nPosSub : static_cast<int>(floor(partPos*(1 + rank)))) - nPosSkip;
-		if(nNegSub == -1)
-			nNegSub = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typeNeg);
 		double partNeg = static_cast<double>(nNegSub) / size;
 		nNegSkip = static_cast<int>(floor(partNeg*rank));
 		nNegSub = (rank == size ? nNegSub : static_cast<int>(floor(partNeg*(1 + rank)))) - nNegSkip;

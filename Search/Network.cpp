@@ -123,19 +123,22 @@ bool Network::readCountNeg(int & res, int & source)
 
 void Network::sendVecInt(const int target, const std::vector<int>& vec)
 {
-	// bool (finished or not) + n*int
-	const int maxNum = (restBufSizeSend - sizeof(bool)) / sizeof(int);
+	// bool flag (finished or not) + length + n*int
+	constexpr int overhead = sizeof(bool) + sizeof(int);
+	const int maxNum = (restBufSizeSend - overhead) / sizeof(int);
 	int p = 0;
 	while(vec.size() - p > maxNum) {
 		*reinterpret_cast<bool*>(bufSend) = false;
-		memcpy_s(bufSend + sizeof(bool), restBufSizeSend - sizeof(bool), vec.data() + p, sizeof(int)*maxNum);
+		*reinterpret_cast<int*>(bufSend + sizeof(bool)) = maxNum;
+		memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*maxNum);
 		p += maxNum;
-		MPI_Send(bufSend, sizeof(bool) + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
+		MPI_Send(bufSend, overhead + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
 	}
 	*reinterpret_cast<bool*>(bufSend) = true;
-	memcpy_s(bufSend + sizeof(bool), restBufSizeSend - sizeof(bool), vec.data() + p, sizeof(int)*maxNum);
+	*reinterpret_cast<int*>(bufSend + sizeof(bool)) = vec.size() - p;
+	memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*(vec.size() - p));
 	p += maxNum;
-	MPI_Send(bufSend, sizeof(bool) + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
+	MPI_Send(bufSend, overhead + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
 }
 
 bool Network::readVecInt(std::vector<int>& res, int & source)
@@ -149,11 +152,9 @@ bool Network::readVecInt(std::vector<int>& res, int & source)
 			return false;
 		}
 		finish = *reinterpret_cast<bool*>(bufRecv);
-		int* p = reinterpret_cast<int*>(bufRecv + sizeof(bool));
-		int s;
-		MPI_Get_count(&st, MPI_CHAR, &s);
-		s = (s - sizeof(bool)) / sizeof(int);
-		while(s--) {
+		int n= *reinterpret_cast<int*>(bufRecv + sizeof(bool));
+		int* p = reinterpret_cast<int*>(bufRecv + sizeof(bool) + sizeof(int));
+		while(n--) {
 			res.push_back(*p++);
 		}
 	} while(!finish);

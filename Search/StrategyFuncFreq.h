@@ -26,6 +26,7 @@ class StrategyFuncFreq
 	using subject_t = std::vector<Graph>;
 	using dataset_t = std::vector<subject_t>;
 	const std::vector<std::vector<Graph>>* pgp, *pgn;
+	size_t nSubPosGlobal, nSubNegGlobal;
 
 	// single list
 	class slist : public std::forward_list<const subject_t*>
@@ -62,7 +63,6 @@ public:
 	// high level private functions:
 private:
 	std::vector<Edge> getEdges();
-	std::vector<Edge> getEdgesMultiple();
 
 	std::vector<Motif> method_enum1();
 

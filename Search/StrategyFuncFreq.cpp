@@ -40,7 +40,9 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 	// initialization
 	pgp = &gPos;
 	pgn = &gNeg;
-	nMinSup = static_cast<unsigned>((gPos.size() + gNeg.size())*minSup);
+	nSubPosGlobal = opt.nPosInd;
+	nSubNegGlobal = opt.nNegInd;
+	nMinSup = static_cast<unsigned>((nSubPosGlobal + nSubNegGlobal)*minSup);
 	nNode = gPos[0][0].nNode;
 	numMotifExplored = 0;
 
@@ -87,6 +89,7 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 	for(auto& s : *pgn)
 		supNeg.push(&s);
 	vector<Edge> edges = getEdges();
+	cout << "  # of edges: " << edges.size() << endl;
 
 	cout << "Phase 2 (calculate)" << endl;
 	Motif dummy;

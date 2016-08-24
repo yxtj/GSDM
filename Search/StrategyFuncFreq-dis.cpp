@@ -5,19 +5,6 @@
 
 using namespace std;
 
-std::vector<Edge> StrategyFuncFreq::getEdgesMultiple()
-{
-	vector<Edge> res;
-	for(int i = 0; i < nNode; ++i) {
-		for(int j = i + 1; j < nNode; ++j) {
-			if(checkEdge(i, j))
-				res.emplace_back(i, j);
-		}
-	}
-	return res;
-}
-
-
 std::vector<Motif> StrategyFuncFreq::master(Network& net)
 {
 	cout << "Phase 1 (meta-data prepare)" << endl;
@@ -26,7 +13,8 @@ std::vector<Motif> StrategyFuncFreq::master(Network& net)
 		supPos.push(&s);
 	for(auto& s : *pgn)
 		supNeg.push(&s);
-	vector<Edge> edges = getEdges();
+	vector<Edge> edges = master_gather_edges(net);
+	cout << "  # of edges: " << edges.size() << endl;
 
 	cout << "Phase 2 (calculate)" << endl;
 	Motif dummy;
@@ -52,7 +40,7 @@ void outputFoundMotif(ostream& os, const Motif& m);
 
 int StrategyFuncFreq::slaver(Network& net)
 {
-
+	slave_edge_counting(net);
 	int countMotif = slave_motif_counting(net);
 	return countMotif;
 }
@@ -111,7 +99,8 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 	cnt.reserve(nNode);
 	// local count
 	for(int i = 0; i < nNode; ++i) {
-		vector<int> temp(nNode - i - 1);
+		vector<int> temp;
+		temp.reserve(nNode - i - 1);
 		for(int j = i + 1; j < nNode; ++j) {
 			auto p = countEdge(i, j);
 			temp.push_back(p.first + p.second);
@@ -119,18 +108,20 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 		cnt.push_back(move(temp));
 	}
 	// gather remote count
+	cout << "gather edges:" << endl;
 	int size = net.getSize();
 	vector<int> recvCnt(size);
 	int nLeft = size - 1;
-	while(nLeft != size) {
+	while(nLeft != 0) {
 		vector<int> ci;
 		int source;
 		net.readVecInt(ci, source);
+//		cout << "  receive from " << source << " with length " << ci.size() << endl;
 		int row = nNode - 1 - ci.size();
 		for(size_t j = 0; j < ci.size(); ++j)
 			cnt[row][j] += ci[j];
 		if(++recvCnt[source] == nNode - 1)
-			++nLeft;
+			--nLeft;
 	}
 	// generate valid edges
 	vector<Edge> res;
@@ -153,6 +144,7 @@ void StrategyFuncFreq::slave_edge_counting(Network& net)
 			auto p = countEdge(i, j);
 			cnt.push_back(p.first + p.second);
 		}
+//		cout << "  send to " << net.getRank() << " with length " << cnt.size() << endl;
 		net.sendVecInt(0, cnt);
 	}
 }
@@ -186,8 +178,8 @@ void StrategyFuncFreq::_enum1_dis1(const unsigned p, Motif & curr, slist & supPo
 			//nNeg += supNeg.size();
 			if(nPos + nNeg < nMinSup)
 				return;
-			double s = objectFunction(static_cast<double>(nPos) / pgp->size(),
-				static_cast<double>(nNeg) / pgn->size());
+			double s = objectFunction(static_cast<double>(nPos) / nSubPosGlobal,
+				static_cast<double>(nNeg) / nSubNegGlobal);
 			++numMotifExplored;
 			res.update(move(curr), s);
 		}
