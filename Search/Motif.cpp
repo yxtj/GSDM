@@ -120,4 +120,13 @@ bool operator<(const Motif & lth, const Motif & rth)
 	return lth.edges < rth.edges;
 }
 
+std::ostream & operator<<(std::ostream & os, const Motif & m)
+{
+	os << m.getnEdge() << "\t";
+	for(const Edge& e : m.edges) {
+		os << "(" << e.s << "," << e.d << ") ";
+	}
+	return os;
+}
+
 

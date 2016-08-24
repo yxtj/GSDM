@@ -3,6 +3,7 @@
 #include <set>
 #include <vector>
 #include <unordered_set>
+#include <ostream>
 
 struct Edge {
 	int s, d;
@@ -70,6 +71,8 @@ public:
 
 bool operator==(const Motif& lth, const Motif& rth);
 bool operator<(const Motif& lth, const Motif& rth);
+
+std::ostream& operator<<(std::ostream& os, const Motif& m);
 
 inline int Motif::getnEdge() const {
 	return edges.size();
