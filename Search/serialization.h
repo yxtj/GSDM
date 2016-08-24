@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 
+size_t estimateBufferSize(const Motif& m);
 
 char* serialize(char* res, const Motif& m);
 std::pair<Motif, char*> deserialize(char* p);

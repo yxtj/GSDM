@@ -5,6 +5,12 @@ using namespace std;
 
 // (de)seralizes
 
+size_t estimateBufferSize(const Motif & m)
+{
+	//n, (src, dst)*n
+	return sizeof(int) + 2 * m.getnEdge() * sizeof(int);
+}
+
 char* serialize(char* res, const Motif& m) {
 	int* pint = reinterpret_cast<int*>(res);
 	*pint++ = m.getnEdge();
