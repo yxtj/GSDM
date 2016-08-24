@@ -10,12 +10,13 @@ Option::Option()
 	:desc("Options", getScreenSize().first)
 {
 	using boost::program_options::value;
+	using boost::program_options::bool_switch;
 	desc.add_options()
 		("help", "Print help messages")
 		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
 		("prefix-graph", value<string>(&subFolderGraph)->default_value(string("graph/")), "[string] the subfolder for graph files")
-		("shared-input", value<bool>(&graphFolderShared)->default_value(true), 
-			"[bool] for distribution to make sure each worker loads different part of the dataset. "
+		("shared-input", bool_switch(&graphFolderShared)->default_value(false),
+			"[flag] for distribution to make sure each worker loads different part of the dataset. "
 			"Whether the each graph input folder contains all the data (usally true for DFS and NFS)")
 		("out", value<string>(&subFolderOut)->default_value(string("out-")), "[string] the file name prefix for output files")
 		("blacklist", value<vector<int>>(&blacklist)->multitoken()->default_value(vector<int>(),""),"[integer]s of individuals removed")

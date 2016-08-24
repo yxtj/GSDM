@@ -74,7 +74,7 @@ vector<vector<Graph> > loadData(
 	vector<vector<Graph> > res;
 	if(nSub > 0)
 		res.reserve(nSub);
-	unordered_map<decltype(Subject::id), size_t> id2off;
+	unordered_map<decltype(Subject::id), int> id2off;
 	unordered_set<int> validType(types.begin(), types.end());
 
 	int cntSub = 0;
@@ -91,13 +91,17 @@ vector<vector<Graph> > loadData(
 			auto jt = id2off.find(sub.id);
 			if(jt == id2off.end()){
 				// find a new subject
-				if(++cntSub < nSkip)
+				if(++cntSub <= nSkip) {
+					id2off.emplace(sub.id, -1);
 					continue;
+				}
 				if(res.size() >= limitSub)
 					break;
 				jt = id2off.emplace(sub.id, res.size()).first;
 				res.push_back(vector<Graph>());
-			} 
+				cout << "type " << types[0] << " : " << sub.id << endl;
+			} else if (jt->second == -1)
+				continue;
 			// add a new snapshot to an existing subject
 			if(res[jt->second].size() >= limitSnp) {
 				continue;
@@ -129,13 +133,16 @@ void outputFoundMotifs(ostream& os, const vector<tuple<Motif, double, double>>& 
 	}
 }
 
+void outputFoundMotif(ostream& os, const Motif& m) {
+	os << m.getnNode() << "\t" << m.getnEdge() << "\t";
+	for(const Edge& e : m.edges) {
+		os << "(" << e.s << "," << e.d << ") ";
+	}
+}
 
 void outputFoundMotifs(ostream& os, const vector<Motif>& res) {
 	for(const Motif& m : res) {
-		os << m.getnNode() << "\t" << m.getnEdge() << "\t";
-		for(const Edge& e : m.edges) {
-			os << "(" << e.s << "," << e.d << ") ";
-		}
+		outputFoundMotif(os, m);
 		os << '\n';
 	}
 }
@@ -214,21 +221,27 @@ int main(int argc, char* argv[])
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
 	}
-	MPI_Init(&argc, &argv);
+//	MPI_Init(&argc, &argv);
+	int mpiMTLevel;
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpiMTLevel);
 	int rank, size;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 	if(rank == 0) {
-		cout << "Number of MPI instances: " << size << endl;
+		cout << "MPI: \n"
+			<< "  # instances: " << size << "\n"
+			<< "  Multithread level: " << mpiMTLevel << endl;
 		cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
 			<< "Output prefix: " << opt.subFolderOut << "\n"
 			<< "Data parameters:\n"
 			<< "  # Nodes: " << opt.nNode << "\n"
 			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
 			<< "  # Snapshots: " << opt.nSnapshot << "\n"
-			<< "  Type(s) of positive subject: " << opt.typePos<< "\n"
-			<< "  Type(s) of negative subject: " << opt.typeNeg<< "\n"
+			<< "  Type(s) of positive subject: " << opt.typePos << "\n"
+			<< "  Type(s) of negative subject: " << opt.typeNeg << "\n"
+			<< "  Part of data: " << size << "\n"
+			<< "  Data in shared folder: " << boolalpha << opt.graphFolderShared << "\n"
 			<< "Blacklist size: " << opt.blacklist.size() << "\n";
 		if(!opt.blacklist.empty())
 			cout << "  " << opt.blacklist << "\n";
@@ -258,11 +271,12 @@ int main(int argc, char* argv[])
 	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
 	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);
 	
-	cout << "Finished loading:\n"
+	cout << "Finished loading on rank " << rank << ":\n"
 		<< "  # positive subjects: " << gPos.size() << "\n"
 		<< "  # negative subjects: " << gNeg.size() << endl;
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
+//	return 0;
 
 	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
 	if(!strategy->parse(opt.stgParam)) {
