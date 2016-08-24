@@ -9,7 +9,7 @@ struct TopKHolder {
 	TopKHolder(const size_t k);
 	size_t size() const;
 	bool updatable(const S s) const;
-	bool update(T& m, const S s);
+	bool update(T&& m, const S s);
 	S lastScore() const;
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
@@ -34,7 +34,7 @@ bool TopKHolder<T, S>::updatable(const S s) const
 }
 
 template<class T, typename S>
-bool TopKHolder<T, S>::update(T& m, const S s)
+bool TopKHolder<T, S>::update(T&& m, const S s)
 {
 	size_t p = find_if(data.rbegin(), data.rend(), [s](const std::pair<T, S>& p) {
 		return p.second >= s;
@@ -44,7 +44,7 @@ bool TopKHolder<T, S>::update(T& m, const S s)
 		if(data.size() < k)
 			data.resize(data.size() + 1);
 		for(size_t i = data.size() - 1; i > p; --i)
-			data[i] = move(data[i - 1]);
+			data[i] = std::move(data[i - 1]);
 		data[p] = std::make_pair(std::move(m), s);
 		return true;
 	}
@@ -73,6 +73,6 @@ inline std::vector<T> TopKHolder<T, S>::getResultMove()
 	std::vector<T> res;
 	res.reserve(data.size());
 	for(auto& p : data)
-		res.push_back(move(p.first));
+		res.push_back(std::move(p.first));
 	return res;
 }
