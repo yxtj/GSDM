@@ -163,6 +163,7 @@
     <ClInclude Include="Motif.h" />
     <ClInclude Include="MotifBuilder.h" />
     <ClInclude Include="MotifCommunicator.h" />
+    <ClInclude Include="Network.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="serialization.h" />
     <ClInclude Include="StrategyBase.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="Motif.cpp" />
     <ClCompile Include="MotifBuilder.cpp" />
     <ClCompile Include="MotifCommunicator.cpp" />
+    <ClCompile Include="Network.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="serialization.cpp" />
@@ -211,6 +213,7 @@
     <ClCompile Include="CandidateMthdFreq.cpp" />
     <ClCompile Include="StrategyDUG.cpp" />
     <ClCompile Include="StrategyFactory.cpp" />
+    <ClCompile Include="StrategyFuncFreq-dis.cpp" />
     <ClCompile Include="StrategyFuncFreq.cpp" />
     <ClCompile Include="StrategyParaFreqPmN.cpp" />
     <ClCompile Include="StrategyXor.cpp" />

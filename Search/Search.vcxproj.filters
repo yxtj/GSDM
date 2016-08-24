@@ -24,6 +24,9 @@
     <Filter Include="Serialization">
       <UniqueIdentifier>{5998694e-5f8e-46e7-8c6c-8f076f16ccb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{95cedda2-5904-47b7-8acd-fc0c4c38fa13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="TopKHolder.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +200,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyFuncFreq.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFuncFreq-dis.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>

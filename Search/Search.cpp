@@ -99,7 +99,7 @@ vector<vector<Graph> > loadData(
 					break;
 				jt = id2off.emplace(sub.id, res.size()).first;
 				res.push_back(vector<Graph>());
-				cout << "type " << types[0] << " : " << sub.id << endl;
+//				cout << "type " << types[0] << " : " << sub.id << endl;
 			} else if (jt->second == -1)
 				continue;
 			// add a new snapshot to an existing subject

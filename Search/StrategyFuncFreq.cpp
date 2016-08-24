@@ -2,6 +2,7 @@
 #include "StrategyFuncFreq.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
+#include "Network.h"
 
 using namespace std;
 
@@ -36,62 +37,33 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 {
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
+	// initialization
 	pgp = &gPos;
 	pgn = &gNeg;
 	nMinSup = static_cast<unsigned>((gPos.size() + gNeg.size())*minSup);
 	nNode = gPos[0][0].nNode;
+	numMotifExplored = 0;
 
-	return method_enum1();
+	Network net;
+	vector<Motif> res;
+	if(net.getSize() == 1) {
+		//res = method_enum1();
+		res = master(net);
+	} else {
+		if(net.getRank() == 0) {
+			res = master(net);
+		} else {
+			numMotifExplored = slaver(net);
+		}
+	}
+	MPI_Barrier(MPI_COMM_WORLD);
+	cout << "  Rank " << net.getRank() << " has counted " << numMotifExplored << " motifs." << endl;
+	return res;
 }
 
 double StrategyFuncFreq::objectFunction(const double freqPos, const double freqNeg)
 {
 	return freqPos - alpha*freqNeg;
-}
-
-bool StrategyFuncFreq::checkEdge(const int s, const int d) const
-{
-	unsigned cnt = 0;
-	for(auto&sub : *pgp) {
-		if(checkEdge(s, d, sub))
-			if(++cnt >= nMinSup)
-				break;
-	}
-	if(cnt >= nMinSup)
-		return true;
-	for(auto&sub : *pgn) {
-		if(checkEdge(s, d, sub))
-			if(++cnt >= nMinSup)
-				break;
-	}
-	return cnt >= nMinSup;
-}
-
-bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
-{
-	int th = static_cast<int>(ceil(sub.size()*pSnap));
-	int cnt = 0;
-	for(auto&g : sub) {
-		if(g.testEdge(s, d)) {
-			if(++cnt >= th)
-				break;
-		}
-	}
-	return cnt >= th;
-}
-
-void StrategyFuncFreq::removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e)
-{
-	auto itLast = sup.before_begin(), it = sup.begin();
-	while(it != sup.end()) {
-		const subject_t* s = *it;
-		if(!checkEdge(e.s, e.d, *s)) {
-			rmv.push_back(s);
-			it = sup.eraseAfter(itLast);
-		} else {
-			itLast = it++;
-		}
-	}
 }
 
 std::vector<Edge> StrategyFuncFreq::getEdges()
@@ -127,19 +99,89 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 		<< "\n  time: " << _time_ms << " ms" << endl;
 
 	cout << "Phase 3 (output)" << endl;
-	vector<Motif> res;
-	for(auto& mp : holder.data)
-		res.push_back(move(mp.first));
+	vector<Motif> res = holder.getResultMove();
 	return res;
+}
+
+bool StrategyFuncFreq::checkEdge(const int s, const int d) const
+{
+	unsigned cnt = 0;
+	for(auto&sub : *pgp) {
+		if(checkEdge(s, d, sub))
+			if(++cnt >= nMinSup)
+				break;
+	}
+	if(cnt >= nMinSup)
+		return true;
+	for(auto&sub : *pgn) {
+		if(checkEdge(s, d, sub))
+			if(++cnt >= nMinSup)
+				break;
+	}
+	return cnt >= nMinSup;
+}
+
+bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
+{
+	int th = static_cast<int>(ceil(sub.size()*pSnap));
+	int cnt = 0;
+	for(auto&g : sub) {
+		if(g.testEdge(s, d)) {
+			if(++cnt >= th)
+				break;
+		}
+	}
+	return cnt >= th;
+}
+
+std::pair<int, int> StrategyFuncFreq::countMotif(const Motif & m) const
+{
+	int nPos = countMotif(m, *pgp);
+	int nNeg = countMotif(m, *pgn);
+	return make_pair(nPos, nNeg);
+}
+
+int StrategyFuncFreq::countMotif(const Motif & m, const std::vector<std::vector<Graph>>& subs) const
+{
+	int res = 0;
+	for(auto&sub : subs) {
+		int th = static_cast<int>(ceil(sub.size()*pSnap));
+		int cnt = 0;
+		for(auto&g : sub) {
+			if(g.testMotif(m)) {
+				if(++cnt >= th)
+					break;
+			}
+		}
+		if(cnt >= th)
+			++res;
+	}
+	return res;
+}
+
+
+void StrategyFuncFreq::removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e)
+{
+	auto itLast = sup.before_begin(), it = sup.begin();
+	while(it != sup.end()) {
+		const subject_t* s = *it;
+		if(!checkEdge(e.s, e.d, *s)) {
+			rmv.push_back(s);
+			it = sup.eraseAfter(itLast);
+		} else {
+			itLast = it++;
+		}
+	}
 }
 
 void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, slist& supNeg,
 	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges)
 {
 	if(p >= edges.size() || curr.size() == smax) {
-		if(curr.size() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
+		if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
 			double s = objectFunction(static_cast<double>(supPos.size()) / pgp->size(),
 				static_cast<double>(supNeg.size()) / pgn->size());
+			++numMotifExplored;
 			res.update(move(curr), s);
 		}
 		return;
@@ -166,8 +208,8 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 std::vector<Motif> StrategyFuncFreq::_enum1_nofun(const unsigned p, Motif & curr,
 	slist& supPos, slist& supNeg, const std::vector<Edge>& edges)
 {
-	if(p >= edges.size()) {
-		if(curr.size() >= 2 && curr.connected() && supPos.size() + supNeg.size() >= nMinSup) {
+	if(p >= edges.size() || curr.size() == smax) {
+		if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
 			return{ curr };
 		}
 	}

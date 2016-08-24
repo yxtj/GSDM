@@ -7,6 +7,8 @@
 #include <vector>
 #include <forward_list>
 
+class Network;
+
 class StrategyFuncFreq
 	: public StrategyBase
 {
@@ -41,6 +43,9 @@ class StrategyFuncFreq
 		}
 	};
 
+	// parameters for distribution
+	int numMotifExplored;
+
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -60,11 +65,15 @@ private:
 
 	std::vector<Motif> method_enum1();
 
+	std::vector<Motif> master(Network& net);
+	int slaver(Network& net);
 	// implementation level private function
 private:
 	// pass the snapshot level test (pSnap) and subject level test (minSup)
 	bool checkEdge(const int s, const int d) const;
 	bool checkEdge(const int s, const int d, const std::vector<Graph>& sub) const;
+	std::pair<int, int> countMotif(const Motif& m) const;
+	int countMotif(const Motif& m, const std::vector<std::vector<Graph>>& subs) const;
 
 	void removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e);
 
@@ -72,5 +81,11 @@ private:
 		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
 	std::vector<Motif> _enum1_nofun(const unsigned p, Motif& curr,
 		slist& supPos, slist& supNeg, const std::vector<Edge>& edges);
+
+	std::pair<int, int> master_gather_count(Network& net, const Motif& m);
+	int master_gather_count_pos(Network& net, const Motif& m);
+
+	void _enum1_dis1(const unsigned p, Motif& curr, slist& supPos, slist& supNeg,
+		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges, Network& net);
 };
 
