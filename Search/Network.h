@@ -27,6 +27,9 @@ public:
 	void sendCountNeg(const int target, const int c);
 	bool readCountNeg(int& res, int& source);
 
+	void sendVecInt(const int target, const std::vector<int>& vec);
+	bool readVecInt(std::vector<int>& res, int& source);
+
 	void sendEnd(const int target);
 	void sendEnd();
 
@@ -36,8 +39,9 @@ public:
 	static constexpr int TAG_END = 0;
 	static constexpr int TAG_MOTIF = 1;
 	static constexpr int TAG_COUNT_PAIR = 2;
-	static constexpr int TAG_COUNT_POS = 2;
-	static constexpr int TAG_COUNT_NEG = 2;
+	static constexpr int TAG_COUNT_POS = 3;
+	static constexpr int TAG_COUNT_NEG = 4;
+	static constexpr int TAG_VEC_INT = 5;
 
 };
 

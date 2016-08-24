@@ -62,6 +62,7 @@ public:
 	// high level private functions:
 private:
 	std::vector<Edge> getEdges();
+	std::vector<Edge> getEdgesMultiple();
 
 	std::vector<Motif> method_enum1();
 
@@ -72,6 +73,8 @@ private:
 	// pass the snapshot level test (pSnap) and subject level test (minSup)
 	bool checkEdge(const int s, const int d) const;
 	bool checkEdge(const int s, const int d, const std::vector<Graph>& sub) const;
+	std::pair<int, int> countEdge(const int s, const int d) const;
+	int countEdge(const int s, const int d, const std::vector<std::vector<Graph>>& sub) const;
 	std::pair<int, int> countMotif(const Motif& m) const;
 	int countMotif(const Motif& m, const std::vector<std::vector<Graph>>& subs) const;
 
@@ -84,6 +87,11 @@ private:
 
 	std::pair<int, int> master_gather_count(Network& net, const Motif& m);
 	int master_gather_count_pos(Network& net, const Motif& m);
+	std::vector<Edge> master_gather_edges(Network& net);
+
+
+	void slave_edge_counting(Network& net);
+	int slave_motif_counting(Network& net);
 
 	void _enum1_dis1(const unsigned p, Motif& curr, slist& supPos, slist& supNeg,
 		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges, Network& net);

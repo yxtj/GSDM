@@ -99,6 +99,7 @@ bool Network::readCountPos(int & res, int & source)
 		return false;
 	}
 	res= *reinterpret_cast<int*>(bufRecv);
+	source = st.MPI_SOURCE;
 	return true;
 }
 
@@ -116,6 +117,47 @@ bool Network::readCountNeg(int & res, int & source)
 		return false;
 	}
 	res = *reinterpret_cast<int*>(bufRecv);
+	source = st.MPI_SOURCE;
+	return true;
+}
+
+void Network::sendVecInt(const int target, const std::vector<int>& vec)
+{
+	// bool (finished or not) + n*int
+	const int maxNum = (restBufSizeSend - sizeof(bool)) / sizeof(int);
+	int p = 0;
+	while(vec.size() - p > maxNum) {
+		*reinterpret_cast<bool*>(bufSend) = false;
+		memcpy_s(bufSend + sizeof(bool), restBufSizeSend - sizeof(bool), vec.data() + p, sizeof(int)*maxNum);
+		p += maxNum;
+		MPI_Send(bufSend, sizeof(bool) + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
+	}
+	*reinterpret_cast<bool*>(bufSend) = true;
+	memcpy_s(bufSend + sizeof(bool), restBufSizeSend - sizeof(bool), vec.data() + p, sizeof(int)*maxNum);
+	p += maxNum;
+	MPI_Send(bufSend, sizeof(bool) + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
+}
+
+bool Network::readVecInt(std::vector<int>& res, int & source)
+{
+	res.clear();
+	MPI_Status st;
+	bool finish;
+	do {
+		MPI_Recv(bufRecv, restBufSizeRecv, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &st);
+		if(st.MPI_TAG == TAG_END) {
+			return false;
+		}
+		finish = *reinterpret_cast<bool*>(bufRecv);
+		int* p = reinterpret_cast<int*>(bufRecv + sizeof(bool));
+		int s;
+		MPI_Get_count(&st, MPI_CHAR, &s);
+		s = (s - sizeof(bool)) / sizeof(int);
+		while(s--) {
+			res.push_back(*p++);
+		}
+	} while(!finish);
+	source = st.MPI_SOURCE;
 	return true;
 }
 

@@ -134,10 +134,29 @@ bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Gra
 	return cnt >= th;
 }
 
+std::pair<int, int> StrategyFuncFreq::countEdge(const int s, const int d) const
+{
+	int nPos = countEdge(s, d, *pgp);
+	int nNeg = countEdge(s, d, *pgn);
+	return make_pair(nPos, nNeg);
+}
+
+int StrategyFuncFreq::countEdge(const int s, const int d, const std::vector<std::vector<Graph>>& subs) const
+{
+	int cnt = 0;
+	for(auto&sub : subs) {
+		if(checkEdge(s, d, sub))
+			++cnt;
+	}
+	return cnt;
+}
+
 std::pair<int, int> StrategyFuncFreq::countMotif(const Motif & m) const
 {
 	int nPos = countMotif(m, *pgp);
 	int nNeg = countMotif(m, *pgn);
+//	cout << m << "\t(" << nPos << "," << nNeg << ")" << endl;
+//	this_thread::sleep_for(chrono::seconds(1));
 	return make_pair(nPos, nNeg);
 }
 
