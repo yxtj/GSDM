@@ -130,13 +130,15 @@ void Network::sendVecInt(const int target, const std::vector<int>& vec)
 	while(vec.size() - p > maxNum) {
 		*reinterpret_cast<bool*>(bufSend) = false;
 		*reinterpret_cast<int*>(bufSend + sizeof(bool)) = maxNum;
-		memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*maxNum);
+//		memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*maxNum);
+		memcpy(bufSend + overhead, vec.data() + p, sizeof(int)*maxNum);
 		p += maxNum;
 		MPI_Send(bufSend, overhead + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
 	}
 	*reinterpret_cast<bool*>(bufSend) = true;
 	*reinterpret_cast<int*>(bufSend + sizeof(bool)) = vec.size() - p;
-	memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*(vec.size() - p));
+	//memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*(vec.size() - p));
+	memcpy(bufSend + overhead, vec.data() + p, sizeof(int)*(vec.size() - p));
 	p += maxNum;
 	MPI_Send(bufSend, overhead + maxNum * sizeof(int), MPI_CHAR, target, TAG_VEC_INT, MPI_COMM_WORLD);
 }
