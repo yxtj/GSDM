@@ -45,7 +45,7 @@ bool TopKHolder<T, S>::update(T& m, const S s)
 			data.resize(data.size() + 1);
 		for(size_t i = data.size() - 1; i > p; --i)
 			data[i] = move(data[i - 1]);
-		data[p] = make_pair(move(m), s);
+		data[p] = std::make_pair(std::move(m), s);
 		return true;
 	}
 	return false;
