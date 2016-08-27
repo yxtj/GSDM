@@ -36,10 +36,9 @@ std::vector<Motif> StrategyFuncFreq::master(Network& net)
 	return holder.getResultMove();
 }
 
-void outputFoundMotif(ostream& os, const Motif& m);
-
-int StrategyFuncFreq::slaver(Network& net)
+int StrategyFuncFreq::slave(Network& net)
 {
+	cout << "slave on rank " << net.getRank() << endl;
 	slave_edge_counting(net);
 	int countMotif = slave_motif_counting(net);
 	return countMotif;
@@ -93,11 +92,19 @@ int StrategyFuncFreq::master_gather_count_pos(Network & net, const Motif & m)
 	return nPos;
 }
 
+template<typename T>
+ostream& operator<<(ostream& os, const vector<T>& param) {
+	for(auto& p : param)
+		os << p << " ";
+	return os;
+}
+
 std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 {
 	vector<vector<int>> cnt;
 	cnt.reserve(nNode);
 	// local count
+//	ofstream fout("edge-count-"+to_string(net.getSize())+"-"+to_string(net.getRank())+".txt");
 	for(int i = 0; i < nNode; ++i) {
 		vector<int> temp;
 		temp.reserve(nNode - i - 1);
@@ -105,8 +112,10 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 			auto p = countEdge(i, j);
 			temp.push_back(p.first + p.second);
 		}
+//		fout << temp << "\n";
 		cnt.push_back(move(temp));
 	}
+//	fout.close();
 	// gather remote count
 	cout << "gather edges:" << endl;
 	int size = net.getSize();
@@ -116,7 +125,7 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 		vector<int> ci;
 		int source;
 		net.readVecInt(ci, source);
-//		cout << "  receive from " << source << " with length " << ci.size() << endl;
+//		cout << "  receive from " << source << " with length " << ci.size() << "\n" << ci << endl;
 		int row = nNode - 1 - ci.size();
 		for(size_t j = 0; j < ci.size(); ++j)
 			cnt[row][j] += ci[j];
@@ -125,11 +134,13 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 	}
 	// generate valid edges
 	vector<Edge> res;
+//	fout.open("edge-count-" + to_string(net.getSize()) + ".txt");
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = 0; j < nNode - 1 - i; ++j) {
 			if(cnt[i][j] >= nMinSup)
 				res.emplace_back(i, j + i + 1);
 		}
+//		fout << cnt[i] << "\n";
 	}
 	return res;
 }
@@ -137,6 +148,7 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 void StrategyFuncFreq::slave_edge_counting(Network& net)
 {
 	// last row has zero entry, do not send
+//	ofstream fout("edge-count-" + to_string(net.getSize()) + "-" + to_string(net.getRank()) + ".txt");
 	for(int i = 0; i < nNode - 1; ++i) {
 		vector<int> cnt;
 		cnt.reserve(nNode - i - 1);
@@ -144,8 +156,10 @@ void StrategyFuncFreq::slave_edge_counting(Network& net)
 			auto p = countEdge(i, j);
 			cnt.push_back(p.first + p.second);
 		}
-//		cout << "  send to " << net.getRank() << " with length " << cnt.size() << endl;
+//		cout << "  send from " << net.getRank() << " with length " << cnt.size() << "\n" << cnt << endl;
 		net.sendVecInt(0, cnt);
+//		fout << cnt << "\n";
+		//this_thread::sleep_for(chrono::seconds(1));
 	}
 }
 
@@ -185,10 +199,15 @@ void StrategyFuncFreq::_enum1_dis1(const unsigned p, Motif & curr, slist & supPo
 		}
 		return;
 	}
-	//double lowBound = objectFunction(static_cast<double>(supPos.size()) / pgp->size(), 0.0);
-	//if(!res.updatable(lowBound)) {
-	//	return;
-	//}
+	// pre-prune based on the # of supporting graph of a sub-motif
+	{
+		//auto clocal = countMotif(curr);
+		//auto cremote = master_gather_count(net, curr);
+		//double lowBound = objectFunction(static_cast<double>(clocal.first + cremote.first) / pgp->size(), 0.0);
+		//if(!res.updatable(lowBound)) {
+		//	return;
+		//}
+	}
 
 	_enum1_dis1(p + 1, curr, supPos, supNeg, res, edges, net);
 

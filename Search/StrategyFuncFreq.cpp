@@ -55,7 +55,7 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 		if(net.getRank() == 0) {
 			res = master(net);
 		} else {
-			numMotifExplored = slaver(net);
+			numMotifExplored = slave(net);
 		}
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -106,6 +106,19 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 	return res;
 }
 
+bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
+{
+	int th = static_cast<int>(ceil(sub.size()*pSnap));
+	int cnt = 0;
+	for(auto&g : sub) {
+		if(g.testEdge(s, d)) {
+			if(++cnt >= th)
+				break;
+		}
+	}
+	return cnt >= th;
+}
+
 bool StrategyFuncFreq::checkEdge(const int s, const int d) const
 {
 	unsigned cnt = 0;
@@ -124,26 +137,6 @@ bool StrategyFuncFreq::checkEdge(const int s, const int d) const
 	return cnt >= nMinSup;
 }
 
-bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
-{
-	int th = static_cast<int>(ceil(sub.size()*pSnap));
-	int cnt = 0;
-	for(auto&g : sub) {
-		if(g.testEdge(s, d)) {
-			if(++cnt >= th)
-				break;
-		}
-	}
-	return cnt >= th;
-}
-
-std::pair<int, int> StrategyFuncFreq::countEdge(const int s, const int d) const
-{
-	int nPos = countEdge(s, d, *pgp);
-	int nNeg = countEdge(s, d, *pgn);
-	return make_pair(nPos, nNeg);
-}
-
 int StrategyFuncFreq::countEdge(const int s, const int d, const std::vector<std::vector<Graph>>& subs) const
 {
 	int cnt = 0;
@@ -154,6 +147,36 @@ int StrategyFuncFreq::countEdge(const int s, const int d, const std::vector<std:
 	return cnt;
 }
 
+std::pair<int, int> StrategyFuncFreq::countEdge(const int s, const int d) const
+{
+	int nPos = countEdge(s, d, *pgp);
+	int nNeg = countEdge(s, d, *pgn);
+	return make_pair(nPos, nNeg);
+}
+
+bool StrategyFuncFreq::testMotif(const Motif & m, const std::vector<Graph>& sub) const
+{
+	int th = static_cast<int>(ceil(sub.size()*pSnap));
+	int cnt = 0;
+	for(auto&g : sub) {
+		if(g.testMotif(m)) {
+			if(++cnt >= th)
+				break;
+		}
+	}
+	return cnt >= th;
+}
+
+int StrategyFuncFreq::countMotif(const Motif & m, const std::vector<std::vector<Graph>>& subs) const
+{
+	int res = 0;
+	for(auto&sub : subs) {
+		if(testMotif(m, sub))
+			++res;
+	}
+	return res;
+}
+
 std::pair<int, int> StrategyFuncFreq::countMotif(const Motif & m) const
 {
 	int nPos = countMotif(m, *pgp);
@@ -161,24 +184,6 @@ std::pair<int, int> StrategyFuncFreq::countMotif(const Motif & m) const
 //	cout << m << "\t(" << nPos << "," << nNeg << ")" << endl;
 //	this_thread::sleep_for(chrono::seconds(1));
 	return make_pair(nPos, nNeg);
-}
-
-int StrategyFuncFreq::countMotif(const Motif & m, const std::vector<std::vector<Graph>>& subs) const
-{
-	int res = 0;
-	for(auto&sub : subs) {
-		int th = static_cast<int>(ceil(sub.size()*pSnap));
-		int cnt = 0;
-		for(auto&g : sub) {
-			if(g.testMotif(m)) {
-				if(++cnt >= th)
-					break;
-			}
-		}
-		if(cnt >= th)
-			++res;
-	}
-	return res;
 }
 
 

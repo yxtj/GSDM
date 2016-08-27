@@ -71,13 +71,10 @@ vector<vector<Graph> > loadData(
 	}
 	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
 	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
-	vector<vector<Graph> > res;
-	if(nSub > 0)
-		res.reserve(nSub);
-	unordered_map<decltype(Subject::id), int> id2off;
 	unordered_set<int> validType(types.begin(), types.end());
 
-	int cntSub = 0;
+	// sort up the file list (ensure the file order)
+	map<decltype(Subject::id), vector<string>> id2fn;
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
@@ -87,30 +84,38 @@ vector<vector<Graph> > loadData(
 			// check type
 			if(validType.find(sub.type) == validType.end())
 				continue;
-			// check subject
-			auto jt = id2off.find(sub.id);
-			if(jt == id2off.end()){
-				// find a new subject
-				if(++cntSub <= nSkip) {
-					id2off.emplace(sub.id, -1);
-					continue;
-				}
-				if(res.size() >= limitSub)
-					break;
-				jt = id2off.emplace(sub.id, res.size()).first;
-				res.push_back(vector<Graph>());
-//				cout << "type " << types[0] << " : " << sub.id << endl;
-			} else if (jt->second == -1)
-				continue;
-			// add a new snapshot to an existing subject
-			if(res[jt->second].size() >= limitSnp) {
-				continue;
-			}
+			id2fn[sub.id].push_back(move(fn));
+		}
+	}
+//	int rank;
+//	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	// load data
+	vector<vector<Graph> > res(min(limitSub,id2fn.size()));
+	int cntSub = 0;
+	size_t pres = 0;
+	for(auto& sfp : id2fn) {
+		if(++cntSub <= nSkip)
+			continue;
+		else if(pres >= limitSub)
+			break;
+//		cout <<"rank: "<<rank<< " type: " << types[0] << " id: " << sfp.first << endl;
+		// sort the snapshot files
+		if(sfp.second.size() <= limitSnp) {
+			sort(sfp.second.begin(), sfp.second.end());
+		} else {
+			auto it = sfp.second.begin() + limitSnp;
+			partial_sort(sfp.second.begin(), it, sfp.second.end());
+		}
+		vector<Graph>& vec = res[pres++];
+		size_t cntSnp = 0;
+		for(auto& fn : sfp.second) {
+			if(++cntSnp > limitSnp)
+				break;
 			ifstream fin(folder + fn);
 			if(!fin) {
 				cerr << "cannot open file: " << fn << endl;
 			}
-			res[jt->second].push_back(loadGraph(fin));
+			vec.push_back(loadGraph(fin));
 		}
 	}
 	return res;
@@ -256,6 +261,7 @@ int main(int argc, char* argv[])
 		opt.nNegInd = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typeNeg);
 	int nPosSub = opt.nPosInd, nPosSkip = 0;
 	int nNegSub = opt.nNegInd, nNegSkip = 0;
+//	cout << "rank " << rank << " # pos " << opt.nPosInd << " # neg " << opt.nNegInd << endl;
 	if(size != 1) {
 		// need to set different number and starting point of different worker
 		double partPos = static_cast<double>(nPosSub) / size;

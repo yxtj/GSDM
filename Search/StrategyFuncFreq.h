@@ -67,16 +67,17 @@ private:
 	std::vector<Motif> method_enum1();
 
 	std::vector<Motif> master(Network& net);
-	int slaver(Network& net);
+	int slave(Network& net);
 	// implementation level private function
 private:
 	// pass the snapshot level test (pSnap) and subject level test (minSup)
-	bool checkEdge(const int s, const int d) const;
 	bool checkEdge(const int s, const int d, const std::vector<Graph>& sub) const;
-	std::pair<int, int> countEdge(const int s, const int d) const;
+	bool checkEdge(const int s, const int d) const;
 	int countEdge(const int s, const int d, const std::vector<std::vector<Graph>>& sub) const;
-	std::pair<int, int> countMotif(const Motif& m) const;
+	std::pair<int, int> countEdge(const int s, const int d) const;
+	bool testMotif(const Motif& m, const std::vector<Graph>& sub) const;
 	int countMotif(const Motif& m, const std::vector<std::vector<Graph>>& subs) const;
+	std::pair<int, int> countMotif(const Motif& m) const;
 
 	void removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e);
 
