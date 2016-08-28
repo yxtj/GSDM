@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Graph.h"
+#include "../common/Graph.h"
 
 class SubjectData
 {

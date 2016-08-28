@@ -2,9 +2,9 @@
 #include <vector>
 #include <utility>
 #include <string>
-#include "Graph.h"
-#include "Motif.h"
-#include "Subject.h"
+#include "../common/Graph.h"
+#include "../common/Motif.h"
+#include "../common/SubjectInfo.h"
 #include "SubjectData.h"
 #include "ConfusionMatrix.h"
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "Motif.h"
-#include "Graph.h"
-#include "GraphProb.h"
+#include "../common/Motif.h"
+#include "../common/Graph.h"
+#include "../common/GraphProb.h"
 #include <vector>
 #include <string>
 

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Option.h"
-#include "Util.h"
+#include "../util/Util.h"
 #include "MotifTester.h"
 
 using namespace std;

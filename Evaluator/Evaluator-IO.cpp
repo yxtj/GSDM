@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Evaluator-IO.h"
-#include "IOfunctions.h"
 
 using namespace std;
 
@@ -8,7 +7,7 @@ using namespace std;
 
 Graph loadGraph(istream& is) {
 	Graph res;
-	res.loadDataFromStream(is);
+	res.readFromStream(is);
 	return res;
 }
 
@@ -20,13 +19,13 @@ vector<SubjectData> loadGraph(const string& folder, const vector<int>& graphType
 		throw invalid_argument("cannot open graph folder: " + folder);
 	}
 	int limit = nGraph > 0 ? nGraph : numeric_limits<int>::max();
-	Subject sub;
+	SubjectInfo sub;
 	unordered_set<int> types(graphTypes.begin(), graphTypes.end());
 	int cnt = 0;
 	unordered_map<string, SubjectData> data; //map from subject id to graphs
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
 		string fn = it->path().filename().string();
-		if(!checknParseGraphFilename(fn, &sub) || types.find(sub.type) == types.end())
+		if(!sub.parseFromFilename(fn) || types.find(sub.type) == types.end())
 			continue;
 		if(++cnt <= nSkip)
 			continue;

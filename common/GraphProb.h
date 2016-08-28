@@ -10,9 +10,6 @@ public:
 	std::vector<std::vector<double> > matrix;
 public:
 	GraphProb() = default;
-	GraphProb(const GraphProb& g) = default;
-	GraphProb(GraphProb&& g) = default;
-		//: nNode(g.nNode), nEdge(g.nEdge), nSample(g.nSample), matrix(g.matrix) {}
 	GraphProb(const int n);
 	GraphProb(const std::vector<Graph>& gs);
 
