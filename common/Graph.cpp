@@ -3,14 +3,10 @@
 
 using namespace std;
 
-Graph::Graph(Graph && g)
-	: nNode(g.nNode), nEdge(g.nEdge), matrix(move(g.matrix))
-{
-}
-
 Graph::Graph(const int n)
 	: nNode(n), nEdge(0)
 {
+	init();
 }
 
 size_t Graph::getnNode() const
@@ -34,20 +30,30 @@ bool Graph::init()
 	return true;
 }
 
-void Graph::readFromStream(std::istream & is, const bool compress)
+void Graph::readFromStream(std::istream & is)
 {
-	if(!compress)
-		readText(is);
-	else
-		readBinary(is);
+	int level = checkCompressionLevel(is);
+	return readFromStream(is, level);
 }
 
-void Graph::writeToStream(std::ostream & os, const bool compress) const
+void Graph::readFromStream(std::istream & is, const int comLevel)
 {
-	if(!compress)
-		writeText(os);
+	if(comLevel == 0)
+		readText(is);
+	else if(comLevel == 1)
+		readBinary(is);
 	else
+		readCompressed(is, comLevel);
+}
+
+void Graph::writeToStream(std::ostream & os, const int comLevel) const
+{
+	if(comLevel == 0)
+		writeText(os);
+	else if(comLevel == 1)
 		writeBinary(os);
+	else
+		writeCompressed(os, comLevel);
 }
 
 bool Graph::testEdge(const Edge & e) const
@@ -90,6 +96,16 @@ bool Graph::testMotif(const MotifBuilder & m) const
 		res = false;
 	}
 	return res;
+}
+
+int Graph::checkCompressionLevel(std::istream & is)
+{
+	int8_t ch = is.peek();
+	if(ch < '0') {
+		// return the magic byte
+		return int(ch);
+	}
+	return 0;
 }
 
 void Graph::writeText(std::ostream & os) const
@@ -135,7 +151,8 @@ void Graph::readText(std::istream & is)
 
 void Graph::writeBinary(std::ostream & os) const
 {
-	// XXX: no tested
+	char magicByte = 1;
+	os.put(magicByte);
 	int len = (nNode + 7) / 8;
 	char* buff = new char[len];
 	*reinterpret_cast<int32_t*>(buff) = int32_t(nNode);
@@ -159,10 +176,12 @@ void Graph::writeBinary(std::ostream & os) const
 
 void Graph::readBinary(std::istream & is)
 {
-	// XXX: no tested
+	is.get(); // remove the magic byte
 	int32_t n;
 	is.read(reinterpret_cast<char*>(&n), sizeof(int32_t));
 	nNode = n;
+	nEdge = 0;
+	init();
 	int len = (nNode + 7) / 8;
 	char* buff = new char[len];
 	for(int i = 0; i < nNode; ++i) {
@@ -179,6 +198,17 @@ void Graph::readBinary(std::istream & is)
 	}
 	delete[] buff;
 
+}
+
+void Graph::writeCompressed(std::ostream & os, const int level) const
+{
+	throw invalid_argument("Compressed graph IO is not implemented");
+	os.put(char(level));
+}
+
+void Graph::readCompressed(std::istream & is, const int level)
+{
+	throw invalid_argument("Compressed graph IO is not implemented");
 }
 
 std::ostream & operator<<(std::ostream & os, const Graph & g)

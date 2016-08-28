@@ -149,6 +149,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SubjectInfo.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Util4IO.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graph.cpp" />
@@ -163,6 +164,7 @@
     </ClCompile>
     <ClCompile Include="SubjectInfo.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Util4IO.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
