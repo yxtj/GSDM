@@ -38,6 +38,7 @@ bool checknParseGraphFilename(const std::string& fn, SubjectInfo* pRes);
 // data format:
 // first line: one integer indicating number of lines of this file
 // rest lines: "id	a b c " i.e. "id\ta b c ", where a, b, c are dst of source id
-graph_t readGraph(const std::string& fn);
-void writeGraph(std::ostream& os, const graph_t& g);
+// Defined in common/Util4IO
+//graph_t readGraph(const std::string& fn);
+//void writeGraph(std::ostream& os, const graph_t& g);
 

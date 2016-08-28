@@ -3,12 +3,12 @@
 
 using namespace std;
 
-Corr2Graph::Corr2Graph(const double th)
-	:thre(th)
+Corr2Graph::Corr2Graph(const std::vector<std::string>& param)
 {
+	parseParam(param);
 }
 
-Corr2Graph::Corr2Graph(const std::vector<std::string>& param)
+void Corr2Graph::parseParam(const std::vector<std::string>& param)
 {
 	if(param.empty()) {
 		throw invalid_argument("no parameter for corr2graph.");
@@ -16,13 +16,13 @@ Corr2Graph::Corr2Graph(const std::vector<std::string>& param)
 	if(param[0] == "lt") {
 		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v < th; };
-	}else if(param[0] == "le") {
+	} else if(param[0] == "le") {
 		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v <= th; };
-	}else if(param[0] == "gt") {
+	} else if(param[0] == "gt") {
 		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v > th; };
-	}else if(param[0] == "ge") {
+	} else if(param[0] == "ge") {
 		double th = parseNumber(param[1]);
 		pred = [=](const double v) {return v >= th; };
 	} else if(param[0] == "between") {
@@ -38,7 +38,7 @@ Corr2Graph::Corr2Graph(const std::vector<std::string>& param)
 	}
 }
 
-graph_t Corr2Graph::getGraph(const corr_t& corr)
+graph_t Corr2Graph::getGraphVec(const corr_t& corr)
 {
 	size_t n = corr.size();
 	graph_t res(n);
@@ -50,6 +50,19 @@ graph_t Corr2Graph::getGraph(const corr_t& corr)
 	}
 	return res;
 }
+
+Graph Corr2Graph::getGraph(const corr_t& corr)
+{
+	size_t n = corr.size();
+	Graph res(n);
+	for(size_t i = 0; i < n; ++i) {
+		for(size_t j = 0; j < n; ++j) {
+			res.matrix[i][j] = pred(corr[i][j]);
+		}
+	}
+	return res;
+}
+
 
 double Corr2Graph::parseNumber(const std::string & v)
 {

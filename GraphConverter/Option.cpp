@@ -26,6 +26,8 @@ Option::Option()
 			"supports: gt <th>, ge <th>, lt <th>, le <th>, between <thLow> <thUp>, outside <thLow> <thUp>\n"
 			"between uses [thLow,thUp) range. outside is the oppsite to between.\n"
 			"FOR NEGATIVE NUMBER, USE n0.8 instead of -0.8, because \"-x\" is regarded as an option")
+		("com-graph", value<int>(&comGraphLevel)->default_value(0), "the compression level for outputting graphs.\n"
+			"The larger the number is, the smaller the output size is. 0 -> normal text, 1 -> binary, 2~n -> compressed")
 		;
 	cutp.reg(*this);
 }

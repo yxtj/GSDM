@@ -24,6 +24,7 @@ public:
 
 	std::string corrMethod; // method of calculating correlation
 	std::vector<std::string> graphParam; // the correlation predicate for determine connectivity
+	int comGraphLevel; // the compression level for graph outputing
 
 public:
 	Option();

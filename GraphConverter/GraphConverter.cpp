@@ -113,7 +113,13 @@ int main(int argc, char* argv[])
 		if(!boost::filesystem::is_directory(opt.graphPath)) {
 			boost::filesystem::create_directories(opt.graphPath);
 		}
-		Corr2Graph c2g(opt.graphParam);
+		Corr2Graph c2g;
+		try {
+			c2g.parseParam(opt.graphParam);
+		} catch(exception& e) {
+			cerr << e.what() << endl;
+			return 1;
+		}
 		int cnt = 0;
 		for(auto p : corr) {
 			string fn = opt.graphPath + genGraphFilename(p.first);
@@ -122,7 +128,7 @@ int main(int argc, char* argv[])
 				cerr << "  Cannot open output file: " << fn << endl;
 				continue;
 			}
-			writeGraph(fout, c2g.getGraph(p.second));
+			c2g.getGraph(p.second).writeToStream(fout, opt.comGraphLevel);
 			if(++cnt % 100 == 0)
 				cout << "  # of outputted " << cnt << endl;
 		}
