@@ -1,6 +1,6 @@
 #pragma once
 #include <utility>
-#include "Motif.h"
+#include "../common/Motif.h"
 
 class Network
 {

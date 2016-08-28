@@ -1,6 +1,6 @@
 #pragma once
-#include "Graph.h"
-#include "Motif.h"
+#include "../common/Graph.h"
+#include "../common/Motif.h"
 #include "FactoryProductTemplate.h"
 #include <vector>
 #include <string>

@@ -1,6 +1,6 @@
 #pragma once
 #include "StrategyBase.h"
-#include "GraphProb.h"
+#include "../common/GraphProb.h"
 
 // Strategy for Discriminative Uncertain Graph
 class StrategyDUG

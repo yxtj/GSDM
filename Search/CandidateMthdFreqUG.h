@@ -1,6 +1,6 @@
 #pragma once
 #include "CandidateMethod.h"
-#include "GraphProb.h"
+#include "../common/GraphProb.h"
 
 class CandidateMthdFreqUG :
 	public CandidateMethod

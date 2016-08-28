@@ -157,11 +157,6 @@
     <ClInclude Include="CandidateMthdFreqUG.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
-    <ClInclude Include="Graph.h" />
-    <ClInclude Include="GraphProb.h" />
-    <ClInclude Include="IOfunctions.h" />
-    <ClInclude Include="Motif.h" />
-    <ClInclude Include="MotifBuilder.h" />
     <ClInclude Include="MotifCommunicator.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Option.h" />
@@ -179,9 +174,7 @@
     <ClInclude Include="StrategyParaFreqPmN.h" />
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
-    <ClInclude Include="Subject.h" />
     <ClInclude Include="TopKHolder.hpp" />
-    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CandidateMthdFreq-edge.cpp" />
@@ -189,11 +182,6 @@
     <ClCompile Include="CandidateMthdFreq-node.cpp" />
     <ClCompile Include="CandidateMthdFreqUG.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
-    <ClCompile Include="Graph.cpp" />
-    <ClCompile Include="GraphProb.cpp" />
-    <ClCompile Include="IOfunctions.cpp" />
-    <ClCompile Include="Motif.cpp" />
-    <ClCompile Include="MotifBuilder.cpp" />
     <ClCompile Include="MotifCommunicator.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Option.cpp" />
@@ -218,12 +206,18 @@
     <ClCompile Include="StrategyParaFreqPmN.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />
-    <ClCompile Include="Subject.cpp" />
-    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
     <None Include="readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\common.vcxproj">
+      <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\util\util.vcxproj">
+      <Project>{0bdcbb77-869d-461d-8a5d-1f25358455d3}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

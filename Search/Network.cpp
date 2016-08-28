@@ -127,7 +127,7 @@ void Network::sendVecInt(const int target, const std::vector<int>& vec)
 	constexpr int overhead = sizeof(bool) + sizeof(int);
 	const int maxNum = (restBufSizeSend - overhead) / sizeof(int);
 	int p = 0;
-	while(vec.size() - p > maxNum) {
+	while(static_cast<int>(vec.size()) - p > maxNum) {
 		*reinterpret_cast<bool*>(bufSend) = false;
 		*reinterpret_cast<int*>(bufSend + sizeof(bool)) = maxNum;
 //		memcpy_s(bufSend + overhead, restBufSizeSend - overhead, vec.data() + p, sizeof(int)*maxNum);

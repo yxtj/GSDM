@@ -10,9 +10,9 @@ std::vector<Motif> StrategyFuncFreq::master(Network& net)
 	cout << "Phase 1 (meta-data prepare)" << endl;
 	slist supPos, supNeg;
 	for(auto& s : *pgp)
-		supPos.push(&s);
+		supPos.push_front(&s);
 	for(auto& s : *pgn)
-		supNeg.push(&s);
+		supNeg.push_front(&s);
 	vector<Edge> edges = master_gather_edges(net);
 	cout << "  # of edges: " << edges.size() << endl;
 
@@ -134,10 +134,11 @@ std::vector<Edge> StrategyFuncFreq::master_gather_edges(Network& net)
 	}
 	// generate valid edges
 	vector<Edge> res;
+	int _nMinSup = static_cast<int>(nMinSup);
 //	fout.open("edge-count-" + to_string(net.getSize()) + ".txt");
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = 0; j < nNode - 1 - i; ++j) {
-			if(cnt[i][j] >= nMinSup)
+			if(cnt[i][j] >= _nMinSup)
 				res.emplace_back(i, j + i + 1);
 		}
 //		fout << cnt[i] << "\n";
@@ -218,7 +219,7 @@ void StrategyFuncFreq::_enum1_dis1(const unsigned p, Motif & curr, slist & supPo
 	_enum1_dis1(p + 1, curr, supPos, supNeg, res, edges, net);
 	curr.removeEdge(edges[p].s, edges[p].d);
 	for(auto s : rmvPos)
-		supPos.push(s);
+		supPos.push_front(s);
 	for(auto s : rmvNeg)
-		supNeg.push(s);
+		supNeg.push_front(s);
 }

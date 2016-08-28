@@ -1,7 +1,4 @@
 #pragma once
-#include "Graph.h"
-#include "GraphProb.h"
-#include "Motif.h"
 #include "CandidateMethod.h"
 #include "StrategyBase.h"
 #include <vector>

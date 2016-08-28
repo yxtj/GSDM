@@ -1,6 +1,6 @@
 #pragma once
 #include "CandidateMethod.h"
-#include "GraphProb.h"
+#include "../common/GraphProb.h"
 #include <vector>
 #include <utility>
 

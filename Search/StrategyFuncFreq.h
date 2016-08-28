@@ -1,6 +1,4 @@
 #pragma once
-#include "Graph.h"
-#include "Motif.h"
 #include "CandidateMethod.h"
 #include "StrategyBase.h"
 #include "TopKHolder.hpp"
@@ -21,7 +19,7 @@ class StrategyFuncFreq
 
 // local parameters shared by internal functions (valid during searching is called)
 	int nNode;
-	unsigned nMinSup;
+	int nMinSup;
 	std::vector<double> topKScores;
 	using subject_t = std::vector<Graph>;
 	using dataset_t = std::vector<subject_t>;
@@ -34,13 +32,13 @@ class StrategyFuncFreq
 		size_t _s = 0;
 	public:
 		size_t size() const { return _s; }
-		void push(const subject_t* j) {
-			push_front(j);
+		void push_front(const subject_t* j) {
+			std::forward_list<const subject_t*>::push_front(j);
 			++_s;
 		}
-		iterator eraseAfter(const_iterator position) {
+		iterator erase_after(const_iterator position) {
 			--_s;
-			return erase_after(position);
+			return std::forward_list<const subject_t*>::erase_after(position);
 		}
 	};
 
@@ -83,8 +81,6 @@ private:
 
 	void _enum1(const unsigned p, Motif& curr, slist& supPos, slist& supNeg,
 		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
-	std::vector<Motif> _enum1_nofun(const unsigned p, Motif& curr,
-		slist& supPos, slist& supNeg, const std::vector<Edge>& edges);
 
 	std::pair<int, int> master_gather_count(Network& net, const Motif& m);
 	int master_gather_count_pos(Network& net, const Motif& m);

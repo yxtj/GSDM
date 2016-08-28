@@ -1,5 +1,5 @@
 #pragma once
-#include "Motif.h"
+#include "../common/Motif.h"
 
 class MotifCommunicator
 {

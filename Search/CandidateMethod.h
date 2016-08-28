@@ -1,7 +1,7 @@
 #pragma once
-#include "Motif.h"
-#include "MotifBuilder.h"
-#include "Graph.h"
+#include "../common/Motif.h"
+#include "../common/MotifBuilder.h"
+#include "../common/Graph.h"
 #include "FactoryProductTemplate.h"
 #include <string>
 

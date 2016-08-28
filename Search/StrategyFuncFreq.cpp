@@ -42,7 +42,7 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 	pgn = &gNeg;
 	nSubPosGlobal = opt.nPosInd;
 	nSubNegGlobal = opt.nNegInd;
-	nMinSup = static_cast<unsigned>((nSubPosGlobal + nSubNegGlobal)*minSup);
+	nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
 	nNode = gPos[0][0].nNode;
 	numMotifExplored = 0;
 
@@ -85,9 +85,9 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 	cout << "Phase 1 (meta-data prepare)" << endl;
 	slist supPos, supNeg;
 	for(auto& s : *pgp)
-		supPos.push(&s);
+		supPos.push_front(&s);
 	for(auto& s : *pgn)
-		supNeg.push(&s);
+		supNeg.push_front(&s);
 	vector<Edge> edges = getEdges();
 	cout << "  # of edges: " << edges.size() << endl;
 
@@ -121,7 +121,7 @@ bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Gra
 
 bool StrategyFuncFreq::checkEdge(const int s, const int d) const
 {
-	unsigned cnt = 0;
+	int cnt = 0;
 	for(auto&sub : *pgp) {
 		if(checkEdge(s, d, sub))
 			if(++cnt >= nMinSup)
@@ -194,7 +194,7 @@ void StrategyFuncFreq::removeSupport(slist& sup, std::vector<const subject_t*>& 
 		const subject_t* s = *it;
 		if(!checkEdge(e.s, e.d, *s)) {
 			rmv.push_back(s);
-			it = sup.eraseAfter(itLast);
+			it = sup.erase_after(itLast);
 		} else {
 			itLast = it++;
 		}
@@ -227,31 +227,7 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 	_enum1(p + 1, curr, supPos, supNeg, res, edges);
 	curr.removeEdge(edges[p].s, edges[p].d);
 	for(auto s : rmvPos)
-		supPos.push(s);
+		supPos.push_front(s);
 	for(auto s : rmvNeg)
-		supNeg.push(s);
-}
-
-std::vector<Motif> StrategyFuncFreq::_enum1_nofun(const unsigned p, Motif & curr,
-	slist& supPos, slist& supNeg, const std::vector<Edge>& edges)
-{
-	if(p >= edges.size() || curr.size() == smax) {
-		if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
-			return{ curr };
-		}
-	}
-	vector<Motif> res = _enum1_nofun(p + 1, curr, supPos, supNeg, edges);
-
-	curr.addEdge(edges[p].s, edges[p].d);
-	vector<const subject_t*> rmvPos, rmvNeg;
-	removeSupport(supPos, rmvPos, edges[p]);
-	removeSupport(supNeg, rmvNeg, edges[p]);
-	auto t = _enum1_nofun(p + 1, curr, supPos, supNeg, edges);
-	curr.removeEdge(edges[p].s, edges[p].d);
-	for(auto s : rmvPos)
-		supPos.push(s);
-	for(auto s : rmvNeg)
-		supNeg.push(s);
-	move(t.begin(), t.end(), back_inserter(res));
-	return res;
+		supNeg.push_front(s);
 }

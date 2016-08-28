@@ -2,23 +2,20 @@
 //
 
 #include "stdafx.h"
-#include "Graph.h"
-#include "GraphProb.h"
-#include "Motif.h"
+//#include "Graph.h"
+//#include "Motif.h"
+#include "../common/Graph.h"
+#include "../common/Motif.h"
 #include "Option.h"
-#include "StrategyCandidate.h"
-#include "StrategySample.h"
 #include "CandidateMethodFactory.h"
 #include "StrategyFactory.h"
-#include "StrategyCandidatePN.h"
-#include "CandidateMthdFreq.h"
-#include "IOfunctions.h"
+#include "../common/SubjectInfo.h"
 
 using namespace std;
 
 Graph loadGraph(istream& is) {
 	Graph res;
-	res.loadDataFromStream(is);
+	res.readFromStream(is);
 	return res;
 }
 
@@ -45,13 +42,13 @@ int getTotalSubjectNumber(const string& folder, const vector<int>& types) {
 	}
 	unordered_set<int> validType(types.begin(), types.end());
 
-	Subject sub;
-	unordered_set<decltype(Subject::id)> subjects;
+	SubjectInfo sub;
+	unordered_set<decltype(SubjectInfo::id)> subjects;
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
 		string fn = it->path().filename().string();
-		if(boost::filesystem::is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+		if(boost::filesystem::is_regular_file(it->status()) && sub.parseFromFilename(fn)) {
 			// check type
 			if(validType.find(sub.type) == validType.end())
 				continue;
@@ -74,13 +71,13 @@ vector<vector<Graph> > loadData(
 	unordered_set<int> validType(types.begin(), types.end());
 
 	// sort up the file list (ensure the file order)
-	map<decltype(Subject::id), vector<string>> id2fn;
+	map<decltype(SubjectInfo::id), vector<string>> id2fn;
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
-		Subject sub;
+		SubjectInfo sub;
 		string fn = it->path().filename().string();
-		if(boost::filesystem::is_regular_file(it->status()) && checknParseGraphFilename(fn, &sub)) {
+		if(boost::filesystem::is_regular_file(it->status()) && sub.parseFromFilename(fn)) {
 			// check type
 			if(validType.find(sub.type) == validType.end())
 				continue;

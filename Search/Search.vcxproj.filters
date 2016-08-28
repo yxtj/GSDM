@@ -32,19 +32,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Option.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphProb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Motif.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Subject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StrategyCandidate.h">
@@ -74,9 +62,6 @@
     <ClInclude Include="FactoryTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IOfunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyBase.h">
       <Filter>Strategies</Filter>
     </ClInclude>
@@ -90,12 +75,6 @@
       <Filter>Strategies</Filter>
     </ClInclude>
     <ClInclude Include="MotifCommunicator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MotifBuilder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StrategyDUG.h">
@@ -121,19 +100,7 @@
     <ClCompile Include="Search.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graph.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Option.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphProb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Motif.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOfunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CandidateMethod.cpp">
@@ -155,9 +122,6 @@
       <Filter>Method\Source</Filter>
     </ClCompile>
     <ClCompile Include="FactoryProductTemplate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Subject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyBase.cpp">
@@ -190,14 +154,8 @@
     <ClCompile Include="StrategyDUG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="MotifBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CandidateMthdFreqUG.cpp">
       <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Util.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyFuncFreq.cpp">
       <Filter>Strategies\Source</Filter>
