@@ -33,13 +33,7 @@
     <ClInclude Include="Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TypeDef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SubjectInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Util4IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -63,9 +57,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SubjectInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Util4IO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

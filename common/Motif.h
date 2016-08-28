@@ -1,8 +1,5 @@
 #pragma once
-
-#include <set>
 #include <vector>
-#include <unordered_set>
 #include <ostream>
 
 struct Edge {
@@ -48,7 +45,6 @@ public:
 	std::vector<Edge> edges;
 public:
 	Motif() = default;
-	Motif(const std::set<Edge>& edges);
 	Motif(const std::vector<Edge>& edges);
 
 	// return whether new edge is added by this call

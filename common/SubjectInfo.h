@@ -6,13 +6,17 @@ struct SubjectInfo
 {
 	std::string id;
 	int type;
-	int sgId; // reused as both doctor's scan id for TC, and algorithm's graph id for Corr/Graph
+	int seqNum; // reused as both doctor's scan id for TC, and snapshot id for Corr/Graph
 
 	SubjectInfo() = default;
+	SubjectInfo(const std::string& filename);
 	SubjectInfo(const std::string& id, const int type, const int scanNum = -1);
 	SubjectInfo(std::string&& id, const int type, const int scanNum = -1);
 
+	// filename format: <type>-<subject Id>-<snapshot Id>.txt
+	std::string genFilename() const;
 	bool parseFromFilename(const std::string& fn);
+	static bool checkFilename(const std::string& fn);
 };
 
 inline bool operator<(const SubjectInfo& a, const SubjectInfo& b) {

@@ -3,14 +3,6 @@
 
 using namespace std;
 
-Motif::Motif(const std::set<Edge>& edges)
-{
-	this->edges.reserve(edges.size());
-	for(const Edge& e : edges) {
-		this->edges.push_back(e);
-	}
-}
-
 Motif::Motif(const std::vector<Edge>& edges)
 {
 	this->edges.reserve(edges.size());
