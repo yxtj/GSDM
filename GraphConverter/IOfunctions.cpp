@@ -7,7 +7,7 @@ using namespace std;
 
 //---------------------------- Time Course ---------------------------------
 
-std::multimap<Subject, tc_t> loadInputTC(
+std::multimap<SubjectInfo, tc_t> loadInputTC(
 	const std::string& tcPath, const std::string& dataset, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
@@ -17,11 +17,11 @@ std::multimap<Subject, tc_t> loadInputTC(
 	}
 
 	TCLoader* loader = LoaderFactory::generate(dataset);
-	multimap<Subject, tc_t> res;
+	multimap<SubjectInfo, tc_t> res;
 
-	vector<Subject> slist;
+	vector<SubjectInfo> slist;
 	{
-		vector<Subject> validList = loader->loadValidList(tcPath, nSubject);
+		vector<SubjectInfo> validList = loader->loadValidList(tcPath, nSubject);
 		slist = loader->getAllSubjects(validList, tcPath);
 	}
 // 	if(nSubject > 0 && slist.size() > static_cast<size_t>(nSubject)) {
@@ -29,7 +29,7 @@ std::multimap<Subject, tc_t> loadInputTC(
 // 		slist.erase(it, slist.end());
 // 	}
 	int count = 0;
-	for(Subject& s : slist) {
+	for(SubjectInfo& s : slist) {
 		// skip the first nSkip subjects:
 		if(++count <= nSkip)
 			continue;
@@ -44,50 +44,32 @@ std::multimap<Subject, tc_t> loadInputTC(
 
 //---------------------------- Correlation ---------------------------------
 
-std::string genCorrFilename(const Subject & sub)
+std::string genCorrFilename(const SubjectInfo & sub)
 {
-	return to_string(sub.type) + "-" + sub.id + "-" + to_string(sub.sgId) + ".txt";
+	return sub.genFilename();
 }
 
 bool checkCorrFilename(const string & fn)
 {
-	return checknParseCorrFilename(fn, nullptr);
+	return SubjectInfo::checkFilename(fn);
 }
 
-Subject parseCorrFilename(const std::string & fn)
+SubjectInfo parseCorrFilename(const std::string & fn) noexcept(false)
 {
-	size_t p1 = fn.find('-');
-	size_t p2 = fn.find('-', p1 + 1);
-	size_t pend = fn.rfind(".txt", string::npos, 4);
-	return Subject(fn.substr(p1 + 1, p2 - p1 - 1), 
-		stoi(fn.substr(0, p1)), stoi(fn.substr(p2 + 1, pend -p2 - 1)));
+	return SubjectInfo(fn);
 }
 
-bool checknParseCorrFilename(const std::string& fn, Subject* pRes) noexcept
+bool checknParseCorrFilename(const std::string& fn, SubjectInfo* pRes)
 {
-	if(fn.empty())
-		return false;
-	size_t p1 = fn.find('-');
-	size_t p2 = fn.find('-', p1 + 1);
-	size_t pend = fn.rfind(".txt", string::npos, 4);
-	if(p1 == string::npos || p2 == string::npos || pend == string::npos)
-		return false;
-	try {
-		int type = stoi(fn.substr(0, p1));
-		int scanNum = stoi(fn.substr(p2 + 1, pend - p2 - 1));
-		// keep old res if this operation cannot finish successfully
-		if(pRes) {
-			pRes->id = fn.substr(p1 + 1, p2 -p1 -1);
-			pRes->type = type;
-			pRes->sgId = scanNum;
-		}
-	} catch(...) {
-		return false;
+	if(SubjectInfo::checkFilename(fn)) {
+		if(pRes)
+			pRes->parseFromFilename(fn);
+		return true;
 	}
-	return true;
+	return false;
 }
 
-std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject, const int nSkip)
+std::multimap<SubjectInfo, corr_t> loadInputCorr(const std::string& corrPath, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
 	path root(corrPath);
@@ -96,13 +78,13 @@ std::multimap<Subject, corr_t> loadInputCorr(const std::string& corrPath, const 
 	}
 	
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
-	std::multimap<Subject, corr_t> res;
+	std::multimap<SubjectInfo, corr_t> res;
 	int count = 0;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
 		if(++count <= nSkip)
 			continue;
 		string fn = it->path().filename().string();
-		Subject sub;
+		SubjectInfo sub;
 		if(is_regular_file(*it) && checknParseCorrFilename(fn, &sub)) { 
 			res.emplace(move(sub), readCorr(corrPath + fn));
 		}
@@ -164,12 +146,12 @@ void writeCorr(ostream& os, const corr_t& corr)
 
 //---------------------------- Graph ---------------------------------
 
-std::string genGraphFilename(const Subject & sub)
+std::string genGraphFilename(const SubjectInfo & sub)
 {
-	return genCorrFilename(sub);
+	return sub.genFilename();
 }
 
-bool checknParseGraphFilename(const std::string & fn, Subject * pRes) noexcept
+bool checknParseGraphFilename(const std::string & fn, SubjectInfo * pRes)
 {
 	return checknParseCorrFilename(fn, pRes);
 }

@@ -12,12 +12,12 @@ class LoaderABIDE
 //	static const int ID_LENGTH_FILE = 7;
 //	static const char PADDING = '0';
 public:
-	virtual std::vector<Subject> loadValidList(const std::string& fn, const int nSubject = -1);
+	virtual std::vector<SubjectInfo> loadValidList(const std::string& fn, const int nSubject = -1);
 
-//	virtual std::vector<Subject> getAllSubjects(std::vector<Subject>& vldlist, const std::string& root);
+//	virtual std::vector<SubjectInfo> getAllSubjects(std::vector<SubjectInfo>& vldlist, const std::string& root);
 
 
-	virtual std::string getFilePath(const Subject& sub);
+	virtual std::string getFilePath(const SubjectInfo& sub);
 
 	virtual tc_t loadTimeCourse(const std::string& fn);
 private:

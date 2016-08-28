@@ -3,8 +3,8 @@
 
 using namespace std;
 
-std::vector<Subject> TCLoader::getAllSubjects(
-	std::vector<Subject>& vldList, const std::string& root)
+std::vector<SubjectInfo> TCLoader::getAllSubjects(
+	std::vector<SubjectInfo>& vldList, const std::string& root)
 {
 	return move(vldList);
 }

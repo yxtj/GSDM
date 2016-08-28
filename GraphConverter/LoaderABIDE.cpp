@@ -33,7 +33,7 @@ bool LoaderABIDE::checkHeader(const std::string &line) {
 	return true;
 }
 
-std::vector<Subject> LoaderABIDE::loadValidList(const std::string &fn, const int nSubject)
+std::vector<SubjectInfo> LoaderABIDE::loadValidList(const std::string &fn, const int nSubject)
 {
 	string filename(fn);
 	if(filename.find("RfMRIMaps_ABIDE_Phenotypic") == string::npos) {
@@ -59,7 +59,7 @@ std::vector<Subject> LoaderABIDE::loadValidList(const std::string &fn, const int
 	}
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 
-	vector<Subject> res;
+	vector<SubjectInfo> res;
 	while(getline(fin, line, '\r'))
 	{
 		bool valid;
@@ -68,7 +68,7 @@ std::vector<Subject> LoaderABIDE::loadValidList(const std::string &fn, const int
 		tie(valid, sid, type) = parsePhenotypeLine(line);
 
 		if(valid) {
-			res.push_back(Subject{ sid,type });
+			res.push_back(SubjectInfo{ sid,type });
 		}
 
 		if(res.size() >= limit) {
@@ -79,7 +79,7 @@ std::vector<Subject> LoaderABIDE::loadValidList(const std::string &fn, const int
 	return res;
 }
 
-string LoaderABIDE::getFilePath(const Subject &sub) {
+string LoaderABIDE::getFilePath(const SubjectInfo &sub) {
 	return filePrefix + sub.id + ".txt";
 }
 

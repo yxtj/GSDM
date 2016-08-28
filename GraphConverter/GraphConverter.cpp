@@ -11,23 +11,23 @@
 
 using namespace std;
 
-multimap<Subject, corr_t> processTC2Corr(multimap<Subject, tc_t>& smtc, const Option& opt) {
+multimap<SubjectInfo, corr_t> processTC2Corr(multimap<SubjectInfo, tc_t>& smtc, const Option& opt) {
 	TC2Corr t2c(opt.corrMethod);
-	multimap<Subject, corr_t> res;
+	multimap<SubjectInfo, corr_t> res;
 	string lastID;
 	int gid = 0;
 	int cnt = 0;
 	for(auto& p : smtc) {
 		TCCutter cutter(p.second, opt.cutp);
-		Subject sub = p.first;
+		SubjectInfo sub = p.first;
 		if(sub.id != lastID) {
 			lastID = sub.id;
 			gid = 0;
 		}
 		while(cutter.haveNext()) {
 			tc_t t = cutter.getNext();
-			// use sgId as graphID
-			sub.sgId = gid++;
+			// use seqNum as graphID
+			sub.seqNum = gid++;
 			res.emplace(sub, t2c.getCorr(t));
 		}
 		if(++cnt % 100 == 0)
@@ -69,12 +69,12 @@ int main(int argc, char* argv[])
 		<< endl;
 	
 	cout << "Loading input data:" << endl;
-	multimap<Subject, corr_t> corr;
+	multimap<SubjectInfo, corr_t> corr;
 	try {
 		auto p = opt.getInputFolder();
 		if(p.first == Option::FileType::TC) {
 			cout << "  Loading time course data..." << endl;
-			multimap<Subject, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject, opt.nSkip);
+			multimap<SubjectInfo, tc_t> smtc = loadInputTC(opt.tcPath, opt.dataset, opt.nSubject, opt.nSkip);
 			cout << "    # of loaded: " << smtc.size() << endl;
 			cout << "  Generating correlation..." << endl;
 			corr = processTC2Corr(smtc, opt);

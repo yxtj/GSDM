@@ -63,7 +63,7 @@ std::string LoaderADHD200::fixSubjectID(std::string id) const
 	return id;
 }
 
-std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const int nSubject)
+std::vector<SubjectInfo> LoaderADHD200::loadValidList(const std::string & fn, const int nSubject)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -99,7 +99,7 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 		pPOS_QC = &POS_QC_2;
 	}
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
-	std::vector<Subject> res;
+	std::vector<SubjectInfo> res;
 	while(getline(fin, line)) {
 		bool valid;
 		string sid; 
@@ -107,7 +107,7 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 		tie(valid, sid, type) = parsePhenotypeLine(line, pPOS_QC);
 		if(valid) {
 			sid = fixSubjectID(sid);
-			res.push_back(Subject{ move(sid), type });
+			res.push_back(SubjectInfo{ move(sid), type });
 		}
 		if(res.size() >= limit)
 			break;
@@ -116,14 +116,14 @@ std::vector<Subject> LoaderADHD200::loadValidList(const std::string & fn, const 
 	return res;
 }
 
-std::vector<Subject> LoaderADHD200::getAllSubjects(
-	std::vector<Subject>& vldList, const std::string& root)
+std::vector<SubjectInfo> LoaderADHD200::getAllSubjects(
+	std::vector<SubjectInfo>& vldList, const std::string& root)
 {
 	using namespace boost::filesystem;
-	vector<Subject> res;
+	vector<SubjectInfo> res;
 	res.reserve(vldList.size() * 6 / 5);
 	regex reg("^" + filePrefix + "(.+?)_session_\\d+?_rest_(\\d+)_.+?_TCs\\.1D$");
-	for(Subject& s : vldList) {
+	for(SubjectInfo& s : vldList) {
 		path base(root + "/" + s.id);
 		for(auto it = directory_iterator(base); it != directory_iterator(); ++it) {
 			smatch m;
@@ -131,7 +131,7 @@ std::vector<Subject> LoaderADHD200::getAllSubjects(
 			if(regex_search(fn, m, reg) && m[1].str()==s.id) {
 				int scanNum = stoi(m[2].str()) - 1;
 				res.push_back(s);
-				res.back().sgId = scanNum;
+				res.back().seqNum = scanNum;
 			}
 		}
 
@@ -139,10 +139,10 @@ std::vector<Subject> LoaderADHD200::getAllSubjects(
 	return res;
 }
 
-std::string LoaderADHD200::getFilePath(const Subject & sub)
+std::string LoaderADHD200::getFilePath(const SubjectInfo & sub)
 {
 	return sub.id + "/" + filePrefix + sub.id + "_session_1"
-		"_rest_" + to_string(sub.sgId + 1) + "_aal_TCs.1D";
+		"_rest_" + to_string(sub.seqNum + 1) + "_aal_TCs.1D";
 }
 
 // tc_t = std::vector<std::vector<double>>

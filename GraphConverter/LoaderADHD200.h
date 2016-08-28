@@ -17,11 +17,11 @@ public:
 	//  2-ADHD-Hyperactive/Impulsive, 3-ADHD-Inattentive)
 	// 18th column: QC_Rest_1, 22nd column: QC_Anatomical_1
 	// return list of subject object (scan id, type)
-	virtual std::vector<Subject> loadValidList(const std::string& fn, const int nSubject = -1);
+	virtual std::vector<SubjectInfo> loadValidList(const std::string& fn, const int nSubject = -1);
 
-	virtual std::vector<Subject> getAllSubjects(std::vector<Subject>& vldList, const std::string& root);
+	virtual std::vector<SubjectInfo> getAllSubjects(std::vector<SubjectInfo>& vldList, const std::string& root);
 
-	virtual std::string getFilePath(const Subject& sub);
+	virtual std::string getFilePath(const SubjectInfo& sub);
 
 	// 1st column: file, 2nd column: sequence id, 3rd~end: data 
 	virtual tc_t loadTimeCourse(const std::string& fn);
