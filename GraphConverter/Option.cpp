@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Option.h"
-#include "../common/Util.h"
+#include "../util/Util.h"
 
 using namespace std;
 
