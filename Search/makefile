@@ -11,6 +11,8 @@ OBJS = $(SRCS:.cpp=.o)
 EXE = Search
 CXXFLAGS = -std=c++11
 INC = 
+LIBDIR = 
+LIBS = -lcommon -lutil
 ifeq ($(OS),Windows_NT)
   LIBS = -lboost-program-options -lboost-filesystem -lboost-system
 else
@@ -46,15 +48,17 @@ all: release
 debug: ../$(DEGEXE)
 
 ../$(DEGEXE): $(DBGEXE)
+	cd ../common; make debug
+	cd ../util; make debug
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(LIBS) -o $(DBGEXE) $^
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
-	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
 
 #
 # Release rules
@@ -63,11 +67,13 @@ $(DBGDIR)/%.o: %.cpp
 release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELEXE)
+	cd ../common; make release
+	cd ../util; make release
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $(LIBS) -o $(RELEXE) $^
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
