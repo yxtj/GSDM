@@ -14,9 +14,9 @@ INC =
 LIBDIR = 
 LIBS = -lcommon -lutil
 ifeq ($(OS),Windows_NT)
-  LIBS = -lboost-program-options -lboost-filesystem -lboost-system
+  LIBS += -lboost-program-options -lboost-filesystem -lboost-system
 else
-  LIBS = -lboost_program_options -lboost_filesystem -lboost_system
+  LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 endif
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
@@ -28,6 +28,7 @@ DBGDIR = Debug
 DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
+DBGLIBDIR = $(LIBDIR) -L../Debug
 
 #
 # Release build settings
@@ -36,6 +37,7 @@ RELDIR = Release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
+RELLIBDIR = $(LIBDIR) -L../Release
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
