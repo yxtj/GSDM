@@ -21,14 +21,17 @@
     <ClInclude Include="Dispatcher.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MsgDriver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools\SyncUnit.h">
       <Filter>tools</Filter>
     </ClInclude>
     <ClInclude Include="tools\ReplyHandler.h">
       <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="AbstMsgDriver.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MsgDriver.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

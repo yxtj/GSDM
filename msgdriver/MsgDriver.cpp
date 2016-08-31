@@ -5,7 +5,6 @@
  *      Author: tzhou
  */
 #include "MsgDriver.h"
-#include <thread>
 
 using namespace std;
 
@@ -56,12 +55,12 @@ void MsgDriver::resetImmediateHandler(){
 void MsgDriver::resetProcessHandler(){
 	outDisper.clear();
 }
+void MsgDriver::resetDefaultOutHandler(){
+	defaultHandler=GetDummyHandler();
+}
 void MsgDriver::resetWaitingQueue(){
 //	lock_guard<mutex> ql(lockQue);
 	que.clear();
-}
-void MsgDriver::resetDefaultOutHandler(){
-	defaultHandler=GetDummyHandler();
 }
 void MsgDriver::clear(){
 	resetImmediateHandler();
@@ -83,6 +82,27 @@ size_t MsgDriver::abandonData(const int type){
 	return l-f;
 }
 
+//Main working functions
+bool MsgDriver::pushData(string& data, RPCInfo& info) {
+	return processInput(move(data), info);
+}
+bool MsgDriver::pushData(string&& data, RPCInfo& info) {
+	return processInput(move(data), info);
+}
+bool MsgDriver::popData() {
+	if(que.empty())	return false;
+	//	string d;
+	//	RPCInfo r;
+	//	{
+	//		lock_guard<mutex> ql(lockQue);
+	//		tie(d,r)=move(que.front());
+	auto p = move(que.front());
+	que.pop_front();
+	//	}
+	//	return processOutput(d, r);
+	return processOutput(p.first, p.second);
+}
+
 //Process
 bool MsgDriver::processInput(string&& data, RPCInfo& info){
 	if(!inDisper.receiveData(info.tag, data, info)){
@@ -98,25 +118,4 @@ bool MsgDriver::processOutput(string& data, RPCInfo& info){
 		return true;
 	}
 	return false;
-}
-
-//Main working functions
-bool MsgDriver::pushData(string& data, RPCInfo& info){
-	return processInput(move(data),info);
-}
-bool MsgDriver::pushData(string&& data, RPCInfo& info){
-	return processInput(move(data),info);
-}
-bool MsgDriver::popData(){
-	if(que.empty())	return false;
-//	string d;
-//	RPCInfo r;
-//	{
-//		lock_guard<mutex> ql(lockQue);
-//		tie(d,r)=move(que.front());
-	auto p=move(que.front());
-		que.pop_front();
-//	}
-//	return processOutput(d, r);
-	return processOutput(p.first,p.second);
 }

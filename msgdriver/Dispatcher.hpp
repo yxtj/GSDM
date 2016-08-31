@@ -18,8 +18,8 @@ class Dispatcher{
 public:
 	typedef std::function<void(Params...)> callback_t;
 
-	Dispatcher(int initTypeNum=50, float loadFactor=0.8f):
-		workLoad(0),callbacks_(InitTypeNum),paused_(false){
+	Dispatcher(int initTypeNum=50, float loadFactor=0.8f)
+		: workLoad(0),callbacks_(initTypeNum),paused_(false) {
 		callbacks_.max_load_factor(loadFactor);
 	}
 

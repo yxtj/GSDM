@@ -1,10 +1,11 @@
 #pragma once
 /*
-* MsgDriver.h
-*
-*  Created on: Dec 15, 2015
-*      Author: tzhou
-*/
+ * MsgDriver.h
+ *
+ *  Created on: Dec 15, 2015
+ *      Author: tzhou
+ */
+
 #ifndef DRIVER_MSGDRIVER_H_
 #define DRIVER_MSGDRIVER_H_
 
