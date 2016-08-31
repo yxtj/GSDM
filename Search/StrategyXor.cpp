@@ -6,7 +6,7 @@
 
 const std::string StrategyXor::name("xor");
 const std::string StrategyXor::usage(
-	"get the symmetric difference of the frequent sets between positive samples and negative samples.\n"
+	"Get the symmetric difference of the frequent sets between positive samples and negative samples.\n"
 	"Usage: " + StrategyXor::name + " <occurence ratio>\n"
 	"  <OC>: used to refine the motifs among subjects");
 

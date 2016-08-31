@@ -12,7 +12,7 @@ const std::string StrategyCandidatePN::usage(
 	"Usage: " + StrategyCandidatePN::name + " <# of result> <ratio Pos.> <acpt Neg.> <ratio Neg.>\n"
 	"  <RP>: minium motif occurence among positive samples\n"
 	"  <AP>: minium show-up ratio among negative snapshots, used to judge occurence or not\n"
-	"  <RN>: maxium motif occurence among negative samples\n");
+	"  <RN>: maxium motif occurence among negative samples");
 
 bool StrategyCandidatePN::parse(const std::vector<std::string>& param)
 {
