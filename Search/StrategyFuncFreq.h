@@ -12,12 +12,14 @@ class StrategyFuncFreq
 {
 	// input options:
 	int k; // number of result
-	double alpha; // penalty for negative frequency
+	int smin, smax; // minimum/maximum motif size
 	double minSup; // minimum show up probability among postive subjects
 	double pSnap; // minimum show up probability among a subject's all snapshots
-	int smin, smax; // minimum/maximum motif size
+	std::string objFunName; // the name for the objective function
+	double alpha; // penalty for negative frequency
 
 // local parameters shared by internal functions (valid during searching is called)
+	int objFunID;
 	int nNode;
 	int nMinSup;
 	std::vector<double> topKScores;
@@ -45,6 +47,9 @@ class StrategyFuncFreq
 	// parameters for distribution
 	int numMotifExplored;
 
+	using objFun_t = double(StrategyFuncFreq::*)(double, double);
+	objFun_t objFun;
+
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -55,11 +60,10 @@ public:
 
 	virtual std::vector<Motif> search(const Option& opt,
 		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
-
-	double objectFunction(const double freqPos, const double freqNeg);
 	
 	// high level private functions:
 private:
+	bool setObjFun(const std::string& name);
 	std::vector<Edge> getEdges();
 
 	std::vector<Motif> method_enum1();
@@ -67,6 +71,9 @@ private:
 	std::vector<Motif> master(Network& net);
 	int slave(Network& net);
 	// implementation level private function
+private:
+	double objFun_diffP2N(const double freqPos, const double freqNeg);
+	double objFun_ratioP2N(const double freqPos, const double freqNeg);
 private:
 	// pass the snapshot level test (pSnap) and subject level test (minSup)
 	bool checkEdge(const int s, const int d, const std::vector<Graph>& sub) const;

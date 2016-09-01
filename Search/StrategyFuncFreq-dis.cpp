@@ -191,9 +191,10 @@ void StrategyFuncFreq::_enum1_dis1(const unsigned p, Motif & curr, slist & supPo
 			nNeg += t.second;
 			//nPos += supPos.size();
 			//nNeg += supNeg.size();
-			if(nPos + nNeg < nMinSup)
+			if(nPos < nMinSup)
+			//if(nPos + nNeg < nMinSup)
 				return;
-			double s = objectFunction(static_cast<double>(nPos) / nSubPosGlobal,
+			double s = (this->*objFun)(static_cast<double>(nPos) / nSubPosGlobal,
 				static_cast<double>(nNeg) / nSubNegGlobal);
 			++numMotifExplored;
 			res.update(move(curr), s);

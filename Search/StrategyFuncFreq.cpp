@@ -9,22 +9,28 @@ using namespace std;
 const std::string StrategyFuncFreq::name("funcfreq");
 const std::string StrategyFuncFreq::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyFuncFreq::name + " <k> <alpha> <minSup> <minSnap> <smin> <smax>\n"
+	"Usage: " + StrategyFuncFreq::name + " <k> <smin> <smax> <minSup> <minSnap> <obj-fun> <alpha>\n"
 	"  <k>: return top-k result"
-	"  <alpha>: [double] the penalty factor for the negative frequency\n"
 	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
-	"  <minSnap>: [double] the minimum show up probability of a motif among a subject's all snapshots");
+	"  <minSnap>: [double] the minimum show up probability of a motif among a subject's all snapshots\n"
+	"  <obj-fun>: [string] name for the objective function (supprot: diff, ratio)\n"
+	"  <alpha>: [double] the penalty factor for the negative frequency\n"
+);
 
 bool StrategyFuncFreq::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 6, name);
+		checkParam(param, 6, 7, name);
 		k = stoi(param[1]);
-		alpha = stod(param[2]);
-		minSup = stod(param[3]);
-		pSnap = stod(param[4]);
-		smin = stoi(param[5]);
-		smax = stoi(param[6]);
+		smin = stoi(param[2]);
+		smax = stoi(param[3]);
+		minSup = stod(param[4]);
+		pSnap = stod(param[5]);
+		objFunName = param[6];
+		setObjFun(objFunName);
+		// TODO: change to use a separated functio to parse the parameters for certain objective function
+		if(objFunID == 1)
+			alpha = stod(param[7]);
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -49,8 +55,8 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 	Network net;
 	vector<Motif> res;
 	if(net.getSize() == 1) {
-		//res = method_enum1();
-		res = master(net);
+		res = method_enum1();
+		//res = master(net);
 	} else {
 		if(net.getRank() == 0) {
 			res = master(net);
@@ -63,9 +69,18 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 	return res;
 }
 
-double StrategyFuncFreq::objectFunction(const double freqPos, const double freqNeg)
+bool StrategyFuncFreq::setObjFun(const std::string & name)
 {
-	return freqPos - alpha*freqNeg;
+	if(name == "diff") {
+		objFun = &StrategyFuncFreq::objFun_diffP2N;
+		objFunID = 1;
+		return true;
+	} else if(name == "ratio") {
+		objFun = &StrategyFuncFreq::objFun_ratioP2N;
+		objFunID = 2;
+		return true;
+	}
+	return false;
 }
 
 std::vector<Edge> StrategyFuncFreq::getEdges()
@@ -104,6 +119,16 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 	cout << "Phase 3 (output)" << endl;
 	vector<Motif> res = holder.getResultMove();
 	return res;
+}
+
+double StrategyFuncFreq::objFun_diffP2N(const double freqPos, const double freqNeg)
+{
+	return freqPos - alpha*freqNeg;
+}
+
+double StrategyFuncFreq::objFun_ratioP2N(const double freqPos, const double freqNeg)
+{
+	return freqNeg != 0.0 ? freqPos / freqNeg : freqPos;
 }
 
 bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
@@ -205,17 +230,20 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges)
 {
 	if(p >= edges.size() || curr.size() == smax) {
-		if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
-			double s = objectFunction(static_cast<double>(supPos.size()) / pgp->size(),
+		//if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
+		if(curr.getnEdge() >= smin && supPos.size() >= nMinSup && curr.connected()) {
+			double s = (this->*objFun)(static_cast<double>(supPos.size()) / pgp->size(),
 				static_cast<double>(supNeg.size()) / pgn->size());
 			++numMotifExplored;
 			res.update(move(curr), s);
 		}
 		return;
 	}
-	double lowBound = objectFunction(static_cast<double>(supPos.size()) / pgp->size(), 0.0);
-	if(!res.updatable(lowBound)) {
-		return;
+	if(objFunID == 1) {
+		double upBound = (this->*objFun)(static_cast<double>(supPos.size()) / pgp->size(), 0.0);
+		if(!res.updatable(upBound)) {
+			return;
+		}
 	}
 
 	_enum1(p + 1, curr, supPos, supNeg, res, edges);
