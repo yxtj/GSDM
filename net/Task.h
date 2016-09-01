@@ -9,7 +9,7 @@
 //#include <memory>
 namespace google{
 	namespace protobuf{
-		class Message;
+		class MessageLite;
 	}
 }
 
@@ -35,13 +35,13 @@ struct Task : public TaskBase{
 	Task(int s_d,int type,std::string&& s):TaskBase{s_d,type},payload(s){}
 	Task(int s_d,int type,const std::string& s):TaskBase{s_d,type},payload(s){}
 
-	Task(int s_d,int type,const google::protobuf::Message& msg,const MsgHeader& h=MsgHeader(false));
+	Task(int s_d,int type,const google::protobuf::MessageLite& msg,const MsgHeader& h=MsgHeader(false));
 
-	static void Decode(google::protobuf::Message& msg, const std::string& data);
-	void decode(google::protobuf::Message& msg);
+	static void Decode(google::protobuf::MessageLite& msg, const std::string& data);
+	void decode(google::protobuf::MessageLite& msg);
 };
 
-inline void Task::decode(google::protobuf::Message& msg){
+inline void Task::decode(google::protobuf::MessageLite& msg){
 	Task::Decode(msg,payload);
 }
 

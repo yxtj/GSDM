@@ -12,8 +12,8 @@
 #include <vector>
 #include <mutex>
 #include "Task.h"
-//#include <mpi.h>
-#include <boost/mpi.hpp>
+#include <mpi.h>
+//#include <boost/mpi.hpp>
 
 /*
  * Code related with underlying implementation (MPI used here)

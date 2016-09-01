@@ -101,24 +101,24 @@ void NetworkThread::Run(){
 bool NetworkThread::checkReceiveQueue(std::string& data, TaskBase& info){
 	if(!receive_buffer.empty()){
 		lock_guard<recursive_mutex> sl(rec_lock);
-		if(receive_buffer.empty()) return false;
+		if(receive_buffer.empty())
+			return false;
 
 		tie(data,info)=receive_buffer.front();
-
 		receive_buffer.pop_front();
 		return true;
 	}
 	return false;
 }
 
-void NetworkThread::ReadAny(string& data, int *srcRet, int *typeRet){
+void NetworkThread::readAny(string& data, int *srcRet, int *typeRet){
 //	Timer t;
-	while(!TryReadAny(data, srcRet, typeRet)){
+	while(!tryReadAny(data, srcRet, typeRet)){
 		Sleep();
 	}
 //	stats["network_time"] += t.elapsed();
 }
-bool NetworkThread::TryReadAny(string& data, int *srcRet, int *typeRet){
+bool NetworkThread::tryReadAny(string& data, int *srcRet, int *typeRet){
 	TaskBase info;
 	if(checkReceiveQueue(data,info)){
 		if(srcRet) *srcRet = info.src_dst;
@@ -129,52 +129,53 @@ bool NetworkThread::TryReadAny(string& data, int *srcRet, int *typeRet){
 }
 
 // Enqueue the given request to pending buffer for transmission.
-int NetworkThread::Send(Task *req){
+int NetworkThread::send(Task *req){
 	int size = req->payload.size();
 	lock_guard<recursive_mutex> sl(ps_lock);
 	pending_sends_->push_back(req);
 	return size;
 }
-int NetworkThread::Send(int dst, int method, const Message &msg){
-	return Send(new Task(dst, method, msg));
+int NetworkThread::send(int dst, int method, const MessageLite &msg){
+	// TODO: add an alocator for Task
+	return send(new Task(dst, method, msg));
 }
 
 // Directly (Physically) send the request.
-int NetworkThread::DSend(Task *req){
+int NetworkThread::sendDirect(Task *req){
 	int size = req->payload.size();
 	net->send(req);
 	return size;
 }
-int NetworkThread::DSend(int dst, int method, const Message &msg){
-	return DSend(new Task(dst, method, msg));
+int NetworkThread::sendDirect(int dst, int method, const MessageLite &msg){
+	return sendDirect(new Task(dst, method, msg));
 }
 
-void NetworkThread::Flush(){
+void NetworkThread::flush(){
 	while(active()){
 		Sleep();
 	}
 }
 
-void NetworkThread::Broadcast(int method, const Message& msg){
+void NetworkThread::broadcast(int method, const MessageLite& msg){
 	net->broadcast(new Task(Task::ANY_SRC, method, msg));
 //	int myid = id();
 //	for(int i = 0; i < net->size(); ++i){
 //		if(i != myid)
-//			Send(i, method, msg);
+//			send(i, method, msg);
 //	}
 }
 
-static NetworkThread* self = nullptr;
-NetworkThread* NetworkThread::Get(){
-	if(self==nullptr){
-		self=new NetworkThread();
-	}
+// ---------------- singleton related ------------------
+
+NetworkThread* NetworkThread::self = nullptr;
+
+NetworkThread* NetworkThread::GetInstance(){
 	return self;
 }
 
-void NetworkThread::Shutdown(){
+void NetworkThread::shutdown(){
 	if(running){
-		Flush();	//finish all the sending
+		flush();	//finish all the sending
 		running = false;
 		//wait for Run() to exit
 		while(!done){
@@ -184,17 +185,17 @@ void NetworkThread::Shutdown(){
 		NetworkImplMPI::Shutdown();
 	}
 	NetworkThread* v=nullptr;
-	swap(v,self);
+	swap(v,self); // use the swap primitive to preform safe deletion
 	delete v;
 }
 
 static void ShutdownImpl(){
-	if(self!=nullptr)
-		self->Shutdown();
+	NetworkThread::GetInstance()->shutdown();
 }
 
-void NetworkThread::Init(){
+void NetworkThread::Init(int argc, char* argv[]){
 //	VLOG(1) << "Initializing network...";
+	NetworkImplMPI::Init(argc, argv);
 	self = new NetworkThread();
 	atexit(&ShutdownImpl);
 }

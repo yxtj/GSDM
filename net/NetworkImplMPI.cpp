@@ -4,11 +4,11 @@
  *  Created on: Nov 29, 2015
  *      Author: tzhou
  */
-
+#include "stdafx.h"
 #include "NetworkImplMPI.h"
 
 using namespace std;
-namespace mpi = boost::mpi;
+//namespace mpi = boost::mpi;
 
 static void CrashOnMPIError(MPI_Comm * c, int * errorCode, ...){
 	char buffer[1024];
@@ -26,7 +26,8 @@ NetworkImplMPI::NetworkImplMPI(int argc, char* argv[]): id_(-1),size_(0){
 	world = MPI_COMM_WORLD;
 
 	MPI_Errhandler handler;
-	MPI_Errhandler_create(&CrashOnMPIError, &handler);
+	MPI_Comm_create_errhandler(&CrashOnMPIError, &handler);
+//	MPI_Errhandler_create(&CrashOnMPIError, &handler);
 	MPI_Comm_set_errhandler(world, handler);
 
 	MPI_Comm_rank(world, &id_);

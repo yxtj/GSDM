@@ -10,7 +10,7 @@
 #include "Task.h"
 #include "RPCInfo.h"
 
-typedef google::protobuf::Message Message;
+typedef google::protobuf::MessageLite MessageLite;
 
 class NetworkImplMPI;
 
@@ -28,24 +28,24 @@ public:
 	int64_t unpicked_bytes() const;
 
 	// Blocking read for the given source and message type.
-	void ReadAny(std::string& data, int *sourcsrcRete=nullptr, int *typeRet=nullptr);
-	bool TryReadAny(std::string& data, int *sosrcReturce=nullptr, int *typeRet=nullptr);
+	void readAny(std::string& data, int *sourcsrcRete=nullptr, int *typeRet=nullptr);
+	bool tryReadAny(std::string& data, int *sosrcReturce=nullptr, int *typeRet=nullptr);
 
 	// Enqueue the given request to pending buffer for transmission.
-	int Send(int dst, int tag, const Message &msg);
+	int send(int dst, int tag, const MessageLite &msg);
 	// Directly send the request bypassing the pending buffer.
-	int DSend(int dst, int method, const Message &msg);
+	int sendDirect(int dst, int method, const MessageLite &msg);
 
-	void Broadcast(int method, const Message& msg);
+	void broadcast(int method, const MessageLite& msg);
 
-	void Flush();
-	void Shutdown();
+	void flush();
+	void shutdown();
 
 	int id() const;
 	int size() const;
 
-	static NetworkThread *Get();
-	static void Init();
+	static NetworkThread *GetInstance();
+	static void Init(int argc, char* argv[]);
 
 	bool pause_=false;
 
@@ -68,13 +68,14 @@ private:
 	mutable std::recursive_mutex rec_lock;
 
 	// Enqueue the given request to pending buffer for transmission.
-	int Send(Task *req);
+	int send(Task *req);
 	// Directly (Physically) send the request.
-	int DSend(Task *req);
+	int sendDirect(Task *req);
 
 	bool checkReceiveQueue(std::string& data, TaskBase& info);
 
 	void Run();
 
+	static NetworkThread* self;
 	NetworkThread();
 };
