@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+enum MessageTypes {
+	MTYPE_KERNEL_RUN = 1;
+	MTYPE_KERNEL_DONE = 2;
+	
+	MTYPE_REPLY = 3;
+	
+	MTYPE_MOTIF_COUNT = 4;
+	MTYPE_MOTIF_COUNT_POS = 5;
+	MTYPE_MOTIF_COUNT_NEG = 6;
+}
