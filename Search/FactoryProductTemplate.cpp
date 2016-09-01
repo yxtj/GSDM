@@ -5,26 +5,52 @@ using namespace std;
 
 void FactoryProductTemplate::checkNumber(int required, size_t given)
 {
-	if(given != required + 1) {
+	given -= 1;
+	if(given != required) {
 		throw invalid_argument("Wrong number of sub-options. "
-			+ to_string(required + 1) + " required, but "
+			+ to_string(required) + " required, but "
+			+ to_string(given) + " is given.");
+	}
+}
+
+void FactoryProductTemplate::checkNumber(int requiredMin, int requiredMax, size_t given)
+{
+	given -= 1;
+	if(given < requiredMin || given > requiredMax) {
+		throw invalid_argument("Wrong number of sub-options. "
+			+ to_string(requiredMin) + " to " + to_string(requiredMax) + " required, but "
 			+ to_string(given) + " is given.");
 	}
 }
 
 void FactoryProductTemplate::checkName(const std::vector<string>& param, const std::string & name) noexcept(false)
 {
-	if(param[0] != name) {
+	if(param.empty()) {
+		throw invalid_argument("No parameter is given for the option : " + name);
+	} else if (param[0] != name) {
 		throw invalid_argument("The first sub-option (" + param.front()
-			+ ") do not match expected name (" + name + ")");
+			+ ") does not match the option : " + name);
 	}
 }
 
 
-void FactoryProductTemplate::checkParam(const std::vector<string>& param, int reqired, const std::string & name) noexcept(false)
+void FactoryProductTemplate::checkParam(const std::vector<string>& param,
+	int reqired, const std::string & name)// noexcept(false)
 {
 	try {
 		checkNumber(reqired, param.size());
+		checkName(param, name);
+	} catch(exception e) {
+		cerr << "error while checking sub-options for: " << name << endl;
+		throw e;
+	}
+}
+
+void FactoryProductTemplate::checkParam(const std::vector<std::string>& param,
+	int reqiredMin, int requiredMax, const std::string & name)// noexcept(false)
+{
+	try {
+		checkNumber(reqiredMin, requiredMax, param.size());
 		checkName(param, name);
 	} catch(exception e) {
 		cerr << "error while checking sub-options for: " << name << endl;
