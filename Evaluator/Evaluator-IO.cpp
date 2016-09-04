@@ -117,17 +117,23 @@ void showConfusionMatrixHead(std::ostream & os)
 	os << "tp" << sep << "fn" << sep << "fp" << sep << "tn";
 	os << sep << "accuracy" << sep << "precision" << sep << "recall" << sep << "f1";
 }
-
 void showConfusionMatrix(std::ostream & os, const ConfusionMatrix& cm) 
 {
 	os << cm.tp << sep << cm.fn << sep << cm.fp << sep << cm.tn;
 	os << sep << cm.accuracy() << sep << cm.precision() << sep << cm.recall() << sep << cm.f1();
 }
 
-void showConfusionMatrix(std::ostream & os, const std::vector<ConfusionMatrix>& cms)
+
+void showHead(std::ostream & os)
 {
-	for(auto& cm : cms) {
-		showConfusionMatrix(os, cm);
-		os << "\n";
-	}
+	showConfusionMatrixHead(os);
+	os << sep << "fre-pos" << sep << "fre-neg" << sep << "score-diff" << sep << "score-ratio";
+}
+
+void showData(std::ostream & os, const ConfusionMatrix& cm)
+{
+	showConfusionMatrix(os, cm);
+	double freq_p = cm.tpr(); // exist among pos. / total of pos.
+	double freq_n = cm.fpr(); // exist among neg. / total of neg.
+	os << sep << freq_p << sep << freq_n << sep << freq_p - freq_n << sep << freq_p / freq_n;
 }

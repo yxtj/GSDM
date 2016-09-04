@@ -21,4 +21,6 @@ std::vector<Motif> loadMotif(const std::string& folder, const std::string& fnPat
 
 void showConfusionMatrixHead(std::ostream& os);
 void showConfusionMatrix(std::ostream& os, const ConfusionMatrix& cm);
-void showConfusionMatrix(std::ostream& os, const std::vector<ConfusionMatrix>& cm);
+
+void showHead(std::ostream& os);
+void showData(std::ostream& os, const ConfusionMatrix& cm);

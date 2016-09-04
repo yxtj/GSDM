@@ -111,9 +111,14 @@ int main(int argc, char* argv[])
 		cerr << "Cannot open output file: " << opt.outputFile << endl;
 		return 1;
 	}
-	showConfusionMatrixHead(fout);
+//	showConfusionMatrixHead(fout);
+	showHead(fout);
 	fout << '\n';
-	showConfusionMatrix(fout, res);
+	for(auto& cm : res) {
+//		showConfusionMatrix(fout, cm);
+		showData(fout, cm);
+		fout << "\n";
+	}
 
 	return 0;
 }
