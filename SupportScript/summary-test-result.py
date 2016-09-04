@@ -7,47 +7,25 @@ Created on Sat Aug 13 22:42:08 2016
 
 import os,sys
 
-def processOneFile(filename, content):
+def processOneFile(filename, title):
     cnt=0;
-    accuracy=0.0
-    precision=0.0
-    recall=0.0
-    f1=0.0
-    fp=0.0
-    fn=0.0
-    sd=0.0
-    sr=0.0
+    ln=len(title)
+    result=[0.0 for i in range(ln)]
+    idx=[-1 for i in range(ln)]
     with open(filename) as fin:
         header=fin.readline()[:-1].split('\t')
-        pACC=header.index('accuracy')
-        pPRE=header.index('precision')
-        pREC=header.index('recall')
-        pF1=header.index('f1')
-        pfp=header.index('fre-pos')
-        pfn=header.index('fre-neg')
-        psd=header.index('score-diff')
-        psr=header.index('score-ratio')
+        for i in range(ln):
+            idx[i]=header.index(title[i])
         for line in fin:
             line=line[:-1].split('\t')
-            accuracy+=float(line[pACC])
-            precision+=float(line[pPRE])
-            recall+=float(line[pREC])
-            f1+=float(line[pF1])
-            fp+=float(line[pfp])
-            fn+=float(line[pfn])
-            sd+=float(line[psd])
-            sr+=float(line[psr])
+            for i in range(ln):
+                result[i]+=float(line[idx[i]])
             cnt+=1
     if cnt!=0:
-        accuracy/=cnt
-        precision/=cnt
-        recall/=cnt
-        f1/=cnt
-        fp/=cnt
-        fn/=cnt
-        sd/=cnt
-        sr/=cnt
-    return (cnt, accuracy, precision, recall, f1, fp, fn, sd, sr)
+        for i in range(ln):
+            result[i]/=cnt
+    result.insert(0,cnt)
+    return result
 
 def output(outFn, data, header, nDig):
     fout=open(outFn, 'w')
@@ -63,7 +41,7 @@ def output(outFn, data, header, nDig):
 def main(folder, outFn, nDig):
     if not folder.endswith('\\') and not folder.endswith('/'):
         folder+='/'
-    header=['filename','count','accuracy','precision','recall','f1','fre-pos','fre-neg','score-diff','score-ratio']
+    header=['accuracy','precision','recall','f1','fre-pos','fre-neg','score-diff','score-ratio']
     data={}
     print('loading')
     for fn in os.listdir(folder):
