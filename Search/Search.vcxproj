@@ -162,16 +162,16 @@
     <ClInclude Include="Option.h" />
     <ClInclude Include="serialization.h" />
     <ClInclude Include="StrategyBase.h" />
-    <ClInclude Include="StrategyCandidate.h" />
-    <ClInclude Include="StrategyCandidatePN.h" />
     <ClInclude Include="CandidateMethod.h" />
     <ClInclude Include="CandidateMethodFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="CandidateMthdFreq.h" />
     <ClInclude Include="StrategyDUG.h" />
     <ClInclude Include="StrategyFactory.h" />
+    <ClInclude Include="StrategyFreqP.h" />
+    <ClInclude Include="StrategyFreqPmN.h" />
+    <ClInclude Include="StrategyFreqPmNPara.h" />
     <ClInclude Include="StrategyFuncFreq.h" />
-    <ClInclude Include="StrategyParaFreqPmN.h" />
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
     <ClInclude Include="TopKHolder.hpp" />
@@ -188,8 +188,6 @@
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="serialization.cpp" />
     <ClCompile Include="StrategyBase.cpp" />
-    <ClCompile Include="StrategyCandidate.cpp" />
-    <ClCompile Include="StrategyCandidatePN.cpp" />
     <ClCompile Include="CandidateMethod.cpp" />
     <ClCompile Include="CandidateMethodFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -201,9 +199,11 @@
     <ClCompile Include="CandidateMthdFreq.cpp" />
     <ClCompile Include="StrategyDUG.cpp" />
     <ClCompile Include="StrategyFactory.cpp" />
+    <ClCompile Include="StrategyFreqP.cpp" />
+    <ClCompile Include="StrategyFreqPmN.cpp" />
+    <ClCompile Include="StrategyFreqPmNPara.cpp" />
     <ClCompile Include="StrategyFuncFreq-dis.cpp" />
     <ClCompile Include="StrategyFuncFreq.cpp" />
-    <ClCompile Include="StrategyParaFreqPmN.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />
   </ItemGroup>

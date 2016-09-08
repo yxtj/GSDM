@@ -5,7 +5,7 @@
 
 class Option;
 
-class StrategyParaFreqPmN
+class StrategyFreqPmNPara
 	: public StrategyBase
 {
 	double pRefine;
@@ -16,7 +16,7 @@ public:
 	static const std::string name;
 	static const std::string usage;
 
-	StrategyParaFreqPmN() = default;
+	StrategyFreqPmNPara() = default;
 
 	virtual bool parse(const std::vector<std::string>& param);
 

@@ -13,21 +13,21 @@ const std::string StrategyFuncFreq::usage(
 	"  <k>: return top-k result"
 	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
 	"  <minSnap>: [double] the minimum show up probability of a motif among a subject's all snapshots\n"
-	"  <obj-fun>: [string] name for the objective function (supprot: diff, ratio)\n"
+	"  <obj-fun>: [string] name for the objective function (supprot: diff, margin, ratio)\n"
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
 );
 
 bool StrategyFuncFreq::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 6, 7, name);
+		checkParam(param, 7, name);
 		k = stoi(param[1]);
 		smin = stoi(param[2]);
 		smax = stoi(param[3]);
 		minSup = stod(param[4]);
 		pSnap = stod(param[5]);
-		objFunName = param[6];
-		setObjFun(objFunName);
+//		objFunName = param[6];
+		setObjFun(param[6]);
 		// TODO: change to use a separated functio to parse the parameters for certain objective function
 		if(objFunID == 1)
 			alpha = stod(param[7]);
@@ -49,6 +49,7 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 	nSubPosGlobal = opt.nPosInd;
 	nSubNegGlobal = opt.nNegInd;
 	nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
+	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
 	nNode = gPos[0][0].nNode;
 	numMotifExplored = 0;
 
@@ -72,12 +73,18 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 bool StrategyFuncFreq::setObjFun(const std::string & name)
 {
 	if(name == "diff") {
-		objFun = &StrategyFuncFreq::objFun_diffP2N;
+		//objFun = &StrategyFuncFreq::objFun_diffP2N;
+		objFun = bind(&StrategyFuncFreq::objFun_diffP2N, this, placeholders::_1, placeholders::_2);
 		objFunID = 1;
 		return true;
-	} else if(name == "ratio") {
-		objFun = &StrategyFuncFreq::objFun_ratioP2N;
+	} else if(name == "margin") {
+		objFun = bind(&StrategyFuncFreq::objFun_marginP2N, this, placeholders::_1, placeholders::_2);
 		objFunID = 2;
+		return true;
+	} else if(name == "ratio") {
+		//objFun = &StrategyFuncFreq::objFun_ratioP2N;
+		objFun = bind(&StrategyFuncFreq::objFun_ratioP2N, this, placeholders::_1, placeholders::_2);
+		objFunID = 3;
 		return true;
 	}
 	return false;
@@ -100,9 +107,9 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 	cout << "Phase 1 (meta-data prepare)" << endl;
 	slist supPos, supNeg;
 	for(auto& s : *pgp)
-		supPos.push_front(&s);
+		supPos.pushFront(&s);
 	for(auto& s : *pgn)
-		supNeg.push_front(&s);
+		supNeg.pushFront(&s);
 	vector<Edge> edges = getEdges();
 	cout << "  # of edges: " << edges.size() << endl;
 
@@ -117,6 +124,12 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 		<< "\n  time: " << _time_ms << " ms" << endl;
 
 	cout << "Phase 3 (output)" << endl;
+	{
+		ofstream fout("score.txt");
+		for(auto& p : holder.data) {
+			fout << p.second << "\t" << p.first << "\n";
+		}
+	}
 	vector<Motif> res = holder.getResultMove();
 	return res;
 }
@@ -124,6 +137,11 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 double StrategyFuncFreq::objFun_diffP2N(const double freqPos, const double freqNeg)
 {
 	return freqPos - alpha*freqNeg;
+}
+
+double StrategyFuncFreq::objFun_marginP2N(const double freqPos, const double freqNeg)
+{
+	return (1.0 - freqPos) + alpha*freqNeg;
 }
 
 double StrategyFuncFreq::objFun_ratioP2N(const double freqPos, const double freqNeg)
@@ -219,7 +237,7 @@ void StrategyFuncFreq::removeSupport(slist& sup, std::vector<const subject_t*>& 
 		const subject_t* s = *it;
 		if(!checkEdge(e.s, e.d, *s)) {
 			rmv.push_back(s);
-			it = sup.erase_after(itLast);
+			it = sup.eraseAfter(itLast);
 		} else {
 			itLast = it++;
 		}
@@ -230,9 +248,9 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges)
 {
 	if(p >= edges.size() || curr.size() == smax) {
-		//if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
-		if(curr.getnEdge() >= smin && supPos.size() >= nMinSup && curr.connected()) {
-			double s = (this->*objFun)(static_cast<double>(supPos.size()) / pgp->size(),
+		if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
+		//if(curr.getnEdge() >= smin && supPos.size() >= nMinSup && curr.connected()) {
+			double s = objFun(static_cast<double>(supPos.size()) / pgp->size(),
 				static_cast<double>(supNeg.size()) / pgn->size());
 			++numMotifExplored;
 			res.update(move(curr), s);
@@ -240,7 +258,7 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 		return;
 	}
 	if(objFunID == 1) {
-		double upBound = (this->*objFun)(static_cast<double>(supPos.size()) / pgp->size(), 0.0);
+		double upBound = objFun(static_cast<double>(supPos.size()) / pgp->size(), 0.0);
 		if(!res.updatable(upBound)) {
 			return;
 		}
@@ -255,7 +273,7 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 	_enum1(p + 1, curr, supPos, supNeg, res, edges);
 	curr.removeEdge(edges[p].s, edges[p].d);
 	for(auto s : rmvPos)
-		supPos.push_front(s);
+		supPos.pushFront(s);
 	for(auto s : rmvNeg)
-		supNeg.push_front(s);
+		supNeg.pushFront(s);
 }

@@ -1,20 +1,20 @@
 #include "stdafx.h"
-#include "StrategyParaFreqPmN.h"
+#include "StrategyFreqPmNPara.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
 #include "serialization.h"
 
 using namespace std;
 
-const std::string StrategyParaFreqPmN::name("paraPmN");
-const std::string StrategyParaFreqPmN::usage(
+const std::string StrategyFreqPmNPara::name("paraPmN");
+const std::string StrategyFreqPmNPara::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyParaFreqPmN::name + " <ratio Pos.> <acpt Neg.> <ratio Neg.>\n"
+	"Usage: " + StrategyFreqPmNPara::name + " <ratio Pos.> <acpt Neg.> <ratio Neg.>\n"
 	"  <RP>: minium motif occurence among positive samples\n"
 	"  <AP>: minium show-up ratio among negative snapshots, used to judge occurence or not\n"
 	"  <RN>: maxium motif occurence among negative samples");
 
-bool StrategyParaFreqPmN::parse(const std::vector<std::string>& param)
+bool StrategyFreqPmNPara::parse(const std::vector<std::string>& param)
 {
 	try {
 		checkParam(param, 3, name);
@@ -28,7 +28,7 @@ bool StrategyParaFreqPmN::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
+std::vector<Motif> StrategyFreqPmNPara::search(const Option& opt,
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	if(!checkInput(gPos, gNeg))
@@ -75,7 +75,7 @@ std::vector<Motif> StrategyParaFreqPmN::search(const Option& opt,
 	return phase3;
 }
 
-std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet(
+std::unordered_map<Motif, std::pair<int, double>> StrategyFreqPmNPara::freqOnSet(
 	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs, const std::vector<int>& blacklist)
 {
 	int rank, size;
@@ -150,7 +150,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyParaFreqPmN::freqOnSet
 	return phase1;
 }
 
-void StrategyParaFreqPmN::countMotif(
+void StrategyFreqPmNPara::countMotif(
 	std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
 {
 	for(auto& p : vec) {
@@ -160,7 +160,7 @@ void StrategyParaFreqPmN::countMotif(
 	}
 }
 
-std::vector<Motif> StrategyParaFreqPmN::refineByPositive(
+std::vector<Motif> StrategyFreqPmNPara::refineByPositive(
 	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize, const int k)
 {
 	vector<decltype(data.begin())> idx;
@@ -187,7 +187,7 @@ std::vector<Motif> StrategyParaFreqPmN::refineByPositive(
 }
 
 
-std::vector<Motif> StrategyParaFreqPmN::filterByNegative(
+std::vector<Motif> StrategyFreqPmNPara::filterByNegative(
 	std::vector<Motif>& motifs,
 	const std::vector<std::vector<Graph>>& gNeg)
 {

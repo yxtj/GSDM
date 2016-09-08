@@ -1,17 +1,17 @@
 #include "stdafx.h"
-#include "StrategyCandidate.h"
+#include "StrategyFreqP.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
 
 using namespace std;
 
-const std::string StrategyCandidate::name("candidate");
-const std::string StrategyCandidate::usage(
+const std::string StrategyFreqP::name("freqP");
+const std::string StrategyFreqP::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyCandidate::name + " <# of result> <occurence ratio>\n"
+	"Usage: " + StrategyFreqP::name + " <# of result> <occurence ratio>\n"
 	"  <OC>: used to refine the motifs among subjects");
 
-bool StrategyCandidate::parse(const std::vector<std::string>& param)
+bool StrategyFreqP::parse(const std::vector<std::string>& param)
 {
 	try {
 		checkParam(param, 2, name);
@@ -24,7 +24,7 @@ bool StrategyCandidate::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-std::vector<Motif> StrategyCandidate::search(const Option& opt, 
+std::vector<Motif> StrategyFreqP::search(const Option& opt, 
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	if(!checkInput(gPos, gNeg))
@@ -99,13 +99,13 @@ std::vector<Motif> StrategyCandidate::search(const Option& opt,
 
 }
 
-std::vector<std::pair<Motif, double>> StrategyCandidate::candidateFromOne(
+std::vector<std::pair<Motif, double>> StrategyFreqP::candidateFromOne(
 	CandidateMethod* method, const std::vector<Graph> & gs)
 {
 	return method->getCandidantMotifs(gs);
 }
 
-std::unordered_map<Motif, std::pair<int, double>> StrategyCandidate::freqOnSet(
+std::unordered_map<Motif, std::pair<int, double>> StrategyFreqP::freqOnSet(
 	CandidateMethod* method, const std::vector<std::vector<Graph>>& gs)
 {
 	unordered_map<Motif, pair<int, double>> phase1;
@@ -122,7 +122,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyCandidate::freqOnSet(
 	return phase1;
 }
 
-void StrategyCandidate::countMotif(
+void StrategyFreqP::countMotif(
 	std::unordered_map<Motif, std::pair<int, double>>& res, std::vector<std::pair<Motif, double>>& vec)
 {
 	for(auto& p : vec) {
@@ -132,7 +132,7 @@ void StrategyCandidate::countMotif(
 	}
 }
 
-std::vector<Motif> StrategyCandidate::pickTopK(
+std::vector<Motif> StrategyFreqP::pickTopK(
 	std::unordered_map<Motif, std::pair<int, double>>& data, const size_t gsize)
 {
 	vector<pair<int, decltype(data.begin())>> idx;
@@ -158,7 +158,7 @@ std::vector<Motif> StrategyCandidate::pickTopK(
 	return res;
 }
 
-std::vector<std::tuple<Motif, double, double>> StrategyCandidate::refineByAll(
+std::vector<std::tuple<Motif, double, double>> StrategyFreqP::refineByAll(
 	const std::vector<std::vector<std::pair<Motif,double>>>& motifs)
 {
 	// count occurrence of each motif

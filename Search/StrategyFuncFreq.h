@@ -34,11 +34,11 @@ class StrategyFuncFreq
 		size_t _s = 0;
 	public:
 		size_t size() const { return _s; }
-		void push_front(const subject_t* j) {
+		void pushFront(const subject_t* j) {
 			std::forward_list<const subject_t*>::push_front(j);
 			++_s;
 		}
-		iterator erase_after(const_iterator position) {
+		iterator eraseAfter(const_iterator position) {
 			--_s;
 			return std::forward_list<const subject_t*>::erase_after(position);
 		}
@@ -48,7 +48,8 @@ class StrategyFuncFreq
 	int numMotifExplored;
 
 	using objFun_t = double(StrategyFuncFreq::*)(double, double);
-	objFun_t objFun;
+	//objFun_t objFun;
+	std::function<double(double, double)> objFun;
 
 public:
 	static const std::string name;
@@ -73,6 +74,7 @@ private:
 	// implementation level private function
 private:
 	double objFun_diffP2N(const double freqPos, const double freqNeg);
+	double objFun_marginP2N(const double freqPos, const double freqNeg);
 	double objFun_ratioP2N(const double freqPos, const double freqNeg);
 private:
 	// pass the snapshot level test (pSnap) and subject level test (minSup)

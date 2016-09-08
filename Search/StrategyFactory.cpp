@@ -3,11 +3,11 @@
 #include "Option.h"
 
 // TODO: add new strategy headers
-#include "StrategyCandidate.h"
-#include "StrategyCandidatePN.h"
+#include "StrategyFreqP.h"
+#include "StrategyFreqPmN.h"
+#include "StrategyFreqPmNPara.h"
 #include "StrategySample.h"
 #include "StrategyXor.h"
-#include "StrategyParaFreqPmN.h"
 #include "StrategyDUG.h"
 #include "StrategyFuncFreq.h"
 
@@ -30,11 +30,11 @@ std::map<std::string, std::string> parent_t::contUsage{};
 void StrategyFactory::init()
 {
 	// TODO: add new strategy here
-	registerInOne<StrategyCandidate>();
-	registerInOne<StrategyCandidatePN>();
+	registerInOne<StrategyFreqP>();
+	registerInOne<StrategyFreqPmN>();
 	registerInOne<StrategySample>();
 	registerInOne<StrategyXor>();
-	registerInOne<StrategyParaFreqPmN>();
+	registerInOne<StrategyFreqPmNPara>();
 	registerInOne<StrategyDUG>();
 	registerInOne<StrategyFuncFreq>();
 }
