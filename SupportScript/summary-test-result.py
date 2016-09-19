@@ -8,8 +8,9 @@ Created on Sat Aug 13 22:42:08 2016
 import os,sys
 
 def processOneFile(filename, title):
-    cnt=0;
     ln=len(title)
+    cnt=0
+    cntInvalid=[0 for i in range(ln)]
     result=[0.0 for i in range(ln)]
     idx=[-1 for i in range(ln)]
     with open(filename) as fin:
@@ -17,13 +18,22 @@ def processOneFile(filename, title):
         for i in range(ln):
             idx[i]=header.index(title[i])
         for line in fin:
-            line=line[:-1].split('\t')
+            items=line[:-1].split('\t')
+            invalid=False
             for i in range(ln):
-                result[i]+=float(line[idx[i]])
+                try:
+                    v=float(items[idx[i]])
+                except:
+                    v=0
+                    cntInvalid[i]+=1
+                    invalid=True
+                result[i]+=v
             cnt+=1
+            if invalid:
+                print('find invalid number at line: '+line)
     if cnt!=0:
         for i in range(ln):
-            result[i]/=cnt
+            result[i]/=(cnt-cntInvalid[i])
     result.insert(0,cnt)
     return result
 
