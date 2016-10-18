@@ -10,6 +10,7 @@
 #include "StrategyXor.h"
 #include "StrategyDUG.h"
 #include "StrategyFuncFreq.h"
+#include "StrategyFuncFreqSP.h"
 
 using namespace std;
 
@@ -37,6 +38,7 @@ void StrategyFactory::init()
 	registerInOne<StrategyFreqPmNPara>();
 	registerInOne<StrategyDUG>();
 	registerInOne<StrategyFuncFreq>();
+	registerInOne<StrategyFuncFreqSP>();
 }
 
 StrategyBase * StrategyFactory::generate(const std::string & name)
