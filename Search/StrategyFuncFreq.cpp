@@ -146,7 +146,8 @@ double StrategyFuncFreq::objFun_marginP2N(const double freqPos, const double fre
 
 double StrategyFuncFreq::objFun_ratioP2N(const double freqPos, const double freqNeg)
 {
-	return freqNeg != 0.0 ? freqPos / freqNeg : freqPos;
+	//return freqNeg != 0.0 ? freqPos / freqNeg : freqPos;
+	return freqPos*freqPos / (freqPos + freqNeg);
 }
 
 bool StrategyFuncFreq::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
@@ -253,7 +254,8 @@ void StrategyFuncFreq::_enum1(const unsigned p, Motif & curr, slist& supPos, sli
 			double s = objFun(static_cast<double>(supPos.size()) / pgp->size(),
 				static_cast<double>(supNeg.size()) / pgn->size());
 			++numMotifExplored;
-			res.update(move(curr), s);
+			//res.update(move(curr), s);
+			res.update(curr, s);
 		}
 		return;
 	}
