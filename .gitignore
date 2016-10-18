@@ -253,3 +253,8 @@ ModelManifest.xml
 # data folder
 [dD]ata*/
 conf/
+
+# other helper folders
+tmp/
+temp/
+logs/
