@@ -9,18 +9,19 @@ using namespace std;
 const std::string StrategyFuncFreq::name("funcfreq");
 const std::string StrategyFuncFreq::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyFuncFreq::name + " <k> <smin> <smax> <minSup> <minSnap> <obj-fun> <alpha>\n"
+	"Usage: " + StrategyFuncFreq::name + " <k> <smin> <smax> <minSup> <minSnap> <obj-fun> <alpha> [log]\n"
 	"  <k>: return top-k result"
 	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
 	"  <minSnap>: [double] the minimum show up probability of a motif among a subject's all snapshots\n"
 	"  <obj-fun>: [string] name for the objective function (supprot: diff, margin, ratio)\n"
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
+	"  [log]: optional, set to 1 to output the score of the top-k result"
 );
 
 bool StrategyFuncFreq::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 7, name);
+		checkParam(param, 7, 8, name);
 		k = stoi(param[1]);
 		smin = stoi(param[2]);
 		smax = stoi(param[3]);
@@ -31,6 +32,10 @@ bool StrategyFuncFreq::parse(const std::vector<std::string>& param)
 		// TODO: change to use a separated functio to parse the parameters for certain objective function
 		if(objFunID == 1)
 			alpha = stod(param[7]);
+		flagOutputScore = false;
+		try {
+			flagOutputScore = stod(param[8]) == 1;
+		} catch(...) {}
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -124,8 +129,8 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 		<< "\n  time: " << _time_ms << " ms" << endl;
 
 	cout << "Phase 3 (output)" << endl;
-	{
-		ofstream fout("score.txt");
+	if(flagOutputScore) {
+		ofstream fout("../log/score.txt");
 		for(auto& p : holder.data) {
 			fout << p.second << "\t" << p.first << "\n";
 		}

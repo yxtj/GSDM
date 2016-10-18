@@ -17,6 +17,7 @@ class StrategyFuncFreq
 	double pSnap; // minimum show up probability among a subject's all snapshots
 	std::string objFunName; // the name for the objective function
 	double alpha; // penalty for negative frequency
+	bool flagOutputScore; // whether to output the score of the top-k result
 
 // local parameters shared by internal functions (valid during searching is called)
 	int objFunID;
