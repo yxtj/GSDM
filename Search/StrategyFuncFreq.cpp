@@ -130,7 +130,7 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 
 	cout << "Phase 3 (output)" << endl;
 	if(flagOutputScore) {
-		ofstream fout("../log/score.txt");
+		ofstream fout("../logs/score.txt");
 		for(auto& p : holder.data) {
 			fout << p.second << "\t" << p.first << "\n";
 		}
