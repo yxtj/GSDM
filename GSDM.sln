@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msg", "msg\msg.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{2A822265-7AC9-44AE-99BE-02BFE08D542E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enumerator", "Search\enumerator\enumerator.vcxproj", "{C2305F4D-377C-413C-BA0A-702EDD396193}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,14 @@ Global
 		{2A822265-7AC9-44AE-99BE-02BFE08D542E}.Release|x64.Build.0 = Release|x64
 		{2A822265-7AC9-44AE-99BE-02BFE08D542E}.Release|x86.ActiveCfg = Release|Win32
 		{2A822265-7AC9-44AE-99BE-02BFE08D542E}.Release|x86.Build.0 = Release|Win32
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Debug|x64.ActiveCfg = Debug|x64
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Debug|x64.Build.0 = Debug|x64
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Debug|x86.ActiveCfg = Debug|Win32
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Debug|x86.Build.0 = Debug|Win32
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Release|x64.ActiveCfg = Release|x64
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Release|x64.Build.0 = Release|x64
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Release|x86.ActiveCfg = Release|Win32
+		{C2305F4D-377C-413C-BA0A-702EDD396193}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
