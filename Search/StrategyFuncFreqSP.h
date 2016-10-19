@@ -17,6 +17,8 @@ class StrategyFuncFreqSP
 	double pSnap; // minimum show up probability among a subject's all snapshots
 	std::string objFunName; // the name for the objective function
 	double alpha; // penalty for negative frequency
+	bool flagUseSD; // whether to use the shortest distance optimization
+	bool flagOutputScore; // whether to output the score of the top-k result
 
 // local parameters shared by internal functions (valid during searching is called)
 	int objFunID;
@@ -52,20 +54,21 @@ class StrategyFuncFreqSP
 	std::function<double(double, double)> objFun;
 
 	// shortest distance signature
-	struct signature {
+	struct Signature {
 		std::vector<std::vector<int>> sd;
-		signature(int n) : sd(n, std::vector<int>(n, 2*n)) {
-			for(int i = 0; i < n; ++i)
-				sd[i][i] = 0;
+		Signature(int n) : sd(n, std::vector<int>(n, 2*n)) {
+			//for(int i = 0; i < n; ++i)
+			//	sd[i][i] = 0;
 		}
 		std::vector<std::vector<int>>::reference operator[](const int idx){ return sd[idx]; }
 		std::vector<std::vector<int>>::const_reference operator[](const int idx) const { return sd[idx]; }
 	};
-	std::vector<signature> sigPos, sigNeg;
+	std::vector<Signature> sigPos, sigNeg;
 
-	struct motifSign {
-		signature sd;
+	struct MotifSign {
+		Signature sd;
 		std::vector<std::pair<int, int>> marker; // the modified edges
+		MotifSign(int n) :sd(n) {}
 	};
 
 public:
@@ -103,7 +106,11 @@ private:
 	std::pair<int, int> countEdge(const int s, const int d) const;
 	bool testMotif(const Motif& m, const std::vector<Graph>& sub) const;
 	int countMotif(const Motif& m, const std::vector<std::vector<Graph>>& subs) const;
+
 	std::pair<int, int> countMotif(const Motif& m) const;
+	bool testMotifSP(const MotifBuilder& m, const MotifSign& ms, const std::vector<Graph>& sub, const Signature& ss) const;
+	int countMotifSP(const MotifBuilder& m, const MotifSign& ms,
+		const std::vector<std::vector<Graph>>& subs, const std::vector<Signature>& sigs) const;
 private:
 	void removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e);
 
@@ -113,11 +120,13 @@ private:
 		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
 
 private:
-	signature genSignture(const std::vector<Graph>& gs, const double theta);
+	Signature genSignture(const std::vector<Graph>& gs, const double theta);
 	std::vector<std::vector<int>> calA2AShortestDistance(const Graph& g); // all source-destination pairs
 
-	void updateSP(motifSign& ms, const MotifBuilder& mOld, int s, int d);
-	bool checkSPNecessary(const MotifBuilder& m, const motifSign& ms, const signature& ss);
+	void updateMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
+//	void calMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
+	void calMotifSD(MotifSign& ms, const MotifBuilder& m);
+	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
 
 private:
 	//std::pair<int, int> master_gather_count(Network& net, const Motif& m);
