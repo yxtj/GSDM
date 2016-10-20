@@ -3,6 +3,7 @@
 #include "CandidateMethodFactory.h"
 #include "Option.h"
 #include "Network.h"
+#include "../util/Timer.h"
 
 using namespace std;
 
@@ -34,7 +35,8 @@ bool StrategyFuncFreq::parse(const std::vector<std::string>& param)
 			alpha = stod(param[7]);
 		flagOutputScore = false;
 		try {
-			flagOutputScore = stod(param[8]) == 1;
+			if(param.size() > 8)
+				flagOutputScore = stod(param[8]) == 1;
 		} catch(...) {}
 	} catch(exception& e) {
 		cerr << e.what() << endl;
@@ -121,10 +123,9 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 	cout << "Phase 2 (calculate)" << endl;
 	Motif dummy;
 	TopKHolder<Motif, double> holder(k);
-	chrono::system_clock::time_point _time = chrono::system_clock::now();
+	Timer timer;
 	_enum1(0, dummy, supPos, supNeg, holder, edges);
-	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
-		chrono::system_clock::now() - _time).count();
+	auto _time_ms = timer.elapseMS();
 	cout << "  # of result: " << holder.size() << ", last score: " << holder.lastScore()
 		<< "\n  time: " << _time_ms << " ms" << endl;
 
@@ -135,8 +136,7 @@ std::vector<Motif> StrategyFuncFreq::method_enum1()
 			fout << p.second << "\t" << p.first << "\n";
 		}
 	}
-	vector<Motif> res = holder.getResultMove();
-	return res;
+	return holder.getResultMove();
 }
 
 double StrategyFuncFreq::objFun_diffP2N(const double freqPos, const double freqNeg)

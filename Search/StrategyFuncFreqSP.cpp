@@ -344,7 +344,8 @@ std::vector<Motif> StrategyFuncFreqSP::method_edge1_bfs()
 {
 	cout << "Phase 1 (prepare edges)" << endl;
 	vector<Edge> edges = getEdges();
-//	vector<pair<MotifBuilder, double>> last;
+	cout << "  # of edges: " << edges.size() << endl;
+	//	vector<pair<MotifBuilder, double>> last;
 	vector<MotifBuilder> last;
 	last.reserve(3 * edges.size());
 	for(const Edge& e : edges) {
@@ -355,7 +356,7 @@ std::vector<Motif> StrategyFuncFreqSP::method_edge1_bfs()
 		last.push_back(move(m));
 	}
 
-	cout << "Phase 2 (searching from layer 2)" << endl;
+	cout << "Phase 2 (testing motifs layer by layer)" << endl;
 	TopKHolder<Motif, double> holder(k);
 	for(int s = 2; s <= smax; ++s) {
 		Timer timer;
@@ -363,8 +364,8 @@ std::vector<Motif> StrategyFuncFreqSP::method_edge1_bfs()
 		sort(t.begin(), t.end());
 		auto itend = unique(t.begin(), t.end());
 		auto _time_ms = timer.elapseMS();
-		cout << t.end() - itend << " / " << t.size() << " redundant motifs of size " << s <<
-			" finished in " << _time_ms << " ms" << endl;
+		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on "<<last.size()<<" motifs."
+			<< "\tgenerate new "<<itend - t.begin() << " / " << t.size() << " motifs (unique/total)" << endl;
 		t.erase(itend, t.end());
 		if(t.empty())
 			break;
