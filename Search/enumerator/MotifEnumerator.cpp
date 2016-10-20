@@ -21,6 +21,12 @@ bool MotifEnumerator::parse(const std::vector<std::string>& param)
 	return true;
 }
 
+void MotifEnumerator::init(const int n, const std::vector<Edge>* pEdges)
+{
+	nNode = n;
+	edges = pEdges;
+}
+
 void MotifEnumerator::setStartPoint(const Motif & m)
 {
 }

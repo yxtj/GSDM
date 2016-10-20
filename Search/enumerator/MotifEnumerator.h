@@ -5,13 +5,16 @@
 
 class MotifEnumerator
 {
+protected:
 	int nNode;
+	const std::vector<Edge>* edges;
 public:
 	MotifEnumerator();
 	MotifEnumerator(const int n);
 	virtual ~MotifEnumerator();
 
 	virtual bool parse(const std::vector<std::string>& param);
+	void init(const int n, const std::vector<Edge>* edges = nullptr);
 
 	// start from the first motif, end when everything is enumerated
 	virtual void setStartPoint() = 0;
