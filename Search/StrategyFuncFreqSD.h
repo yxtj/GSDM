@@ -7,7 +7,7 @@
 
 class Network;
 
-class StrategyFuncFreqSP
+class StrategyFuncFreqSD
 	: public StrategyBase
 {
 	// input options:
@@ -18,6 +18,7 @@ class StrategyFuncFreqSP
 	std::string objFunName; // the name for the objective function
 	double alpha; // penalty for negative frequency
 	bool flagUseSD; // whether to use the shortest distance optimization
+	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
 	bool flagOutputScore; // whether to output the score of the top-k result
 
 // local parameters shared by internal functions (valid during searching is called)
@@ -49,7 +50,7 @@ class StrategyFuncFreqSP
 	// parameters for distribution
 	int numMotifExplored;
 
-	using objFun_t = double(StrategyFuncFreqSP::*)(double, double);
+	using objFun_t = double(StrategyFuncFreqSD::*)(double, double);
 	//objFun_t objFun;
 	std::function<double(double, double)> objFun;
 
@@ -75,7 +76,7 @@ public:
 	static const std::string name;
 	static const std::string usage;
 
-	StrategyFuncFreqSP() = default;
+	StrategyFuncFreqSD() = default;
 
 	virtual bool parse(const std::vector<std::string>& param);
 
@@ -127,6 +128,11 @@ private:
 //	void calMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
 	void calMotifSD(MotifSign& ms, const MotifBuilder& m);
 	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
+
+private:
+	int quickEstimiateNumberOfParents(const Motif& m);
+	int quickEstimiateNumberOfParents(const MotifBuilder& m);
+	std::vector<MotifBuilder> pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs);
 
 private:
 	//std::pair<int, int> master_gather_count(Network& net, const Motif& m);

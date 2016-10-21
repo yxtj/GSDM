@@ -1,26 +1,28 @@
 #include "stdafx.h"
-#include "StrategyFuncFreqSP.h"
+#include "StrategyFuncFreqSD.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
 #include "Network.h"
 #include "../util/Timer.h"
+#include <regex>
 
 using namespace std;
 
-const std::string StrategyFuncFreqSP::name("funcfreqsp");
-const std::string StrategyFuncFreqSP::usage(
+const std::string StrategyFuncFreqSD::name("funcfreqsd");
+const std::string StrategyFuncFreqSD::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyFuncFreqSP::name + " <k> <smin> <smax> <minSup> <minSnap> <obj-fun> <alpha> [usd-sd] [log]\n"
+	"Usage: " + StrategyFuncFreqSD::name + " <k> <smin> <smax> <minSup> <minSnap> <obj-fun> <alpha> [sd] [net] [log]\n"
 	"  <k>: [integer] return top-k result"
 	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
 	"  <minSnap>: [double] the minimum show up probability of a motif among a subject's all snapshots\n"
 	"  <obj-fun>: [string] name for the objective function (supprot: diff, margin, ratio)\n"
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
-	"  [use-sd]: [0/1] optional, default 1, set to 0 to disable the optimization of shortest distance\n"
-	"  [log]: [0/1] optional, default 0, set to 1 to output the score of the top-k result"
+	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
+	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
+	"  [log]: optional [log/log-no], default disabled, output the score of the top-k result"
 );
 
-bool StrategyFuncFreqSP::parse(const std::vector<std::string>& param)
+bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 {
 	try {
 		checkParam(param, 7, 9, name);
@@ -35,15 +37,23 @@ bool StrategyFuncFreqSP::parse(const std::vector<std::string>& param)
 		if(objFunID == 1)
 			alpha = stod(param[7]);
 		flagUseSD = true;
-		try {
-			if(param.size() > 8)
-				flagUseSD = stod(param[8]) == 1;
-		} catch(...) {}
+		flagNetworkPrune = true;
 		flagOutputScore = false;
-		try {
-			if(param.size() > 9)
-				flagOutputScore = stod(param[9]) == 1;
-		} catch(...) {}
+		for(size_t i = 8; i < param.size(); ++i) {
+			//const string& str = param[i];
+			regex reg("(sd|net|log)(-no)?");
+			smatch m;
+			if(regex_match(param[i], m, reg)) {
+				bool flag = !m[2].str().empty();
+				string name = m[1].str();
+				if(name == "sd")
+					flagUseSD = flag;
+				else if(name == "net")
+					flagNetworkPrune = flag;
+				else //if(name == "log")
+					flagOutputScore = flag;
+			}
+		}
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -51,7 +61,7 @@ bool StrategyFuncFreqSP::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-std::vector<Motif> StrategyFuncFreqSP::search(const Option & opt, 
+std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt, 
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	if(!checkInput(gPos, gNeg))
@@ -93,27 +103,27 @@ std::vector<Motif> StrategyFuncFreqSP::search(const Option & opt,
 	return res;
 }
 
-bool StrategyFuncFreqSP::setObjFun(const std::string & name)
+bool StrategyFuncFreqSD::setObjFun(const std::string & name)
 {
 	if(name == "diff") {
 		//objFun = &StrategyFuncFreqSP::objFun_diffP2N;
-		objFun = bind(&StrategyFuncFreqSP::objFun_diffP2N, this, placeholders::_1, placeholders::_2);
+		objFun = bind(&StrategyFuncFreqSD::objFun_diffP2N, this, placeholders::_1, placeholders::_2);
 		objFunID = 1;
 		return true;
 	} else if(name == "margin") {
-		objFun = bind(&StrategyFuncFreqSP::objFun_marginP2N, this, placeholders::_1, placeholders::_2);
+		objFun = bind(&StrategyFuncFreqSD::objFun_marginP2N, this, placeholders::_1, placeholders::_2);
 		objFunID = 2;
 		return true;
 	} else if(name == "ratio") {
 		//objFun = &StrategyFuncFreqSP::objFun_ratioP2N;
-		objFun = bind(&StrategyFuncFreqSP::objFun_ratioP2N, this, placeholders::_1, placeholders::_2);
+		objFun = bind(&StrategyFuncFreqSD::objFun_ratioP2N, this, placeholders::_1, placeholders::_2);
 		objFunID = 3;
 		return true;
 	}
 	return false;
 }
 
-std::vector<Edge> StrategyFuncFreqSP::getEdges()
+std::vector<Edge> StrategyFuncFreqSD::getEdges()
 {
 	vector<Edge> res;
 	for(int i = 0; i < nNode; ++i) {
@@ -125,35 +135,23 @@ std::vector<Edge> StrategyFuncFreqSP::getEdges()
 	return res;
 }
 
-void StrategyFuncFreqSP::setSignature()
-{
-	sigPos.reserve(pgp->size());
-	for(auto& sub : *pgp) {
-		sigPos.push_back(genSignture(sub, pSnap));
-	}
-	sigNeg.reserve(pgn->size());
-	for(auto& sub : *pgn) {
-		sigNeg.push_back(genSignture(sub, pSnap));
-	}
-}
-
-double StrategyFuncFreqSP::objFun_diffP2N(const double freqPos, const double freqNeg)
+double StrategyFuncFreqSD::objFun_diffP2N(const double freqPos, const double freqNeg)
 {
 	return freqPos - alpha*freqNeg;
 }
 
-double StrategyFuncFreqSP::objFun_marginP2N(const double freqPos, const double freqNeg)
+double StrategyFuncFreqSD::objFun_marginP2N(const double freqPos, const double freqNeg)
 {
 	return (1.0 - freqPos) + alpha*freqNeg;
 }
 
-double StrategyFuncFreqSP::objFun_ratioP2N(const double freqPos, const double freqNeg)
+double StrategyFuncFreqSD::objFun_ratioP2N(const double freqPos, const double freqNeg)
 {
 	//return freqNeg != 0.0 ? freqPos / freqNeg : freqPos;
 	return freqPos*freqPos / (freqPos + freqNeg);
 }
 
-bool StrategyFuncFreqSP::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
+bool StrategyFuncFreqSD::checkEdge(const int s, const int d, const std::vector<Graph>& sub) const
 {
 	int th = static_cast<int>(ceil(sub.size()*pSnap));
 	int cnt = 0;
@@ -166,7 +164,7 @@ bool StrategyFuncFreqSP::checkEdge(const int s, const int d, const std::vector<G
 	return cnt >= th;
 }
 
-bool StrategyFuncFreqSP::checkEdge(const int s, const int d) const
+bool StrategyFuncFreqSD::checkEdge(const int s, const int d) const
 {
 	int cnt = 0;
 	for(auto&sub : *pgp) {
@@ -184,7 +182,7 @@ bool StrategyFuncFreqSP::checkEdge(const int s, const int d) const
 	return cnt >= nMinSup;
 }
 
-int StrategyFuncFreqSP::countEdge(const int s, const int d, const std::vector<std::vector<Graph>>& subs) const
+int StrategyFuncFreqSD::countEdge(const int s, const int d, const std::vector<std::vector<Graph>>& subs) const
 {
 	int cnt = 0;
 	for(auto&sub : subs) {
@@ -194,14 +192,14 @@ int StrategyFuncFreqSP::countEdge(const int s, const int d, const std::vector<st
 	return cnt;
 }
 
-std::pair<int, int> StrategyFuncFreqSP::countEdge(const int s, const int d) const
+std::pair<int, int> StrategyFuncFreqSD::countEdge(const int s, const int d) const
 {
 	int nPos = countEdge(s, d, *pgp);
 	int nNeg = countEdge(s, d, *pgn);
 	return make_pair(nPos, nNeg);
 }
 
-bool StrategyFuncFreqSP::testMotif(const Motif & m, const std::vector<Graph>& sub) const
+bool StrategyFuncFreqSD::testMotif(const Motif & m, const std::vector<Graph>& sub) const
 {
 	int th = static_cast<int>(ceil(sub.size()*pSnap));
 	int cnt = 0;
@@ -214,23 +212,8 @@ bool StrategyFuncFreqSP::testMotif(const Motif & m, const std::vector<Graph>& su
 	return cnt >= th;
 }
 
-bool StrategyFuncFreqSP::testMotifSP(const MotifBuilder & m, const MotifSign& ms,
-	const std::vector<Graph>& sub, const Signature& ss) const
-{
-	if(!checkSPNecessary(m,ms,ss))
-		return false;
-	int th = static_cast<int>(ceil(sub.size()*pSnap));
-	int cnt = 0;
-	for(auto&g : sub) {
-		if(g.testMotif(m)) {
-			if(++cnt >= th)
-				break;
-		}
-	}
-	return cnt >= th;
-}
 
-int StrategyFuncFreqSP::countMotif(const Motif & m, const std::vector<std::vector<Graph>>& subs) const
+int StrategyFuncFreqSD::countMotif(const Motif & m, const std::vector<std::vector<Graph>>& subs) const
 {
 	int res = 0;
 	for(auto&sub : subs) {
@@ -240,18 +223,7 @@ int StrategyFuncFreqSP::countMotif(const Motif & m, const std::vector<std::vecto
 	return res;
 }
 
-int StrategyFuncFreqSP::countMotifSP(const MotifBuilder & m, const MotifSign & ms,
-	const std::vector<std::vector<Graph>>& subs, const std::vector<Signature>& sigs) const
-{
-	int res = 0;
-	for(size_t i = 0; i < subs.size(); ++i) {
-		if(testMotifSP(m, ms, subs[i], sigs[i]))
-			++res;
-	}
-	return res;
-}
-
-std::pair<int, int> StrategyFuncFreqSP::countMotif(const Motif & m) const
+std::pair<int, int> StrategyFuncFreqSD::countMotif(const Motif & m) const
 {
 	int nPos = countMotif(m, *pgp);
 	int nNeg = countMotif(m, *pgn);
@@ -261,7 +233,7 @@ std::pair<int, int> StrategyFuncFreqSP::countMotif(const Motif & m) const
 }
 
 
-void StrategyFuncFreqSP::removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e)
+void StrategyFuncFreqSD::removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e)
 {
 	auto itLast = sup.before_begin(), it = sup.begin();
 	while(it != sup.end()) {
@@ -275,7 +247,7 @@ void StrategyFuncFreqSP::removeSupport(slist& sup, std::vector<const subject_t*>
 	}
 }
 
-std::vector<Motif> StrategyFuncFreqSP::method_enum1()
+std::vector<Motif> StrategyFuncFreqSD::method_enum1()
 {
 	cout << "Phase 1 (meta-data prepare)" << endl;
 	slist supPos, supNeg;
@@ -306,7 +278,7 @@ std::vector<Motif> StrategyFuncFreqSP::method_enum1()
 	return res;
 }
 
-void StrategyFuncFreqSP::_enum1(const unsigned p, Motif & curr, slist& supPos, slist& supNeg,
+void StrategyFuncFreqSD::_enum1(const unsigned p, Motif & curr, slist& supPos, slist& supNeg,
 	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges)
 {
 	if(p >= edges.size() || curr.size() == smax) {
@@ -340,7 +312,7 @@ void StrategyFuncFreqSP::_enum1(const unsigned p, Motif & curr, slist& supPos, s
 		supNeg.pushFront(s);
 }
 
-std::vector<Motif> StrategyFuncFreqSP::method_edge1_bfs()
+std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 {
 	cout << "Phase 1 (prepare edges)" << endl;
 	vector<Edge> edges = getEdges();
@@ -382,7 +354,7 @@ std::vector<Motif> StrategyFuncFreqSP::method_edge1_bfs()
 	return holder.getResultMove();
 }
 
-std::vector<MotifBuilder> StrategyFuncFreqSP::_edge1_bfs(const std::vector<MotifBuilder>& last,
+std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<MotifBuilder>& last,
 	TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges)
 {
 	int layer = last.front().getnEdge();
@@ -435,106 +407,4 @@ std::vector<MotifBuilder> StrategyFuncFreqSP::_edge1_bfs(const std::vector<Motif
 		}
 	}
 	return newLayer;
-}
-
-
-
-StrategyFuncFreqSP::Signature StrategyFuncFreqSP::genSignture(
-	const std::vector<Graph>& gs, const double theta)
-{
-	int th = static_cast<int>(ceil(theta*gs.size()));
-	int n = nNode;
-	//vector<sdmatrix_t> buf;
-	vector<vector<vector<int>>> buf(n, vector<vector<int>>(n,vector<int>(gs.size())));
-	for(size_t k = 0; k < gs.size(); ++k) {
-		std::vector<std::vector<int>> m = calA2AShortestDistance(gs[k]);
-		//buf.push_back(move(m));
-		for(int i = 0; i < n; ++i)
-			for(int j = 0; j < n; ++j)
-				buf[i][j][k] = m[i][j];
-	}
-	Signature res(n);
-	for(int i = 0; i < n; ++i)
-		for(int j = 0; j < n; ++j) {
-			nth_element(buf[i][j].begin(), buf[i][j].begin() + th, buf[i][j].end());
-			res.sd[i][j] = buf[i][j][th-1];
-		}
-	return res;
-}
-
-std::vector<std::vector<int>> StrategyFuncFreqSP::calA2AShortestDistance(const Graph & g)
-{
-	int n = g.getnNode();
-	std::vector<std::vector<int>> sd(n, vector<int>(n, 2 * n));
-	for(int i = 0; i < n; ++i) {
-		for(int j = 0; j < n; ++j) {
-			if(g.matrix[i][j])
-				sd[i][j] = 1;
-		}
-//		sd[i][i] = 0;
-	}
-	for(int k = 0; k < n; ++k) {
-		for(int i = 0; i < n; ++i)
-			for(int j = 0; j < n; ++j) {
-				if(sd[i][k] + sd[k][j] < sd[i][j])
-					sd[i][j] = sd[i][k] + sd[k][j];
-			}
-	}
-	return sd;
-}
-
-void StrategyFuncFreqSP::updateMotifSD(MotifSign & ms, const MotifBuilder & mOld, int s, int d)
-{
-	vector<int> nodes;
-	int n = mOld.getnNode();
-	nodes.reserve(n);
-	for(int i = 0; i < nNode; ++i) {
-		if(mOld.containNode(i))
-			nodes.push_back(i);
-	}
-	ms.sd[s][d] = ms.sd[d][s] = 1;
-	// TODO: optimize with SPFA-like method
-	for(int k = 0; k < n; ++k) {
-		for(int i : nodes) {
-			for(int j : nodes) {
-				if(ms.sd[i][k] + ms.sd[k][j] < ms.sd[i][j])
-					ms.sd[i][j] = ms.sd[i][k] + ms.sd[k][j];
-			}
-		}
-	}
-}
-
-void StrategyFuncFreqSP::calMotifSD(MotifSign & ms, const MotifBuilder & m)
-{
-	//init direct edges
-	for(auto& e : m.edges) {
-		ms.sd[e.s][e.d] = ms.sd[e.d][e.s] = 1;
-	}
-	//prepare nodes
-	vector<int> nodes;
-	int n = m.getnNode();
-	nodes.reserve(n);
-	for(int i = 0; i < nNode; ++i) {
-		if(m.containNode(i))
-			nodes.push_back(i);
-	}
-	//update
-	for(int k = 0; k < n; ++k) {
-		for(int i : nodes) {
-			for(int j : nodes) {
-				if(ms.sd[i][k] + ms.sd[k][j] < ms.sd[i][j])
-					ms.sd[i][j] = ms.sd[i][k] + ms.sd[k][j];
-			}
-		}
-	}
-}
-
-bool StrategyFuncFreqSP::checkSPNecessary(const MotifBuilder& m, const MotifSign & ms, const Signature & ss) const
-{
-	// all edges should: sdis(e;g) <= sdis(e;m)
-	for(const Edge& e : m.edges) {
-		if(ms.sd[e.s][e.d] < ss[e.s][e.d])
-			return false;
-	}
-	return true;
 }

@@ -92,7 +92,7 @@
     <ClInclude Include="StrategyFreqPmNPara.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="StrategyFuncFreqSP.h">
+    <ClInclude Include="StrategyFuncFreqSD.h">
       <Filter>Strategies</Filter>
     </ClInclude>
   </ItemGroup>
@@ -169,7 +169,10 @@
     <ClCompile Include="StrategyFreqPmNPara.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyFuncFreqSP.cpp">
+    <ClCompile Include="StrategyFuncFreqSD-SD.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFuncFreqSD.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>
