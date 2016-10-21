@@ -217,6 +217,7 @@ ostream& operator<<(ostream& os, const vector<T>& param) {
 
 int main(int argc, char* argv[])
 {
+	// part 1: initialize
 	StrategyFactory::init();
 	CandidateMethodFactory::init();
 	Option opt;
@@ -252,6 +253,14 @@ int main(int argc, char* argv[])
 			<< endl;
 	}
 
+	// part 2: parse the options and generate a strategy
+	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
+	if(!strategy->parse(opt.stgParam)) {
+		MPI_Finalize();
+		return 1;
+	}
+
+	// part 3: load data
 	if(opt.nPosInd == -1)
 		opt.nPosInd = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typePos);
 	if(opt.nNegInd == -1)
@@ -281,17 +290,15 @@ int main(int argc, char* argv[])
 //	test(gPos, gNeg); return 0;
 //	return 0;
 
-	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
-	if(!strategy->parse(opt.stgParam)) {
-		MPI_Finalize();
-		return 1;
-	}
+	// part 4: search for motifs
 	if(!opt.subFolderOut.empty() && (opt.subFolderOut.back() == '/' || opt.subFolderOut.back() == '\\')) {
 		boost::filesystem::path p(opt.prefix + opt.subFolderOut);
 		boost::filesystem::create_directories(p);
 	}
 	auto res=strategy->search(opt, gPos, gNeg);
 	cout << res.size() << endl;
+
+	// part 5: output
 	ofstream fout(opt.prefix + opt.subFolderOut + "res-" + to_string(rank) + ".txt");
 	outputFoundMotifs(fout, res);
 	fout.close();
