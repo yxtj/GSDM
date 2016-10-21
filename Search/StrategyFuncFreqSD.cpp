@@ -25,7 +25,7 @@ const std::string StrategyFuncFreqSD::usage(
 bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 7, 9, name);
+		checkParam(param, 7, 10, name);
 		k = stoi(param[1]);
 		smin = stoi(param[2]);
 		smax = stoi(param[3]);
@@ -39,12 +39,12 @@ bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 		flagUseSD = true;
 		flagNetworkPrune = true;
 		flagOutputScore = false;
+		regex reg("(sd|net|log)(-no)?");
 		for(size_t i = 8; i < param.size(); ++i) {
 			//const string& str = param[i];
-			regex reg("(sd|net|log)(-no)?");
 			smatch m;
 			if(regex_match(param[i], m, reg)) {
-				bool flag = !m[2].str().empty();
+				bool flag = !m[2].matched;
 				string name = m[1].str();
 				if(name == "sd")
 					flagUseSD = flag;
@@ -52,6 +52,8 @@ bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 					flagNetworkPrune = flag;
 				else //if(name == "log")
 					flagOutputScore = flag;
+			} else {
+				throw invalid_argument("Unknown option for strategy FuncFreqSD: " + param[i]);
 			}
 		}
 	} catch(exception& e) {
@@ -333,12 +335,12 @@ std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 	for(int s = 2; s <= smax; ++s) {
 		Timer timer;
 		vector<MotifBuilder> t = _edge1_bfs(last, holder, edges);
-		sort(t.begin(), t.end());
-		auto itend = unique(t.begin(), t.end());
+		int numTotal = t.size();
+		sortUpNewLayer(t);
+		int numUnique = t.size();
 		auto _time_ms = timer.elapseMS();
 		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on "<<last.size()<<" motifs."
-			<< "\tgenerate new "<<itend - t.begin() << " / " << t.size() << " motifs (unique/total)" << endl;
-		t.erase(itend, t.end());
+			<< "\tgenerate new "<< numUnique << " / " << numTotal << " motifs (valid/total)" << endl;
 		if(t.empty())
 			break;
 		last = move(t);
@@ -380,8 +382,9 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 				for(size_t i = 0; i < pgp->size(); ++i)
 					cout << i << ":" << testMotifSP(m, ms, pgp->at(i), sigPos[i]) << ", ";
 			}*/
-		} else
+		} else {
 			cntPos = countMotif(mb.toMotif(), *pgp);
+		}
 		double freqPos = static_cast<double>(cntPos) / pgp->size();
 		double scoreUB = freqPos;
 		// freqPos is the upperbound of differential & ratio based objective function

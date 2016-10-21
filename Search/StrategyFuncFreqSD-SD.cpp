@@ -148,21 +148,39 @@ bool StrategyFuncFreqSD::checkSPNecessary(const MotifBuilder& m, const MotifSign
 	return true;
 }
 
+std::vector<MotifBuilder> StrategyFuncFreqSD::sortUpNewLayer(std::vector<MotifBuilder>& layer)
+{
+	if(flagNetworkPrune)
+		return pruneWithNumberOfParents(layer);
+	else
+		return removeDuplicate(layer);
+}
+
+std::vector<MotifBuilder> StrategyFuncFreqSD::removeDuplicate(std::vector<MotifBuilder>& layer)
+{
+	sort(layer.begin(), layer.end());
+	auto itend = unique(layer.begin(), layer.end());
+	layer.erase(itend, layer.end());
+	return layer;
+}
+
 int StrategyFuncFreqSD::quickEstimiateNumberOfParents(const Motif & m)
 {
-	unordered_set<int> uniqueNodes;
-	auto itend = uniqueNodes.end();
+	unordered_set<int> uniqueNodes, duplicateNodes;
+	auto fun = [&](const int n) {
+		if(duplicateNodes.find(n) == duplicateNodes.end()) {
+			auto it = uniqueNodes.find(n);
+			if(it == uniqueNodes.end()) {
+				uniqueNodes.insert(n);
+			} else {
+				uniqueNodes.erase(it);
+				duplicateNodes.insert(n);
+			}
+		}
+	};
 	for(auto& e : m.edges) {
-		auto it = uniqueNodes.find(e.s);
-		if(it != itend)
-			uniqueNodes.erase(itend);
-		else
-			uniqueNodes.insert(e.s);
-		it = uniqueNodes.find(e.d);
-		if(it != itend)
-			uniqueNodes.erase(itend);
-		else
-			uniqueNodes.insert(e.d);
+		fun(e.s);
+		fun(e.d);
 	}
 	return uniqueNodes.size();
 }
@@ -171,7 +189,7 @@ int StrategyFuncFreqSD::quickEstimiateNumberOfParents(const MotifBuilder & m)
 {
 	int cnt = 0;
 	for(auto& p : m.nodes) {
-		if(p.second > 1)
+		if(p.second == 1)
 			++cnt;
 	}
 	return cnt;
@@ -182,30 +200,27 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::pruneWithNumberOfParents(std::vect
 	if(mbs.empty())
 		return mbs;
 	sort(mbs.begin(), mbs.end());
-	auto first = mbs.begin();
-	auto result = mbs.begin(); // point to an undetermined position
-	auto last = mbs.end();
+	auto p = mbs.begin(); // point to the processing position
+	auto pGroup= p; // point to the first of current group
+	auto pRes = p; // point to an undetermined position
+	auto pEnd = mbs.end();
 	int cnt = 1;
-	while(++first != last) {
-		if(!(*result == *first)) { // new motif
-			int nParentMin = quickEstimiateNumberOfParents(*result);
-			if(nParentMin > cnt) {
-				// some of its parents are unqualified
-				cnt = 1;
-				*result = move(*first);
-				continue;
+	while(++p != pEnd) {
+		if(!(*pGroup == *p)) { // new motif
+			int nParentMin = quickEstimiateNumberOfParents(*pGroup);
+			if(nParentMin <= p-pGroup) {
+				// all (all found) its parents are qualified
+				if(pRes != pGroup)
+					*pRes = move(*pGroup);
+				++pRes;
 			}
-			cnt = 1;
-			if(++result != first)
-				*result = move(*first);
-		} else { // old motif
-			++cnt;
+			pGroup = p;
 		}
-		//if(!(*result == *first) && ++result != first) {
-		//	*result = std::move(*first);
+		//if(!(*pRes == *p) && ++pRes != p) {
+		//	*pRes = std::move(*p);
 		//}
 	}
-	mbs.erase(result, mbs.end());
+	mbs.erase(pRes, pEnd);
 	return mbs;
 }
 

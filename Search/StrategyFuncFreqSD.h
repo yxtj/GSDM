@@ -130,6 +130,10 @@ private:
 	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
 
 private:
+	std::vector<MotifBuilder> sortUpNewLayer(std::vector<MotifBuilder>& layer);
+
+	std::vector<MotifBuilder> removeDuplicate(std::vector<MotifBuilder>& layer);
+
 	int quickEstimiateNumberOfParents(const Motif& m);
 	int quickEstimiateNumberOfParents(const MotifBuilder& m);
 	std::vector<MotifBuilder> pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs);
