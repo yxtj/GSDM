@@ -2,6 +2,7 @@
 #include "StrategyFuncFreq.h"
 #include "Option.h"
 #include "Network.h"
+#include "../util/Timer.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ std::vector<Motif> StrategyFuncFreq::master(Network& net)
 	cout << "Phase 2 (calculate)" << endl;
 	Motif dummy;
 	TopKHolder<Motif, double> holder(k);
-	chrono::system_clock::time_point _time = chrono::system_clock::now();
+	Timer timer;
 	_enum1_dis1(0, dummy, supPos, supNeg, holder, edges, net);
 	cout << "  sending finish signal." << endl;
 	for(int i = 0; i < net.getSize(); ++i) {
@@ -27,8 +28,7 @@ std::vector<Motif> StrategyFuncFreq::master(Network& net)
 			continue;
 		net.sendEnd(i);
 	}
-	auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
-		chrono::system_clock::now() - _time).count();
+	auto _time_ms = timer.elapseMS();
 	cout << "  # of result: " << holder.size() << ", last score: " << holder.lastScore()
 		<< "\n  time: " << _time_ms << " ms" << endl;
 

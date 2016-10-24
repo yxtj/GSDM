@@ -80,16 +80,15 @@ std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt,
 
 	if(flagUseSD) {
 		cout << "Generating subject signatures..." << endl;
-		chrono::system_clock::time_point _time = chrono::system_clock::now();
+		Timer timer;
 		setSignature();
-		auto _time_ms = chrono::duration_cast<chrono::milliseconds>(
-			chrono::system_clock::now() - _time).count();
-		cout << "  Signatures generated in " << _time_ms << " ms" << endl;
+		cout << "  Signatures generated in " << timer.elapseMS() << " ms" << endl;
 	}
 
 	cout << "Enumeratig..." << endl;
 	Network net;
 	vector<Motif> res;
+	Timer timer;
 	if(net.getSize() == 1) {
 		res = method_edge1_bfs();
 		//res = master(net);
@@ -100,8 +99,10 @@ std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt,
 		//	numMotifExplored = slave(net);
 		//}
 	}
+	auto ts = timer.elapseS();
 	MPI_Barrier(MPI_COMM_WORLD);
-	cout << "  Rank " << net.getRank() << " has counted " << numMotifExplored << " motifs." << endl;
+	cout << "  Rank " << net.getRank() << " has counted " << numMotifExplored << " motifs,"
+		<< " within "<< ts << " seconds" << endl;
 	return res;
 }
 

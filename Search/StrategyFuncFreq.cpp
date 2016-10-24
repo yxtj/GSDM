@@ -62,6 +62,7 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 
 	Network net;
 	vector<Motif> res;
+	Timer timer;
 	if(net.getSize() == 1) {
 		res = method_enum1();
 		//res = master(net);
@@ -72,8 +73,10 @@ std::vector<Motif> StrategyFuncFreq::search(const Option & opt,
 			numMotifExplored = slave(net);
 		}
 	}
+	auto ts = timer.elapseS();
 	MPI_Barrier(MPI_COMM_WORLD);
-	cout << "  Rank " << net.getRank() << " has counted " << numMotifExplored << " motifs." << endl;
+	cout << "  Rank " << net.getRank() << " has counted " << numMotifExplored << " motifs,"
+		<< " within " << ts << " seconds" << endl;
 	return res;
 }
 
