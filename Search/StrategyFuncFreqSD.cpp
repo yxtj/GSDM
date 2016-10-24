@@ -19,7 +19,7 @@ const std::string StrategyFuncFreqSD::usage(
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
-	"  [log]: optional [log/log-no], default disabled, output the score of the top-k result"
+	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path"
 );
 
 bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
@@ -39,19 +39,22 @@ bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 		flagUseSD = true;
 		flagNetworkPrune = true;
 		flagOutputScore = false;
-		regex reg("(sd|net|log)(-no)?");
+		regex reg("(sd|net|log(:.+)?)(-no)?");
 		for(size_t i = 8; i < param.size(); ++i) {
 			//const string& str = param[i];
 			smatch m;
 			if(regex_match(param[i], m, reg)) {
-				bool flag = !m[2].matched;
+				bool flag = !m[3].matched;
 				string name = m[1].str();
 				if(name == "sd")
 					flagUseSD = flag;
 				else if(name == "net")
 					flagNetworkPrune = flag;
-				else //if(name == "log")
+				else { //if(name.substr(3) == "log")
 					flagOutputScore = flag;
+					if(flag)
+						pathOutputScore = m[2].str().substr(1);
+				}
 			} else {
 				throw invalid_argument("Unknown option for strategy FuncFreqSD: " + param[i]);
 			}
@@ -349,7 +352,7 @@ std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 
 	cout << "Phase 3 (output)" << endl;
 	if(flagOutputScore) {
-		ofstream fout("../logs/score.txt");
+		ofstream fout(pathOutputScore);
 		for(auto& p : holder.data) {
 			fout << p.second << "\t" << p.first << "\n";
 		}

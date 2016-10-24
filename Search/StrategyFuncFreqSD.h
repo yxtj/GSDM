@@ -20,6 +20,7 @@ class StrategyFuncFreqSD
 	bool flagUseSD; // whether to use the shortest distance optimization
 	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
 	bool flagOutputScore; // whether to output the score of the top-k result
+	std::string pathOutputScore; // the path of the score file
 
 // local parameters shared by internal functions (valid during searching is called)
 	int objFunID;
