@@ -280,12 +280,11 @@ int main(int argc, char* argv[])
 			nPosSkip = nNegSkip = 0;
 		}
 	}
+	cout << "Loading graphs on rank " << rank << "..." << endl;
 	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
-	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);
-	
-	cout << "Finished loading on rank " << rank << ":\n"
-		<< "  # positive subjects: " << gPos.size() << "\n"
-		<< "  # negative subjects: " << gNeg.size() << endl;
+	cout << "  # positive subjects: " << gPos.size() << endl;
+	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);	
+	cout << "  # negative subjects: " << gNeg.size() << endl;
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 //	return 0;

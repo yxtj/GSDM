@@ -6,7 +6,7 @@ using namespace std;
 
 void TCCutterParam::reg(Option & opt)
 {
-	ComplexParamBase::reg(opt, "cut-method", "cutting method, should be one of the following:\n"
+	ComplexParamBase::reg(opt, "cut-method", "The time course cutting method, should be one of the following:\n"
 		"  each <size of each>, fix # of points of each piece\n"
 		"  total <# of total>, fix the total # of pieces\n"
 		"  slide <size of window> <size of step>, use slide-window method"

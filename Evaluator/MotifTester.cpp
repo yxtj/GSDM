@@ -4,9 +4,9 @@
 using namespace std;
 
 const std::string MotifTester::name("motifTester");
-const std::string MotifTester::usage("the method to test the label of a subject using a motif\n"
-	"  freq <min portion>: the motif shows up among at lest <min portion> percent of the snaphots of a subject\n"
-	"  prob <min support>: snapshots are merged into an uncertained graph. The motif shows up more likely than a minimum probability");
+const std::string MotifTester::usage("The method to test the label of a subject using a motif.\n"
+	"  freq <min portion>: the motif shows up among at lest <min portion> percent of the snaphots of a subject.\n"
+	"  prob <min support>: snapshots are merged into an uncertained graph. The motif shows up more likely than a minimum probability.");
 
 MotifTester::MotifTester(const std::vector<Graph>& gs)
 	: gs(gs)

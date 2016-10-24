@@ -11,23 +11,23 @@ Option::Option()
 	using boost::program_options::value;
 	desc.add_options()
 		("help", "Print help messages")
-		("dataset", value<string>(&dataset), "specific which dataset is going to be used (ADHD, ABIDE).")
-		("nSkip",value<int>(&nSkip)->default_value(0),"skip the first nSkip items(subject/corr). Used for failure recovery")
-		("nSubject,n", value<int>(&nSubject)->default_value(-1), "[integer] # of items(subject/corr) to load from dataset "
+		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE).")
+		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr). Used for failure recovery")
+		("nSubject,n", value<int>(&nSubject)->default_value(-1), "# of items(subject/corr) to load from dataset "
 			"non-positive means load all)")
-		("tcPath", value<string>(&tcPath), "the folder for time course data (input)")
-		("corrPath", value<string>(&corrPath), "the folder for correlation data "
+		("tcPath", value<string>(&tcPath), "The folder for time course data (input)")
+		("corrPath", value<string>(&corrPath), "The folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output)")
-		("graphPath", value<string>(&graphPath), "the folder for graph data (output)")
-		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")), "method for calculating correlation between ROI,\n"
+		("graphPath", value<string>(&graphPath), "The folder for graph data (output)")
+		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")), "The method for calculating correlation between ROI,\n"
 			"supports: pearson, spearman, mutialinfo")
 		("graph-method", value<vector<string>>(&graphParam)->multitoken()->default_value(vector<string>{"ge", "0.8"}, "ge 0.8"),
-			"the methods and parameters for determining connectivity,\n"
+			"The methods and parameters for determining connectivity,\n"
 			"supports: gt <th>, ge <th>, lt <th>, le <th>, between <thLow> <thUp>, outside <thLow> <thUp>\n"
 			"between uses [thLow,thUp) range. outside is the oppsite to between.\n"
 			"FOR NEGATIVE NUMBER, USE n0.8 instead of -0.8, because \"-x\" is regarded as an option")
-		("com-graph", value<int>(&comGraphLevel)->default_value(0), "the compression level for outputting graphs.\n"
-			"The larger the number is, the smaller the output size is. 0 -> normal text, 1 -> binary, 2~n -> compressed")
+		("com-graph", value<int>(&comGraphLevel)->default_value(0), "The compression level for outputting graphs.\n"
+			"The larger the number is, the smaller the output size is. 0 -> normal text, 1 -> binary, 2~n -> compressed whith different level.")
 		;
 	cutp.reg(*this);
 }

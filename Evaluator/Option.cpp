@@ -18,20 +18,20 @@ Option::Option()
 			"non-positive means load all)")
 		("nSkipMotif",value<int>(&nSkipMotif)->default_value(0),"[integer] skip the first k valid motifs.")
 		("nSkipGraph", value<int>(&nSkipGraph)->default_value(0), "[integer] skip the first k valid graph.")
-		("motifPath", value<string>(&motifPath), "the folder for motifs (input)")
+		("motifPath", value<string>(&motifPath), "The folder for motifs (input)")
 		("motifPattern", value<string>(&motifPattern)->default_value(string("res-.*\\.txt")), 
-			"the file name pattern for the motif files, in ECMAScript regular expressions syntax. "
+			"The file name pattern for the motif files, in ECMAScript regular expressions syntax. "
 			"USE \"\" to contain the regular expression for special characters of the shell, like *")
-		("graphPath", value<string>(&graphPath), "the folder for graph data (input)")
+		("graphPath", value<string>(&graphPath), "The folder for graph data (input)")
 		("graphTypePos", value<vector<int>>(&graphTypePos)->multitoken()->default_value(vector<int>(1, 1), "0"),
-			"the type(s) of positive graph")
+			"The type(s) of positive graph")
 		("graphTypeNeg", value<vector<int>>(&graphTypeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
-			"the type(s) of negative graphs")
+			"The type(s) of negative graphs")
 		//("thrsldMotifSub", value<double>(&thrsldMotifSub)->default_value(0.4, "0.4"), 
 		//	"the portion threshold for regarding a motif as existence on a subject")
 		(MotifTester::name.c_str(), value<vector<string>>(&motifTestMethod)->multitoken(), MotifTester::usage.c_str())
-		("logFile", value<string>(&logFile), "the file for detailed motif checking log (output)")
-		("outputFile", value<string>(&outputFile), "the file for outputting the result (output)")
+		("logFile", value<string>(&logFile), "The file for detailed motif checking log (output)")
+		("outputFile", value<string>(&outputFile), "The file for outputting the result (output)")
 		;
 }
 
