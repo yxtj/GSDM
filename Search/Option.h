@@ -19,8 +19,8 @@ public:
 	std::vector<int> blacklist;
 
 	bool graphFolderShared; //for distributed case, whether the input data folder contains all the graphs
-	std::string prefix, subFolderGraph;//data folder prefix and graph sub-folder
-	std::string subFolderOut;//the file name prefix for output files
+	std::string prefix, graphFolder;//data folder prefix and graph sub-folder
+	std::string outFolder;//the file name prefix for output files
 
 public:
 	Option();
@@ -33,5 +33,8 @@ public:
 
 	std::string getStrategyName() const;
 	std::string getMethodName() const;
+private:
+	static std::string& sortUpPath(std::string & path);
+	std::string& processSubPath(std::string& path);
 };
 

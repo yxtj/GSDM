@@ -235,8 +235,8 @@ int main(int argc, char* argv[])
 		cout << "MPI: \n"
 			<< "  # instances: " << size << "\n"
 			<< "  Multithread level: " << mpiMTLevel << endl;
-		cout << "Data folder prefix: " << opt.prefix << "\tGraph sub-folder: " << opt.subFolderGraph << "\n"
-			<< "Output prefix: " << opt.subFolderOut << "\n"
+		cout << "Data folder prefix: " << opt.prefix << "\tGraph (sub-)folder: " << opt.graphFolder << "\n"
+			<< "Output folder: " << opt.outFolder << "\n"
 			<< "Data parameters:\n"
 			<< "  # Nodes: " << opt.nNode << "\n"
 			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
@@ -262,9 +262,9 @@ int main(int argc, char* argv[])
 
 	// part 3: load data
 	if(opt.nPosInd == -1)
-		opt.nPosInd = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typePos);
+		opt.nPosInd = getTotalSubjectNumber(opt.graphFolder, opt.typePos);
 	if(opt.nNegInd == -1)
-		opt.nNegInd = getTotalSubjectNumber(opt.prefix + opt.subFolderGraph, opt.typeNeg);
+		opt.nNegInd = getTotalSubjectNumber(opt.graphFolder, opt.typeNeg);
 	int nPosSub = opt.nPosInd, nPosSkip = 0;
 	int nNegSub = opt.nNegInd, nNegSkip = 0;
 //	cout << "rank " << rank << " # pos " << opt.nPosInd << " # neg " << opt.nNegInd << endl;
@@ -281,24 +281,24 @@ int main(int argc, char* argv[])
 		}
 	}
 	cout << "Loading graphs on rank " << rank << "..." << endl;
-	vector<vector<Graph> > gPos = loadData(opt.prefix + opt.subFolderGraph, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
+	vector<vector<Graph> > gPos = loadData(opt.graphFolder, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
 	cout << "  # positive subjects: " << gPos.size() << endl;
-	vector<vector<Graph> > gNeg = loadData(opt.prefix + opt.subFolderGraph, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);	
+	vector<vector<Graph> > gNeg = loadData(opt.graphFolder, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);	
 	cout << "  # negative subjects: " << gNeg.size() << endl;
 //	printMotifProbDiff(gPos, gNeg, opt.prefix + "dig-pn-1-5.txt", opt.prefix + "probDiff.txt"); return 0;
 //	test(gPos, gNeg); return 0;
 //	return 0;
 
 	// part 4: search for motifs
-	if(!opt.subFolderOut.empty() && (opt.subFolderOut.back() == '/' || opt.subFolderOut.back() == '\\')) {
-		boost::filesystem::path p(opt.prefix + opt.subFolderOut);
+	if(!opt.outFolder.empty() && (opt.outFolder.back() == '/' || opt.outFolder.back() == '\\')) {
+		boost::filesystem::path p(opt.outFolder);
 		boost::filesystem::create_directories(p);
 	}
 	auto res=strategy->search(opt, gPos, gNeg);
 	cout << res.size() << endl;
 
 	// part 5: output
-	ofstream fout(opt.prefix + opt.subFolderOut + "res-" + to_string(rank) + ".txt");
+	ofstream fout(opt.outFolder + "res-" + to_string(rank) + ".txt");
 	outputFoundMotifs(fout, res);
 	fout.close();
 

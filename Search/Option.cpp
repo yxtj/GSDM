@@ -14,11 +14,13 @@ Option::Option()
 	desc.add_options()
 		("help", "Print help messages")
 		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
-		("prefix-graph", value<string>(&subFolderGraph)->default_value(string("graph/")), "[string] the subfolder for graph files")
+		("prefix-graph", value<string>(&graphFolder)->default_value(string("graph/")),
+			"[string] the folder/subfolder for graph files. "
+			"If the option starts with a '/', it is a absolute path. Otherwise it is a subfolder of <prefix>")
 		("shared-input", bool_switch(&graphFolderShared)->default_value(false),
 			"[flag] for distribution to make sure each worker loads different part of the dataset. "
 			"Whether the each graph input folder contains all the data (usally true for DFS and NFS)")
-		("out", value<string>(&subFolderOut)->default_value(string("out-")), "[string] the file name prefix for output files")
+		("out", value<string>(&outFolder)->default_value(string("out-")), "[string] the file name prefix for output files")
 		("blacklist", value<vector<int>>(&blacklist)->multitoken()->default_value(vector<int>(),""),"[integer]s of individuals removed")
 		("n", value<int>(&nNode)->default_value(-1), "[integer] size of each graph (number of nodes)")
 		("npi", value<int>(&nPosInd)->default_value(10), "[integer] number of positive individuals (negative means read all)")
@@ -65,15 +67,10 @@ bool Option::parseInput(int argc, char * argv[])
 			boost::program_options::parse_command_line(argc, argv, desc), var_map);
 		boost::program_options::notify(var_map);
 
-		if(!prefix.empty() && prefix.back()!='/' && prefix.back() != '\\') {
-			prefix.push_back('/');
-		}
-		if(!subFolderGraph.empty() && subFolderGraph.back() != '/' && subFolderGraph.back() != '\\') {
-			subFolderGraph.push_back('/');
-		}
-		if(!subFolderOut.empty() && subFolderOut.back() != '/' && subFolderOut.back() != '\\') {
-			subFolderOut.push_back('/');
-		}
+		sortUpPath(prefix);
+		processSubPath(graphFolder);
+		processSubPath(outFolder);
+
 		do {
 			if(var_map.count("help")) {
 				flag_help = true;
@@ -123,4 +120,20 @@ std::string Option::getStrategyName() const
 std::string Option::getMethodName() const
 {
 	return mtdParam[0];
+}
+
+std::string& Option::sortUpPath(std::string & path)
+{
+	if(!path.empty() && path.back() != '/' && path.back() != '\\')
+		path.push_back('/');
+	return path;
+}
+
+std::string & Option::processSubPath(std::string & path)
+{
+	sortUpPath(path);
+	if(path.front() != '/') {
+		path = prefix + path;
+	}
+	return path;
 }
