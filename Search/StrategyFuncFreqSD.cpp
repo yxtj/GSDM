@@ -52,8 +52,13 @@ bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 					flagNetworkPrune = flag;
 				else { //if(name.substr(3) == "log")
 					flagOutputScore = flag;
-					if(flag)
-						pathOutputScore = m[2].str().substr(1);
+					if(flag) {
+						string path = m[2].str();
+						if(path.size() < 2)
+							throw invalid_argument("log path of Strategy " + name + " is not give.");
+						else
+							pathOutputScore = m[2].str().substr(1);
+					}
 				}
 			} else {
 				throw invalid_argument("Unknown option for strategy FuncFreqSD: " + param[i]);
