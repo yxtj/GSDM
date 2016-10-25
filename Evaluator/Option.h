@@ -16,7 +16,7 @@ public:
 	std::string graphPath;
 	std::vector<int> graphTypePos, graphTypeNeg, graphTypes;
 
-	std::string logFile;
+	//std::string logFile;
 	std::string outputFile;
 
 	std::vector<std::string> motifTestMethod;

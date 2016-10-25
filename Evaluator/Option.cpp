@@ -30,7 +30,7 @@ Option::Option()
 		//("thrsldMotifSub", value<double>(&thrsldMotifSub)->default_value(0.4, "0.4"), 
 		//	"the portion threshold for regarding a motif as existence on a subject")
 		(MotifTester::name.c_str(), value<vector<string>>(&motifTestMethod)->multitoken(), MotifTester::usage.c_str())
-		("logFile", value<string>(&logFile), "The file for detailed motif checking log (output)")
+		//("logFile", value<string>(&logFile), "The file for detailed motif checking log (output)")
 		("outputFile", value<string>(&outputFile), "The file for outputting the result (output)")
 		;
 }

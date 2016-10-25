@@ -79,8 +79,8 @@ int main(int argc, char* argv[])
 		<< "  Types of negative graph: " << opt.graphTypeNeg << "\n"
 		<< "  # of graph: " << opt.nGraph<< "\n"
 		<< "  # of skipped: " << opt.nSkipGraph<< "\n";
-	cout << "Output file: " << opt.outputFile << "\n"
-		<< "Log file: " << opt.logFile << endl;
+	cout << "Output file: " << opt.outputFile << endl;// "\n"
+//		<< "Log file: " << opt.logFile << endl;
 
 	vector<SubjectData> gts;
 	vector<Motif> ms;

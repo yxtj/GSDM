@@ -55,7 +55,7 @@ def main(folder, outFn, nDig):
     data={}
     print('loading')
     for fn in os.listdir(folder):
-        if fn.startswith('res-') and fn.endswith('.txt') and os.path.isfile(folder+fn):
+        if fn.startswith('tst-') and fn.endswith('.txt') and os.path.isfile(folder+fn):
             print('  loading: '+fn)
             data[fn]=processOneFile(folder+fn, header)
     print('loaded: '+str(len(data)))
@@ -67,7 +67,7 @@ def main(folder, outFn, nDig):
 if __name__=='__main__':
     if len(sys.argv)<3 or len(sys.argv)>4:
         print('usage: <folder of test result files> <output file name> [# of digit for result (def: 3)]')
-        print('\tFile names should start with "res-" and end with ".txt"')
+        print('\tFile names should start with "tst-" and end with ".txt"')
         exit()
     folder=sys.argv[1]
     outFn=sys.argv[2]
