@@ -338,6 +338,9 @@ std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 //		last.emplace_back(move(m), p);
 		last.push_back(move(m));
 	}
+	if(last.empty()) {
+		return vector<Motif>();
+	}
 
 	cout << "Phase 2 (testing motifs layer by layer)" << endl;
 	TopKHolder<Motif, double> holder(k);
