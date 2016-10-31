@@ -1,6 +1,15 @@
-function drawRawPRA(lblX, fnsX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn)
+function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folder, fn)
     %draw complete figures for Precision, Recall and Accuracy relavent to X
-    %fnsX: file name suffix for X
+    %fnSufX: file name suffix for X
+    
+    if strcmp(type,'png')
+        EXTENTION='.png'; OPTION='png';
+    elseif strcmp(type,'eps')
+        EXTENTION='.eps'; OPTION='epsc';
+    else
+        error(['Unsupported type: ' type])
+        return;
+    end
     
     if ~exist(folder,'dir')
         mkdir(folder);
@@ -11,16 +20,13 @@ function drawRawPRA(lblX, fnsX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn)
     
     fnPrefix=[folder '/' fnPrefix];
     
-    %EXTENTION='.eps'; OPTION='epsc';
-    EXTENTION='.png'; OPTION='png';
-    
     % ms
     figure(1)
     drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.precision,0);
     ylim([0 1]);
     xlabel(lblX); ylabel('precision')
     set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnsX '_prec' EXTENTION],OPTION)
+    saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
 
     % th
     figure(2)
@@ -28,7 +34,7 @@ function drawRawPRA(lblX, fnsX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn)
     ylim([0 1]);
     xlabel(lblX); ylabel('recall')
     set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnsX '_reca' EXTENTION],OPTION)
+    saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
 
 
     figure(3)
@@ -36,6 +42,6 @@ function drawRawPRA(lblX, fnsX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn)
     ylim([0 1]);
     xlabel(lblX); ylabel('accuracy')
     set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnsX '_accu' EXTENTION],OPTION)
+    saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
 
 end
