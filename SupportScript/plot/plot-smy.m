@@ -32,8 +32,8 @@ end;end;end;
 type='eps';
 %type='png';
 close all
-drawSmyPRA('minsup','minSup','alpha',1,datas,fns,type,figPrefix,'smy-alpha-1-');
+drawSmyPRA('minsup','minSup','alpha',1,datas,fns,type,figPrefix,'smy-alpha-1-','ms');
 close all
-drawSmyPRA('theta','theta','alpha',1,datas,fns,type,figPrefix,'smy-alpha-1-');
+drawSmyPRA('theta','theta','alpha',1,datas,fns,type,figPrefix,'smy-alpha-1-','th');
 
 

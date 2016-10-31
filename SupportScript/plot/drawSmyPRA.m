@@ -1,4 +1,4 @@
-function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, fnds, type, folder, fnPre)
+function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, fnds, type, folder, fnPre, fnSufX)
 
     if strcmp(type,'png')
         EXTENTION='.png'; OPTION='png';
