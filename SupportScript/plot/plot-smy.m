@@ -18,3 +18,22 @@ for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS); for ifn=1:numel(FILENAMES);
     drawRawPRA('theta','th',data.theta,'M',data.minsup,'A',data.alpha,data,type,figPrefix,fn)
 	close all;
 end;end;end;
+
+% draw a summary figure of all graph configurations
+datas=cell(numel(WINDOWS),numel(GRAPHS),numel(FILENAMES));
+fns=cell(numel(WINDOWS),numel(GRAPHS),numel(FILENAMES));
+for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS); for ifn=1:numel(FILENAMES);
+	fn=cell2mat([WINDOWS(iw) '/' GRAPHS(ig) '/' FILENAMES(ifn)])
+	data=smyLoader([dataPrefix fn]);
+    datas(iw,ig,ifn)=data;
+    fns(iw,ig,ifn)=[WINDOWS(iw) '-' GRAPHS(ig)];
+end;end;end;
+
+type='eps';
+%type='png';
+close all
+drawSmyPRA('minsup','minSup','alpha',1,datas,fns,type,figPrefix,'smy-alpha-1-');
+close all
+drawSmyPRA('theta','theta','alpha',1,datas,fns,type,figPrefix,'smy-alpha-1-');
+
+
