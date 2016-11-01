@@ -2,13 +2,15 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
     %draw complete figures for Precision, Recall and Accuracy relavent to X
     %fnSufX: file name suffix for X
     
-    if strcmp(type,'png')
-        EXTENTION='.png'; OPTION='png';
-    elseif strcmp(type,'eps')
-        EXTENTION='.eps'; OPTION='epsc';
-    else
-        error(['Unsupported type: ' type])
-        return;
+    switch (type)
+        case {'none' 'disp'}
+            EXTENTION='none'; OPTION='none';
+        case {'png'}
+            EXTENTION='.png'; OPTION='png';
+        case {'eps'}
+            EXTENTION='.eps'; OPTION='epsc';
+        otherwise
+            error(['Unsupported type: ' type])
     end
     
     if ~exist(folder,'dir')
@@ -20,28 +22,42 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
     
     fnPrefix=[folder '/' fnPrefix];
     
-    % ms
+    fontSize=16;
+    
+    % precision
     figure(1)
-    drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.precision,0);
+    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.precision);
     ylim([0 1]);
     xlabel(lblX); ylabel('precision')
-    set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
+    set(gca,'FontSize', fontSize)  
+    %legend('Location','NorthEastOutside');
+    columnlegend(size(keys,1),keys(:),'Location','SouthEast');
+    if ~strcmp(OPTION,'none')
+        saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
+    end
 
-    % th
+    % recall
     figure(2)
-    drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.recall,0);
+    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.recall);
     ylim([0 1]);
     xlabel(lblX); ylabel('recall')
-    set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
+    set(gca,'FontSize', fontSize)
+    %legend('Location','NorthEastOutside');
+    columnlegend(size(keys,1),keys,'Location','SouthEast');
+    if ~strcmp(OPTION,'none')
+        saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
+    end
 
-
+    % accuracy
     figure(3)
-    drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.accuracy,1);
+    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.accuracy);
     ylim([0 1]);
     xlabel(lblX); ylabel('accuracy')
-    set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
+    set(gca,'FontSize', fontSize)
+    %legend('Location','NorthEastOutside');
+    columnlegend(size(keys,1),keys,'Location','SouthEast');
+    if ~strcmp(OPTION,'none')
+        saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
+    end
 
 end
