@@ -1,12 +1,14 @@
-function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, fnds, type, folder, fnPre, fnSufX)
+function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, type, folder, fnPre, fnSufX)
 
-    if strcmp(type,'png')
-        EXTENTION='.png'; OPTION='png';
-    elseif strcmp(type,'eps')
-        EXTENTION='.eps'; OPTION='epsc';
-    else
-        error(['Unsupported type: ' type])
-        return;
+    switch (type)
+        case {'none' 'disp'}
+            EXTENTION='none'; OPTION='none';
+        case {'png'}
+            EXTENTION='.png'; OPTION='png';
+        case {'eps'}
+            EXTENTION='.eps'; OPTION='epsc';
+        otherwise
+            error(['Unsupported type: ' type])
     end
     
     if ~exist(folder,'dir')
@@ -16,19 +18,24 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, fnds, type, folder, fnPre
     fnPrefix=[folder '/' fnPre];
     
     figure(1)
-    drawEBGroupOne(datas,fnds,fldX, lblX, fldFix, valFix,'precision','precision',0);
-    set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
+    drawEBGroupOne(datas,labels,fldX, lblX, fldFix, valFix,'precision','precision',1);
+    set(gca,'FontSize', 14)
+    if ~strcmp(OPTION,'none')
+        saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
+    end
 
     figure(2)
-    drawEBGroupOne(datas,fnds,fldX, lblX, fldFix, valFix,'recall','recall',0);
-    set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
+    drawEBGroupOne(datas,labels,fldX, lblX, fldFix, valFix,'recall','recall',1);
+    set(gca,'FontSize', 14)
+    if ~strcmp(OPTION,'none')
+        saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
+    end
     
     figure(3)
-    drawEBGroupOne(datas,fnds,fldX, lblX, fldFix, valFix,'accuracy','accuracy',1);
-    set(gca,'FontSize', 13)
-    saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
-    
-    
+    drawEBGroupOne(datas,labels,fldX, lblX, fldFix, valFix,'accuracy','accuracy',1);
+    set(gca,'FontSize', 14)
+    if ~strcmp(OPTION,'none')
+        saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
+    end
+     
 end
