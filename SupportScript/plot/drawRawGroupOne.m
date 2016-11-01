@@ -10,6 +10,7 @@ function drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, Y, showLegend)
     uGP1=unique(GP1);
     uGP2=unique(GP2);
 
+    clf;
     hold all
     for i1=1:length(uGP1)
         for i2=1:length(uGP2)
