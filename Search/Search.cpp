@@ -296,6 +296,9 @@ int main(int argc, char* argv[])
 	}
 	auto res=strategy->search(opt, gPos, gNeg);
 	cout << res.size() << endl;
+	if(res.empty()) {
+		cerr << "Warning: zero result is found." << endl;
+	}
 
 	// part 5: output
 	ofstream fout(opt.outFolder + "res-" + to_string(rank) + ".txt");
