@@ -1,4 +1,4 @@
-function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folder, fn)
+function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn, type, fontSize, printSize)
     %draw complete figures for Precision, Recall and Accuracy relavent to X
     %fnSufX: file name suffix for X
     
@@ -13,6 +13,19 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
             error(['Unsupported type: ' type])
     end
     
+    if ~exist('fontSize','var') || isempty(fontSize)
+        fontSize=14;
+    end
+    if ~exist('printSize','var') || isempty(printSize)
+        printSize=[0 0 6 4.5];
+    end
+    
+    if length(printSize)==2
+        printSize=[0;0;printSize(:)]';
+    elseif length(printSize)~=4
+        error('Wrong print size.')
+    end
+    
     if ~exist(folder,'dir')
         mkdir(folder);
     end
@@ -22,8 +35,6 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
     
     fnPrefix=[folder '/' fnPrefix];
     
-    fontSize=16;
-    
     % precision
     figure(1)
     keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.precision);
@@ -31,8 +42,9 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
     xlabel(lblX); ylabel('precision')
     set(gca,'FontSize', fontSize)  
     %legend('Location','NorthEastOutside');
-    columnlegend(size(keys,1),keys(:),'Location','SouthEast');
+    %columnlegend(size(keys,2),keys(:),'Location','SouthEast');
     if ~strcmp(OPTION,'none')
+        set(gcf,'PaperUnits','inches','PaperPosition',printSize)
         saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
     end
 
@@ -43,8 +55,9 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
     xlabel(lblX); ylabel('recall')
     set(gca,'FontSize', fontSize)
     %legend('Location','NorthEastOutside');
-    columnlegend(size(keys,1),keys,'Location','SouthEast');
+    %columnlegend(size(keys,2),keys,'Location','SouthEast');
     if ~strcmp(OPTION,'none')
+        set(gcf,'PaperUnits','inches','PaperPosition',printSize)
         saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
     end
 
@@ -54,9 +67,10 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, type, folde
     ylim([0 1]);
     xlabel(lblX); ylabel('accuracy')
     set(gca,'FontSize', fontSize)
-    %legend('Location','NorthEastOutside');
-    columnlegend(size(keys,1),keys,'Location','SouthEast');
+    addLegendOutside(keys,'NorthEastOutside');
+    %[h,~,~,~]=columnlegend(size(keys,2),keys,'Location','SouthEast');
     if ~strcmp(OPTION,'none')
+        set(gcf,'PaperUnits','inches','PaperPosition',printSize)
         saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
     end
 
