@@ -37,7 +37,7 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn,
     
     % precision
     figure(1)
-    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.precision);
+    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.precision,1);
     ylim([0 1]);
     xlabel(lblX); ylabel('precision')
     set(gca,'FontSize', fontSize)  
@@ -50,7 +50,7 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn,
 
     % recall
     figure(2)
-    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.recall);
+    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.recall,1);
     ylim([0 1]);
     xlabel(lblX); ylabel('recall')
     set(gca,'FontSize', fontSize)
@@ -63,7 +63,7 @@ function drawRawPRA(lblX, fnSufX, X, lblGP1, GP1, lblGP2, GP2, data, folder, fn,
 
     % accuracy
     figure(3)
-    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.accuracy);
+    keys=drawRawGroupOne(X, lblGP1, GP1, lblGP2, GP2, data.accuracy,1);
     ylim([0 1]);
     xlabel(lblX); ylabel('accuracy')
     set(gca,'FontSize', fontSize)

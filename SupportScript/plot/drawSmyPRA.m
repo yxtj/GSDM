@@ -30,7 +30,7 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, folder, fnPre, fn
     fnPrefix=[folder '/' fnPre];
     
     figure(1)
-    keys=drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'precision');
+    keys=drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'precision',1);
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('precision');
     columnlegend(2,keys(:),'Location','NorthWest','boxoff');
@@ -40,7 +40,7 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, folder, fnPre, fn
     end
 
     figure(2)
-    drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'recall');
+    drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'recall',1);
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('recall');
     columnlegend(2,keys(:),'Location','NorthEast','boxoff');
@@ -50,7 +50,7 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, folder, fnPre, fn
     end
     
     figure(3)
-    drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'accuracy');
+    drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'accuracy',1);
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('accuracy');
     columnlegend(2,keys(:),'Location','NorthWest','boxoff');

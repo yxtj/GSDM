@@ -1,4 +1,4 @@
-function keys=drawEBGroupOne(datas, labels, fldX, fldFix, valFix, fldY)
+function keys=drawEBGroupOne(datas, labels, fldX, fldFix, valFix, fldY, flagCLF)
     % draw error bar for each group
     % datas: struct array of each graph
     % labels: the legend for the datas
@@ -13,9 +13,13 @@ function keys=drawEBGroupOne(datas, labels, fldX, fldFix, valFix, fldY)
 
     COLORS=['rgbymck'];
     MARKERS=['o+*.xsd^v><ph'];
+    lenc=length(COLORS);
+    lenm=length(MARKERS);
 
+    if exist('flagCLF','var') && flagCLF
+        clf;
+    end
     xRange=[1 0];
-    clf;
     hold all;
     for id=1:numel(datas)
         data=datas(id);
@@ -30,7 +34,9 @@ function keys=drawEBGroupOne(datas, labels, fldX, fldFix, valFix, fldY)
         xRange=[min(xRange(1),UX(1)) max(xRange(2),UX(end))];
         Y=data.(fldY);
         [m,s]=getMeanSigma(X(idx),Y(idx));
-        errorbar(UX,m,s,['-' COLORS(id) MARKERS(id)])%,'DisplayName',keys{id});
+        pc=mod(i1,lenc); if pc==0; pc=lenc; end;
+        pm=mod(i2,lenm); if pm==0; pm=lenm; end;
+        errorbar(UX,m,s,['-' COLORS(pc) MARKERS(pm)])%,'DisplayName',keys{id});
     end
     hold off;
     grid on;
