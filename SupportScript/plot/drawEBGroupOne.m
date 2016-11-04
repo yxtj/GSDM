@@ -34,8 +34,8 @@ function keys=drawEBGroupOne(datas, labels, fldX, fldFix, valFix, fldY, flagCLF)
         xRange=[min(xRange(1),UX(1)) max(xRange(2),UX(end))];
         Y=data.(fldY);
         [m,s]=getMeanSigma(X(idx),Y(idx));
-        pc=mod(i1,lenc); if pc==0; pc=lenc; end;
-        pm=mod(i2,lenm); if pm==0; pm=lenm; end;
+        pc=mod(id,lenc); if pc==0; pc=lenc; end;
+        pm=mod(id,lenm); if pm==0; pm=lenm; end;
         errorbar(UX,m,s,['-' COLORS(pc) MARKERS(pm)])%,'DisplayName',keys{id});
     end
     hold off;
