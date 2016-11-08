@@ -6,19 +6,21 @@ FILENAMES={'tbl-func.tsv'};
 dataPrefix='../../data_adhd/summary/';
 figPrefix='../../data_adhd/figure/';
 
+fontSize=20;
+printSize=[0 0 4 3]*1.5;
+
 % draw all lines of a single graph configuration
 type='eps';
 %type='png';
 %type='none';
 fontSize=18;
-printSize=[0 0 4 3]*1.5;
 close all
 for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS); for ifn=1:numel(FILENAMES);
-	fnf=[WINDOWS{iw} '/' GRAPHS{ig} '/' FILENAMES{ifn}]
-	data=smyLoader([dataPrefix fnf]);
-	drawRawPRA('minSup','ms',data.minsup,'T',data.theta,'A',data.alpha,data,figPrefix,fnf,type,fontSize,printSize)
+	fn=[WINDOWS{iw} '/' GRAPHS{ig} '/' FILENAMES{ifn}]
+	data=smyLoader([dataPrefix fn]);
+	drawRawPRA('minSup','ms',data.minsup,'T',data.theta,'A',data.alpha,data,figPrefix,fn,type,fontSize,printSize)
     close all;
-    drawRawPRA('theta','th',data.theta,'M',data.minsup,'A',data.alpha,data,figPrefix,fnf,type,fontSize,printSize)
+    drawRawPRA('theta','th',data.theta,'M',data.minsup,'A',data.alpha,data,figPrefix,fn,type,fontSize,printSize)
 	close all;
 end;end;end;
 
@@ -40,13 +42,15 @@ for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS); for ifn=1:numel(FILENAMES);
 end;end;end;
 close all;
 
-% draw figure for 
+% draw figure for alpha trend
 u=unique(data.minsup);
 for i=1:4
     subplot(2,2,i);
     ms=u(i);
     idx=find(data.minsup==ms);
     keys=drawRawGroupOne(data.theta(idx),'M',data.minsup(idx),'A',data.alpha(idx),data.recall(idx));
+    xlabel('theta');ylabel('recall');
+    %ylim([0,1]);
     %legend(keys,'location','northeast');
     columnlegend(2,keys,'location','northeast');
 end
@@ -85,4 +89,28 @@ set(gcf,'PaperUnits','inches','PaperPosition',[0 0 6 4.5])
 saveas(gcf,[figPrefix 'smy-alpha-0_5_th_reca.png'],'png')
 saveas(gcf,[figPrefix 'smy-alpha-0_5_th_reca.eps'],'epsc')
 
+% ---------------------
+% plot number of motifs
+labels=cell(numel(WINDOWS),numel(GRAPHS));
+for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS);
+    s=[WINDOWS{iw} '-' GRAPHS{ig}];
+    fn=['ne-' s '.tsv']
+    data=tdfread([dataPrefix fn]);
+    nmdatas(iw,ig)=data;
+    labels(iw,ig)=mat2cell(s,1,length(s));
+end;end
+
+data=nmdatas(iw,ig);
+keys=drawNMotif(data.minsup,'T',data.theta,data.nmotif,1);
+xlabel('minSup');
+set(gca,'FontSize', 20);
+ylabel('# of explored motifs')
+columnlegend(2,keys,'Location','NorthEast');
+set(gcf,'PaperUnits','inches','PaperPosition',[0 0 6 4.5])
+saveas(gcf,[figPrefix strrep(cell2mat(labels(iw,ig)),'0.','') '_ms_nmotif.eps'],'epsc')
+
+keys=drawNMotif(data.theta,'M',data.minsup,data.nmotif,1);
+xlabel('theta');
+%...
+saveas(gcf,[figPrefix strrep(cell2mat(labels(iw,ig)),'0.','') '_th_nmotif.eps'],'epsc')
 
