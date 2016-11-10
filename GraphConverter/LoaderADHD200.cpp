@@ -63,7 +63,7 @@ std::string LoaderADHD200::fixSubjectID(std::string id) const
 	return id;
 }
 
-std::vector<SubjectInfo> LoaderADHD200::loadValidList(const std::string & fn, const int nSubject)
+std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(const std::string & fn, const int nSubject)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -116,7 +116,7 @@ std::vector<SubjectInfo> LoaderADHD200::loadValidList(const std::string & fn, co
 	return res;
 }
 
-std::vector<SubjectInfo> LoaderADHD200::getAllSubjects(
+std::vector<SubjectInfo> LoaderADHD200::pruneSubjectsViaScanFile(
 	std::vector<SubjectInfo>& vldList, const std::string& root)
 {
 	using namespace boost::filesystem;

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-std::vector<SubjectInfo> TCLoader::getAllSubjects(
+std::vector<SubjectInfo> TCLoader::pruneSubjectsViaScanFile(
 	std::vector<SubjectInfo>& vldList, const std::string& root)
 {
 	return move(vldList);

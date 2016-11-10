@@ -12,9 +12,9 @@ class LoaderABIDE
 //	static const int ID_LENGTH_FILE = 7;
 //	static const char PADDING = '0';
 public:
-	virtual std::vector<SubjectInfo> loadValidList(const std::string& fn, const int nSubject = -1);
+	virtual std::vector<SubjectInfo> loadSubjectsFromDescFile(const std::string& fn, const int nSubject = -1);
 
-//	virtual std::vector<SubjectInfo> getAllSubjects(std::vector<SubjectInfo>& vldlist, const std::string& root);
+//	virtual std::vector<SubjectInfo> pruneSubjectsViaScanFile(std::vector<SubjectInfo>& vldlist, const std::string& root);
 
 
 	virtual std::string getFilePath(const SubjectInfo& sub);

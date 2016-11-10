@@ -17,9 +17,9 @@ public:
 	//  2-ADHD-Hyperactive/Impulsive, 3-ADHD-Inattentive)
 	// 18th column: QC_Rest_1, 22nd column: QC_Anatomical_1
 	// return list of subject object (scan id, type)
-	virtual std::vector<SubjectInfo> loadValidList(const std::string& fn, const int nSubject = -1);
+	virtual std::vector<SubjectInfo> loadSubjectsFromDescFile(const std::string& fn, const int nSubject = -1);
 
-	virtual std::vector<SubjectInfo> getAllSubjects(std::vector<SubjectInfo>& vldList, const std::string& root);
+	virtual std::vector<SubjectInfo> pruneSubjectsViaScanFile(std::vector<SubjectInfo>& vldList, const std::string& root);
 
 	virtual std::string getFilePath(const SubjectInfo& sub);
 

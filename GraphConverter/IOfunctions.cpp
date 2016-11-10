@@ -21,8 +21,8 @@ std::multimap<SubjectInfo, tc_t> loadInputTC(
 
 	vector<SubjectInfo> slist;
 	{
-		vector<SubjectInfo> validList = loader->loadValidList(tcPath, nSubject);
-		slist = loader->getAllSubjects(validList, tcPath);
+		vector<SubjectInfo> validList = loader->loadSubjectsFromDescFile(tcPath, nSubject);
+		slist = loader->pruneSubjectsViaScanFile(validList, tcPath);
 	}
 // 	if(nSubject > 0 && slist.size() > static_cast<size_t>(nSubject)) {
 // 		auto it = slist.begin() + nSubject;
