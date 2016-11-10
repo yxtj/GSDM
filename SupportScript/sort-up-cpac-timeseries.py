@@ -29,18 +29,19 @@ def main(inFolder, outFolder, globalOpt):
     inFolder=_formatFolderName(inFolder)
     outFolder=_formatFolderName(outFolder)
     pat_decimal='\d(\.\d+)?';
-    pat=r"(\d+)_(.+?)/roi_timeseries/_scan_rest_(\d+)_rest/_csf_threshold_(0\.\d+)/_gm_threshold_(0\.\d+)/_wm_threshold_(0\.\d+)/_compcor_ncomponents_5_selector_pc\d+\.linear\d\.wm\d\.global"+globalOpt+r"\.motion\d\.quadratic\d\.gm\d\.compcor\d\.csf\d/_bandpass_freqs_(?:\d(\.\d+)?)\.(?:\d(\.\d+)?)"
     pat_session=r"(\d+)_([^/]+)";
     pat_ts=r"roi_timeseries"
     pat_scan=r"_scan_rest_(\d+)_rest"
     pat_csf=r"_csf_threshold_"+pat_decimal
     pat_gm=r"_gm_threshold_"+pat_decimal
     pat_wm=r"_wm_threshold_"+pat_decimal
-    pat_cor=r"_compcor_ncomponents_5_selector_pc\d+\.linear\d\.wm\d\.global"+globalOpt+r"\.motion\d\.quadratic\d\.gm\d\.compcor\d\.csf\d"
+    pat_cor=r"_compcor_ncomponents_\d+_selector_pc1\d\.linear\d\.wm\d\.global"+globalOpt+r"\.motion\d\.quadratic\d\.gm\d\.compcor\d\.csf\d"
     pat_bp=r"_bandpass_freqs_"+pat_decimal+r"\."+pat_decimal
     
     for (k,v) in ROI_LIST.items():
-        os.makedirs(os.path.join(outFolder,v))
+        fn=os.path.join(outFolder,v)
+        if not os.path.exists(fn):
+            os.makedirs(fn)
     
     cntSsn=0
     cntSsnVld=0
@@ -49,15 +50,18 @@ def main(inFolder, outFolder, globalOpt):
         r=re.match(pat_session,session)
         pi=inFolder+session+'/'+pat_ts+'/'
         #<session id>/roi_timeseries
-        if not r or not os.path.exists(pi):
-            print('invalid session name: '+session)
+        if not r:
+            print(session+' invalid session name')
+            continue
+        if not os.path.exists(pi):
+            print(session+' no content inside')
             continue
         cntSsn+=1
         print(session)
         ssnId=r.group(1)
         ssnName=r.group(2)
         cntScan=0
-        for scan in session.listdir(pi):
+        for scan in os.listdir(pi):
             #<session id>/roi_timeseries/_scan*
             r2=re.match(pat_scan,scan)
             if not r2:
@@ -91,18 +95,26 @@ def main(inFolder, outFolder, globalOpt):
                 if len(lib)==0 or not re.match(pat_bp,lib[0]):
                     continue
                 cntMask=0
-                print('  '+scan,end=' ')
-                for mask in os.listdir(pii+lib[0]):
+                #print('  '+scan,end=' ') #only work on python 3
+                sys.stdout.write('  '+scan+' with ')
+                usedRoi=[]
+                for mask in os.listdir(pii+fnCor+'/'+lib[0]):
                     #<session id>/roi_timeseries/_scan*/_csf*/_gm*/_wm*/_compcor*global(0/1)*/_bandpass*/_mask*
-                    roi=mask.replace('_mask_','')
-                    pim=pii+lib[0]+'/'+mask+'/'+'roi_'+roi+'.1D'
+                    roi=re.sub('^_mask_','',mask)
+                    #print(roi, mask+'/'+'roi_'+roi+'.1D')
+                    pim=pii+fnCor+'/'+lib[0]+'/'+mask+'/'+'roi_'+roi+'.1D'
                     if os.path.exists(pim):
                         po=outFolder+ROI_LIST[roi]+'/'+ssnId+'/'
+                        usedRoi.append(ROI_LIST[roi])
                         if not os.path.exists(po):
                             os.mkdir(po)
                         shutil.copy2(pim,po+outFn)
                         cntMask+=1
-                print(str(cntMask)+ 'ROI(s)')
+                #print(str(cntMask)+ ' ROI(s) '+str(usedRoi))
+                if cntMask==ROI_LIST_LEN:
+                    print(str(cntMask)+' ROI(s)')
+                else:
+                    print(str(cntMask)+' ROI(s) : '+str(usedRoi))
                 if cntMask!=0:
                     cntCor+=1
             if cntCor!=0:
@@ -134,7 +146,7 @@ def main(inFolder, outFolder, globalOpt):
 if __name__=='__main__':
     if len(sys.argv)<3 or len(sys.argv)>4:
         print('Usage: <in-folder> <out-folder> [global-opt=0/1]')
-        print("  The in-folder should directly contains the ")
+        print("  The in-folder should directly contain the subjects")
         exit()
     inFolder=sys.argv[1];
     outFolder=sys.argv[2];
