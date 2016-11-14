@@ -40,6 +40,10 @@
     <ClCompile Include="LoaderABIDE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoaderBaseCPAC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderABIDE2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Corr2Graph.h">
@@ -81,6 +85,10 @@
     <ClInclude Include="LoaderABIDE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LoaderBaseCPAC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderABIDE2.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

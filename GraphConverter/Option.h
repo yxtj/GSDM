@@ -18,8 +18,9 @@ public:
 	int nSubject; // number of subject need to be loaded from the dataset
 
 	// path for input/output data folder:
-	std::string tcPath, corrPath, graphPath; // time course data, correlation data path, graph data 
+	std::string phenoPath, tcPath, corrPath, graphPath; // time course data, correlation data path, graph data 
 
+	std::string tcQualityControl; // how to filter the subjects with the Quality Control information (none, any, all)
 	TCCutterParam cutp;
 
 	std::string corrMethod; // method of calculating correlation
@@ -41,5 +42,6 @@ private:
 	std::string& sortUpPath(std::string& path);
 	bool checkIOLogic();
 	bool initCutLogic();
+	bool sortUpTCQC();
 };
 

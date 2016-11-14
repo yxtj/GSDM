@@ -14,12 +14,17 @@ Option::Option()
 		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE).")
 		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr). Used for failure recovery")
 		("nSubject,n", value<int>(&nSubject)->default_value(-1), "# of items(subject/corr) to load from dataset "
-			"non-positive means load all)")
+			"(non-positive means load all)")
 		("tcPath", value<string>(&tcPath), "The folder for time course data (input)")
+		("phenoPath", value<string>(&phenoPath), "The folder for the phenotyic file (input). If it is empty, tcPath will be used.")
 		("corrPath", value<string>(&corrPath), "The folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output)")
 		("graphPath", value<string>(&graphPath), "The folder for graph data (output)")
-		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")), "The method for calculating correlation between ROI,\n"
+		("tc-qc", value<string>(&tcQualityControl)->default_value(string("all")), 
+			"How to use the Quality Control fields to filter the subjects,\n"
+			"supports: none (not use), any (fulfill any QC), all (fulfill all QC)")
+		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")),
+			"The method for calculating correlation between ROI,\n"
 			"supports: pearson, spearman, mutialinfo")
 		("graph-method", value<vector<string>>(&graphParam)->multitoken()->default_value(vector<string>{"ge", "0.8"}, "ge 0.8"),
 			"The methods and parameters for determining connectivity,\n"
@@ -80,9 +85,14 @@ bool Option::parseInput(int argc, char* argv[]) {
 			break;
 		}
 
+		if(phenoPath.empty()) {
+			phenoPath = tcPath;
+		}
+		sortUpPath(phenoPath);
 		sortUpPath(tcPath);
 		sortUpPath(corrPath);
 		sortUpPath(graphPath);
+		sortUpTCQC();
 		break;
 	}
 
@@ -150,4 +160,10 @@ bool Option::initCutLogic()
 // 	else if(nScan > 0)
 // 		cutMethod = "nScan";
 	return true;
+}
+
+bool Option::sortUpTCQC()
+{
+	transform(tcQualityControl.begin(), tcQualityControl.end(), tcQualityControl.begin(), ::tolower);
+	return tcQualityControl == "none" || tcQualityControl == "any" || tcQualityControl == "all";
 }

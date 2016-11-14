@@ -9,7 +9,7 @@
 //---------------------------- Time Course ---------------------------------
 
 // non-positive nSubject means all
-std::multimap<SubjectInfo, tc_t> loadInputTC(
+std::multimap<SubjectInfo, tc_t> loadInputTC(const std::string& phenoPath,
 	const std::string& tcPath, const std::string& dataset, const int nSubject = -1, const int nSkip = 0);
 
 //---------------------------- Correlation ---------------------------------

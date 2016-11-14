@@ -23,6 +23,7 @@ public:
 	virtual std::string getFilePath(const SubjectInfo& sub) = 0;
 	virtual tc_t loadTimeCourse(const std::string& fn) = 0;
 
+	tc_t loadTimeCourse1D(const std::string& fn);
 public:
 	std::string padID2Head(std::string& id, const int nDig, const char PAD);
 	std::string padID2Tail(std::string& id, const int nDig, const char PAD);
