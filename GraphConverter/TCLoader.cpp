@@ -13,8 +13,10 @@ tc_t TCLoader::loadTimeCourse1D(const std::string & fn)
 {
 	std::vector<std::vector<double>> res;
 	ifstream fin(fn);
-	if(!fin)
-		return res;
+	if(!fin) {
+		//return res;
+		throw invalid_argument("Cannot open the file: " + fn);
+	}
 	string line;
 	// there is a header line
 	getline(fin, line);
