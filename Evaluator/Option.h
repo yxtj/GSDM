@@ -12,12 +12,13 @@ public:
 	int nSkipGraph, nSkipMotif; // skip some of the first items(graph,motif), to efficiently restart after failure
 
 	// path for input/output data folder:
-	std::string motifPath, motifPattern;
+	std::vector<std::string> motifPath;
+	std::string motifPattern;
 	std::string graphPath;
 	std::vector<int> graphTypePos, graphTypeNeg, graphTypes;
 
 	//std::string logFile;
-	std::string outputFile;
+	std::vector<std::string> outputFile;
 
 	std::vector<std::string> motifTestMethod;
 	double thrsldMotifSub; // the portion threshold for regarding a motif as existence on a subject

@@ -18,7 +18,7 @@ Option::Option()
 			"non-positive means load all)")
 		("nSkipMotif",value<int>(&nSkipMotif)->default_value(0),"[integer] skip the first k valid motifs.")
 		("nSkipGraph", value<int>(&nSkipGraph)->default_value(0), "[integer] skip the first k valid graph.")
-		("motifPath", value<string>(&motifPath), "The folder for motifs (input)")
+		("motifPath", value<vector<string>>(&motifPath)->multitoken(), "The folders for motifs (input)")
 		("motifPattern", value<string>(&motifPattern)->default_value(string("res-.*\\.txt")), 
 			"The file name pattern for the motif files, in ECMAScript regular expressions syntax. "
 			"USE \"\" to contain the regular expression for special characters of the shell, like *")
@@ -31,7 +31,7 @@ Option::Option()
 		//	"the portion threshold for regarding a motif as existence on a subject")
 		(MotifTester::name.c_str(), value<vector<string>>(&motifTestMethod)->multitoken(), MotifTester::usage.c_str())
 		//("logFile", value<string>(&logFile), "The file for detailed motif checking log (output)")
-		("outputFile", value<string>(&outputFile), "The file for outputting the result (output)")
+		("outputFile", value<vector<string>>(&outputFile)->multitoken(), "The file for outputting the result (output)")
 		;
 }
 
@@ -87,7 +87,14 @@ bool Option::parseInput(int argc, char* argv[]) {
 			flag_help = true;
 			break;
 		}
-		sortUpPath(motifPath);
+		if(motifPath.size() != outputFile.size()) {
+			cerr << "the number of motif folders does not match the number of output files" << endl;
+			flag_help = true;
+			break;
+		}
+		for(auto& path : motifPath) {
+			sortUpPath(path);
+		}
 		sortUpPath(graphPath);
 		mergeGraphType();
 		break;
