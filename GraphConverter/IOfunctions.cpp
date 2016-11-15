@@ -7,8 +7,9 @@ using namespace std;
 
 //---------------------------- Time Course ---------------------------------
 
-std::multimap<SubjectInfo, tc_t> loadInputTC(const std::string& phenoPath,
-	const std::string& tcPath, const std::string& dataset, const int nSubject, const int nSkip)
+std::multimap<SubjectInfo, tc_t> loadInputTC(
+	const std::string& phenoPath, const std::string& tcPath, const std::string& qcMethod,
+	const std::string& dataset, const int nSubject, const int nSkip)
 {
 	using namespace boost::filesystem;
 	path root(tcPath);
@@ -21,7 +22,7 @@ std::multimap<SubjectInfo, tc_t> loadInputTC(const std::string& phenoPath,
 
 	vector<SubjectInfo> slist;
 	{
-		vector<SubjectInfo> validList = loader->loadSubjectsFromDescFile(phenoPath, nSubject);
+		vector<SubjectInfo> validList = loader->loadSubjectsFromDescFile(phenoPath, qcMethod, nSubject);
 		slist = loader->pruneSubjectsViaScanFile(validList, tcPath);
 	}
 // 	if(nSubject > 0 && slist.size() > static_cast<size_t>(nSubject)) {

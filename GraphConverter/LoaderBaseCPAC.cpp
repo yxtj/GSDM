@@ -25,7 +25,8 @@ std::vector<SubjectInfo> LoaderBaseCPAC::pruneSubjectsViaScanFile(std::vector<Su
 
 std::string LoaderBaseCPAC::getFilePath(const SubjectInfo & sub)
 {
-	return sub.id + "/" + sub.id + "_rest_" + to_string(sub.seqNum + 1) + ".1D";
+	return sub.id + "/" + "session_1_rest_" + to_string(sub.seqNum + 1) + ".1D";
+	//return sub.id + "/" + sub.session + "_rest_" + to_string(sub.seqNum + 1) + ".1D";
 }
 
 tc_t LoaderBaseCPAC::loadTimeCourse(const std::string & fn)

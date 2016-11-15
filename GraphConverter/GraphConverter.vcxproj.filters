@@ -7,9 +7,6 @@
     <ClCompile Include="GraphConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoaderADHD200.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LoaderFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -38,18 +35,35 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LoaderABIDE.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>TCLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderADHD200.cpp">
+      <Filter>TCLoader</Filter>
     </ClCompile>
     <ClCompile Include="LoaderBaseCPAC.cpp">
+      <Filter>TCLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderABIDE2.cpp">
+      <Filter>TCLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckerNone.cpp">
+      <Filter>QCChecker</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckerAny.cpp">
+      <Filter>QCChecker</Filter>
+    </ClCompile>
+    <ClCompile Include="QCChecker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoaderABIDE2.cpp" />
+    <ClCompile Include="CheckerAll.cpp">
+      <Filter>QCChecker</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckerFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Corr2Graph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LoaderADHD200.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LoaderFactory.h">
@@ -83,12 +97,32 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LoaderABIDE.h">
-      <Filter>Header Files</Filter>
+      <Filter>TCLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderADHD200.h">
+      <Filter>TCLoader</Filter>
     </ClInclude>
     <ClInclude Include="LoaderBaseCPAC.h">
+      <Filter>TCLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderABIDE2.h">
+      <Filter>TCLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="CheckerNone.h">
+      <Filter>QCChecker</Filter>
+    </ClInclude>
+    <ClInclude Include="QCChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LoaderABIDE2.h" />
+    <ClInclude Include="CheckerAny.h">
+      <Filter>QCChecker</Filter>
+    </ClInclude>
+    <ClInclude Include="CheckerAll.h">
+      <Filter>QCChecker</Filter>
+    </ClInclude>
+    <ClInclude Include="CheckerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -96,6 +130,12 @@
     </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{ee894258-537b-4de2-a3cb-3688f0cc27d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QCChecker">
+      <UniqueIdentifier>{717a494b-acdd-4950-93ac-d22ba6921fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TCLoader">
+      <UniqueIdentifier>{583a60c8-ba22-48db-b19c-2a95a4fa97ca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

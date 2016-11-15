@@ -150,11 +150,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CheckerAll.h" />
+    <ClInclude Include="CheckerAny.h" />
+    <ClInclude Include="CheckerFactory.h" />
+    <ClInclude Include="CheckerNone.h" />
     <ClInclude Include="ComplexParamBase.h" />
     <ClInclude Include="Corr2Graph.h" />
     <ClInclude Include="LoaderABIDE.h" />
     <ClInclude Include="LoaderABIDE2.h" />
     <ClInclude Include="LoaderBaseCPAC.h" />
+    <ClInclude Include="QCChecker.h" />
     <ClInclude Include="TCCutterParam.h" />
     <ClInclude Include="IOfunctions.h" />
     <ClInclude Include="TCCutter.h" />
@@ -167,10 +172,15 @@
     <ClInclude Include="TCLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CheckerAll.cpp" />
+    <ClCompile Include="CheckerAny.cpp" />
+    <ClCompile Include="CheckerFactory.cpp" />
+    <ClCompile Include="CheckerNone.cpp" />
     <ClCompile Include="ComplexParamBase.cpp" />
     <ClCompile Include="LoaderABIDE.cpp" />
     <ClCompile Include="LoaderABIDE2.cpp" />
     <ClCompile Include="LoaderBaseCPAC.cpp" />
+    <ClCompile Include="QCChecker.cpp" />
     <ClCompile Include="TCCutterParam.cpp" />
     <ClCompile Include="IOfunctions.cpp" />
     <ClCompile Include="TCCutter.cpp" />

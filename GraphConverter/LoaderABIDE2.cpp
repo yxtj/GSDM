@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LoaderABIDE2.h"
+#include "CheckerFactory.h"
 
 using namespace std;
 
@@ -47,7 +48,8 @@ const std::vector<int> LoaderABIDE2::POS_QC = { 21, 23 }; // ADI_R_RSRCH_RELIABL
 
 
 
-std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(const std::string & fn, const int nSubject)
+std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(
+	const std::string& fn, const std::string& qcMethod, const int nSubject)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -75,14 +77,14 @@ std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(const std::strin
 	}
 
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
-
+	
 	vector<SubjectInfo> res;
 	while(getline(fin, line))
 	{
 		bool valid;
 		string sid;
 		int type;
-		tie(valid, sid, type) = parsePhenotypeLine(line);
+		tie(valid, sid, type) = parsePhenotypeLine(line, qcMethod);
 
 		if(valid) {
 			res.push_back(SubjectInfo{ sid,type });
@@ -109,9 +111,10 @@ bool LoaderABIDE2::checkHeader(const std::string &line) {
 	return true;
 }
 
-std::tuple<bool, std::string, int> LoaderABIDE2::parsePhenotypeLine(const std::string & line)
+std::tuple<bool, std::string, int> LoaderABIDE2::parsePhenotypeLine(
+	const std::string & line, const std::string& qcMethod)
 {
-	bool reliable = true;
+	QCChecker *checker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	std::string id;
 	int dx;// Autism==1, Control==2
 
@@ -122,17 +125,18 @@ std::tuple<bool, std::string, int> LoaderABIDE2::parsePhenotypeLine(const std::s
 	size_t p = line.find(',');
 	
 	int count = 0;
-	while(p != string::npos && count <= maxPos)
+	while(p != string::npos && count <= maxPos && checker->needMore())
 	{
 		if(count == POS_ID) {
 			id = line.substr(plast, p - plast);
 		} else if(count == POS_DX) {
 			dx = stoi(line.substr(plast, p - plast));
 		} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
-			string x = line.substr(plast, p - plast);
-			if(!x.empty()) {
-				//TODO: empty is special
-				reliable = reliable && (stoi(x) > 0);
+			if(p != plast) {
+				string x = line.substr(plast, p - plast);
+				checker->input(stoi(x) > 0);
+			} else {
+				checker->input();
 			}
 		}
 
@@ -141,5 +145,7 @@ std::tuple<bool, std::string, int> LoaderABIDE2::parsePhenotypeLine(const std::s
 		++count;
 	}
 	//	id = padID2Head(id, ID_LENGTH_FILE, PADDING);
+	bool reliable = checker->result();
+	delete checker;
 	return make_tuple(reliable, move(id), dx);
 }

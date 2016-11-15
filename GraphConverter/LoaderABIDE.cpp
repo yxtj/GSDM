@@ -34,7 +34,8 @@ bool LoaderABIDE::checkHeader(const std::string &line) {
 	return true;
 }
 
-std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(const std::string &fn, const int nSubject)
+std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
+	const std::string& fn, const std::string& qcMethod, const int nSubject)
 {
 	string filename(fn);
 	if(filename.find("RfMRIMaps_ABIDE_Phenotypic") == string::npos) {

@@ -63,7 +63,8 @@ std::string LoaderADHD200::fixSubjectID(std::string id) const
 	return id;
 }
 
-std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(const std::string & fn, const int nSubject)
+std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
+	const std::string& fn, const std::string& qcMethod, const int nSubject)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
