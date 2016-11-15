@@ -88,7 +88,7 @@ bool Option::parseInput(int argc, char* argv[]) {
 		if(phenoPath.empty()) {
 			phenoPath = tcPath;
 		}
-		sortUpPath(phenoPath);
+		//sortUpPath(phenoPath);
 		sortUpPath(tcPath);
 		sortUpPath(corrPath);
 		sortUpPath(graphPath);
