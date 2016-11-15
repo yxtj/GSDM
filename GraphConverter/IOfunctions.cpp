@@ -22,8 +22,9 @@ std::multimap<SubjectInfo, tc_t> loadInputTC(
 
 	vector<SubjectInfo> slist;
 	{
+		// TODO: put the nSkip into loadSubjectsFromDescFile: nSubject is the # scanned, not guaranteed output #
 		vector<SubjectInfo> validList = loader->loadSubjectsFromDescFile(phenoPath, qcMethod, nSubject);
-		slist = loader->pruneSubjectsViaScanFile(validList, tcPath);
+		slist = loader->pruneAndAddScanViaScanFile(validList, tcPath);
 	}
 // 	if(nSubject > 0 && slist.size() > static_cast<size_t>(nSubject)) {
 // 		auto it = slist.begin() + nSubject;

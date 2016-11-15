@@ -3,7 +3,7 @@
 
 using namespace std;
 
-std::vector<SubjectInfo> LoaderBaseCPAC::pruneSubjectsViaScanFile(
+std::vector<SubjectInfo> LoaderBaseCPAC::pruneAndAddScanViaScanFile(
 	std::vector<SubjectInfo>& vldList, const std::string & root)
 {
 	using namespace boost::filesystem;

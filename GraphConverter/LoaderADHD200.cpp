@@ -121,7 +121,7 @@ std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
 	return res;
 }
 
-std::vector<SubjectInfo> LoaderADHD200::pruneSubjectsViaScanFile(
+std::vector<SubjectInfo> LoaderADHD200::pruneAndAddScanViaScanFile(
 	std::vector<SubjectInfo>& vldList, const std::string& root)
 {
 	using namespace boost::filesystem;

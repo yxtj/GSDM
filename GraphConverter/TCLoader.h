@@ -18,7 +18,7 @@ public:
 	// post-condition: <id, type, scan #>
 	// useful for the dataset where scan # is not included in the description file
 	// default version: return the input
-	virtual std::vector<SubjectInfo> pruneSubjectsViaScanFile(std::vector<SubjectInfo>& vldList, const std::string& root);
+	virtual std::vector<SubjectInfo> pruneAndAddScanViaScanFile(std::vector<SubjectInfo>& vldList, const std::string& root);
 
 	// return the name relative to the root tcPath (i.e. option.tcPath)
 	virtual std::string getFilePath(const SubjectInfo& sub) = 0;

@@ -120,6 +120,7 @@ std::tuple<bool, std::string, int> LoaderABIDE2::parsePhenotypeLine(
 	std::string id;
 	int dx;// Autism==1, Control==2
 
+	static const int minPos = min(POS_ID, POS_DX);
 	static const int maxPos = max(max(POS_ID, POS_DX),
 		*max_element(POS_QC.begin(), POS_QC.end()));
 
@@ -127,7 +128,7 @@ std::tuple<bool, std::string, int> LoaderABIDE2::parsePhenotypeLine(
 	size_t p = line.find(',');
 	
 	int count = 0;
-	while(p != string::npos && count <= maxPos && pchecker->needMore())
+	while(p != string::npos && count <= maxPos && (pchecker->needMore() || count <= minPos))
 	{
 		if(count == POS_ID) {
 			id = line.substr(plast, p - plast);

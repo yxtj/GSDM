@@ -52,9 +52,9 @@ int main(int argc, char* argv[])
 	ios::sync_with_stdio(false);
 	cout << "Time Course Path: " << opt.tcPath << "\n"
 		<< "  phenotypic file path: " << opt.phenoPath << "\n"
-		<< "Correlation Path: " << opt.corrPath << "\n"
-		<< "Graph Path: " << opt.graphPath << "\n"
-		<< "  Input path: " << opt.getInputFolder().second << "\n"
+		<< "  Correlation Path: " << opt.corrPath << "\n"
+		<< "  Graph Path: " << opt.graphPath << "\n"
+		<< "Input path: " << opt.getInputFolder().second << "\n"
 		<< "  Output to correlation: " << boolalpha << opt.isOutputFolder(Option::FileType::CORR) << "\n"
 		<< "  Output to graph: " << boolalpha << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
 		<< "Dataset name: " << opt.dataset << "\n"
@@ -62,12 +62,12 @@ int main(int argc, char* argv[])
 		<< "  Number of items " << opt.nSubject << "\n"
 		<< "Quality Control method: " << opt.tcQualityControl << "\n"
 		<< "Correlation method: " << opt.corrMethod << "\n"
-		<< "Correlation threshold: " << opt.graphParam<< "\n"
+		<< "  Correlation threshold: " << opt.graphParam<< "\n"
 		<< endl;
 	cout << "Cutting method: " << opt.cutp.method << "\n" 
-		<< "Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
-		<< "Cutting method parameter - nTotal: " << opt.cutp.nTotal << "\n"
-		<< "Cutting method parameter - nStep: " << opt.cutp.nStep << "\n"
+		<< "  Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
+		<< "  Cutting method parameter - nTotal: " << opt.cutp.nTotal << "\n"
+		<< "  Cutting method parameter - nStep: " << opt.cutp.nStep << "\n"
 		<< endl;
 	
 	cout << "Loading input data:" << endl;

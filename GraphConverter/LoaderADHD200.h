@@ -21,7 +21,7 @@ public:
 	virtual std::vector<SubjectInfo> loadSubjectsFromDescFile(
 		const std::string& fn, const std::string& qcMethod, const int nSubject = -1);
 
-	virtual std::vector<SubjectInfo> pruneSubjectsViaScanFile(std::vector<SubjectInfo>& vldList, const std::string& root);
+	virtual std::vector<SubjectInfo> pruneAndAddScanViaScanFile(std::vector<SubjectInfo>& vldList, const std::string& root);
 
 	virtual std::string getFilePath(const SubjectInfo& sub);
 
