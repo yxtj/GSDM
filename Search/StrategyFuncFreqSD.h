@@ -48,8 +48,12 @@ class StrategyFuncFreqSD
 		}
 	};
 
-	// parameters for distribution
-	int numMotifExplored;
+	// statistics
+	mutable int stNumMotifExplored;
+	mutable int stNumMotifGenerated;
+	mutable int stNumGraphChecked;
+	mutable int stNumFreqPos;
+	mutable int stNumFreqNeg;
 
 	using objFun_t = double(StrategyFuncFreqSD::*)(double, double);
 	//objFun_t objFun;

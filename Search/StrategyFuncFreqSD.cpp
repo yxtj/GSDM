@@ -84,7 +84,11 @@ std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt,
 	nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
 	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
 	nNode = gPos[0][0].nNode;
-	numMotifExplored = 0;
+	stNumMotifExplored = 0;
+	stNumMotifGenerated = 0;
+	stNumGraphChecked = 0;
+	stNumFreqPos = 0;
+	stNumFreqNeg = 0;
 
 	if(flagUseSD) {
 		cout << "Generating subject signatures..." << endl;
@@ -109,8 +113,10 @@ std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt,
 	}
 	auto ts = timer.elapseS();
 	MPI_Barrier(MPI_COMM_WORLD);
-	cout << "  Rank " << net.getRank() << " has counted " << numMotifExplored << " motifs,"
-		<< " within "<< ts << " seconds" << endl;
+	cout << "  Rank " << net.getRank() << " finished in " << ts << " seconds\n"
+		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated
+		<< "; graph counted: " << stNumGraphChecked
+		<< "; frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
 	return res;
 }
 
@@ -216,6 +222,7 @@ bool StrategyFuncFreqSD::testMotif(const Motif & m, const std::vector<Graph>& su
 	int cnt = 0;
 	for(auto&g : sub) {
 		if(g.testMotif(m)) {
+			++stNumGraphChecked;
 			if(++cnt >= th)
 				break;
 		}
@@ -297,7 +304,7 @@ void StrategyFuncFreqSD::_enum1(const unsigned p, Motif & curr, slist& supPos, s
 			//if(curr.getnEdge() >= smin && supPos.size() >= nMinSup && curr.connected()) {
 			double s = objFun(static_cast<double>(supPos.size()) / pgp->size(),
 				static_cast<double>(supNeg.size()) / pgn->size());
-			++numMotifExplored;
+			++stNumMotifExplored;
 			res.update(curr, s);
 		}
 		return;
@@ -376,7 +383,7 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 	for(const auto& mb : last) {
 		// work on a motif
 		MotifSign ms(nNode);
-		++numMotifExplored;
+		++stNumMotifExplored;
 		// TODO: optimize with parent selection and marked SD checking
 		int cntPos;
 		if(flagUseSD) {
@@ -397,6 +404,7 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 		} else {
 			cntPos = countMotif(mb.toMotif(), *pgp);
 		}
+		++stNumFreqPos;
 		double freqPos = static_cast<double>(cntPos) / pgp->size();
 		double scoreUB = freqPos;
 		// freqPos is the upperbound of differential & ratio based objective function
@@ -408,6 +416,7 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 				cntNeg = countMotifSP(mb, ms, *pgn, sigNeg);
 			else
 				cntNeg = countMotif(mb.toMotif(), *pgn);
+			++stNumFreqNeg;
 			double freqNeg = static_cast<double>(cntNeg) / pgn->size();
 			double score = objFun(freqPos, freqNeg);
 			holder.update(mb.toMotif(), score);
@@ -418,6 +427,7 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 				MotifBuilder t(mb);
 				t.addEdge(e.s, e.d);
 				newLayer.push_back(move(t));
+				++stNumMotifGenerated;
 			}
 		}
 	}
