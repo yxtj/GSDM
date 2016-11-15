@@ -130,6 +130,8 @@ std::vector<SubjectInfo> LoaderADHD200::pruneSubjectsViaScanFile(
 	regex reg("^" + filePrefix + "(.+?)_session_\\d+?_rest_(\\d+)_.+?_TCs\\.1D$");
 	for(SubjectInfo& s : vldList) {
 		path base(root + "/" + s.id);
+		if(!exists(base))
+			continue;
 		for(auto it = directory_iterator(base); it != directory_iterator(); ++it) {
 			smatch m;
 			string fn = it->path().filename().string();

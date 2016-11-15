@@ -12,6 +12,8 @@ std::vector<SubjectInfo> LoaderBaseCPAC::pruneSubjectsViaScanFile(
 	regex reg("^session_\\d+?_rest_(\\d+)\\.1D$");
 	for(SubjectInfo& s : vldList) {
 		path base(root + "/" + s.id);
+		if(!exists(base))
+			continue;
 		for(auto it = directory_iterator(base); it != directory_iterator(); ++it) {
 			smatch m;
 			string fn = it->path().filename().string();
