@@ -11,7 +11,7 @@ Option::Option()
 	using boost::program_options::value;
 	desc.add_options()
 		("help", "Print help messages")
-		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE).")
+		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE, ABIDE2).")
 		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr). Used for failure recovery")
 		("nSubject,n", value<int>(&nSubject)->default_value(-1), "# of items(subject/corr) to load from dataset "
 			"(non-positive means load all)")
@@ -30,7 +30,7 @@ Option::Option()
 			"The methods and parameters for determining connectivity,\n"
 			"supports: gt <th>, ge <th>, lt <th>, le <th>, between <thLow> <thUp>, outside <thLow> <thUp>\n"
 			"between uses [thLow,thUp) range. outside is the oppsite to between.\n"
-			"FOR NEGATIVE NUMBER, USE n0.8 instead of -0.8, because \"-x\" is regarded as an option")
+			"USE 'n' INSTEAD OF '-' FOR NEGATIVE NUMBER. i.e. n0.8 instead of -0.8, because \"-x\" is regarded as an option")
 		("com-graph", value<int>(&comGraphLevel)->default_value(0), "The compression level for outputting graphs.\n"
 			"The larger the number is, the smaller the output size is. 0 -> normal text, 1 -> binary, 2~n -> compressed whith different level.")
 		;
