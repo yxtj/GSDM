@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
 
 	ios::sync_with_stdio(false);
 	cout << "Time Course Path: " << opt.tcPath << "\n"
+		<< "  phenotypic file path: " << opt.phenoPath << "\n"
 		<< "Correlation Path: " << opt.corrPath << "\n"
 		<< "Graph Path: " << opt.graphPath << "\n"
 		<< "  Input path: " << opt.getInputFolder().second << "\n"
@@ -59,6 +60,7 @@ int main(int argc, char* argv[])
 		<< "Dataset name: " << opt.dataset << "\n"
 		<< "  Number of skipped itmes " << opt.nSkip << "\n"
 		<< "  Number of items " << opt.nSubject << "\n"
+		<< "Quality Control method: " << opt.tcQualityControl << "\n"
 		<< "Correlation method: " << opt.corrMethod << "\n"
 		<< "Correlation threshold: " << opt.graphParam<< "\n"
 		<< endl;
