@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LoaderADHD200.h"
+#include "CheckerFactory.h"
 
 using namespace std;
 
@@ -100,12 +101,14 @@ std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
 		pPOS_QC = &POS_QC_2;
 	}
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
+	QCChecker* pchecker = CheckerFactory::generate(qcMethod, pPOS_QC->size());
 	std::vector<SubjectInfo> res;
 	while(getline(fin, line)) {
 		bool valid;
 		string sid; 
 		int type;
-		tie(valid, sid, type) = parsePhenotypeLine(line, pPOS_QC);
+		tie(valid, sid, type) = parsePhenotypeLine(line, pPOS_QC, pchecker);
+		pchecker->reset();
 		if(valid) {
 			sid = fixSubjectID(sid);
 			res.push_back(SubjectInfo{ move(sid), type });
@@ -113,6 +116,7 @@ std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
 		if(res.size() >= limit)
 			break;
 	}
+	delete pchecker;
 	fin.close();
 	return res;
 }
@@ -190,7 +194,7 @@ tc_t LoaderADHD200::loadTimeCourse(const std::string & fn)
 
 // return <QC passed, scan id, diagnosis result>
 std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(
-	const std::string & line, const vector<int>* pPOS_QC)
+	const std::string & line, const vector<int>* pPOS_QC, QCChecker* pchecker)
 {
 
 	bool qc=true;
@@ -207,12 +211,13 @@ std::tuple<bool, std::string, int> LoaderADHD200::parsePhenotypeLine(
 			} else if(find(pPOS_QC->begin(), pPOS_QC->end(), count) != pPOS_QC->end()) {
 				//string qc_str = line.substr(plast, p - plast);
 				// acceptable case: 1, "N/A", N/A, <empty>
-				qc = qc && line.substr(plast, p - plast) != "0";
+				pchecker->input(line.substr(plast, p - plast) != "0");
 			}
 			plast = p + 1;
 			p = line.find(',', plast);
 			++count;
 		}
+		qc = pchecker->result();
 	} catch(...) {
 		cerr << "Error when parsing line:\n" << line << endl;
 		qc = false;

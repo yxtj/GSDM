@@ -3,8 +3,15 @@
 
 
 CheckerAny::CheckerAny(const int n)
-	:total(n), curr(0), res(false)
+	:total(n)
 {
+	reset();
+}
+
+void CheckerAny::reset()
+{
+	curr = 0;
+	res = false;
 }
 
 bool CheckerAny::needMore() const

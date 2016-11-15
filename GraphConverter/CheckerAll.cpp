@@ -3,8 +3,15 @@
 
 
 CheckerAll::CheckerAll(const int n)
-	: total(n), curr(0), res(true)
+	: total(n)
 {
+	reset();
+}
+
+void CheckerAll::reset()
+{
+	curr = 0;
+	res = true;
 }
 
 bool CheckerAll::needMore() const

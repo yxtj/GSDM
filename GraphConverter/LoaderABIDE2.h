@@ -1,5 +1,7 @@
 #pragma once
 #include "LoaderBaseCPAC.h"
+
+class QCChecker;
 class LoaderABIDE2 :
 	public LoaderBaseCPAC
 {
@@ -13,6 +15,6 @@ public:
 private:
 	bool checkHeader(const std::string &line);
 	std::tuple<bool, std::string, int> parsePhenotypeLine(
-		const std::string& line, const std::string& qcMethod);
+		const std::string& line, QCChecker* pchecker);
 };
 

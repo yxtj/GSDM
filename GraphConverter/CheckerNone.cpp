@@ -6,6 +6,10 @@ CheckerNone::CheckerNone(const int n)
 {
 }
 
+void CheckerNone::reset()
+{
+}
+
 bool CheckerNone::needMore() const
 {
 	return false;

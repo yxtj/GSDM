@@ -180,7 +180,6 @@
     <ClCompile Include="LoaderABIDE.cpp" />
     <ClCompile Include="LoaderABIDE2.cpp" />
     <ClCompile Include="LoaderBaseCPAC.cpp" />
-    <ClCompile Include="QCChecker.cpp" />
     <ClCompile Include="TCCutterParam.cpp" />
     <ClCompile Include="IOfunctions.cpp" />
     <ClCompile Include="TCCutter.cpp" />

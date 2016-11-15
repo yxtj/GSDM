@@ -8,6 +8,8 @@ class CheckerAll :
 	bool res;
 public:
 	CheckerAll(const int n);
+	virtual void reset();
+
 	virtual bool needMore() const;
 	virtual bool result() const;
 

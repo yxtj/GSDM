@@ -6,7 +6,9 @@ class QCChecker
 {
 public:
 	QCChecker() = default;
-	QCChecker(const int n);
+	
+	virtual void reset() = 0;
+
 	virtual bool needMore() const = 0;
 	virtual bool result() const = 0;
 

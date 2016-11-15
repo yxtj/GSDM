@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LoaderABIDE.h"
+#include "CheckerFactory.h"
 
 using namespace std;
 
@@ -61,13 +62,15 @@ std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 	}
 	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
 
+	QCChecker * pchecker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	vector<SubjectInfo> res;
 	while(getline(fin, line, '\r'))
 	{
 		bool valid;
 		string sid;
 		int type;
-		tie(valid, sid, type) = parsePhenotypeLine(line);
+		tie(valid, sid, type) = parsePhenotypeLine(line, pchecker);
+		pchecker->reset();
 
 		if(valid) {
 			res.push_back(SubjectInfo{ sid,type });
@@ -128,9 +131,9 @@ tc_t LoaderABIDE::loadTimeCourse(const std::string &fn)
 }
 
 
-std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(const std::string &line)
+std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(
+	const std::string &line, QCChecker* pchecker)
 {
-	bool reliable = false;
 	std::string id;
 	int dx;// Autism==1, Control==2
 	static const int maxPos= max(max(POS_ID, POS_DX),
@@ -140,17 +143,18 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(const std::st
 	size_t p = line.find(',');
 
 	int count = 0;
-	while(p != string::npos && count <= maxPos)
+	while(p != string::npos && count <= maxPos && pchecker->needMore())
 	{
 		if(count == POS_ID) {
 			id = line.substr(plast, p - plast);
 		} else if(count == POS_DX) {
 			dx = stoi(line.substr(plast, p - plast));
 		} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
-			string x = line.substr(plast, p - plast);
-			if(!x.empty()) {
-				int entry = stoi(line.substr(plast, p - plast));
-				reliable = (entry == 1);
+			if(p != plast) {
+				string x = line.substr(plast, p - plast);
+				pchecker->input(stoi(x) > 0);
+			} else {
+				pchecker->input();
 			}
 		}
 
@@ -159,5 +163,5 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(const std::st
 		++count;
 	}
 //	id = padID2Head(id, ID_LENGTH_FILE, PADDING);
-	return make_tuple(reliable, move(id), dx);
+	return make_tuple(pchecker->result(), move(id), dx);
 }

@@ -2,6 +2,7 @@
 #include "TCLoader.h"
 #include <tuple>
 
+class QCChecker;
 class LoaderADHD200
 	: public TCLoader
 {
@@ -32,6 +33,7 @@ private:
 	// the folder and file names have 0 in high digits. total # of digits is 7
 	std::string fixSubjectID(std::string id) const;
 	// return <QC passed, scan id, diagnosis result>
-	std::tuple<bool, std::string, int> parsePhenotypeLine(const std::string& line, const std::vector<int>* pPOS_QC);
+	std::tuple<bool, std::string, int> parsePhenotypeLine(
+		const std::string& line, const std::vector<int>* pPOS_QC, QCChecker* pchecker);
 };
 

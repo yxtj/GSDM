@@ -1,8 +1,8 @@
-
 #pragma once
 #include "TCLoader.h"
 #include <tuple>
 
+class QCChecker;
 class LoaderABIDE
 	:public TCLoader
 
@@ -26,7 +26,8 @@ public:
 	virtual tc_t loadTimeCourse(const std::string& fn);
 private:
 	bool checkHeader(const std::string& line);
-	std::tuple<bool, std::string, int> parsePhenotypeLine(const std::string& line);
+	std::tuple<bool, std::string, int> parsePhenotypeLine(
+		const std::string& line, QCChecker* pchecker);
 };
 
 
