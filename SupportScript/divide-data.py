@@ -106,12 +106,12 @@ def main(inDir, method, pattern, portions, outDirs):
 
 
 if __name__ == '__main__':
-    if(len(sys.argv)<7):
+    if(len(sys.argv)<6):
         print('usage: <input folder> <method> <output folder 1> <portion 1> <output folder 2> <portion 2> ... [-pattern:<cared name pattern>]')
         print('  <method>: method of selecting the files. Supports:')
         print('    ['+__MTHD_RANODM+']: randomly assign the list. can customize the seed with "random-<seed>", 123456 by default')
         print('    ['+__MTHD_CUT+']: cut the sorted list sequentially')
-        print('  [cared name pattern]: customize the filename pattern using EMACScript grammer (mind to use escape in shell for "\\"). The part in "()" is the key which is used for dividing. \\d+-(\\d+)-\\d+\\.txt by default')
+        print('  [cared name pattern]: customize the filename pattern using EMACScript grammer (mind to use escape in shell for "\\"). The part in "()" is the key which is used for dividing. "\\d+-(\\d+)-\\d+\\.txt" by default')
         sys.exit()
     inDir=sys.argv[1]
     method=sys.argv[2]
