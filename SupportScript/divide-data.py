@@ -59,21 +59,21 @@ def parseMethod(method, nParts):
                 raise ValueError('number of outputs does not match cutting points')
     return (name,param)
 
-def getIndexesForEachPart(mName, mParam, portions, n):
-    l=list(range(n))
+def getIndexesForEachPart(mName, mParam, portions, nFiles):
+    l=list(range(nFiles))
     if mName==__MTHD_RANODM:
         random.seed(mParam)
-        for i in range(n):
-            a=random.randint(0,n-1)
-            b=random.randint(0,n-1)
+        for i in range(nFiles):
+            a=random.randint(0,nFiles-1)
+            b=random.randint(0,nFiles-1)
             (l[a], l[b])=(l[b], l[a])
     elif mName==__MTHD_CUT:
         # nothing needed to be done here
         pass
-    res=[ [] for i in range(n) ]
+    res=[ [] for i in range(len(portions)) ]
     last=0
     for i in range(len(portions)):
-        pos=math.ceil(n* sum(portions[0:i+1]))
+        pos=int(math.ceil(nFiles * sum(portions[0:i+1])))
         res[i]=l[last:pos]
         last=pos
     return res
@@ -82,8 +82,8 @@ def main(inDir, method, pattern, portions, outDirs):
     (mName, mParam)=parseMethod(method,len(outDirs))
     print('Getting file lists...')
     flist=loadFileList(inDir, pattern)
-    print('  # of valid groups:', len(flist))
-    print('  # of valid files in all:', sum(len(l) for l in flist))
+    print('  # of valid groups: '+ str(len(flist)))
+    print('  # of valid files in all: '+ str(sum(len(l) for l in flist)))
 
     print('Generating output mapping...')
     idxs=getIndexesForEachPart(mName, mParam, portions, len(flist))
