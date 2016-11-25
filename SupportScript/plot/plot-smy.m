@@ -3,8 +3,11 @@ GRAPHS={'graph-0.5';'graph-0.8'};
 FILENAMES={'tbl-func.tsv'};
 %FILENAMES={'tbl-func.tsv';'tbl-func-tr.tsv'};
 
-dataPrefix='../../data_adhd/summary/';
-figPrefix='../../data_adhd/figure/';
+DATASETS={'adhd';'abide';'abide2'};
+dataset=cell2mat(DATASETS(1));
+
+dataPrefix=['../../data_' dataset '/summary/]';
+figPrefix=['../../data_' dataset '/figure/'];
 
 fontSize=20;
 printSize=[0 0 4 3]*1.5;
@@ -28,10 +31,11 @@ end;end;end;
 for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS); for ifn=1:numel(FILENAMES);
     fn=[WINDOWS{iw} '/' GRAPHS{ig} '/' FILENAMES{ifn}]
 	data=smyLoader([dataPrefix fn]);
+    figure
     keys=drawRawGroupOne(data.theta,'M',data.minsup,'A',data.alpha,data.recall);
     xlim([min(data.theta) max(data.theta)]); ylim([0 1]);
     set(gca,'FontSize', fontSize)
-    xlabel('theta'); ylabel('accuracy')
+    xlabel('theta'); ylabel('recall')
     addLegendOutside(keys,'NorthEastOutside');
     if ~strcmp(type,'none')
         set(gcf,'PaperUnits','inches','PaperPosition',printSize);
@@ -111,6 +115,6 @@ saveas(gcf,[figPrefix strrep(cell2mat(labels(iw,ig)),'0.','') '_ms_nmotif.eps'],
 
 keys=drawNMotif(data.theta,'M',data.minsup,data.nmotif,1);
 xlabel('theta');
-%...
+%... same to above
 saveas(gcf,[figPrefix strrep(cell2mat(labels(iw,ig)),'0.','') '_th_nmotif.eps'],'epsc')
 
