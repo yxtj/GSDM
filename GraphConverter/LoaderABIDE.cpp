@@ -51,7 +51,7 @@ bool LoaderABIDE::checkHeader(const std::string &line) {
 }
 
 std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
-	const std::string& fn, const std::string& qcMethod, const int nSubject)
+	const std::string& fn, const std::string& qcMethod, const int nSubject, const int nSkip)
 {
 	InitPOS_QC();
 
@@ -78,12 +78,15 @@ std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 		cerr << "Header line of file '" << fn << "' is not correct!" << endl;
 		throw invalid_argument("file header does not match that of the specific dataset");
 	}
-	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
+	int limit = nSubject > 0 ? nSubject + nSkip : numeric_limits<size_t>::max();
 
 	QCChecker * pchecker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	vector<SubjectInfo> res;
+	int cnt = 0;
 	while(getline(fin, line))
 	{
+		if(++cnt <= nSkip)
+			continue;
 		bool valid;
 		string sid;
 		int type;
@@ -94,9 +97,8 @@ std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 			res.push_back(SubjectInfo{ sid,type });
 		}
 
-		if(res.size() >= limit) {
+		if(cnt > limit)
 			break;
-		}
 	}
 	fin.close();
 	return res;

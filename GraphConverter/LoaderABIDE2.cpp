@@ -49,7 +49,7 @@ const std::vector<int> LoaderABIDE2::POS_QC = { 21, 23 }; // ADI_R_RSRCH_RELIABL
 
 
 std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(
-	const std::string& fn, const std::string& qcMethod, const int nSubject)
+	const std::string& fn, const std::string& qcMethod, const int nSubject, const int nSkip)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -76,12 +76,15 @@ std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(
 		throw invalid_argument("file header does not match that of the specific dataset");
 	}
 
-	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
+	int limit = nSubject > 0 ? nSubject + nSkip : numeric_limits<size_t>::max();
 	
 	QCChecker* pchecker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	vector<SubjectInfo> res;
+	int cnt = 0;
 	while(getline(fin, line))
 	{
+		if(++cnt <= nSkip)
+			continue;
 		bool valid;
 		string sid;
 		int type;
@@ -92,9 +95,8 @@ std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(
 			res.push_back(SubjectInfo{ sid,type });
 		}
 
-		if(res.size() >= limit) {
+		if(cnt > limit)
 			break;
-		}
 	}
 	delete pchecker;
 	fin.close();

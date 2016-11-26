@@ -8,8 +8,8 @@ class LoaderBaseCPAC :
 {
 public:
 	// virtual. wait until the detailed loader
-	virtual std::vector<SubjectInfo> loadSubjectsFromDescFile(
-		const std::string& fn, const std::string& qcMethod, const int nSubject = -1) = 0;
+	virtual std::vector<SubjectInfo> loadSubjectsFromDescFile(const std::string& fn,
+		const std::string& qcMethod, const int nSubject = -1, const int nSkip = 0) = 0;
 
 	virtual std::vector<SubjectInfo> pruneAndAddScanViaScanFile(
 		std::vector<SubjectInfo>& vldList, const std::string& root);

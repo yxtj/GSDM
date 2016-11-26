@@ -12,25 +12,25 @@ Option::Option()
 	desc.add_options()
 		("help", "Print help messages")
 		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE, ABIDE2).")
-		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr). Used for failure recovery")
+		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr).")
 		("nSubject,n", value<int>(&nSubject)->default_value(-1), "# of items(subject/corr) to load from dataset "
-			"(non-positive means load all)")
+			"(non-positive means load all).")
 		("tcPath", value<string>(&tcPath), "The folder for time course data (input)")
 		("phenoPath", value<string>(&phenoPath), "The folder for the phenotyic file (input). If it is empty, tcPath will be used.")
 		("corrPath", value<string>(&corrPath), "The folder for correlation data "
-			"(if --tcPath is not given, this is an input folder. otherwise this is used for output)")
-		("graphPath", value<string>(&graphPath), "The folder for graph data (output)")
+			"(if --tcPath is not given, this is an input folder. otherwise this is used for output).")
+		("graphPath", value<string>(&graphPath), "The folder for graph data (output).")
 		("tc-qc", value<string>(&tcQualityControl)->default_value(string("all")), 
 			"How to use the Quality Control fields to filter the subjects,\n"
-			"supports: none (not use), any (fulfill any QC), all (fulfill all QC)")
+			"supports: none (not use), any (fulfill any QC), all (fulfill all QC).")
 		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")),
 			"The method for calculating correlation between ROI,\n"
-			"supports: pearson, spearman, mutialinfo")
+			"supports: pearson, spearman, mutialinfo.")
 		("graph-method", value<vector<string>>(&graphParam)->multitoken()->default_value(vector<string>{"ge", "0.8"}, "ge 0.8"),
 			"The methods and parameters for determining connectivity,\n"
 			"supports: gt <th>, ge <th>, lt <th>, le <th>, between <thLow> <thUp>, outside <thLow> <thUp>\n"
 			"between uses [thLow,thUp) range. outside is the oppsite to between.\n"
-			"USE 'n' INSTEAD OF '-' FOR NEGATIVE NUMBER. i.e. n0.8 instead of -0.8, because \"-x\" is regarded as an option")
+			"USE 'n' INSTEAD OF '-' FOR NEGATIVE NUMBER. i.e. n0.8 instead of -0.8, because \"-x\" is regarded as an option.")
 		("com-graph", value<int>(&comGraphLevel)->default_value(0), "The compression level for outputting graphs.\n"
 			"The larger the number is, the smaller the output size is. 0 -> normal text, 1 -> binary, 2~n -> compressed whith different level.")
 		;

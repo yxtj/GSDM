@@ -65,7 +65,7 @@ std::string LoaderADHD200::fixSubjectID(std::string id) const
 }
 
 std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
-	const std::string& fn, const std::string& qcMethod, const int nSubject)
+	const std::string& fn, const std::string& qcMethod, const int nSubject, const int nSkip)
 {
 	string filename(fn);
 	// if fn is a folder name, translate it into filename with ADHD200's manner
@@ -100,10 +100,14 @@ std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
 	} else if(headerType == 2) {
 		pPOS_QC = &POS_QC_2;
 	}
-	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
+
+	int limit = nSubject > 0 ? nSubject + nSkip : numeric_limits<size_t>::max();
 	QCChecker* pchecker = CheckerFactory::generate(qcMethod, pPOS_QC->size());
 	std::vector<SubjectInfo> res;
+	int cnt = 0;
 	while(getline(fin, line)) {
+		if(++cnt <= nSkip)
+			continue;
 		bool valid;
 		string sid; 
 		int type;
@@ -113,7 +117,7 @@ std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
 			sid = fixSubjectID(sid);
 			res.push_back(SubjectInfo{ move(sid), type });
 		}
-		if(res.size() >= limit)
+		if(cnt > limit)
 			break;
 	}
 	delete pchecker;

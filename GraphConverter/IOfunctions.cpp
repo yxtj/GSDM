@@ -23,18 +23,14 @@ std::multimap<SubjectInfo, tc_t> loadInputTC(
 	vector<SubjectInfo> slist;
 	{
 		// TODO: put the nSkip into loadSubjectsFromDescFile: nSubject is the # scanned, not guaranteed output #
-		vector<SubjectInfo> validList = loader->loadSubjectsFromDescFile(phenoPath, qcMethod, nSubject);
+		vector<SubjectInfo> validList = loader->loadSubjectsFromDescFile(phenoPath, qcMethod, nSubject, nSkip);
 		slist = loader->pruneAndAddScanViaScanFile(validList, tcPath);
 	}
 // 	if(nSubject > 0 && slist.size() > static_cast<size_t>(nSubject)) {
 // 		auto it = slist.begin() + nSubject;
 // 		slist.erase(it, slist.end());
 // 	}
-	int count = 0;
 	for(SubjectInfo& s : slist) {
-		// skip the first nSkip subjects:
-		if(++count <= nSkip)
-			continue;
 		string fn = loader->getFilePath(s);
 		tc_t tc = loader->loadTimeCourse(tcPath + fn);
 		res.emplace(move(s), move(tc));
