@@ -4,23 +4,38 @@
 
 using namespace std;
 
-const string LoaderABIDE::filePrefix = "ROISignals_FunimgARCWF/ROISignals_00";
 
-const int LoaderABIDE::POS_ID = 1;
-const int LoaderABIDE::POS_DX = 2;
+const int LoaderABIDE::POS_ID = 6;
+const int LoaderABIDE::POS_DX = 7;
+
+//const std::string LoaderABIDE::filePrefix = "/Outputs/cpac/nofilt_global/";
 
 const std::vector<std::string> LoaderABIDE::header = {
-	"SITE_ID","SUB_ID","DX_GROUP","DSM_IV_TR","AGE_AT_SCAN","SEX","HANDEDNESS_CATEGORY","HANDEDNESS_SCORES","FIQ","VIQ",
-	"PIQ","FIQ_TEST_TYPE","VIQ_TEST_TYPE","PIQ_TEST_TYPE","ADI_R_SOCIAL_TOTAL_A","ADI_R_VERBAL_TOTAL_BV","ADI_RRB_TOTAL_C","ADI_R_ONSET_TOTAL_D","ADI_R_RSRCH_RELIABLE","ADOS_MODULE",
-	"ADOS_TOTAL","ADOS_COMM","ADOS_SOCIAL","ADOS_STEREO_BEHAV","ADOS_RSRCH_RELIABLE","ADOS_GOTHAM_SOCAFFECT","ADOS_GOTHAM_RRB","ADOS_GOTHAM_TOTAL","ADOS_GOTHAM_SEVERITY","SRS_VERSION",
-	"SRS_RAW_TOTAL","SRS_AWARENESS","SRS_COGNITION","SRS_COMMUNICATION","SRS_MOTIVATION","SRS_MANNERISMS","SCQ_TOTAL","AQ_TOTAL","COMORBIDITY","CURRENT_MED_STATUS",
-	"MEDICATION_NAME","OFF_STIMULANTS_AT_SCAN","VINELAND_RECEPTIVE_V_SCALED","VINELAND_EXPRESSIVE_V_SCALED","VINELAND_WRITTEN_V_SCALED","VINELAND_COMMUNICATION_STANDARD","VINELAND_PERSONAL_V_SCALED","VINELAND_DOMESTIC_V_SCALED","VINELAND_COMMUNITY_V_SCALED","VINELAND_DAILYLVNG_STANDARD",
-	"VINELAND_INTERPERSONAL_V_SCALED","VINELAND_PLAY_V_SCALED","VINELAND_COPING_V_SCALED","VINELAND_SOCIAL_STANDARD","VINELAND_SUM_SCORES","VINELAND_ABC_STANDARD","VINELAND_INFORMANT","WISC_IV_VCI","WISC_IV_PRI","WISC_IV_WMI",
-	"WISC_IV_PSI","WISC_IV_SIM_SCALED","WISC_IV_VOCAB_SCALED","WISC_IV_INFO_SCALED","WISC_IV_BLK_DSN_SCALED","WISC_IV_PIC_CON_SCALED","WISC_IV_MATRIX_SCALED","WISC_IV_DIGIT_SPAN_SCALED","WISC_IV_LET_NUM_SCALED","WISC_IV_CODING_SCALED",
-	"WISC_IV_SYM_SCALED","EYE_STATUS_AT_SCAN","AGE_AT_MPRAGE","BMI"
+	"","Unnamed: 0","SUB_ID","X","subject","SITE_ID","FILE_ID","DX_GROUP","DSM_IV_TR","AGE_AT_SCAN",
+	"SEX","HANDEDNESS_CATEGORY","HANDEDNESS_SCORES","FIQ","VIQ","PIQ","FIQ_TEST_TYPE","VIQ_TEST_TYPE","PIQ_TEST_TYPE","ADI_R_SOCIAL_TOTAL_A",
+	"ADI_R_VERBAL_TOTAL_BV","ADI_RRB_TOTAL_C","ADI_R_ONSET_TOTAL_D","ADI_R_RSRCH_RELIABLE","ADOS_MODULE","ADOS_TOTAL","ADOS_COMM","ADOS_SOCIAL","ADOS_STEREO_BEHAV","ADOS_RSRCH_RELIABLE",
+	"ADOS_GOTHAM_SOCAFFECT","ADOS_GOTHAM_RRB","ADOS_GOTHAM_TOTAL","ADOS_GOTHAM_SEVERITY","SRS_VERSION","SRS_RAW_TOTAL","SRS_AWARENESS","SRS_COGNITION","SRS_COMMUNICATION","SRS_MOTIVATION",
+	"SRS_MANNERISMS","SCQ_TOTAL","AQ_TOTAL","COMORBIDITY","CURRENT_MED_STATUS","MEDICATION_NAME","OFF_STIMULANTS_AT_SCAN","VINELAND_RECEPTIVE_V_SCALED","VINELAND_EXPRESSIVE_V_SCALED","VINELAND_WRITTEN_V_SCALED",
+	"VINELAND_COMMUNICATION_STANDARD","VINELAND_PERSONAL_V_SCALED","VINELAND_DOMESTIC_V_SCALED","VINELAND_COMMUNITY_V_SCALED","VINELAND_DAILYLVNG_STANDARD","VINELAND_INTERPERSONAL_V_SCALED","VINELAND_PLAY_V_SCALED","VINELAND_COPING_V_SCALED","VINELAND_SOCIAL_STANDARD","VINELAND_SUM_SCORES",
+	"VINELAND_ABC_STANDARD","VINELAND_INFORMANT","WISC_IV_VCI","WISC_IV_PRI","WISC_IV_WMI","WISC_IV_PSI","WISC_IV_SIM_SCALED","WISC_IV_VOCAB_SCALED","WISC_IV_INFO_SCALED","WISC_IV_BLK_DSN_SCALED",
+	"WISC_IV_PIC_CON_SCALED","WISC_IV_MATRIX_SCALED","WISC_IV_DIGIT_SPAN_SCALED","WISC_IV_LET_NUM_SCALED","WISC_IV_CODING_SCALED","WISC_IV_SYM_SCALED","EYE_STATUS_AT_SCAN","AGE_AT_MPRAGE","BMI","anat_cnr",
+	"anat_efc","anat_fber","anat_fwhm","anat_qi1","anat_snr","func_efc","func_fber","func_fwhm","func_dvars","func_outlier",
+	"func_quality","func_mean_fd","func_num_fd","func_perc_fd","func_gsr","qc_rater_1","qc_notes_rater_1","qc_anat_rater_2","qc_anat_notes_rater_2","qc_func_rater_2",
+	"qc_func_notes_rater_2","qc_anat_rater_3","qc_anat_notes_rater_3","qc_func_rater_3","qc_func_notes_rater_3","SUB_IN_SMP"
 };
-const std::vector<int> LoaderABIDE::POS_QC = { 18,24 }; // ADI_R_RSRCH_RELIABLE, ADOS_RSRCH_RELIABLE
 
+bool LoaderABIDE::FLG_QC_SET = false;
+std::vector<int> LoaderABIDE::POS_QC; // qc_rater_1, qc_anat_rater_2, qc_func_rater_2, qc_anat_rater_3
+
+
+void LoaderABIDE::InitPOS_QC()
+{
+	if(!FLG_QC_SET) {
+		POS_QC = FindOffsets(header,
+		{ "qc_rater_1", "qc_anat_rater_2", "qc_func_rater_2", "qc_anat_rater_3" });
+		FLG_QC_SET = true;
+	}
+}
 
 bool LoaderABIDE::checkHeader(const std::string &line) {
 	int count = 0;
@@ -38,24 +53,27 @@ bool LoaderABIDE::checkHeader(const std::string &line) {
 std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 	const std::string& fn, const std::string& qcMethod, const int nSubject)
 {
+	InitPOS_QC();
+
 	string filename(fn);
-	if(filename.find("RfMRIMaps_ABIDE_Phenotypic") == string::npos) {
+	if(filename.find("Phenotypic_V1_0b_preprocessed1") == string::npos) {
 		size_t pos_slash = filename.find_last_of("/\\");
 		if(pos_slash == filename.length() - 1) {
-			filename += "RfMRIMaps_ABIDE_Phenotypic.csv";
+			filename += "Phenotypic_V1_0b_preprocessed1.csv";
 		} else {
-			filename += "/RfMRIMaps_ABIDE_Phenotypic.csv";
+			filename += "/Phenotypic_V1_0b_preprocessed1.csv";
 		}
 	}
 
 	ifstream fin(filename);
 	if(!fin) {
-		cerr << "Cannot open phenotype file with given parameter: " << endl;
-		throw invalid_argument("cannot open valid list with given parameter");
+		cerr << "Cannot open phenotype file with given parameter: " << fn
+			<< (fn == filename ? "" : ", file: " + filename) << endl;
+		throw invalid_argument("cannot create valid list with given phenotype file location");
 	}
 
 	std::string line;
-	getline(fin, line, '\r'); // This phenotype csv uses '\r' for line termination, not '\n'.
+	getline(fin, line);
 	if(!checkHeader(line)) {
 		cerr << "Header line of file '" << fn << "' is not correct!" << endl;
 		throw invalid_argument("file header does not match that of the specific dataset");
@@ -64,7 +82,7 @@ std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 
 	QCChecker * pchecker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	vector<SubjectInfo> res;
-	while(getline(fin, line, '\r'))
+	while(getline(fin, line))
 	{
 		bool valid;
 		string sid;
@@ -84,50 +102,43 @@ std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 	return res;
 }
 
+std::vector<SubjectInfo> LoaderABIDE::pruneAndAddScanViaScanFile(
+	std::vector<SubjectInfo>& vldList, const std::string & root)
+{
+	using namespace boost::filesystem;
+	vector<SubjectInfo> res;
+	res.reserve(vldList.size());
+	path base(root);
+	if(!exists(base)) {
+		cerr << "Warning: cannot access the given directory for the subject files." << endl;
+		return res;
+	}
+
+	regex reg(R"(^(\w+_\d{7})_rois_.+?\.1D$)");
+	set<string> files;
+	for(auto it = directory_iterator(base); it != directory_iterator(); ++it) {
+		smatch m;
+		string fn = it->path().filename().string();
+		if(regex_match(fn, m, reg)) {
+			files.insert(m[1].str());
+		}
+	}
+	for(SubjectInfo& s : vldList) {
+		if(files.find(s.id)==files.end())
+			continue;
+		res.push_back(s);
+		res.back().seqNum = 0;
+	}
+	return res;
+}
+
 string LoaderABIDE::getFilePath(const SubjectInfo &sub) {
-	return filePrefix + sub.id + ".txt";
+	return sub.id + "_rois_aal.1D";
 }
 
 tc_t LoaderABIDE::loadTimeCourse(const std::string &fn)
 {
-	vector<vector<double>> res;
-
-	string filename(fn);
-
-	if(filename.find(".txt") == string::npos) {
-		cerr << "Cannot read from this filetype, please direct to a .txt" << endl;
-		throw invalid_argument("Cannot read from this filetype, please direct to a .txt");
-	}
-	ifstream fin(filename);
-	if(!fin) {
-		return res;
-	}
-	string line;
-	// no header line
-	getline(fin, line);
-	int nNodes = 0;
-	for(size_t plast = 0, p = line.find('\t'); p != string::npos; p = line.find('\t', plast))
-	{
-		++nNodes;
-		plast = p + 1;
-	}
-	do
-	{
-		if(line.empty()) {
-			break;
-		}
-		vector<double> row;
-		row.reserve(nNodes);
-		for(size_t plast = 0, p = line.find('\t'); p != string::npos; p = line.find('\t', plast))
-		{
-			double TCentry = stod(line.substr(plast, p - plast));
-			row.push_back(TCentry);
-			plast = p + 1;
-		}
-		res.push_back(move(row));
-	} while(getline(fin, line));
-
-	return res;
+	return loadTimeCourse1D(fn);
 }
 
 
@@ -136,6 +147,7 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(
 {
 	std::string id;
 	int dx;// Autism==1, Control==2
+	static const int minPos = max(POS_ID, POS_DX);
 	static const int maxPos= max(max(POS_ID, POS_DX),
 		*max_element(POS_QC.begin(), POS_QC.end()));
 
@@ -143,10 +155,13 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(
 	size_t p = line.find(',');
 
 	int count = 0;
-	while(p != string::npos && count <= maxPos && pchecker->needMore())
+	while(p != string::npos && count <= maxPos && (pchecker->needMore() || count <= minPos))
 	{
 		if(count == POS_ID) {
 			id = line.substr(plast, p - plast);
+			if(id == "no_filename") {
+				return make_tuple(false, move(id), dx);
+			}
 		} else if(count == POS_DX) {
 			dx = stoi(line.substr(plast, p - plast));
 		} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
@@ -157,7 +172,6 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(
 				pchecker->input();
 			}
 		}
-
 		plast = p + 1;
 		p = line.find(',', plast);
 		++count;

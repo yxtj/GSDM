@@ -66,7 +66,7 @@ std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(
 	if(!fin) {
 		cerr << "Cannot open phenotype file with given parameter: " << fn
 			<< (fn == filename ? "" : ", file: " + filename) << endl;
-		throw invalid_argument("cannot open valid list with given parameter");
+		throw invalid_argument("cannot create valid list with given phenotype file location");
 	}
 
 	string line;

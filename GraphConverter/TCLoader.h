@@ -25,6 +25,10 @@ public:
 	virtual tc_t loadTimeCourse(const std::string& fn) = 0;
 
 	tc_t loadTimeCourse1D(const std::string& fn);
+
+
+public:
+	static std::vector<int> FindOffsets(const std::vector<std::string>& header, const std::vector<std::string>& items);
 public:
 	std::string padID2Head(std::string& id, const int nDig, const char PAD);
 	std::string padID2Tail(std::string& id, const int nDig, const char PAD);

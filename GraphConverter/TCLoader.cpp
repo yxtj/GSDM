@@ -52,6 +52,33 @@ tc_t TCLoader::loadTimeCourse1D(const std::string & fn)
 	return res;
 }
 
+std::vector<int> TCLoader::FindOffsets(const std::vector<std::string>& header, const std::vector<std::string>& items)
+{
+	int left = items.size(); 
+	std::vector<int> res(left, -1);
+	for(size_t i = 0; i < header.size(); ++i) {
+		const string& h = header[i];
+		for(size_t j = 0; j < items.size(); ++j) {
+			if(h == items[j]) {
+				res[j] = i;
+				--left;
+			}
+		}
+	}
+	if(left != 0) {
+		string t;
+		for(size_t i = 0; i < items.size(); ++i) {
+			if(res[i] == -1) {
+				if(!t.empty())
+					t += ", ";
+				t += items[i];
+			}
+		}
+		throw invalid_argument("Given item(s) cannot be found: " + t);
+	}
+	return res;
+}
+
 std::string TCLoader::padID2Head(std::string & id, const int nDig, const char PAD)
 {
 	if(id.size() == nDig)
