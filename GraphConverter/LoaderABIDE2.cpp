@@ -76,7 +76,7 @@ std::vector<SubjectInfo> LoaderABIDE2::loadSubjectsFromDescFile(
 		throw invalid_argument("file header does not match that of the specific dataset");
 	}
 
-	int limit = nSubject >= 0 ? nSubject + nSkip : numeric_limits<size_t>::max();
+	int limit = nSubject >= 0 ? nSubject + max(0, nSkip) : numeric_limits<int>::max();
 
 	QCChecker* pchecker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	vector<SubjectInfo> res;

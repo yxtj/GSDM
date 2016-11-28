@@ -78,7 +78,7 @@ std::vector<SubjectInfo> LoaderABIDE::loadSubjectsFromDescFile(
 		cerr << "Header line of file '" << fn << "' is not correct!" << endl;
 		throw invalid_argument("file header does not match that of the specific dataset");
 	}
-	int limit = nSubject >= 0 ? nSubject + nSkip : numeric_limits<size_t>::max();
+	int limit = nSubject >= 0 ? nSubject + max(0, nSkip) : numeric_limits<int>::max();
 
 	QCChecker * pchecker = CheckerFactory::generate(qcMethod, POS_QC.size());
 	vector<SubjectInfo> res;
@@ -125,7 +125,7 @@ std::vector<SubjectInfo> LoaderABIDE::pruneAndAddScanViaScanFile(
 			files.insert(m[1].str());
 		}
 	}
-	regex regID(R"(^\w+_(\d{7})$)");
+	regex regID(R"(^[\w_]+_(\d{7})$)");
 	for(SubjectInfo& s : vldList) {
 		auto it = files.find(s.id);
 		if(it==files.end())

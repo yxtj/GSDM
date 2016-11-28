@@ -101,7 +101,7 @@ std::vector<SubjectInfo> LoaderADHD200::loadSubjectsFromDescFile(
 		pPOS_QC = &POS_QC_2;
 	}
 
-	int limit = nSubject >= 0 ? nSubject + nSkip : numeric_limits<size_t>::max();
+	int limit = nSubject >= 0 ? nSubject + max(0, nSkip) : numeric_limits<int>::max();
 
 	QCChecker* pchecker = CheckerFactory::generate(qcMethod, pPOS_QC->size());
 	std::vector<SubjectInfo> res;
