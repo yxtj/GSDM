@@ -1,6 +1,7 @@
 #pragma once
 #include "TCLoader.h"
 #include <tuple>
+#include <map>
 
 class QCChecker;
 class LoaderABIDE
@@ -15,10 +16,14 @@ class LoaderABIDE
 	static bool FLG_QC_SET;
 //	static const int ID_LENGTH_FILE = 7;
 //	static const char PADDING = '0';
+private:
+	std::map<std::string, std::string> nameMapping;
 public:
+	// the subject.id includes both SITE and ID
 	virtual std::vector<SubjectInfo> loadSubjectsFromDescFile(const std::string& fn,
 		const std::string& qcMethod, const int nSubject = -1, const int nSkip = 0);
 
+	// the subject.id ONLY includes ID
 	virtual std::vector<SubjectInfo> pruneAndAddScanViaScanFile(
 		std::vector<SubjectInfo>& vldList, const std::string& root);
 

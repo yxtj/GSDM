@@ -125,17 +125,31 @@ std::vector<SubjectInfo> LoaderABIDE::pruneAndAddScanViaScanFile(
 			files.insert(m[1].str());
 		}
 	}
+	regex regID(R"(^\w+_(\d{7})$)");
 	for(SubjectInfo& s : vldList) {
-		if(files.find(s.id)==files.end())
+		auto it = files.find(s.id);
+		if(it==files.end())
 			continue;
-		res.push_back(s);
-		res.back().seqNum = 0;
+		smatch m;
+		if(!regex_match(*it, m, regID))
+			continue;
+		string id = m[1].str();
+		nameMapping[id] = *it;
+		SubjectInfo si(move(id), s.type, 0);
+		res.push_back(move(si));
 	}
 	return res;
 }
 
 string LoaderABIDE::getFilePath(const SubjectInfo &sub) {
-	return sub.id + "_rois_aal.1D";
+	static regex reg(R"(^\d{7}$)");
+	string fn = sub.id;
+	smatch m;
+	if(regex_match(fn,m,reg)) {
+		fn = nameMapping.at(m[0].str());
+	}
+	// TODO: handle differnt ROI
+	return fn + "_rois_aal.1D";
 }
 
 tc_t LoaderABIDE::loadTimeCourse(const std::string &fn)
