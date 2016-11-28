@@ -75,7 +75,7 @@ std::multimap<SubjectInfo, corr_t> loadInputCorr(const std::string& corrPath, co
 		throw invalid_argument("Given correlation path is invalid");
 	}
 	
-	size_t limit = nSubject > 0 ? nSubject : numeric_limits<size_t>::max();
+	size_t limit = nSubject >= 0 ? nSubject : numeric_limits<size_t>::max();
 	std::multimap<SubjectInfo, corr_t> res;
 	int count = 0;
 	for(auto it = directory_iterator(root); it != directory_iterator(); ++it) {
