@@ -6,8 +6,12 @@ FILENAMES={'tbl-func.tsv'};
 DATASETS={'adhd';'abide';'abide2'};
 dataset=cell2mat(DATASETS(1));
 
-dataPrefix=['../../data_' dataset '/summary/]';
+dataPrefix=['../../data_' dataset '/summary/'];
 figPrefix=['../../data_' dataset '/figure/'];
+
+if ~exist(folder,'dir')
+    mkdir(folder);
+end
 
 fontSize=20;
 printSize=[0 0 4 3]*1.5;
@@ -78,9 +82,11 @@ type='eps';
 %type='png';
 %type='none';
 close all
-drawSmyPRA('minsup','minSup','alpha',1,datas,labels,figPrefix,'smy-alpha-1','ms',type,20);
-drawSmyPRA('theta','theta','alpha',1,datas,labels,figPrefix,'smy-alpha-1','th',type,20);
-drawSmyPRA('alpha','alpha','','all',datas,labels,figPrefix,'smy','al',type,20);
+locations={'NorthWest';'NorthEast';'NorthWest'};
+numCol=[2;2;2];
+drawSmyPRA('minsup','minSup','alpha',1,datas,labels,[figPrefix,'smy-alpha-1_ms'],locations,numCol,type,20);
+drawSmyPRA('theta','theta','alpha',1,datas,labels,[figPrefix,'smy-alpha-1_th'],locations,numCol,type,20);
+drawSmyPRA('alpha','alpha','','all',datas,labels,[figPrefix,'smy_al'],locations,numCol,type,20);
 close all
 
 

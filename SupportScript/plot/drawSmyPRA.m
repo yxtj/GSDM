@@ -1,4 +1,4 @@
-function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, folder, fnPre, fnSufX, type, fontSize, printSize)
+function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, fnPrefix, locations, numCol, type, fontSize, printSize)
 
     switch (type)
         case {'none' 'disp'}
@@ -9,6 +9,22 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, folder, fnPre, fn
             EXTENTION='.eps'; OPTION='epsc';
         otherwise
             error(['Unsupported type: ' type])
+    end
+    
+    if ~exist('locations','var') || length(locations)<3
+        for i=1:3
+            if isempty(locations{i})
+                locations{i}='NorthEast';
+            end
+        end
+    end
+    
+    if ~exist('numCol','var') || ~isnumeric(numCol)
+        numCol=[1;1;1];
+    elseif length(numCol)==1
+        numCol=[numCol;numCol;numCol];
+    elseif length(numCol)==2
+        numCol=[numCol(:);1];
     end
     
     if ~exist('fontSize','var') || isempty(fontSize)
@@ -22,41 +38,53 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, folder, fnPre, fn
     elseif length(printSize)~=4
         error('Wrong print size.')
     end
-    
-    if ~exist(folder,'dir')
-        mkdir(folder);
-    end
-    
-    fnPrefix=[folder '/' fnPre];
-    
+        
     figure(1)
     keys=drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'precision',1);
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('precision');
-    columnlegend(2,keys(:),'Location','NorthWest','boxoff');
+    if length(keys(:))==1
+            legend(keys(:));
+            legend('Location','NorthWest')
+            legend('boxoff')
+    else
+        columnlegend(numCol(1),keys(:),'Location',locations{1},'boxoff');
+    end
     if ~strcmp(OPTION,'none')
         set(gcf,'PaperUnits','inches','PaperPosition',printSize)
-        saveas(gcf,[fnPrefix '_' fnSufX '_prec' EXTENTION],OPTION)
+        saveas(gcf,[fnPrefix '_prec' EXTENTION],OPTION)
     end
 
     figure(2)
     drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'recall',1);
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('recall');
-    columnlegend(2,keys(:),'Location','NorthEast','boxoff');
+    if length(keys(:))==1
+            legend(keys(:));
+            legend('Location','NorthEast')
+            legend('boxoff')
+    else
+        columnlegend(numCol(2),keys(:),'Location',locations{2},'boxoff');
+    end
     if ~strcmp(OPTION,'none')
         set(gcf,'PaperUnits','inches','PaperPosition',printSize)
-        saveas(gcf,[fnPrefix '_' fnSufX '_reca' EXTENTION],OPTION)
+        saveas(gcf,[fnPrefix '_reca' EXTENTION],OPTION)
     end
     
     figure(3)
     drawEBGroupOne(datas,labels,fldX, fldFix, valFix,'accuracy',1);
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('accuracy');
-    columnlegend(2,keys(:),'Location','NorthWest','boxoff');
+    if length(keys(:))==1
+            legend(keys(:));
+            legend('Location','NorthWest')
+            legend('boxoff')
+    else
+        columnlegend(numCol(3),keys(:),'Location',locations{3},'boxoff');
+    end
     if ~strcmp(OPTION,'none')
         set(gcf,'PaperUnits','inches','PaperPosition',printSize)
-        saveas(gcf,[fnPrefix '_' fnSufX '_accu' EXTENTION],OPTION)
+        saveas(gcf,[fnPrefix '_accu' EXTENTION],OPTION)
     end
      
 end
