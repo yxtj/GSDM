@@ -28,14 +28,11 @@ Option::Option()
 			"The type(s) of positive graph")
 		("graphTypeNeg", value<vector<int>>(&graphTypeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
 			"The type(s) of negative graphs")
+		(MotifTester::name.c_str(), value<vector<string>>(&motifTestMethod)->multitoken(), MotifTester::usage.c_str())
 		("outTable", value<bool>(&flgOutTable)->default_value(false), 
 			"Output a binary table of subject-motif containing and a list about the types of all subjects")
 		("outSummary", value<bool>(&flgOutSmy)->default_value(true), 
 			"Output a summary table about the motifs.")
-		//("thrsldMotifSub", value<double>(&thrsldMotifSub)->default_value(0.4, "0.4"), 
-		//	"the portion threshold for regarding a motif as existence on a subject")
-		(MotifTester::name.c_str(), value<vector<string>>(&motifTestMethod)->multitoken(), MotifTester::usage.c_str())
-		//("logFile", value<string>(&logFile), "The file for detailed motif checking log (output)")
 		("outputFile", value<vector<string>>(&outputFile)->multitoken(), "The file(s) for outputting the result (output)\n"
 			"When --motifPath takes multiple inputs, there should be multiple input here and the number should match.")
 		;

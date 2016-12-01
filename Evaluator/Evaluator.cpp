@@ -171,8 +171,9 @@ int main(int argc, char* argv[])
 				continue;
 			}
 			for(auto& line : tbl) {
-				for(bool b : line)
-					fout << b << ",";
+				fout << line[0];
+				for(size_t k = 1; k < line.size(); ++k)
+					fout << "," << line[k];
 				fout << "\n";
 			}
 			fout.close();

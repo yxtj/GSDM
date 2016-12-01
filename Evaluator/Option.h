@@ -22,7 +22,6 @@ public:
 	std::vector<std::string> outputFile;
 
 	std::vector<std::string> motifTestMethod;
-	double thrsldMotifSub; // the portion threshold for regarding a motif as existence on a subject
 
 public:
 	Option();
