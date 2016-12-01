@@ -107,6 +107,9 @@ vector<Motif> loadMotif(const string& folder, const string& fnPattern, int nMoti
 		if(res.size() >= limit)
 			break;
 	}
+	if(res.size() > limit) {
+		res.erase(res.begin() + limit, res.end());
+	}
 	return res;
 }
 

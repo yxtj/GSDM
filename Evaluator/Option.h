@@ -18,6 +18,7 @@ public:
 	std::vector<int> graphTypePos, graphTypeNeg, graphTypes;
 
 	//std::string logFile;
+	bool flgOutTable, flgOutSmy;
 	std::vector<std::string> outputFile;
 
 	std::vector<std::string> motifTestMethod;
