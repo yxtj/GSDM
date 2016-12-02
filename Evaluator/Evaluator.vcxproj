@@ -155,6 +155,10 @@
     <ClInclude Include="Option.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SubjectData.h" />
+    <ClInclude Include="TesterBase.h" />
+    <ClInclude Include="TesterFactory.h" />
+    <ClInclude Include="TesterGroup.h" />
+    <ClInclude Include="TesterIndividual.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConfusionMatrix.cpp" />
@@ -169,6 +173,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SubjectData.cpp" />
+    <ClCompile Include="TesterBase.cpp" />
+    <ClCompile Include="TesterFactory.cpp" />
+    <ClCompile Include="TesterGroup.cpp" />
+    <ClCompile Include="TesterIndividual.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.vcxproj">

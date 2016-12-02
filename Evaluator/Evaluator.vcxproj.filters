@@ -9,9 +9,8 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Tester">
+      <UniqueIdentifier>{5993eb20-a058-484f-827c-d426472bf961}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +31,18 @@
     </ClInclude>
     <ClInclude Include="MotifTester.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TesterBase.h">
+      <Filter>Tester</Filter>
+    </ClInclude>
+    <ClInclude Include="TesterGroup.h">
+      <Filter>Tester</Filter>
+    </ClInclude>
+    <ClInclude Include="TesterIndividual.h">
+      <Filter>Tester</Filter>
+    </ClInclude>
+    <ClInclude Include="TesterFactory.h">
+      <Filter>Tester</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +66,18 @@
     </ClCompile>
     <ClCompile Include="MotifTester.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TesterBase.cpp">
+      <Filter>Tester</Filter>
+    </ClCompile>
+    <ClCompile Include="TesterGroup.cpp">
+      <Filter>Tester</Filter>
+    </ClCompile>
+    <ClCompile Include="TesterIndividual.cpp">
+      <Filter>Tester</Filter>
+    </ClCompile>
+    <ClCompile Include="TesterFactory.cpp">
+      <Filter>Tester</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
