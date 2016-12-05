@@ -8,7 +8,7 @@ Created on Wed Nov  9 16:33:41 2016
 # output format:
 # <roi>/<subject id>/<session name>-<scan name>.1D
 # eg. aal/28716/session_1-rest_1.1D
-# eg. 
+# eg.
 
 import sys,os,re
 import shutil
@@ -31,18 +31,18 @@ def main(inFolder, outFolder, globalOpt):
     pat_decimal='\d(\.\d+)?';
     pat_session=r"(\d+)_([^/]+)";
     pat_ts=r"roi_timeseries"
-    pat_scan=r"_scan_rest_(\d+)_rest"
+    pat_scan=r"_scan_([^\d_]*)_?(\d+)[^\\/]*"
     pat_csf=r"_csf_threshold_"+pat_decimal
     pat_gm=r"_gm_threshold_"+pat_decimal
     pat_wm=r"_wm_threshold_"+pat_decimal
     pat_cor=r"_compcor_ncomponents_\d+_selector_pc1\d\.linear\d\.wm\d\.global"+globalOpt+r"\.motion\d\.quadratic\d\.gm\d\.compcor\d\.csf\d"
     pat_bp=r"_bandpass_freqs_"+pat_decimal+r"\."+pat_decimal
-    
+
     for (k,v) in ROI_LIST.items():
         fn=os.path.join(outFolder,v)
         if not os.path.exists(fn):
             os.makedirs(fn)
-    
+
     cntSsn=0
     cntSsnVld=0
     for session in os.listdir(inFolder):
@@ -67,8 +67,9 @@ def main(inFolder, outFolder, globalOpt):
             if not r2:
                 continue
             pii=pi+scan+'/'
-            scnId=r2.group(1)
-            outFn=ssnName+'_rest_'+scnId+'.1D'
+            scnName=r2.group(1)
+            scnId=r2.group(2)
+            outFn=ssnName+'_'+scnName+'_'+scnId+'.1D'
             lcsf=os.listdir(pii)
             #<session id>/roi_timeseries/_scan*/_csf*
             if len(lcsf)==0 or not re.match(pat_csf,lcsf[0]):
@@ -124,10 +125,12 @@ def main(inFolder, outFolder, globalOpt):
         else:
             cntSsnVld+=1
     print(str(cntSsn)+' session(s) and '+str(cntSsnVld)+' valid session(s)')
-        
 
-#opt/ABIDEII_CPAC_series_holo/pipeline_abide_rerun_II_4CORE__freq-filter/50051_baseline/roi_timeseries/_scan_rest_1_rest/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1$ 
+
+#opt/ABIDEII_CPAC_series_holo/pipeline_abide_rerun_II_4CORE__freq-filter/50051_baseline/roi_timeseries/_scan_rest_1_rest/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1$
 #29433_session_1  28716_session_1  28949_session_1  28983_session_1
+#_scan_rest_1_rest
+#_scan_scan0_S111991  _scan_scan1_S150694  _scan_scan2_S189129
 #_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0  _compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0
 #_mask_aal_mask_pad  _mask_CC200  _mask_CC400  _mask_ez_mask_pad  _mask_ho_mask_pad  _mask_rois_3mm  _mask_tt_mask_pad
 #roi_aal_mask_pad.1D  roi_aal_mask_pad.csv  roi_aal_mask_pad.npz  roi_aal_mask_pad.txt
@@ -154,5 +157,4 @@ if __name__=='__main__':
     if len(sys.argv)>3:
         globalOpt=sys.argv[3]
     main(inFolder, outFolder, globalOpt)
-    
-    
+
