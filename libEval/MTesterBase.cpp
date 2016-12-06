@@ -1,33 +1,33 @@
 #include "stdafx.h"
-#include "TesterBase.h"
+#include "MTesterBase.h"
 
 using namespace std;
 
-void TesterBase::set(const Motif & m)
+void MTesterBase::set(const Motif & m)
 {
-	setMark();
+	throw exception("This MTester does not support set(Motif) funciton.");
 }
 
-void TesterBase::set(const std::vector<Motif>& ms)
+void MTesterBase::set(const std::vector<Motif>& ms)
 {
-	setMark();
+	throw exception("This MTester does not support set(vector<Motif>) funciton.");
 }
 
-bool TesterBase::hasSet()
+bool MTesterBase::hasSet()
 {
 	return _hasSet;
 }
 
-void TesterBase::setMark()
+void MTesterBase::setMark()
 {
 	_hasSet = true;
 }
 
-TesterBase::~TesterBase()
+MTesterBase::~MTesterBase()
 {
 }
 
-void TesterBase::checkName(const std::string & given, const std::string & required)
+void MTesterBase::checkName(const std::string & given, const std::string & required)
 {
 	if(given != required) {
 		throw invalid_argument("The first sub-option (" + given
@@ -35,7 +35,7 @@ void TesterBase::checkName(const std::string & given, const std::string & requir
 	}
 }
 
-void TesterBase::checkNumParam(const int given, const int required)
+void MTesterBase::checkNumParam(const int given, const int required)
 {
 	if(given != required) {
 		throw invalid_argument("Wrong number of sub-options. "
@@ -44,7 +44,7 @@ void TesterBase::checkNumParam(const int given, const int required)
 	}
 }
 
-void TesterBase::checkNumParam(const int given, const int requiredMin, const int requiredMax)
+void MTesterBase::checkNumParam(const int given, const int requiredMin, const int requiredMax)
 {
 	if(given < requiredMin || given > requiredMax) {
 		throw invalid_argument("Wrong number of sub-options. "
