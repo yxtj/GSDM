@@ -77,7 +77,7 @@ directories:
 	@mkdir -p ../$(RELDIR)
 
 stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.cpp -o stdafx.h.gch
+	$(CXX) $(CXXFLAGS) -c stdafx.cpp -o stdafx.h.gch
 	
 clean:
 	rm -rf $(DBGDIR)
