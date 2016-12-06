@@ -10,7 +10,7 @@ EXE = Evaluator
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil
+LIBS = -lcommon -lutil -lEval
 ifeq ($(OS),Windows_NT)
   LIBS += -lboost-program-options -lboost-filesystem -lboost-system
 else
@@ -54,6 +54,7 @@ debug: ../$(DEGEXE)
 $(DBGEXE): $(DBGOBJS)
 	cd ../common; make debug
 	cd ../util; make debug
+	cd ../libEval; make debug
 	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
@@ -73,6 +74,7 @@ release: ../$(RELEXE)
 $(RELEXE): $(RELOBJS)
 	cd ../common; make release
 	cd ../util; make release
+	cd ../libEval; make release
 	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
@@ -91,7 +93,7 @@ directories:
 	@mkdir -p ../$(RELDIR)
 
 stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.cpp -o stdafx.h.gch
+	$(CXX) $(CXXFLAGS) -c stdafx.cpp -o stdafx.h.gch
 	
 clean:
 	rm -rf $(DBGDIR)
