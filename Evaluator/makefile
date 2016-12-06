@@ -10,7 +10,7 @@ EXE = Evaluator
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil -lEval
+LIBS = -lEval -lcommon -lutil
 ifeq ($(OS),Windows_NT)
   LIBS += -lboost-program-options -lboost-filesystem -lboost-system
 else

@@ -5,12 +5,12 @@ using namespace std;
 
 void MTesterBase::set(const Motif & m)
 {
-	throw exception("This MTester does not support set(Motif) funciton.");
+	throw runtime_error("This MTester does not support set(Motif) funciton.");
 }
 
 void MTesterBase::set(const std::vector<Motif>& ms)
 {
-	throw exception("This MTester does not support set(vector<Motif>) funciton.");
+	throw runtime_error("This MTester does not support set(vector<Motif>) funciton.");
 }
 
 bool MTesterBase::hasSet()
