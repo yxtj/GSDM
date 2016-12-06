@@ -25,18 +25,27 @@ def _formatFolderName(folder):
 def _checkFNwithPattern(name,parent,pattern):
     return os.path.exists(parent+'/'+name) and re.match(pattern,name)
 
-def main(inFolder, outFolder, globalOpt):
+def main(inFolder, outFolder, dataset, globalOpt):
     inFolder=_formatFolderName(inFolder)
     outFolder=_formatFolderName(outFolder)
     pat_decimal='\d(\.\d+)?';
-    pat_session=r"(\d+)_([^/]+)";
+    pat_session_ABIDE=r"(\d+)_[^/]+";
+    pat_session_ADNI=r"\d+_S_(\d+)[^\d]*";
     pat_ts=r"roi_timeseries"
-    pat_scan=r"_scan_([^\d_]*)_?(\d+)[^\\/]*"
+    pat_scan_ABIDE=r"_scan_(rest)_(\d+)_.*"
+    pat_scan_ADNI=r"_scan_(scan)(\d+)_.*"
     pat_csf=r"_csf_threshold_"+pat_decimal
     pat_gm=r"_gm_threshold_"+pat_decimal
     pat_wm=r"_wm_threshold_"+pat_decimal
     pat_cor=r"_compcor_ncomponents_\d+_selector_pc1\d\.linear\d\.wm\d\.global"+globalOpt+r"\.motion\d\.quadratic\d\.gm\d\.compcor\d\.csf\d"
     pat_bp=r"_bandpass_freqs_"+pat_decimal+r"\."+pat_decimal
+
+    if dataset=='ABIDE':
+        pat_session=pat_session_ABIDE
+        pat_scan=pat_scan_ABIDE
+    elif dataset=='ADNI':
+        pat_session=pat_session_ADNI
+        pat_scan=pat_scan_ADNI
 
     for (k,v) in ROI_LIST.items():
         fn=os.path.join(outFolder,v)
@@ -59,7 +68,6 @@ def main(inFolder, outFolder, globalOpt):
         cntSsn+=1
         print(session)
         ssnId=r.group(1)
-        ssnName=r.group(2)
         cntScan=0
         for scan in os.listdir(pi):
             #<session id>/roi_timeseries/_scan*
@@ -69,7 +77,7 @@ def main(inFolder, outFolder, globalOpt):
             pii=pi+scan+'/'
             scnName=r2.group(1)
             scnId=r2.group(2)
-            outFn=ssnName+'_'+scnName+'_'+scnId+'.1D'
+            outFn=ssnId+'_'+scnName+'_'+scnId+'.1D'
             lcsf=os.listdir(pii)
             #<session id>/roi_timeseries/_scan*/_csf*
             if len(lcsf)==0 or not re.match(pat_csf,lcsf[0]):
@@ -128,7 +136,10 @@ def main(inFolder, outFolder, globalOpt):
 
 
 #opt/ABIDEII_CPAC_series_holo/pipeline_abide_rerun_II_4CORE__freq-filter/50051_baseline/roi_timeseries/_scan_rest_1_rest/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1$
+#subjects:
 #29433_session_1  28716_session_1  28949_session_1  28983_session_1
+#002_S_0413_Resting_State_fMRI  002_S_4799_Resting_State_fMRI  013_S_4616_Resting_State_fMRI
+#scans:
 #_scan_rest_1_rest
 #_scan_scan0_S111991  _scan_scan1_S150694  _scan_scan2_S189129
 #_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0  _compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0
@@ -147,14 +158,18 @@ def main(inFolder, outFolder, globalOpt):
 
 
 if __name__=='__main__':
-    if len(sys.argv)<3 or len(sys.argv)>4:
-        print('Usage: <in-folder> <out-folder> [global-opt=0/1]')
+    if len(sys.argv)<4 or len(sys.argv)>5:
+        print('Usage: <in-folder> <out-folder> <dataset> [global-opt=0/1]')
+        print("  dataset: ABIDE, ADNI. It determines the name patten.")
         print("  The in-folder should directly contain the subjects")
         exit()
     inFolder=sys.argv[1];
     outFolder=sys.argv[2];
+    dataset=sys.argv[3];
+    if dataset not in {'ABIDE', 'ADNI'}:
+        raise Exception("do not support given dataset: "+dataset)
     globalOpt='0'
-    if len(sys.argv)>3:
-        globalOpt=sys.argv[3]
-    main(inFolder, outFolder, globalOpt)
+    if len(sys.argv)>4:
+        globalOpt=sys.argv[4]
+    main(inFolder, outFolder, dataset, globalOpt)
 
