@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Tester">
-      <UniqueIdentifier>{5993eb20-a058-484f-827c-d426472bf961}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -20,29 +17,8 @@
     <ClInclude Include="Option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConfusionMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SubjectData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Evaluator-IO.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MotifTester.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TesterBase.h">
-      <Filter>Tester</Filter>
-    </ClInclude>
-    <ClInclude Include="TesterGroup.h">
-      <Filter>Tester</Filter>
-    </ClInclude>
-    <ClInclude Include="TesterIndividual.h">
-      <Filter>Tester</Filter>
-    </ClInclude>
-    <ClInclude Include="TesterFactory.h">
-      <Filter>Tester</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,29 +31,8 @@
     <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConfusionMatrix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SubjectData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Evaluator-IO.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MotifTester.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TesterBase.cpp">
-      <Filter>Tester</Filter>
-    </ClCompile>
-    <ClCompile Include="TesterGroup.cpp">
-      <Filter>Tester</Filter>
-    </ClCompile>
-    <ClCompile Include="TesterIndividual.cpp">
-      <Filter>Tester</Filter>
-    </ClCompile>
-    <ClCompile Include="TesterFactory.cpp">
-      <Filter>Tester</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

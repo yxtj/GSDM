@@ -17,11 +17,13 @@ public:
 	std::string graphPath;
 	std::vector<int> graphTypePos, graphTypeNeg, graphTypes;
 
-	//std::string logFile;
+	bool flgOutMotifGroup;
 	bool flgOutTable, flgOutSmy;
 	std::vector<std::string> outputFile;
 
-	std::vector<std::string> motifTestMethod;
+	std::vector<std::string> testMethodSingle;
+	std::vector<std::string> testMethodGroup;
+	int testGroupSize;
 
 public:
 	Option();
@@ -31,5 +33,6 @@ public:
 private:
 	std::string& sortUpPath(std::string& path);
 	void mergeGraphType();
+	bool checkTestMethod();
 };
 

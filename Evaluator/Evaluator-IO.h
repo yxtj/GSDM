@@ -5,8 +5,8 @@
 #include "../common/Graph.h"
 #include "../common/Motif.h"
 #include "../common/SubjectInfo.h"
-#include "SubjectData.h"
-#include "ConfusionMatrix.h"
+#include "../libEval/SubjectData.h"
+#include "../libEval/ConfusionMatrix.h"
 
 Graph loadGraph(std::istream& is);
 

@@ -3,45 +3,65 @@
 
 #include "stdafx.h"
 #include "Option.h"
-#include "ConfusionMatrix.h"
 #include "../common/Motif.h"
 #include "../common/Graph.h"
-#include "SubjectData.h"
-#include "MotifTester.h"
+#include "../libEval/ConfusionMatrix.h"
+#include "../libEval/SubjectData.h"
+#include "../libEval/MTesterSingle.h"
+#include "../libEval/MTesterGroup.h"
 #include "Evaluator-IO.h"
 
 using namespace std;
 
-//evaluate part
 
-vector<bool> testMotifs(const MotifTester& mt, const vector<Motif>& ms, const Option& opt)
+// row: motif, column: subject
+vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vector<Motif>& ms, const Option& opt)
 {
-	vector<bool> res(ms.size());
-	for(size_t i = 0; i < ms.size(); ++i) {
-		res[i] = mt.test(ms[i]);
+	vector<vector<bool>> res;
+	res.reserve(ms.size());
+	for(auto& m : ms) {
+		MTesterSingle mt(opt.testMethodSingle);
+		mt.set(m);
+		vector<bool> t(gs.size());
+		for(size_t j = 0; j < gs.size(); ++j) {
+			t[j] = mt.testSubject(gs[j]);
+		}
+		res.push_back(move(t));
 	}
 	return res;
 }
 
-vector<ConfusionMatrix> evaluate(const vector<SubjectData>& gs, const vector<Motif>& ms, const Option& opt)
+// row: motif, column: subject
+vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vector<MTesterGroup>& mts)
 {
-	vector<ConfusionMatrix> res(ms.size());
+	vector<vector<bool>> res;
+	res.reserve(mts.size());
+	for(auto m : mts) {
+		vector<bool> t(gs.size());
+		for(size_t i = 0; i < gs.size(); ++i)
+			t[i] = m.testSubject(gs[i]);
+		res.push_back(move(t));
+	}
+	return res;
+}
+
+vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs, const vector<vector<bool>>& tbl, const Option& opt)
+{
+	// tbl: row-motif, column-subject
+	vector<ConfusionMatrix> res(tbl.size());
 	unordered_set<int> typePos(opt.graphTypePos.begin(), opt.graphTypePos.end());
-	for(auto& g : gs) {
-		MotifTester mt(g.snapshots);
-		mt.parse(opt.motifTestMethod);
-		vector<bool> predAsPos = testMotifs(mt, ms, opt);
-		bool isPosSub = typePos.find(g.type) != typePos.end();
+	for(size_t j = 0; j < gs.size(); ++j) {
+		bool isPosSub = typePos.find(gs[j].type) != typePos.end();
 		if(isPosSub) {
-			for(size_t i = 0; i < predAsPos.size(); ++i) {
-				if(predAsPos[i])
+			for(size_t i = 0; i < tbl.size(); ++i) {
+				if(tbl[i][j])
 					res[i].tp++;
 				else
 					res[i].fn++;
 			}
 		} else {
-			for(size_t i = 0; i < predAsPos.size(); ++i) {
-				if(predAsPos[i])
+			for(size_t i = 0; i < tbl.size(); ++i) {
+				if(tbl[i][j])
 					res[i].fp++;
 				else
 					res[i].tn++;
@@ -51,40 +71,55 @@ vector<ConfusionMatrix> evaluate(const vector<SubjectData>& gs, const vector<Mot
 	return res;
 }
 
-// row: subject, column: motif
-vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vector<Motif>& ms, const Option& opt)
-{
-	vector<vector<bool>> res;
-	res.reserve(gs.size());
-	for(size_t ig = 0; ig < gs.size(); ++ig) {
-		MotifTester mt(gs[ig].snapshots);
-		mt.parse(opt.motifTestMethod);
-		res.push_back(testMotifs(mt, ms, opt));
+vector< vector<int> > genGroupIndexDFS(const int p, vector<int>& used, const int n) {
+	vector<vector<int>> res;
+	if(p <= 0) {
+		res.push_back(used);
+		return res;
+	}
+	int end = n - p;
+	for(int i = used.empty() ? 0 : used.back() + 1; i <= end; ++i) {
+		used.push_back(i);
+		auto t = genGroupIndexDFS(p - 1, used, n);
+		used.pop_back();
+		move(t.begin(), t.end(), back_inserter(res));
 	}
 	return res;
 }
 
-vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs, const vector<vector<bool>>& tbl, const Option& opt)
+vector<MTesterGroup> transGIndex2GTester(const vector< vector<int> >& idx, const vector<MTesterSingle>& ms, const Option& opt)
 {
-	vector<ConfusionMatrix> res(tbl.front().size());
-	unordered_set<int> typePos(opt.graphTypePos.begin(), opt.graphTypePos.end());
-	for(size_t i = 0; i < gs.size(); ++i) {
-		bool isPosSub = typePos.find(gs[i].type) != typePos.end();
-		if(isPosSub) {
-			for(size_t j = 0; j < tbl[i].size(); ++j) {
-				if(tbl[i][j])
-					res[j].tp++;
-				else
-					res[j].fn++;
-			}
-		} else {
-			for(size_t j = 0; j < tbl[i].size(); ++j) {
-				if(tbl[i][j])
-					res[j].fp++;
-				else
-					res[j].tn++;
-			}
-		}
+	vector<MTesterGroup> res;
+	for(auto& line : idx) {
+		MTesterGroup t(opt.testMethodGroup);
+		t.setParam4Single(opt.testMethodSingle);
+		vector<MTesterSingle> m;
+		for(int i : line)
+			m.push_back(ms[i]);
+		t.set(m);
+		res.push_back(move(t));
+	}
+	return res;
+}
+
+vector<MTesterGroup> genGroupTesterDFS(const int p, vector<int>& used, const vector<MTesterSingle>& ms, const Option& opt) {
+	vector<MTesterGroup> res;
+	if(p <= 0) {
+		MTesterGroup t(opt.testMethodGroup);
+		t.setParam4Single(opt.testMethodSingle);
+		vector<MTesterSingle> m;
+		for(int i : used)
+			m.push_back(ms[i]);
+		t.set(m);
+		res.push_back(move(t));
+		return res;
+	}
+	int end = ms.size() - p;
+	for(int i = used.empty() ? 0 : used.back() + 1; i <= end; ++i) {
+		used.push_back(i);
+		auto t = genGroupTesterDFS(p - 1, used, ms, opt);
+		used.pop_back();
+		move(t.begin(), t.end(), back_inserter(res));
 	}
 	return res;
 }
@@ -108,21 +143,24 @@ int main(int argc, char* argv[])
 	ios::sync_with_stdio(false);
 	cout << "Input Graph:\n"
 		<< "  Folder: " << opt.graphPath << "\n"
-		<< "  Types of positive graph: " << opt.graphTypePos << "\n"
+		<< "  Types of positive graph: " << opt.graphTypePos << "\t"
 		<< "  Types of negative graph: " << opt.graphTypeNeg << "\n"
-		<< "  # of graph: " << opt.nGraph << "\n"
+		<< "  # of graph: " << opt.nGraph << "\t"
 		<< "  # of skipped: " << opt.nSkipGraph << "\n";
 	cout << "Input Motif:\n"
 		<< "  # of motif folders: "<<opt.motifPath.size()<< "\n"
 		<< "  Folders: " << opt.motifPath << "\n"
 		<< "  File name pattern: " << opt.motifPattern << "\n"
-		<< "  # of motifs in each folder: " << opt.nMotif << "\n"
+		<< "  # of motifs in each folder: " << opt.nMotif << "\t"
 		<< "  # of skipped in each folder: " << opt.nSkipMotif << "\n";
-	cout << "Output files: " << opt.outputFile << endl;// "\n"
-//		<< "Log file: " << opt.logFile << endl;
+	cout << "Testing Method:\n"
+		<< "  single motif metohd: " << opt.testMethodSingle << "\n"
+		<< "  # of motifs of each group: " << opt.testGroupSize << "\n";
+	if(opt.testGroupSize >= 2)
+		cout << "  group motif method: " << opt.testMethodGroup << "\n";
+	cout << "Output files: " << opt.outputFile << endl;
 
 	vector<SubjectData> gts;
-	vector<Motif> ms;
 	try {
 		cout << "Loading graph data...";
 		cout.flush();
@@ -137,12 +175,26 @@ int main(int argc, char* argv[])
 	for(size_t i = 0; i < opt.motifPath.size(); ++i) {
 		const string& mpath = opt.motifPath[i];
 		const string& opath = opt.outputFile[i];
+		cout << "(" << i+1 << "/" << opt.motifPath.size() <<
+			") Loading motif from path..." << endl;
+		vector<MTesterGroup> mts;
 		vector<Motif> ms;
+		vector< vector<int> > idx;
 		try {
-			cout << "(" << i+1 << "/" << opt.motifPath.size() <<
-				") Loading motif from path..." << endl;
 			ms = loadMotif(mpath, opt.motifPattern, opt.nMotif, opt.nSkipMotif);
 			cout << "  # of loaded motifs: " << ms.size() << endl;
+			vector<MTesterSingle> mtSingle;
+			mtSingle.reserve(ms.size());
+			for(auto& m : ms) {
+				mtSingle.emplace_back(opt.testMethodSingle);
+				mtSingle.back().set(m);
+			}
+			vector<int> used;
+			used.reserve(opt.testGroupSize);
+			idx = genGroupIndexDFS(opt.testGroupSize, used, ms.size());
+			mts = transGIndex2GTester(idx, mtSingle, opt);
+			//mts = genGroupTesterDFS(opt.testGroupSize, used, mtSingle, opt);
+			cout << "  # of generated motif testers: " << mts.size() << endl;
 		} catch(exception& e) {
 			cerr << "Load motif failed!\n  " << e.what() << endl;
 			continue;
@@ -150,13 +202,31 @@ int main(int argc, char* argv[])
 
 		cout << "  Evaluating..." << endl;
 		// row: subject, column: motif
-		vector<vector<bool>> tbl = getContainingTable(gts, ms, opt);
+		vector<vector<bool>> tbl = getContainingTable(gts, mts);
+		mts.clear();
 		
 		cout << "  Outputing result..." << endl;
 		// create the output folder if not existed
 		{
 			boost::filesystem::path p(opath);
 			boost::filesystem::create_directories(p.parent_path());
+		}
+
+		if(opt.flgOutMotifGroup) {
+			size_t pDash = opath.find_last_of("/\\");
+			pDash = pDash == string::npos ? 0 : pDash;
+			string fnTbl = opath.substr(0, pDash + 1) + "gp-" + opath.substr(pDash + 1);
+			ofstream fout(fnTbl);
+			if(!fout) {
+				cerr << "Cannot open output file: " << fnTbl << endl;
+				continue;
+			}
+			for(auto& line : idx) {
+				fout << line[0];
+				for(size_t k = 1; k < line.size(); ++k)
+					fout << "," << line[k];
+				fout << "\n";
+			}
 		}
 
 		if(opt.flgOutTable) {

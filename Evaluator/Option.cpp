@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Option.h"
 #include "../util/Util.h"
-#include "MotifTester.h"
+#include "../libEval/MTesterSingle.h"
+#include "../libEval/MTesterGroup.h"
 
 using namespace std;
 
@@ -28,7 +29,14 @@ Option::Option()
 			"The type(s) of positive graph")
 		("graphTypeNeg", value<vector<int>>(&graphTypeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
 			"The type(s) of negative graphs")
-		(MotifTester::name.c_str(), value<vector<string>>(&motifTestMethod)->multitoken(), MotifTester::usage.c_str())
+
+		("testMethodSingle", value<vector<string>>(&testMethodSingle)->multitoken(), MTesterSingle::usage.c_str())
+		("testGroupSize", value<int>(&testGroupSize)->default_value(1), "[integer] the size of group used for group testing. "
+			"values smaller than 2 means not to use group test.")
+			("testMethodGroup", value<vector<string>>(&testMethodGroup)->multitoken()->default_value({"all"}, "all"),
+			("Valid only if testGroupSize is greater or equal to 2. "+MTesterGroup::usage).c_str())
+
+		("outMG", value<bool>(&flgOutMotifGroup)->default_value(false), "Output the motif IDs of each motif group.")
 		("outTable", value<bool>(&flgOutTable)->default_value(false), 
 			"Output a binary table of subject-motif containing and a list about the types of all subjects")
 		("outSummary", value<bool>(&flgOutSmy)->default_value(true), 
@@ -100,6 +108,12 @@ bool Option::parseInput(int argc, char* argv[]) {
 		}
 		sortUpPath(graphPath);
 		mergeGraphType();
+
+		if(!checkTestMethod()) {
+			cerr << "the motif test method is not set properly." << endl;
+			flag_help = true;
+			break;
+		}
 		break;
 	}
 
@@ -125,5 +139,15 @@ void Option::mergeGraphType()
 	for(auto& v : graphTypeNeg)
 		graphTypes.push_back(v);
 	sort(graphTypes.begin(), graphTypes.end());
+}
+
+bool Option::checkTestMethod()
+{
+	if(testMethodSingle.empty())
+		return false;
+	testGroupSize = max(1, testGroupSize);
+	if(testGroupSize > 2 && testMethodGroup.empty())
+		return false;
+	return true;
 }
 
