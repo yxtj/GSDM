@@ -34,6 +34,7 @@ def main(inFolder, outFolder, dataset, globalOpt):
     pat_ts=r"roi_timeseries"
     pat_scan_ABIDE=r"_scan_(rest)_(\d+)_.*"
     pat_scan_ADNI=r"_scan_(scan)(\d+)_.*"
+    pat_scan_ANY=r"_scan_.*"
     pat_csf=r"_csf_threshold_"+pat_decimal
     pat_gm=r"_gm_threshold_"+pat_decimal
     pat_wm=r"_wm_threshold_"+pat_decimal
@@ -45,7 +46,7 @@ def main(inFolder, outFolder, dataset, globalOpt):
         pat_scan=pat_scan_ABIDE
     elif dataset=='ADNI':
         pat_session=pat_session_ADNI
-        pat_scan=pat_scan_ADNI
+        pat_scan=pat_scan_ANY
 
     for (k,v) in ROI_LIST.items():
         fn=os.path.join(outFolder,v)
@@ -75,9 +76,10 @@ def main(inFolder, outFolder, dataset, globalOpt):
             if not r2:
                 continue
             pii=pi+scan+'/'
-            scnName=r2.group(1)
-            scnId=r2.group(2)
-            outFn=ssnId+'_'+scnName+'_'+scnId+'.1D'
+            #scnName=r2.group(1)
+            #scnId=r2.group(2)
+            #outFn=ssnId+'_'+scnName+'_'+scnId+'.1D'
+            outFn=ssnId+'_scan_'+str(cntScan)+'.1D'
             lcsf=os.listdir(pii)
             #<session id>/roi_timeseries/_scan*/_csf*
             if len(lcsf)==0 or not re.match(pat_csf,lcsf[0]):
