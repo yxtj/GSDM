@@ -45,7 +45,7 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, fnPrefix, locatio
     xlabel(lblX); ylabel('precision');
     if length(keys(:))==1
             legend(keys(:));
-            legend('Location','NorthWest')
+            legend('Location',locations{1})
             legend('boxoff')
     else
         columnlegend(numCol(1),keys(:),'Location',locations{1},'boxoff');
@@ -60,9 +60,9 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, fnPrefix, locatio
     set(gca,'FontSize', fontSize)
     xlabel(lblX); ylabel('recall');
     if length(keys(:))==1
-            legend(keys(:));
-            legend('Location','NorthEast')
-            legend('boxoff')
+        legend(keys(:));
+        legend('Location',locations{2})
+        legend('boxoff')
     else
         columnlegend(numCol(2),keys(:),'Location',locations{2},'boxoff');
     end
@@ -77,7 +77,7 @@ function drawSmyPRA(fldX, lblX, fldFix, valFix, datas, labels, fnPrefix, locatio
     xlabel(lblX); ylabel('accuracy');
     if length(keys(:))==1
             legend(keys(:));
-            legend('Location','NorthWest')
+            legend('Location',locations{3})
             legend('boxoff')
     else
         columnlegend(numCol(3),keys(:),'Location',locations{3},'boxoff');

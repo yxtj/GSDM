@@ -9,8 +9,8 @@ dataset=cell2mat(DATASETS(1));
 dataPrefix=['../../data_' dataset '/summary/'];
 figPrefix=['../../data_' dataset '/figure/'];
 
-if ~exist(folder,'dir')
-    mkdir(folder);
+if ~exist(figPrefix,'dir')
+    mkdir(figPrefix);
 end
 
 fontSize=20;
@@ -68,6 +68,7 @@ saveas(gcf,[figPrefix '/' fnf '_th_reca-group-al' '.eps'],'epsc')
 
 % -----------------
 % draw a summary figure of all graph configurations
+
 % matlab put lower dimension first
 labels=cell(numel(FILENAMES),numel(GRAPHS),numel(WINDOWS));
 for iw=1:numel(WINDOWS); for ig=1:numel(GRAPHS); for ifn=1:numel(FILENAMES);
@@ -82,11 +83,12 @@ type='eps';
 %type='png';
 %type='none';
 close all
-locations={'NorthWest';'NorthEast';'NorthWest'};
+locationsMS={'NorthWest';'NorthWest';'NorthWest'};
+locationsTH={'NorthWest';'NorthEast';'NorthWest'};
 numCol=[2;2;2];
-drawSmyPRA('minsup','minSup','alpha',1,datas,labels,[figPrefix,'smy-alpha-1_ms'],locations,numCol,type,20);
-drawSmyPRA('theta','theta','alpha',1,datas,labels,[figPrefix,'smy-alpha-1_th'],locations,numCol,type,20);
-drawSmyPRA('alpha','alpha','','all',datas,labels,[figPrefix,'smy_al'],locations,numCol,type,20);
+drawSmyPRA('minsup','minSup','alpha',1,datas,labels,[figPrefix,'smy-alpha-1_ms'],locationsMS,numCol,type,20);
+drawSmyPRA('theta','theta','alpha',1,datas,labels,[figPrefix,'smy-alpha-1_th'],locationsTH,numCol,type,20);
+drawSmyPRA('alpha','alpha','','all',datas,labels,[figPrefix,'smy_al'],locationsTH,numCol,type,20);
 close all
 
 
