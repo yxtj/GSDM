@@ -25,16 +25,54 @@ def _formatFolderName(folder):
 def _checkFNwithPattern(name,parent,pattern):
     return os.path.exists(parent+'/'+name) and re.match(pattern,name)
 
+# parseSession_XXX returns (subject id, session name)
+
+_pat_session_ABIDE=r"(\d+)_([^/\\]+)";
+def parseSession_ABIDE(s):
+    r=re.match(_pat_session_ABIDE,s)
+    if not r: return None
+    return (r.group(1), r.group(2))
+    
+_pat_session_ADNI=r"(\d+)_S_(\d+)[^\d]*";
+def parseSession_ADNI(s):
+    r=re.match(_pat_session_ADNI,s)
+    if not r: return None
+    return (r.group(2), r.group(2))
+    #return (r.group(1)+r.group(2), r.group(1)+r.group(2))
+
+# parseScan_XXX returns (scan name, raw scan id)
+
+_pat_scan_ABIDE=r"_scan_(.+?)_(\d+)"
+def parseScan_ABIDE(s):
+    r=re.match(_pat_session_ABIDE,s)
+    if not r: return None
+    return (r.group(1), r.group(2))
+
+_pat_scan_ADNI=r"_scan_scan(\d+)_.*"
+def parseScan_ADNI(s):
+    r=re.match(_pat_session_ADNI,s)
+    if not r: return None
+    return ('scan', r.group(1))
+
+_pat_scan_ANY=r"_scan_(.*?)(\d+)"
+def parseScan_ANY(s):
+    r=re.match(_pat_session_ADNI,s)
+    if not r: return None
+    return (r.group(1), r.group(2))
+
+
 def main(inFolder, outFolder, dataset, globalOpt):
     inFolder=_formatFolderName(inFolder)
     outFolder=_formatFolderName(outFolder)
     pat_decimal='\d(\.\d+)?';
-    pat_session_ABIDE=r"(\d+)_[^/]+";
-    pat_session_ADNI=r"\d+_S_(\d+)[^\d]*";
+    #pat_session_ABIDE=r"(\d+)_[^/]+";
+    #pat_session_ADNI=r"\d+_S_(\d+)[^\d]*";
+    #fun_session
     pat_ts=r"roi_timeseries"
-    pat_scan_ABIDE=r"_scan_(rest)_(\d+)_.*"
-    pat_scan_ADNI=r"_scan_(scan)(\d+)_.*"
-    pat_scan_ANY=r"_scan_.*"
+    #pat_scan_ABIDE=r"_scan_(rest)_(\d+)_.*"
+    #pat_scan_ADNI=r"_scan_(scan)(\d+)_.*"
+    #pat_scan_ANY=r"_scan_.*"
+    #fun_scan
     pat_csf=r"_csf_threshold_"+pat_decimal
     pat_gm=r"_gm_threshold_"+pat_decimal
     pat_wm=r"_wm_threshold_"+pat_decimal
@@ -42,11 +80,15 @@ def main(inFolder, outFolder, dataset, globalOpt):
     pat_bp=r"_bandpass_freqs_"+pat_decimal+r"\."+pat_decimal
 
     if dataset=='ABIDE':
-        pat_session=pat_session_ABIDE
-        pat_scan=pat_scan_ABIDE
+        #pat_session=pat_session_ABIDE
+        #pat_scan=pat_scan_ABIDE
+        fun_session=parseSession_ABIDE
+        fun_scan=parseScan_ABIDE
     elif dataset=='ADNI':
-        pat_session=pat_session_ADNI
-        pat_scan=pat_scan_ANY
+        #pat_session=pat_session_ADNI
+        #pat_scan=pat_scan_ANY
+        fun_session=parseSession_ADNI
+        fun_scan=parseScan_ADNI
 
     for (k,v) in ROI_LIST.items():
         fn=os.path.join(outFolder,v)
@@ -57,29 +99,33 @@ def main(inFolder, outFolder, dataset, globalOpt):
     cntSsnVld=0
     for session in os.listdir(inFolder):
         #<session id>
-        r=re.match(pat_session,session)
-        pi=inFolder+session+'/'+pat_ts+'/'
-        #<session id>/roi_timeseries
+        #r=re.match(pat_session,session)
+        r=fun_session(s)
         if not r:
             print(session+' invalid session name')
             continue
+        (subId, ssnName)=r
+        pi=inFolder+session+'/'+pat_ts+'/'
+        #<session id>/roi_timeseries
         if not os.path.exists(pi):
             print(session+' no content inside')
             continue
         cntSsn+=1
         print(session)
-        ssnId=r.group(1)
+#        ssnId=r.group(1)
         cntScan=0
         for scan in os.listdir(pi):
             #<session id>/roi_timeseries/_scan*
-            r2=re.match(pat_scan,scan)
+            #r2=re.match(pat_scan,scan)
+            r2=fun_scan(scan)
             if not r2:
                 continue
+            (scnName,scnId)=r2
             pii=pi+scan+'/'
             #scnName=r2.group(1)
             #scnId=r2.group(2)
             #outFn=ssnId+'_'+scnName+'_'+scnId+'.1D'
-            outFn=ssnId+'_scan_'+str(cntScan)+'.1D'
+            outFn='scan_'+str(cntScan)+'.1D'
             lcsf=os.listdir(pii)
             #<session id>/roi_timeseries/_scan*/_csf*
             if len(lcsf)==0 or not re.match(pat_csf,lcsf[0]):
