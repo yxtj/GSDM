@@ -31,9 +31,6 @@
     <ClCompile Include="ComplexParamBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TCCutterParam.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LoaderABIDE.cpp">
       <Filter>TCLoader</Filter>
     </ClCompile>
@@ -41,9 +38,6 @@
       <Filter>TCLoader</Filter>
     </ClCompile>
     <ClCompile Include="LoaderBaseCPAC.cpp">
-      <Filter>TCLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="LoaderABIDE2.cpp">
       <Filter>TCLoader</Filter>
     </ClCompile>
     <ClCompile Include="CheckerNone.cpp">
@@ -56,6 +50,15 @@
       <Filter>QCChecker</Filter>
     </ClCompile>
     <ClCompile Include="CheckerFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderADNI.cpp">
+      <Filter>TCLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderABIDE2.cpp">
+      <Filter>TCLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="TCCutterParam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="CheckerFactory.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderADNI.h">
+      <Filter>TCLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

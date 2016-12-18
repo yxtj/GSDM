@@ -9,7 +9,7 @@ std::vector<SubjectInfo> LoaderBaseCPAC::pruneAndAddScanViaScanFile(
 	using namespace boost::filesystem;
 	vector<SubjectInfo> res;
 	res.reserve(vldList.size());
-	regex reg("^session_\\d+?_rest_(\\d+)\\.1D$");
+	regex reg("^rest_(\\d+)\\.1D$");
 	for(SubjectInfo& s : vldList) {
 		path base(root + "/" + s.id);
 		if(!exists(base))
@@ -18,7 +18,7 @@ std::vector<SubjectInfo> LoaderBaseCPAC::pruneAndAddScanViaScanFile(
 			smatch m;
 			string fn = it->path().filename().string();
 			regex_search(fn, m, reg);
-			int scanNum = stoi(m[1].str()) - 1; // scan num start from 1 in the raw data
+			int scanNum = stoi(m[1].str());
 			res.push_back(s);
 			res.back().seqNum = scanNum;
 		}
@@ -28,8 +28,7 @@ std::vector<SubjectInfo> LoaderBaseCPAC::pruneAndAddScanViaScanFile(
 
 std::string LoaderBaseCPAC::getFilePath(const SubjectInfo & sub)
 {
-	return sub.id + "/" + "session_1_rest_" + to_string(sub.seqNum + 1) + ".1D";
-	//return sub.id + "/" + sub.session + "_rest_" + to_string(sub.seqNum + 1) + ".1D";
+	return sub.id + "/" + "scan_" + to_string(sub.seqNum) + ".1D";
 }
 
 tc_t LoaderBaseCPAC::loadTimeCourse(const std::string & fn)

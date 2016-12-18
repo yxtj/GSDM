@@ -158,6 +158,7 @@
     <ClInclude Include="Corr2Graph.h" />
     <ClInclude Include="LoaderABIDE.h" />
     <ClInclude Include="LoaderABIDE2.h" />
+    <ClInclude Include="LoaderADNI.h" />
     <ClInclude Include="LoaderBaseCPAC.h" />
     <ClInclude Include="QCChecker.h" />
     <ClInclude Include="TCCutterParam.h" />
@@ -179,6 +180,7 @@
     <ClCompile Include="ComplexParamBase.cpp" />
     <ClCompile Include="LoaderABIDE.cpp" />
     <ClCompile Include="LoaderABIDE2.cpp" />
+    <ClCompile Include="LoaderADNI.cpp" />
     <ClCompile Include="LoaderBaseCPAC.cpp" />
     <ClCompile Include="TCCutterParam.cpp" />
     <ClCompile Include="IOfunctions.cpp" />

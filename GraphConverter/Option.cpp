@@ -11,7 +11,7 @@ Option::Option()
 	using boost::program_options::value;
 	desc.add_options()
 		("help", "Print help messages")
-		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE, ABIDE2).")
+		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE, ABIDE2, ADNI).")
 		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr).")
 		("nSubject,n", value<int>(&nSubject)->default_value(-1), "# of items(subject/corr) to load from dataset "
 			"(non-positive means load all).")

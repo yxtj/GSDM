@@ -18,8 +18,8 @@ If --tcPath is not given, the correlation is the input source.
 Example command parameters:
 
 ```
-%start from time courses, generate correlation and graph, using sliding windows method and pearson correlation:
---dataset=ADHD -n 0 --tcPath=~/Data/ADHD200/ADHD200_AAL_TCs_filtfix/KKI --corrPath=../data_adhd/corr --graphPath=../data_adhd/graph-0.7 --cut-method slide 30 12 --corr-method pearson --graph-method ge 0.7
+%start from time courses, only the time courses pass all quality control is used, generate correlation and graph, using sliding windows method and pearson correlation:
+--dataset=ADHD -n 0 --tc-qc all --tcPath=~/Data/ADHD200/ADHD200_AAL_TCs_filtfix/KKI --corrPath=../data_adhd/corr --graphPath=../data_adhd/graph-0.7 --cut-method slide 30 12 --corr-method pearson --graph-method ge 0.7
 
 %start from correlation, skip the first 10 files, generate graph, at most 3 output files, using pearson correlation, edges are told by absolute correlation values greater than 0.8:
 --dataset=ADHD -n 3 --nSkip 10 --corrPath=../data_adhd/corr --graphPath=../data_adhd/graph-0.8 --cut-method slide 30 12 --corr-method pearson --graph-method outside n0.8 0.8
@@ -28,6 +28,9 @@ Example command parameters:
 
 %ABIDE
 --dataset=ABIDE -n 5 --tcPath=E:\Data\ABIDE --corrPath=../data_abide/corr --cut-method slide 30 12 --corr-method pearson --graph-method outside n0.8 0.8
+
+%ADNI
+--dataset=ADNI -n 0 --nSkip=0 --tc-qc none --phenoPath=E:\Data\ADNI --tcPath=E:\Data\ADNI\roi\aal --corrPath=../data_adni/corr-s30-20 --cut-method slide 30 20
 ```
 
 - Implementation:
@@ -55,9 +58,9 @@ Example command parameters:
     
     - Cutter method:
   
-	  1. Modify class TCCutterParm to add necessary method parser.
+      1. Modify class TCCutterParm to add necessary method parser.
 
-	  2. Modify class TCCutter to support this new cutter method.
+      2. Modify class TCCutter to support this new cutter method.
 
   
     - Correlation method:
