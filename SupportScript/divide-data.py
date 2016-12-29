@@ -14,23 +14,40 @@ import shutil
 __MTHD_RANODM='random'
 __MTHD_CUT='cut'
 
-# return [[],[]]
+MTHD_LIST=[__MTHD_RANODM, __MTHD_CUT]
+
+# return 3-level list.
+# 1-level: type-list, 2-level: subject-list, 3-level: filename-list
 def loadFileList(inDir, pattern):
     d={}
     for fn in os.listdir(inDir):
         m=pattern.match(fn)
         if m:
-            key=m.group(1)
+            tp=m.group('type')
+            id=m.group('id')
+            key=(tp,id)
             v=d.get(key)
             if v:
                 v.append(fn)
             else:
                 d[key]=[fn]
-    # sort the file list according to the key
+    # prepare a dict of type-(id,index)
     lkey=list(d.keys())
     lval=list(d.values())
-    idx=sorted(range(len(lkey)), key=lambda k:lkey[k])
-    res=[lval[i] for i in idx]
+    d2={}
+    for i in range(len(lkey)):
+        (tp,id)=lkey[i]
+        v=d2.get(tp)
+        if v:
+            v.append((id,i))
+        else:
+            d2[tp]=[(id,i)]
+    # prepare the output list
+    res=[]
+    for tp in d2:
+        d2[tp].sort()
+        temp=[lval[i] for (id,i) in d2[tp]]
+        res.append(temp)
     return res
 
 def parseMethod(method, nParts):
@@ -42,66 +59,64 @@ def parseMethod(method, nParts):
             param=int(method[p+1:])
     elif method.find(__MTHD_CUT)!=-1:
         name=__MTHD_CUT
-        param=[]
-        p=method.find('-')
-        if p==-1:
-            each=1.0/nParts
-            param=[i*each for i in range(1,nParts)]
-        else:
-            plast=p+1
-            p=method.find('-',plast)
-            while p!=-1:
-                param.append(float(method[plast:p]))
-                plast=p+1
-                p=method.find('-',plast)
-            param.append(float(method[plast:]))
-            if len(param)+1 != nParts:
-                raise ValueError('number of outputs does not match cutting points')
+        param=None
     return (name,param)
 
-def getIndexesForEachPart(mName, mParam, portions, nFiles):
-    l=list(range(nFiles))
-    if mName==__MTHD_RANODM:
-        random.seed(mParam)
-        for i in range(nFiles):
-            a=random.randint(0,nFiles-1)
-            b=random.randint(0,nFiles-1)
-            (l[a], l[b])=(l[b], l[a])
-    elif mName==__MTHD_CUT:
-        # nothing needed to be done here
-        pass
-    res=[ [] for i in range(len(portions)) ]
-    last=0
-    for i in range(len(portions)):
-        pos=int(math.ceil(nFiles * sum(portions[0:i+1])))
-        res[i]=l[last:pos]
-        last=pos
+def getIndexesForEachPart(mName, mParam, portions, nType, nSub):
+    nDir=len(portions)
+    res=[ [ None for j in range(nType) ] for i in range(nDir) ]
+    for it in range(nType):
+        l=list(range(nSub[it]))
+        if mName==__MTHD_RANODM:
+            random.seed(mParam)
+            for i in range(nSub[it]):
+                a=random.randint(0,nSub[it]-1)
+                b=random.randint(0,nSub[it]-1)
+                (l[a], l[b])=(l[b], l[a])
+        elif mName==__MTHD_CUT:
+            # nothing needed to be done for this method
+            pass
+        last=0
+        for id in range(nDir):
+            pos=int(math.ceil(nSub[it] * sum(portions[0:id+1])))
+            res[id][it]=l[last:pos]
+            last=pos
     return res
 
 def main(inDir, method, pattern, portions, outDirs):
-    (mName, mParam)=parseMethod(method,len(outDirs))
+    nDir=len(outDirs)
+    (mName, mParam)=parseMethod(method,nDir)
     print('Getting file lists...')
+    # level 1: type-list, level 2: subject-list, level 3: filename-list
     flist=loadFileList(inDir, pattern)
-    print('  # of valid groups: '+ str(len(flist)))
-    print('  # of valid files in all: '+ str(sum(len(l) for l in flist)))
+    nType=len(flist)
+    print('  # of valid types: '+str(nType))
+    nSub=[len(l) for l in flist]
+    print('  # of valid subjects: '+str(sum(nSub)))
+    print('  # of valid files: '+str(
+        sum(sum(len(l2) for l2 in l1) for l1 in flist) ))
 
     print('Generating output mapping...')
-    idxs=getIndexesForEachPart(mName, mParam, portions, len(flist))
-    print('  # of groups in each output dir: '+str([len(l) for l in idxs]))
+    # level 1: dir-list, level 2: type-list, level 3: subject-index-list
+    idxs=getIndexesForEachPart(mName, mParam, portions, nType, nSub)
+    print('  # of subjects in each output dir: '+str(
+        [sum(len(ltype) for ltype in ldir) for ldir in idxs] ))
 
     print('Copying files...')
     if not inDir.endswith('/') and not inDir.endswith('\\'):
         inDir+='/'
-    for i in range(len(outDirs)):
-        print('  processing '+str(i)+'-th output')
+    for i in range(nDir):
+        print('  processing '+str(i+1)+'-th output')
         od=outDirs[i]
         if not od.endswith('/') and not od.endswith('\\'):
             od+='/'
         if not os.path.isdir(od):
             os.makedirs(od)
-        for idx in idxs[i]:
-            for fn in flist[idx]:
-                shutil.copy2(inDir+fn, od+fn)
+        print('    # of subjects in each type: '+str([len(t) for t in idxs[i]]))
+        for j in range(nType):
+            for idx in idxs[i][j]:
+                for fn in flist[j][idx]:
+                    shutil.copy2(inDir+fn, od+fn)
     print('Finish')
 
 
@@ -110,12 +125,12 @@ if __name__ == '__main__':
         print('usage: <input folder> <method> <output folder 1> <portion 1> <output folder 2> <portion 2> ... [-pattern:<cared name pattern>]')
         print('  <method>: method of selecting the files. Supports:')
         print('    ['+__MTHD_RANODM+']: randomly assign the list. can customize the seed with "random-<seed>", 123456 by default')
-        print('    ['+__MTHD_CUT+']: cut the sorted list sequentially')
-        print('  [cared name pattern]: customize the filename pattern using EMACScript grammer (mind to use escape in shell for "\\"). The part in "()" is the key which is used for dividing. "\\d+-(\\d+)-\\d+\\.txt" by default')
+        print('    ['+__MTHD_CUT+']: cut the sorted list by type. guarantee the portion on each type')
+        print('  [cared name pattern]: customize the filename pattern using EMACScript grammer (mind to use escape in shell for "\\"). The part in "()" is the key which is used for dividing. "(?P<type>\\d+)-(?P<id>\\d+)-\\d+\\.txt" by default')
         sys.exit()
     inDir=sys.argv[1]
     method=sys.argv[2]
-    pattern=r'\d+-(\d+)-\d+\.txt'
+    pattern=r'(?P<type>\d+)-(?P<id>\d+)-\d+\.txt'
     _pEnd=len(sys.argv)
     if sys.argv[-1].find('-pattern:')==0:
         pattern=sys.argv[-1]
@@ -127,6 +142,9 @@ if __name__ == '__main__':
         portions.append(float(sys.argv[i+1]))
     print('intput folder: '+inDir)
     print('method: '+method)
+    if method not in MTHD_LIST:
+        print('ERROR: the method is not supported')
+        exit()
     print('name pattern: '+pattern)
     print('# of output folders: '+str(len(outDirs)))
     print('  their portions are: '+str(portions))
