@@ -265,71 +265,6 @@ void StrategyFuncFreqSD::removeSupport(slist& sup, std::vector<const subject_t*>
 	}
 }
 
-std::vector<Motif> StrategyFuncFreqSD::method_enum1()
-{
-	cout << "Phase 1 (meta-data prepare)" << endl;
-	slist supPos, supNeg;
-	for(auto& s : *pgp)
-		supPos.pushFront(&s);
-	for(auto& s : *pgn)
-		supNeg.pushFront(&s);
-	vector<Edge> edges = getEdges();
-	cout << "  # of edges: " << edges.size() << endl;
-
-	cout << "Phase 2 (calculate)" << endl;
-	Motif dummy;
-	TopKHolder<Motif, double> holder(k);
-	Timer timer;
-	_enum1(0, dummy, supPos, supNeg, holder, edges);
-	auto _time_ms = timer.elapseMS();
-	cout << "  # of result: " << holder.size() << ", last score: " << holder.lastScore()
-		<< "\n  time: " << _time_ms << " ms" << endl;
-
-	cout << "Phase 3 (output)" << endl;
-	if(flagOutputScore) {
-		ofstream fout("../logs/score.txt");
-		for(auto& p : holder.data) {
-			fout << p.second << "\t" << p.first << "\n";
-		}
-	}
-	vector<Motif> res = holder.getResultMove();
-	return res;
-}
-
-void StrategyFuncFreqSD::_enum1(const unsigned p, Motif & curr, slist& supPos, slist& supNeg,
-	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges)
-{
-	if(p >= edges.size() || curr.size() == smax) {
-		if(curr.getnEdge() >= smin && supPos.size() + supNeg.size() >= nMinSup && curr.connected()) {
-			//if(curr.getnEdge() >= smin && supPos.size() >= nMinSup && curr.connected()) {
-			double s = objFun(static_cast<double>(supPos.size()) / pgp->size(),
-				static_cast<double>(supNeg.size()) / pgn->size());
-			++stNumMotifExplored;
-			res.update(curr, s);
-		}
-		return;
-	}
-	if(objFunID == 1) {
-		double upBound = objFun(static_cast<double>(supPos.size()) / pgp->size(), 0.0);
-		if(!res.updatable(upBound)) {
-			return;
-		}
-	}
-
-	_enum1(p + 1, curr, supPos, supNeg, res, edges);
-
-	vector<const subject_t*> rmvPos, rmvNeg;
-	removeSupport(supPos, rmvPos, edges[p]);
-	removeSupport(supNeg, rmvNeg, edges[p]);
-	curr.addEdge(edges[p].s, edges[p].d);
-	_enum1(p + 1, curr, supPos, supNeg, res, edges);
-	curr.removeEdge(edges[p].s, edges[p].d);
-	for(auto s : rmvPos)
-		supPos.pushFront(s);
-	for(auto s : rmvNeg)
-		supNeg.pushFront(s);
-}
-
 std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 {
 	cout << "Phase 1 (prepare edges)" << endl;
@@ -353,16 +288,18 @@ std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 	TopKHolder<Motif, double> holder(k);
 	for(int s = 2; s <= smax; ++s) {
 		Timer timer;
-		vector<MotifBuilder> t = _edge1_bfs(last, holder, edges);
-		int numTotal = t.size();
-		sortUpNewLayer(t);
-		int numUnique = t.size();
+		size_t numLast, numTotal, numUnique;
+		numLast = last.size();
+		//vector<MotifBuilder> t = _edge1_bfs(last, holder, edges);
+		map<MotifBuilder, int> t = _edge1_bfs(last, holder, edges);
+		tie(last, numTotal) = sortUpNewLayer(t);
+		numUnique = last.size();
 		auto _time_ms = timer.elapseMS();
-		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on "<<last.size()<<" motifs."
+		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on "<<numLast<<" motifs."
 			<< "\tgenerate new "<< numUnique << " / " << numTotal << " motifs (valid/total)" << endl;
-		if(t.empty())
+		if(last.empty())
 			break;
-		last = move(t);
+//		last = move(t);
 	}
 
 	cout << "Phase 3 (output)" << endl;
@@ -375,11 +312,70 @@ std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 	return holder.getResultMove();
 }
 
-std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<MotifBuilder>& last,
+//std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<MotifBuilder>& last,
+//	TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges)
+//{
+//	int layer = last.front().getnEdge();
+//	std::vector<MotifBuilder> newLayer;
+//	for(const auto& mb : last) {
+//		// work on a motif
+//		MotifSign ms(nNode);
+//		++stNumMotifExplored;
+//		// TODO: optimize with parent selection and marked SD checking
+//		int cntPos;
+//		if(flagUseSD) {
+//			calMotifSD(ms, mb);
+//			cntPos = countMotifSP(mb, ms, *pgp, sigPos);
+//			/*Motif m = mb.toMotif();
+//			if(cntPos != countMotif(m, *pgp)) {
+//				cout << "unmatch" << endl << "motif:\n";
+//				for(auto& e : mb.edges)
+//					cout << "(" << e.s << "," << e.d << ") ";
+//				cout << "\nNo SD:\n";
+//				for(size_t i = 0; i < pgp->size(); ++i)
+//					cout << i << ":" << testMotif(m, pgp->at(i)) << ", ";
+//				cout << "\nSD:\n";
+//				for(size_t i = 0; i < pgp->size(); ++i)
+//					cout << i << ":" << testMotifSP(m, ms, pgp->at(i), sigPos[i]) << ", ";
+//			}*/
+//		} else {
+//			cntPos = countMotif(mb.toMotif(), *pgp);
+//		}
+//		++stNumFreqPos;
+//		double freqPos = static_cast<double>(cntPos) / pgp->size();
+//		double scoreUB = freqPos;
+//		// freqPos is the upperbound of differential & ratio based objective function
+//		if(freqPos < minSup || scoreUB <= holder.lastScore())
+//			continue;
+//		if(layer >= smin) {
+//			int cntNeg;
+//			if(flagUseSD)
+//				cntNeg = countMotifSP(mb, ms, *pgn, sigNeg);
+//			else
+//				cntNeg = countMotif(mb.toMotif(), *pgn);
+//			++stNumFreqNeg;
+//			double freqNeg = static_cast<double>(cntNeg) / pgn->size();
+//			double score = objFun(freqPos, freqNeg);
+//			holder.update(mb.toMotif(), score);
+//		}
+//		// generate new motifs
+//		for(const Edge&e : edges) {
+//			if((mb.containNode(e.s) || mb.containNode(e.d)) && !mb.containEdge(e.s, e.d)) {
+//				MotifBuilder t(mb);
+//				t.addEdge(e.s, e.d);
+//				newLayer.push_back(move(t));
+//				++stNumMotifGenerated;
+//			}
+//		}
+//	}
+//	return newLayer;
+//}
+
+std::map<MotifBuilder, int> StrategyFuncFreqSD::_edge1_bfs(const std::vector<MotifBuilder>& last,
 	TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges)
 {
 	int layer = last.front().getnEdge();
-	std::vector<MotifBuilder> newLayer;
+	std::map<MotifBuilder, int> newLayer;
 	for(const auto& mb : last) {
 		// work on a motif
 		MotifSign ms(nNode);
@@ -391,15 +387,15 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 			cntPos = countMotifSP(mb, ms, *pgp, sigPos);
 			/*Motif m = mb.toMotif();
 			if(cntPos != countMotif(m, *pgp)) {
-				cout << "unmatch" << endl << "motif:\n";
-				for(auto& e : mb.edges)
-					cout << "(" << e.s << "," << e.d << ") ";
-				cout << "\nNo SD:\n";
-				for(size_t i = 0; i < pgp->size(); ++i)
-					cout << i << ":" << testMotif(m, pgp->at(i)) << ", ";
-				cout << "\nSD:\n";
-				for(size_t i = 0; i < pgp->size(); ++i)
-					cout << i << ":" << testMotifSP(m, ms, pgp->at(i), sigPos[i]) << ", ";
+			cout << "unmatch" << endl << "motif:\n";
+			for(auto& e : mb.edges)
+			cout << "(" << e.s << "," << e.d << ") ";
+			cout << "\nNo SD:\n";
+			for(size_t i = 0; i < pgp->size(); ++i)
+			cout << i << ":" << testMotif(m, pgp->at(i)) << ", ";
+			cout << "\nSD:\n";
+			for(size_t i = 0; i < pgp->size(); ++i)
+			cout << i << ":" << testMotifSP(m, ms, pgp->at(i), sigPos[i]) << ", ";
 			}*/
 		} else {
 			cntPos = countMotif(mb.toMotif(), *pgp);
@@ -426,7 +422,8 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::_edge1_bfs(const std::vector<Motif
 			if((mb.containNode(e.s) || mb.containNode(e.d)) && !mb.containEdge(e.s, e.d)) {
 				MotifBuilder t(mb);
 				t.addEdge(e.s, e.d);
-				newLayer.push_back(move(t));
+				//newLayer.push_back(move(t));
+				++newLayer[t];
 				++stNumMotifGenerated;
 			}
 		}

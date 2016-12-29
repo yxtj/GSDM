@@ -149,7 +149,7 @@ bool StrategyFuncFreqSD::checkSPNecessary(const MotifBuilder& m, const MotifSign
 	return true;
 }
 
-std::vector<MotifBuilder> StrategyFuncFreqSD::sortUpNewLayer(std::vector<MotifBuilder>& layer)
+std::pair<std::vector<MotifBuilder>, size_t> StrategyFuncFreqSD::sortUpNewLayer(std::vector<MotifBuilder>& layer)
 {
 	if(flagNetworkPrune)
 		return pruneWithNumberOfParents(layer);
@@ -157,12 +157,34 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::sortUpNewLayer(std::vector<MotifBu
 		return removeDuplicate(layer);
 }
 
-std::vector<MotifBuilder> StrategyFuncFreqSD::removeDuplicate(std::vector<MotifBuilder>& layer)
+std::pair<std::vector<MotifBuilder>, size_t> StrategyFuncFreqSD::sortUpNewLayer(std::map<MotifBuilder, int>& layer)
 {
+	if(flagNetworkPrune)
+		return pruneWithNumberOfParents(layer);
+	else
+		return removeDuplicate(layer);
+}
+
+
+std::pair<std::vector<MotifBuilder>, size_t> StrategyFuncFreqSD::removeDuplicate(std::vector<MotifBuilder>& layer)
+{
+	size_t cnt = layer.size();
 	sort(layer.begin(), layer.end());
 	auto itend = unique(layer.begin(), layer.end());
 	layer.erase(itend, layer.end());
-	return layer;
+	return make_pair(move(layer), move(cnt));
+}
+
+std::pair<std::vector<MotifBuilder>, size_t> StrategyFuncFreqSD::removeDuplicate(std::map<MotifBuilder, int>& layer)
+{
+	vector<MotifBuilder> res;
+	res.reserve(layer.size());
+	size_t cnt = 0;
+	for(auto& p : layer) {
+		res.push_back(move(p.first));
+		cnt += p.second;
+	}
+	return make_pair(move(res), move(cnt));
 }
 
 int StrategyFuncFreqSD::quickEstimiateNumberOfParents(const Motif & m)
@@ -196,16 +218,16 @@ int StrategyFuncFreqSD::quickEstimiateNumberOfParents(const MotifBuilder & m)
 	return cnt;
 }
 
-std::vector<MotifBuilder> StrategyFuncFreqSD::pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs)
+std::pair<std::vector<MotifBuilder>, size_t> StrategyFuncFreqSD::pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs)
 {
 	if(mbs.empty())
-		return mbs;
+		return make_pair(mbs, 0);
+	size_t cnt = mbs.size();
 	sort(mbs.begin(), mbs.end());
 	auto p = mbs.begin(); // point to the processing position
 	auto pGroup= p; // point to the first of current group
 	auto pRes = p; // point to an undetermined position
 	auto pEnd = mbs.end();
-	int cnt = 1;
 	while(++p != pEnd) {
 		if(!(*pGroup == *p)) { // new motif
 			int nParentMin = quickEstimiateNumberOfParents(*pGroup);
@@ -222,6 +244,20 @@ std::vector<MotifBuilder> StrategyFuncFreqSD::pruneWithNumberOfParents(std::vect
 		//}
 	}
 	mbs.erase(pRes, pEnd);
-	return mbs;
+	return make_pair(move(mbs), move(cnt));
+}
+
+std::pair<std::vector<MotifBuilder>, size_t> StrategyFuncFreqSD::pruneWithNumberOfParents(std::map<MotifBuilder, int>& mbs)
+{
+	vector<MotifBuilder> res;
+	size_t cnt = 0;
+	for(auto& p : mbs) {
+		int nParentMin = quickEstimiateNumberOfParents(p.first);
+		int nGenerate = p.second;
+		cnt += nGenerate;
+		if(nParentMin <= nGenerate)
+			res.push_back(move(p.first));
+	}
+	return make_pair(move(res), move(cnt));
 }
 

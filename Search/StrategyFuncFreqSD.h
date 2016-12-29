@@ -94,7 +94,6 @@ private:
 	std::vector<Edge> getEdges();
 	void setSignature();
 
-	std::vector<Motif> method_enum1();
 	std::vector<Motif> method_edge1_bfs();
 
 //	std::vector<Motif> master(Network& net);
@@ -120,10 +119,10 @@ private:
 private:
 	void removeSupport(slist& sup, std::vector<const subject_t*>& rmv, const Edge& e);
 
-	void _enum1(const unsigned p, Motif& curr, slist& supPos, slist& supNeg,
-		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
-	std::vector<MotifBuilder> _edge1_bfs(const std::vector<MotifBuilder>& last,
-		TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
+	//std::vector<MotifBuilder> _edge1_bfs(const std::vector<MotifBuilder>& last,
+	//	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
+	std::map<MotifBuilder, int> StrategyFuncFreqSD::_edge1_bfs(const std::vector<MotifBuilder>& last,
+		TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges);
 
 private:
 	Signature genSignture(const std::vector<Graph>& gs, const double theta);
@@ -135,13 +134,16 @@ private:
 	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
 
 private:
-	std::vector<MotifBuilder> sortUpNewLayer(std::vector<MotifBuilder>& layer);
+	std::pair<std::vector<MotifBuilder>, size_t> sortUpNewLayer(std::vector<MotifBuilder>& layer);
+	std::pair<std::vector<MotifBuilder>, size_t> sortUpNewLayer(std::map<MotifBuilder, int>& layer);
 
-	std::vector<MotifBuilder> removeDuplicate(std::vector<MotifBuilder>& layer);
+	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::vector<MotifBuilder>& layer);
+	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::map<MotifBuilder, int>& layer);
 
 	int quickEstimiateNumberOfParents(const Motif& m);
 	int quickEstimiateNumberOfParents(const MotifBuilder& m);
-	std::vector<MotifBuilder> pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs);
+	std::pair<std::vector<MotifBuilder>, size_t> pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs);
+	std::pair<std::vector<MotifBuilder>, size_t> pruneWithNumberOfParents(std::map<MotifBuilder, int>& mbs);
 
 private:
 	//std::pair<int, int> master_gather_count(Network& net, const Motif& m);
