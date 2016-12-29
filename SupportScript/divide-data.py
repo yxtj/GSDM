@@ -44,7 +44,7 @@ def loadFileList(inDir, pattern):
             d2[tp]=[(id,i)]
     # prepare the output list
     res=[]
-    for tp in d2:
+    for tp in sorted(d2.keys()):
         d2[tp].sort()
         temp=[lval[i] for (id,i) in d2[tp]]
         res.append(temp)
@@ -92,7 +92,7 @@ def main(inDir, method, pattern, portions, outDirs):
     nType=len(flist)
     print('  # of valid types: '+str(nType))
     nSub=[len(l) for l in flist]
-    print('  # of valid subjects: '+str(sum(nSub)))
+    print('  # of valid subjects: '+str(sum(nSub))+' - '+str(nSub))
     print('  # of valid files: '+str(
         sum(sum(len(l2) for l2 in l1) for l1 in flist) ))
 
