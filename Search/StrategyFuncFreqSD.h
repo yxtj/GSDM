@@ -121,7 +121,7 @@ private:
 
 	//std::vector<MotifBuilder> _edge1_bfs(const std::vector<MotifBuilder>& last,
 	//	TopKHolder<Motif, double>& res, const std::vector<Edge>& edges);
-	std::map<MotifBuilder, int> StrategyFuncFreqSD::_edge1_bfs(const std::vector<MotifBuilder>& last,
+	std::map<MotifBuilder, int> _edge1_bfs(const std::vector<MotifBuilder>& last,
 		TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges);
 
 private:
