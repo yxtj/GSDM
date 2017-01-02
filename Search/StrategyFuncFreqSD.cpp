@@ -221,8 +221,8 @@ bool StrategyFuncFreqSD::testMotif(const Motif & m, const std::vector<Graph>& su
 	int th = static_cast<int>(ceil(sub.size()*pSnap));
 	int cnt = 0;
 	for(auto&g : sub) {
+		++stNumGraphChecked;
 		if(g.testMotif(m)) {
-			++stNumGraphChecked;
 			if(++cnt >= th)
 				break;
 		}

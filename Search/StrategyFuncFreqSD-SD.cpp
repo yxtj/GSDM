@@ -28,8 +28,8 @@ bool StrategyFuncFreqSD::testMotifSP(const MotifBuilder & m, const MotifSign& ms
 	int th = static_cast<int>(ceil(sub.size()*pSnap));
 	int cnt = 0;
 	for(auto&g : sub) {
+		++stNumGraphChecked;
 		if(g.testMotif(m)) {
-			++stNumGraphChecked;
 			if(++cnt >= th)
 				break;
 		}
