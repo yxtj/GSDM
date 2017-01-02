@@ -95,6 +95,9 @@
     <ClInclude Include="StrategyFuncFreqSD.h">
       <Filter>Strategies</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyOFG.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -173,6 +176,18 @@
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyFuncFreqSD.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFG.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFG-SD.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFG-DCES.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFG-SL.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>

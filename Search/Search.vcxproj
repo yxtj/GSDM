@@ -173,6 +173,7 @@
     <ClInclude Include="StrategyFreqPmNPara.h" />
     <ClInclude Include="StrategyFuncFreq.h" />
     <ClInclude Include="StrategyFuncFreqSD.h" />
+    <ClInclude Include="StrategyOFG.h" />
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
     <ClInclude Include="TopKHolder.hpp" />
@@ -207,6 +208,10 @@
     <ClCompile Include="StrategyFuncFreq.cpp" />
     <ClCompile Include="StrategyFuncFreqSD-SD.cpp" />
     <ClCompile Include="StrategyFuncFreqSD.cpp" />
+    <ClCompile Include="StrategyOFG-DCES.cpp" />
+    <ClCompile Include="StrategyOFG-SD.cpp" />
+    <ClCompile Include="StrategyOFG-SL.cpp" />
+    <ClCompile Include="StrategyOFG.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />
   </ItemGroup>
