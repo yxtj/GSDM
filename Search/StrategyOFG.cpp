@@ -103,6 +103,7 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
 	nNode = gPos[0][0].nNode;
 	initStatistics();
+	setDCESmaintainOrder(false);
 
 	if(flagUseSD) {
 		cout << "Generating subject signatures..." << endl;
@@ -142,7 +143,7 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 bool StrategyOFG::setObjFun(const std::string & name)
 {
 	if(name == "diff") {
-		//objFun = &StrategyFuncFreqSP::objFun_diffP2N;
+		//objFun = &StrategyOFG::objFun_diffP2N;
 		objFun = bind(&StrategyOFG::objFun_diffP2N, this, placeholders::_1, placeholders::_2);
 		objFunID = 1;
 		return true;
@@ -288,16 +289,17 @@ int StrategyOFG::countMotifXSub(const MotifBuilder & m, const std::vector<std::v
 std::vector<Motif> StrategyOFG::method_edge1_bfs()
 {
 	cout << "Phase 1 (prepare edges)" << endl;
-	vector<Edge> edges = initialCandidateEdges();
+	//vector<Edge> edges = initialCandidateEdges();
+	vector<pair<Edge, double>> edges = getExistedEdges(*pgp);
 	cout << "  # of edges: " << edges.size() << endl;
-	//	vector<pair<MotifBuilder, double>> last;
+//	vector<pair<MotifBuilder, double>> last;
 	vector<MotifBuilder> last;
 	last.reserve(3 * edges.size());
-	for(const Edge& e : edges) {
+	for(const pair<Edge, double>& e : edges) {
 		MotifBuilder m;
-		m.addEdge(e.s, e.d);
-		//		double p = gp.matrix[e.s][e.d];
-		//		last.emplace_back(move(m), p);
+		m.addEdge(e.first.s, e.first.d);
+//		double p = gp.matrix[e.s][e.d];
+//		last.emplace_back(move(m), p);
 		last.push_back(move(m));
 	}
 	if(last.empty()) {
@@ -311,16 +313,17 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 		size_t numLast, numTotal, numUnique;
 		numLast = last.size();
 		vector<bool> usedEdges(edges.size(), false);
-		//vector<MotifBuilder> t = _edge1_bfs(last, holder, edges);
-		map<MotifBuilder, int> t = _edge1_bfs(last, holder, edges, usedEdges);
+		map<MotifBuilder, int> t = _edge1_bfs(holder, last, edges, usedEdges);
 		tie(last, numTotal) = sortUpNewLayer(t);
 		numUnique = last.size();
+		int nRmvEdge = (this->*maintainDCESConnected)(edges, usedEdges);
+		nRmvEdge += (this->*maintainDCESBound)(edges, holder.lastScore());
 		auto _time_ms = timer.elapseMS();
 		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on " << numLast << " motifs."
-			<< "\tgenerate new " << numUnique << " / " << numTotal << " motifs (valid/total)" << endl;
+			<< "\tgenerate new " << numUnique << " / " << numTotal << " motifs (valid/total)"
+			<<"\t removed edges by connection condition" << nRmvEdge << endl;
 		if(last.empty())
 			break;
-		//		last = move(t);
 	}
 
 	cout << "Phase 3 (output)" << endl;
@@ -333,8 +336,9 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 	return holder.getResultMove();
 }
 
-std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(const std::vector<MotifBuilder>& last,
-	TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges, std::vector<bool>& usedEdge)
+std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
+	TopKHolder<Motif, double>& holder, const std::vector<MotifBuilder>& last,
+	const std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& usedEdge)
 {
 	int layer = last.front().getnEdge();
 	std::map<MotifBuilder, int> newLayer;
@@ -379,14 +383,14 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(const std::vector<MotifBuild
 			double freqNeg = static_cast<double>(cntNeg) / pgn->size();
 			double score = objFun(freqPos, freqNeg);
 			holder.update(mb.toMotif(), score);
+			//maintainDCESBound(edges,)
 		}
 		// generate new motifs
 		for(size_t i = 0; i < edges.size(); ++i) {
-			const Edge& e = edges[i];
+			const Edge& e = edges[i].first;
 			if((mb.containNode(e.s) || mb.containNode(e.d)) && !mb.containEdge(e.s, e.d)) {
 				MotifBuilder t(mb);
 				t.addEdge(e.s, e.d);
-				//newLayer.push_back(move(t));
 				++newLayer[t];
 				usedEdge[i] = true;
 				++stNumMotifGenerated;

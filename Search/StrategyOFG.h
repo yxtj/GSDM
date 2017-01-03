@@ -101,9 +101,10 @@ private:
 	/* Objective Function Guided Search */
 private:
 	std::vector<Motif> method_edge1_bfs();
-	std::map<MotifBuilder, int> _edge1_bfs(const std::vector<MotifBuilder>& last,
-		TopKHolder<Motif, double>& holder, const std::vector<Edge>& edges, std::vector<bool>& usedEdge);
-
+	// expand one more layer
+	std::map<MotifBuilder, int> _edge1_bfs(
+		TopKHolder<Motif, double>& holder, const std::vector<MotifBuilder>& last,
+		const std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& usedEdge);
 
 
 
@@ -122,17 +123,24 @@ private:
 
 	/* Dynamic Candidate Edge Set (DCES) */
 private:
+	void setDCESmaintainOrder(bool inorder);
 	std::vector<Edge> initialCandidateEdges();
-	int maintainDCESConnected(std::vector<Edge>& edges, std::vector<bool>& used);
-	int maintainDCESBound(std::vector<Edge>& edges, std::vector<double>& edgeFreq, const double worst);
-
-	// Subject level counting
-	std::pair<std::vector<Edge>, std::vector<double>> getExistedEdges(
+	std::vector<std::pair<Edge, double>> getExistedEdges(
 		const std::vector<std::vector<Graph>>& subs) const;
 
-	bool testMotifInSubSD(const MotifBuilder& m, const MotifSign& ms, const std::vector<Graph>& sub, const Signature& ss) const;
-	int countMotifXSubSD(const MotifBuilder& m, const MotifSign& ms,
-		const std::vector<std::vector<Graph>>& subs, const std::vector<Signature>& sigs) const;
+	// remove unused edges (on longer connected). returns the number of removed edges
+	int maintainDCESConnected_inorder(std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& used);
+	int maintainDCESConnected_unorder(std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& used);
+
+	// remove low frequency edges. returns the number of removed edges
+	int maintainDCESBound_inorder(std::vector<std::pair<Edge, double>>& edges, const double worst);
+	int maintainDCESBound_unorder(std::vector<std::pair<Edge, double>>& edges, const double worst);
+
+	using maintainDCESConnected_t = int(StrategyOFG::*)(std::vector<std::pair<Edge, double>>&, std::vector<bool>&);
+	maintainDCESConnected_t maintainDCESConnected;
+
+	using maintainDCESBound_t = int(StrategyOFG::*)(std::vector<std::pair<Edge, double>>&, const double);
+	maintainDCESBound_t maintainDCESBound;
 
 	/* Valid Subject Set */
 private:
@@ -141,6 +149,10 @@ private:
 private:
 	void setSignature();
 
+	bool testMotifInSubSD(const MotifBuilder& m, const MotifSign& ms, const std::vector<Graph>& sub, const Signature& ss) const;
+	int countMotifXSubSD(const MotifBuilder& m, const MotifSign& ms,
+		const std::vector<std::vector<Graph>>& subs, const std::vector<Signature>& sigs) const;
+
 	Signature genSignture(const std::vector<Graph>& gs, const double theta);
 	std::vector<std::vector<int>> calA2AShortestDistance(const Graph& g); // all source-destination pairs
 
@@ -148,7 +160,6 @@ private:
 	//	void calMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
 	void calMotifSD(MotifSign& ms, const MotifBuilder& m);
 	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
-
 
 };
 
