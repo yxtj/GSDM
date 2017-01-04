@@ -7,11 +7,15 @@ using namespace std;
 void StrategyOFG::setDCESmaintainOrder(bool inorder)
 {
 	if(inorder == true) {
-		maintainDCESConnected = &StrategyOFG::maintainDCESConnected_inorder;
-		maintainDCESBound = &StrategyOFG::maintainDCESBound_inorder;
+		//maintainDCESConnected = &StrategyOFG::maintainDCESConnected_inorder;
+		//maintainDCESBound = &StrategyOFG::maintainDCESBound_inorder;
+		maintainDCESConnected = bind(&StrategyOFG::maintainDCESConnected_inorder, this, placeholders::_1, placeholders::_2);
+		maintainDCESBound = bind(&StrategyOFG::maintainDCESBound_inorder, this, placeholders::_1, placeholders::_2);
 	}else{
-		maintainDCESConnected = &StrategyOFG::maintainDCESConnected_unorder;
-		maintainDCESBound = &StrategyOFG::maintainDCESBound_unorder;
+		//maintainDCESConnected = &StrategyOFG::maintainDCESConnected_unorder;
+		//maintainDCESBound = &StrategyOFG::maintainDCESBound_unorder;
+		maintainDCESConnected = bind(&StrategyOFG::maintainDCESConnected_unorder, this, placeholders::_1, placeholders::_2);
+		maintainDCESBound = bind(&StrategyOFG::maintainDCESBound_unorder, this, placeholders::_1, placeholders::_2);
 	}
 }
 
@@ -33,7 +37,7 @@ std::vector<std::pair<Edge, double>> StrategyOFG::getExistedEdges(
 	std::vector<std::pair<Edge, double>> res;
 	double factor = 1.0 / subs.size();
 	for(int i = 0; i < nNode; ++i) {
-		for(int j = 0; j < nNode; ++j) {
+		for(int j = i+1; j < nNode; ++j) {
 			int t = countEdgeXSub(i, j, subs);
 			if(t != 0) {
 				auto f = t*factor;
@@ -79,27 +83,27 @@ int StrategyOFG::maintainDCESConnected_unorder(std::vector<std::pair<Edge, doubl
 	return removed;
 }
 
-int StrategyOFG::maintainDCESBound_inorder(std::vector<std::pair<Edge, double>>& edges, const double worst)
+int StrategyOFG::maintainDCESBound_inorder(std::vector<std::pair<Edge, double>>& edges, const double lowerBound)
 {
 	auto it = remove_if(edges.begin(), edges.end(), [=](pair<Edge, double>& p) {
-		return p.second < worst;
+		return p.second < lowerBound;
 	});
 	int removed = edges.end() - it;
 	edges.erase(it, edges.end());
 	return removed;
 }
 
-int StrategyOFG::maintainDCESBound_unorder(std::vector<std::pair<Edge, double>>& edges, const double worst)
+int StrategyOFG::maintainDCESBound_unorder(std::vector<std::pair<Edge, double>>& edges, const double lowerBound)
 {
 	size_t f = 0, l = edges.size();
-	while(l>0 && edges[l-1].second<worst)
+	while(l>0 && edges[l-1].second<lowerBound)
 		--l;
 	while(f < l) {
-		if(edges[l-1].second>=worst) {
+		if(edges[f].second>= lowerBound) {
 			++f;
 		} else {
 			edges[f++] = edges[--l];
-			while(l>f && edges[l - 1].second<worst)
+			while(l>f && edges[l - 1].second<lowerBound)
 				--l;
 		}
 	}

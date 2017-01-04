@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "StrategyOFG.h"
-#include "CandidateMethodFactory.h"
 #include "Option.h"
 #include "../util/Timer.h"
 #include <regex>
@@ -10,7 +9,7 @@ using namespace std;
 const std::string StrategyOFG::name("ofg");
 const std::string StrategyOFG::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyOFG::name + " <k> <smin> <smax> <theta> <obj-fun> <alpha> [sd] [net] [dces] [log]\n"
+	"Usage: " + StrategyOFG::name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [log]\n"
 	"  <k>: [integer] return top-k result"
 //	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
@@ -18,7 +17,7 @@ const std::string StrategyOFG::usage(
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
-	"  [dces]: optional [dces/dces-no/dces-c/dces-b], default enabled, use dynamic candidate edge set "
+	"  [dces]: optional [dces/dces-no/dces-c/dces-b], default disabled, use dynamic candidate edge set "
 	"('c' for connected-condition, 'b' for bound-condition)\n"
 	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path"
 );
@@ -27,23 +26,24 @@ const std::string StrategyOFG::usage(
 bool StrategyOFG::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 6, 10, name);
+		checkParam(param, 4, 8, name);
 		k = stoi(param[1]);
-		smin = stoi(param[2]);
-		smax = stoi(param[3]);
+//		smin = stoi(param[2]);
+//		smax = stoi(param[3]);
 //		minSup = stod(param[4]);
-		pSnap = stod(param[4]);
-		setObjFun(param[5]);
+		pSnap = stod(param[2]);
+		if(!setObjFun(param[3]))
+			throw invalid_argument("Unsupported objective function for Strategy " + name + " : " + param[3]);
 		// TODO: change to use a separated functio to parse the parameters for certain objective function
 		if(objFunID == 1)
-			alpha = stod(param[6]);
+			alpha = stod(param[4]);
 		flagUseSD = true;
 		flagNetworkPrune = true;
-		flagDCESConnected = true;
-		flagDCESBound = true;
+		flagDCESConnected = false;
+		flagDCESBound = false;
 		flagOutputScore = false;
 		regex reg("(sd|net|dces(-[cb])?|log(:.+)?)(-no)?");
-		for(size_t i = 7; i < param.size(); ++i) {
+		for(size_t i = 5; i < param.size(); ++i) {
 			//const string& str = param[i];
 			smatch m;
 			if(regex_match(param[i], m, reg)) {
@@ -54,34 +54,16 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 				} else if(name == "net") {
 					flagNetworkPrune = flag;
 				} else if(name.find("dces") != string::npos) {
-					if(m[2].matched && flag) {
-						throw invalid_argument("wrong option for dces");
-					} else if(!m[2].matched) {
-						flagDCESConnected = flagDCESBound = flag;
-					} else {
-						string opt = m[2].str();
-						if(opt.find("c") != string::npos) {
-							flagDCESConnected = true;
-							flagDCESBound = false;
-						} else { //if(opt.find("b") != string::npos)
-							flagDCESConnected = false;
-							flagDCESBound = true;
-						}
-					}
+					parseDCES(m[2], flag);
 				} else { //if(name.substr(3) == "log")
-					flagOutputScore = flag;
-					if(flag) {
-						string path = m[3].str();
-						if(path.size() < 2)
-							throw invalid_argument("log path of Strategy " + name + " is not give.");
-						else
-							pathOutputScore = path.substr(1);
-					}
+					parseLOG(m[3], flag);
 				}
 			} else {
-				throw invalid_argument("Unknown option for strategy FuncFreqSD: " + param[i]);
+				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
 			}
 		}
+		// TODO: consider whether to put in an option
+		setDCESmaintainOrder(false);
 	} catch(exception& e) {
 		cerr << e.what() << endl;
 		return false;
@@ -103,13 +85,12 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
 	nNode = gPos[0][0].nNode;
 	initStatistics();
-	setDCESmaintainOrder(false);
 
 	if(flagUseSD) {
 		cout << "Generating subject signatures..." << endl;
 		Timer timer;
 		setSignature();
-		cout << "  Signatures generated in " << timer.elapseMS() << " ms" << endl;
+		cout << "  Signatures generated in " << timer.elapseS() << " s" << endl;
 	}
 
 	cout << "Enumeratig..." << endl;
@@ -131,10 +112,10 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	int oldFlag = cout.setf(ios::fixed);
 	auto oldPrec = cout.precision(2);
 	cout << "  Finished in " << ts << " seconds\n"
-		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << " ; "
-		<< "subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
-		<<" , on average: "<< ios::fixed<<(double)stNumGraphChecked/stNumSubjectChecked << " graph/subject ; "
-		<< "frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
+		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
+		<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
+		<<" , on average: "<< ios::fixed<<(double)stNumGraphChecked/stNumSubjectChecked << " graph/subject\n"
+		<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
 	cout.precision(oldPrec);
 	cout.setf(oldFlag);
 	return res;
@@ -184,6 +165,37 @@ void StrategyOFG::initStatistics()
 	stNumSubjectChecked = 0;
 	stNumFreqPos = 0;
 	stNumFreqNeg = 0;
+}
+
+void StrategyOFG::parseDCES(const ssub_match & param, const bool flag)
+{
+	if(param.matched && flag) {
+		throw invalid_argument("wrong option for dces");
+	} else if(!param.matched) {
+		flagDCESConnected = flagDCESBound = flag;
+	} else {
+		string opt = param.str();
+		if(opt.find("c") != string::npos) {
+			flagDCESConnected = true;
+			flagDCESBound = false;
+		} else { //if(opt.find("b") != string::npos)
+			flagDCESConnected = false;
+			flagDCESBound = true;
+		}
+	}
+}
+
+void StrategyOFG::parseLOG(const ssub_match & param, const bool flag)
+{
+	flagOutputScore = flag;
+	if(flag) {
+		string path = param.str();
+		if(path.size() < 2)
+			throw invalid_argument("log path of Strategy " + name + " is not give.");
+		else
+			pathOutputScore = path.substr(1);
+	}
+
 }
 
 bool StrategyOFG::testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const
@@ -285,121 +297,3 @@ int StrategyOFG::countMotifXSub(const MotifBuilder & m, const std::vector<std::v
 	return cnt;
 
 }
-
-std::vector<Motif> StrategyOFG::method_edge1_bfs()
-{
-	cout << "Phase 1 (prepare edges)" << endl;
-	//vector<Edge> edges = initialCandidateEdges();
-	vector<pair<Edge, double>> edges = getExistedEdges(*pgp);
-	cout << "  # of edges: " << edges.size() << endl;
-//	vector<pair<MotifBuilder, double>> last;
-	vector<MotifBuilder> last;
-	last.reserve(3 * edges.size());
-	for(const pair<Edge, double>& e : edges) {
-		MotifBuilder m;
-		m.addEdge(e.first.s, e.first.d);
-//		double p = gp.matrix[e.s][e.d];
-//		last.emplace_back(move(m), p);
-		last.push_back(move(m));
-	}
-	if(last.empty()) {
-		return vector<Motif>();
-	}
-
-	cout << "Phase 2 (testing motifs layer by layer)" << endl;
-	TopKHolder<Motif, double> holder(k);
-	for(int s = 2; s <= smax; ++s) {
-		Timer timer;
-		size_t numLast, numTotal, numUnique;
-		numLast = last.size();
-		vector<bool> usedEdges(edges.size(), false);
-		map<MotifBuilder, int> t = _edge1_bfs(holder, last, edges, usedEdges);
-		tie(last, numTotal) = sortUpNewLayer(t);
-		numUnique = last.size();
-		int nRmvEdge = (this->*maintainDCESConnected)(edges, usedEdges);
-		nRmvEdge += (this->*maintainDCESBound)(edges, holder.lastScore());
-		auto _time_ms = timer.elapseMS();
-		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on " << numLast << " motifs."
-			<< "\tgenerate new " << numUnique << " / " << numTotal << " motifs (valid/total)"
-			<<"\t removed edges by connection condition" << nRmvEdge << endl;
-		if(last.empty())
-			break;
-	}
-
-	cout << "Phase 3 (output)" << endl;
-	if(flagOutputScore) {
-		ofstream fout(pathOutputScore);
-		for(auto& p : holder.data) {
-			fout << p.second << "\t" << p.first << "\n";
-		}
-	}
-	return holder.getResultMove();
-}
-
-std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
-	TopKHolder<Motif, double>& holder, const std::vector<MotifBuilder>& last,
-	const std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& usedEdge)
-{
-	int layer = last.front().getnEdge();
-	std::map<MotifBuilder, int> newLayer;
-	for(const auto& mb : last) {
-		// work on a motif
-		MotifSign ms(nNode);
-		++stNumMotifExplored;
-		// TODO: optimize with parent selection and marked SD checking
-		int cntPos;
-		if(flagUseSD) {
-			calMotifSD(ms, mb);
-			cntPos = countMotifXSubSD(mb, ms, *pgp, sigPos);
-			/*Motif m = mb.toMotif();
-			if(cntPos != countMotif(m, *pgp)) {
-			cout << "unmatch" << endl << "motif:\n";
-			for(auto& e : mb.edges)
-			cout << "(" << e.s << "," << e.d << ") ";
-			cout << "\nNo SD:\n";
-			for(size_t i = 0; i < pgp->size(); ++i)
-			cout << i << ":" << testMotif(m, pgp->at(i)) << ", ";
-			cout << "\nSD:\n";
-			for(size_t i = 0; i < pgp->size(); ++i)
-			cout << i << ":" << testMotifInSubSD(m, ms, pgp->at(i), sigPos[i]) << ", ";
-			}*/
-		} else {
-			cntPos = countMotifXSub(mb, *pgp);
-		}
-		++stNumFreqPos;
-		double freqPos = static_cast<double>(cntPos) / pgp->size();
-		double scoreUB = freqPos;
-		// freqPos is the upperbound of differential & ratio based objective function
-		//if(freqPos < minSup || scoreUB <= holder.lastScore())
-		if(scoreUB <= holder.lastScore())
-			continue;
-		if(layer >= smin) {
-			int cntNeg;
-			if(flagUseSD)
-				cntNeg = countMotifXSubSD(mb, ms, *pgn, sigNeg);
-			else
-				cntNeg = countMotifXSub(mb, *pgn);
-			++stNumFreqNeg;
-			double freqNeg = static_cast<double>(cntNeg) / pgn->size();
-			double score = objFun(freqPos, freqNeg);
-			holder.update(mb.toMotif(), score);
-			//maintainDCESBound(edges,)
-		}
-		// generate new motifs
-		for(size_t i = 0; i < edges.size(); ++i) {
-			const Edge& e = edges[i].first;
-			if((mb.containNode(e.s) || mb.containNode(e.d)) && !mb.containEdge(e.s, e.d)) {
-				MotifBuilder t(mb);
-				t.addEdge(e.s, e.d);
-				++newLayer[t];
-				usedEdge[i] = true;
-				++stNumMotifGenerated;
-			}
-		}
-	}
-	return newLayer;
-}
-
-
-
-

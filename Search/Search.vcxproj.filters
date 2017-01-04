@@ -190,6 +190,9 @@
     <ClCompile Include="StrategyOFG-SL.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
+    <ClCompile Include="StrategyOFG-OFG.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />

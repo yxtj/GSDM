@@ -209,6 +209,7 @@
     <ClCompile Include="StrategyFuncFreqSD-SD.cpp" />
     <ClCompile Include="StrategyFuncFreqSD.cpp" />
     <ClCompile Include="StrategyOFG-DCES.cpp" />
+    <ClCompile Include="StrategyOFG-OFG.cpp" />
     <ClCompile Include="StrategyOFG-SD.cpp" />
     <ClCompile Include="StrategyOFG-SL.cpp" />
     <ClCompile Include="StrategyOFG.cpp" />

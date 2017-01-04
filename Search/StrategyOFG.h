@@ -3,14 +3,14 @@
 #include "CandidateMethod.h"
 #include "TopKHolder.hpp"
 #include <vector>
-#include <forward_list>
+#include <regex>
 
 class StrategyOFG :
 	public StrategyBase
 {
 	// input options:
 	int k; // number of result
-	int smin, smax; // minimum/maximum motif size
+//	int smin, smax; // minimum/maximum motif size
 //	double minSup; // minimum show up probability among postive subjects
 	double pSnap; // minimum show up probability among a subject's all snapshots
 	std::string objFunName; // the name for the objective function
@@ -84,6 +84,8 @@ private:
 	/* Basic Utility/Functions */
 private:
 	void initStatistics();
+	void parseDCES(const std::ssub_match& param, const bool flag);
+	void parseLOG(const std::ssub_match& param, const bool flag);
 
 	bool testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const;
 	int countEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const;
@@ -104,24 +106,22 @@ private:
 	// expand one more layer
 	std::map<MotifBuilder, int> _edge1_bfs(
 		TopKHolder<Motif, double>& holder, const std::vector<MotifBuilder>& last,
-		const std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& usedEdge);
+		std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& usedEdge);
 
-
+	double scoring(const MotifBuilder& mb, const double lowerBound);
 
 	/* Prune with number of valid parents (network-based pruning) */
 private:
-	std::pair<std::vector<MotifBuilder>, size_t> sortUpNewLayer(std::vector<MotifBuilder>& layer);
 	std::pair<std::vector<MotifBuilder>, size_t> sortUpNewLayer(std::map<MotifBuilder, int>& layer);
 
-	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::vector<MotifBuilder>& layer);
 	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::map<MotifBuilder, int>& layer);
 
 	int quickEstimiateNumberOfParents(const Motif& m);
 	int quickEstimiateNumberOfParents(const MotifBuilder& m);
-	std::pair<std::vector<MotifBuilder>, size_t> pruneWithNumberOfParents(std::vector<MotifBuilder>& mbs);
 	std::pair<std::vector<MotifBuilder>, size_t> pruneWithNumberOfParents(std::map<MotifBuilder, int>& mbs);
 
 	/* Dynamic Candidate Edge Set (DCES) */
+	// TODO: add dedicated class for CES (optimize for: random removal, range finding by value)
 private:
 	void setDCESmaintainOrder(bool inorder);
 	std::vector<Edge> initialCandidateEdges();
@@ -133,13 +133,15 @@ private:
 	int maintainDCESConnected_unorder(std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& used);
 
 	// remove low frequency edges. returns the number of removed edges
-	int maintainDCESBound_inorder(std::vector<std::pair<Edge, double>>& edges, const double worst);
-	int maintainDCESBound_unorder(std::vector<std::pair<Edge, double>>& edges, const double worst);
+	int maintainDCESBound_inorder(std::vector<std::pair<Edge, double>>& edges, const double lowerBound);
+	int maintainDCESBound_unorder(std::vector<std::pair<Edge, double>>& edges, const double lowerBound);
 
-	using maintainDCESConnected_t = int(StrategyOFG::*)(std::vector<std::pair<Edge, double>>&, std::vector<bool>&);
+	//using maintainDCESConnected_t = int(StrategyOFG::*)(std::vector<std::pair<Edge, double>>&, std::vector<bool>&);
+	using maintainDCESConnected_t = std::function<int(std::vector<std::pair<Edge, double>>&, std::vector<bool>&)>;
 	maintainDCESConnected_t maintainDCESConnected;
 
-	using maintainDCESBound_t = int(StrategyOFG::*)(std::vector<std::pair<Edge, double>>&, const double);
+	//using maintainDCESBound_t = int(StrategyOFG::*)(std::vector<std::pair<Edge, double>>&, const double);
+	using maintainDCESBound_t = std::function<int(std::vector<std::pair<Edge, double>>&, const double)>;
 	maintainDCESBound_t maintainDCESBound;
 
 	/* Valid Subject Set */

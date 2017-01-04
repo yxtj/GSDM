@@ -61,7 +61,7 @@ bool StrategyFuncFreqSD::parse(const std::vector<std::string>& param)
 					}
 				}
 			} else {
-				throw invalid_argument("Unknown option for strategy FuncFreqSD: " + param[i]);
+				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
 			}
 		}
 	} catch(exception& e) {
