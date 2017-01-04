@@ -8,10 +8,17 @@ struct TopKHolder {
 
 	TopKHolder(const size_t k);
 	size_t size() const;
+	static constexpr S worstScore();
+
 	bool updatable(const S s) const;
 	bool update(T&& m, const S s);
 	bool update(const T& m, const S s);
+
+	// return the last score in current holder
 	S lastScore() const;
+	// return the last score, if size()<k return - infinity
+	S lastScore4Update() const;
+
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
 private:
@@ -26,12 +33,17 @@ TopKHolder<T, S>::TopKHolder(const size_t k)
 }
 
 template<class T, typename S>
-size_t TopKHolder<T, S>::size() const
+inline size_t TopKHolder<T, S>::size() const
 {
 	return data.size();
 }
 template<class T, typename S>
-bool TopKHolder<T, S>::updatable(const S s) const
+constexpr S TopKHolder<T, S>::worstScore()
+{
+	return std::numeric_limits<S>::lowest();
+}
+template<class T, typename S>
+inline bool TopKHolder<T, S>::updatable(const S s) const
 {
 	return data.size() < k || s > lastScore();
 }
@@ -55,7 +67,7 @@ bool TopKHolder<T, S>::_updateReal(T&& m, const S s)
 }
 
 template<class T, typename S>
-bool TopKHolder<T, S>::update(T&& m, const S s)
+inline bool TopKHolder<T, S>::update(T&& m, const S s)
 {
 	return _updateReal(std::move(m), s);
 }
@@ -68,13 +80,19 @@ inline bool TopKHolder<T, S>::update(const T& m, const S s)
 }
 
 template<class T, typename S>
-S TopKHolder<T, S>::lastScore() const
+inline S TopKHolder<T, S>::lastScore() const
 {
-	return data.empty() ? - std::numeric_limits<S>::min() : data.back().second;
+	return data.empty() ? worstScore() : data.back().second;
 }
 
 template<class T, typename S>
-inline std::vector<T> TopKHolder<T, S>::getResult() const
+inline S TopKHolder<T, S>::lastScore4Update() const
+{
+	return data.size() < k ? worstScore() : data.back().second;
+}
+
+template<class T, typename S>
+std::vector<T> TopKHolder<T, S>::getResult() const
 {
 	std::vector<T> res;
 	res.reserve(data.size());
@@ -84,7 +102,7 @@ inline std::vector<T> TopKHolder<T, S>::getResult() const
 }
 
 template<class T, typename S>
-inline std::vector<T> TopKHolder<T, S>::getResultMove()
+std::vector<T> TopKHolder<T, S>::getResultMove()
 {
 	std::vector<T> res;
 	res.reserve(data.size());
