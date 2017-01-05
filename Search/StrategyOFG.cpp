@@ -17,8 +17,9 @@ const std::string StrategyOFG::usage(
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
-	"  [dces]: optional [dces/dces-no/dces-c/dces-b], default disabled, use dynamic candidate edge set "
-	"('c' for connected-condition, 'b' for bound-condition)\n"
+	"  [dces]: optional [dces/dces-c/dces-b/decs-no / dces:<ms>/dces-c:<ms>/dces-b:<ms>/decs:<ms>-no], "
+	"default enabled, use dynamic candidate edge set ('c' for connected-condition, 'b' for bound-condition) "
+	"<ms> is the minimum frequency of candidate edges, default 0.0\n"
 	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path"
 );
 
@@ -39,24 +40,25 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 			alpha = stod(param[4]);
 		flagUseSD = true;
 		flagNetworkPrune = true;
-		flagDCESConnected = false;
-		flagDCESBound = false;
+		flagDCESConnected = true;
+		flagDCESBound = true;
+		minSup = 0.0;
 		flagOutputScore = false;
-		regex reg("(sd|net|dces(-[cb])?|log(:.+)?)(-no)?");
+		regex reg("(sd|net|dces(-[cb])?(:0\\.\\d+)?|log(:.+)?)(-no)?");
 		for(size_t i = 5; i < param.size(); ++i) {
 			//const string& str = param[i];
 			smatch m;
 			if(regex_match(param[i], m, reg)) {
-				bool flag = !m[4].matched;
+				bool flag = !m[5].matched;
 				string name = m[1].str();
 				if(name == "sd") {
 					flagUseSD = flag;
 				} else if(name == "net") {
 					flagNetworkPrune = flag;
 				} else if(name.find("dces") != string::npos) {
-					parseDCES(m[2], flag);
+					parseDCES(m[2], m[3], flag);
 				} else { //if(name.substr(3) == "log")
-					parseLOG(m[3], flag);
+					parseLOG(m[4], flag);
 				}
 			} else {
 				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
@@ -167,21 +169,20 @@ void StrategyOFG::initStatistics()
 	stNumFreqNeg = 0;
 }
 
-void StrategyOFG::parseDCES(const ssub_match & param, const bool flag)
+void StrategyOFG::parseDCES(const ssub_match & option, const ssub_match & minsup, const bool flag)
 {
-	if(param.matched && flag) {
-		throw invalid_argument("wrong option for dces");
-	} else if(!param.matched) {
+	if(!option.matched) {
 		flagDCESConnected = flagDCESBound = flag;
 	} else {
-		string opt = param.str();
+		string opt = option.str();
 		if(opt.find("c") != string::npos) {
-			flagDCESConnected = true;
-			flagDCESBound = false;
+			flagDCESConnected = flag;
 		} else { //if(opt.find("b") != string::npos)
-			flagDCESConnected = false;
-			flagDCESBound = true;
+			flagDCESBound = flag;
 		}
+	}
+	if(minsup.matched) {
+		minSup = stod(minsup.str());
 	}
 }
 
@@ -200,12 +201,12 @@ void StrategyOFG::parseLOG(const ssub_match & param, const bool flag)
 
 bool StrategyOFG::testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const
 {
-	int th = static_cast<int>(ceil(graphs.size()*pSnap));
-	// return true if #occurence >= th
+	int th = static_cast<int>(floor(graphs.size()*pSnap));
+	// return true if #occurence > th
 	for(auto& g : graphs) {
 		++stNumGraphChecked;
 		if(g.testEdge(s, d))
-			if(--th <= 0)
+			if(--th < 0)
 				return true;
 	}
 	return false;
@@ -225,11 +226,12 @@ int StrategyOFG::countEdgeInSub(const int s, const int d, const std::vector<Grap
 bool StrategyOFG::testEdgeXSub(const int s, const int d,
 	const std::vector<std::vector<Graph>>& subs, const double minPortion) const
 {
-	int th = static_cast<int>(ceil(subs.size()*minPortion));
+	int th = static_cast<int>(floor(subs.size()*minPortion));
+	// return true if #occurence > th
 	for(auto& sub : subs) {
 		++stNumSubjectChecked;
 		if(testEdgeInSub(s, d, sub)) {
-			if(--th <= 0)
+			if(--th < 0)
 				return true;
 		}
 	}
@@ -250,12 +252,12 @@ int StrategyOFG::countEdgeXSub(const int s, const int d, const std::vector<std::
 
 bool StrategyOFG::testMotifInSub(const MotifBuilder& m, const std::vector<Graph>& graphs) const
 {
-	int th = static_cast<int>(ceil(graphs.size()*pSnap));
-	// return true if #occurence >= th
+	int th = static_cast<int>(floor(graphs.size()*pSnap));
+	// return true if #occurence > th
 	for(auto& g : graphs) {
 		++stNumGraphChecked;
 		if(g.testMotif(m))
-			if(--th <= 0)
+			if(--th < 0)
 				return true;
 	}
 	return false;
@@ -275,11 +277,12 @@ int StrategyOFG::countMotifInSub(const MotifBuilder& m, const std::vector<Graph>
 bool StrategyOFG::testMotifXSub(const MotifBuilder & m,
 	const std::vector<std::vector<Graph>>& subs, const double minPortion) const
 {
-	int th = static_cast<int>(ceil(subs.size()*minPortion));
+	int th = static_cast<int>(floor(subs.size()*minPortion));
+	// return true if #occurence > th
 	for(auto& sub : subs) {
 		++stNumSubjectChecked;
 		if(testMotifInSub(m, sub)) {
-			if(--th <= 0)
+			if(--th < 0)
 				return true;
 		}
 	}

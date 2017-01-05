@@ -24,7 +24,7 @@ std::vector<Edge> StrategyOFG::initialCandidateEdges()
 	vector<Edge> res;
 	for(int s = 0; s < nNode; ++s) {
 		for(int d = s + 1; d < nNode; ++d) {
-			if(testEdgeXSub(s, d, *pgp, 0.001))
+			if(testEdgeXSub(s, d, *pgp, minSup))
 				res.emplace_back(s, d);
 		}
 	}
@@ -36,10 +36,11 @@ std::vector<std::pair<Edge, double>> StrategyOFG::getExistedEdges(
 {
 	std::vector<std::pair<Edge, double>> res;
 	double factor = 1.0 / subs.size();
+	int th = static_cast<int>(floor(minSup*subs.size()));
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = i+1; j < nNode; ++j) {
 			int t = countEdgeXSub(i, j, subs);
-			if(t != 0) {
+			if(t > th) {
 				auto f = t*factor;
 				res.emplace_back(Edge(i, j), f);
 			}

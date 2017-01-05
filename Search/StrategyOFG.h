@@ -11,7 +11,7 @@ class StrategyOFG :
 	// input options:
 	int k; // number of result
 //	int smin, smax; // minimum/maximum motif size
-//	double minSup; // minimum show up probability among postive subjects
+	double minSup; // minimum show up probability among postive subjects
 	double pSnap; // minimum show up probability among a subject's all snapshots
 	std::string objFunName; // the name for the objective function
 	double alpha; // penalty for negative frequency
@@ -84,7 +84,7 @@ private:
 	/* Basic Utility/Functions */
 private:
 	void initStatistics();
-	void parseDCES(const std::ssub_match& param, const bool flag);
+	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
 	void parseLOG(const std::ssub_match& param, const bool flag);
 
 	bool testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const;

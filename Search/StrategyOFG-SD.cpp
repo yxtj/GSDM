@@ -20,12 +20,12 @@ bool StrategyOFG::testMotifInSubSD(const MotifBuilder & m, const MotifSign& ms,
 {
 	if(!checkSPNecessary(m, ms, ss))
 		return false;
-	int th = static_cast<int>(ceil(sub.size()*pSnap));
+	int th = static_cast<int>(floor(sub.size()*pSnap));
 	int cnt = 0;
 	for(auto&g : sub) {
 		++stNumGraphChecked;
 		if(g.testMotif(m)) {
-			if(++cnt >= th)
+			if(++cnt > th)
 				break;
 		}
 	}
@@ -48,7 +48,7 @@ int StrategyOFG::countMotifXSubSD(const MotifBuilder & m, const MotifSign & ms,
 StrategyOFG::Signature StrategyOFG::genSignture(
 	const std::vector<Graph>& gs, const double theta)
 {
-	int th = static_cast<int>(ceil(theta*gs.size()));
+	int th = static_cast<int>(floor(theta*gs.size()));
 	int n = nNode;
 	//vector<sdmatrix_t> buf;
 	vector<vector<vector<int>>> buf(n, vector<vector<int>>(n, vector<int>(gs.size())));
@@ -62,7 +62,7 @@ StrategyOFG::Signature StrategyOFG::genSignture(
 	Signature res(n);
 	for(int i = 0; i < n; ++i)
 		for(int j = 0; j < n; ++j) {
-			nth_element(buf[i][j].begin(), buf[i][j].begin() + th, buf[i][j].end());
+			nth_element(buf[i][j].begin(), buf[i][j].begin() + th - 1, buf[i][j].end());
 			res.sd[i][j] = buf[i][j][th - 1];
 		}
 	return res;
