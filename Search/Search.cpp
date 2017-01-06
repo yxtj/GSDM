@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <mpi.h>
 //#include "Graph.h"
 //#include "Motif.h"
 #include "../common/Graph.h"
