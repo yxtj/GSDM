@@ -33,12 +33,12 @@ class StrategyOFG :
 	size_t nSubPosGlobal, nSubNegGlobal;
 
 	// statistics
-	mutable int stNumMotifExplored;
-	mutable int stNumMotifGenerated;
-	mutable int stNumGraphChecked;
-	mutable int stNumSubjectChecked;
-	mutable int stNumFreqPos;
-	mutable int stNumFreqNeg;
+	mutable unsigned long long stNumMotifExplored;
+	mutable unsigned long long stNumMotifGenerated;
+	mutable unsigned long long stNumGraphChecked;
+	mutable unsigned long long stNumSubjectChecked;
+	mutable unsigned long long stNumFreqPos;
+	mutable unsigned long long stNumFreqNeg;
 
 	using objFun_t = double(StrategyOFG::*)(double, double);
 	//objFun_t objFun;

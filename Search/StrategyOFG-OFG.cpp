@@ -26,6 +26,10 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 	}
 
 	cout << "Phase 2 (testing motifs layer by layer)" << endl;
+	cout << "  level (x): (x) ms, on (x) motifs\t"
+		"generate: (# valid motifs)/(# total motifs)\t"
+		"k-th score: (score of the worst in Top-K)\t"
+		"CE rest: (rest candidate edges), remove (# removed by connection) + (# removed by bound)" << endl;
 	TopKHolder<Motif, double> holder(k);
 	int smax = edges.size()*(edges.size() - 1) / 2;
 	for(int s = 2; s <= smax; ++s) {
@@ -45,10 +49,11 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 			numRmvEdgeBound = maintainDCESBound(edges, holder.lastScore());
 		smax = edges.size()*(edges.size() - 1) / 2;
 		auto _time_ms = timer.elapseMS();
-		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on " << numLast << " motifs."
-			<< "\tgenerate new " << numUnique << " / " << numTotal << " motifs (valid/total)";
+		cout << "  level " << s - 1 << " : " << _time_ms << " ms, on " << numLast << " motifs."
+			<< "\tgenerate: " << numUnique << " / " << numTotal << "."
+			<< "\tk-th score: " << holder.lastScore();
 		if(flagDCESConnected || flagDCESBound)
-			cout << "\t rest candidate edges " << edges.size() << ", removed: " << numRmvEdgeConnect << " + " << numRmvEdgeBound;
+			cout << "\tCE rest: " << edges.size() << ", remove: " << numRmvEdgeConnect << " + " << numRmvEdgeBound;
 		cout << endl;
 		if(last.empty())
 			break;
@@ -72,7 +77,7 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 	std::map<MotifBuilder, int> newLayer;
 	for(const auto& mb : last) {
 		// work on a motif
-		double score = scoring(mb, holder.worstScore());
+		double score = scoring(mb, holder.lastScore());
 		if(score == holder.worstScore()) {
 			// abandon if not promissing
 			continue;

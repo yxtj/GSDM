@@ -55,9 +55,9 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 					flagUseSD = flag;
 				} else if(name == "net") {
 					flagNetworkPrune = flag;
-				} else if(name.find("dces") != string::npos) {
+				} else if(name.find("dces") == 0) {
 					parseDCES(m[2], m[3], flag);
-				} else { //if(name.substr(3) == "log")
+				} else { //if(name.substr(0, 3) == "log")
 					parseLOG(m[4], flag);
 				}
 			} else {
@@ -99,24 +99,14 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	vector<Motif> res;
 	Timer timer;
 	res = method_edge1_bfs();
-	//if(net.getSize() == 1) {
-		//res = method_edge1_bfs();
-		//res = master(net);
-	//} else {
-		//if(net.getRank() == 0) {
-		//	res = master(net);
-		//} else {
-		//	numMotifExplored = slave(net);
-		//}
-	//}
 	auto ts = timer.elapseS();
-//	cout << "  Rank " << net.getRank() << " finished in " << ts << " seconds\n"
-	int oldFlag = cout.setf(ios::fixed);
+
+	auto oldFlag = cout.setf(ios::fixed);
 	auto oldPrec = cout.precision(2);
 	cout << "  Finished in " << ts << " seconds\n"
 		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
 		<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
-		<<" , on average: "<< ios::fixed<<(double)stNumGraphChecked/stNumSubjectChecked << " graph/subject\n"
+		<<" , on average: "<< (double)stNumGraphChecked/stNumSubjectChecked << " graph/subject\n"
 		<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
 	cout.precision(oldPrec);
 	cout.setf(oldFlag);
@@ -182,7 +172,7 @@ void StrategyOFG::parseDCES(const ssub_match & option, const ssub_match & minsup
 		}
 	}
 	if(minsup.matched) {
-		minSup = stod(minsup.str());
+		minSup = stod(minsup.str().substr(1));
 	}
 }
 
@@ -190,23 +180,19 @@ void StrategyOFG::parseLOG(const ssub_match & param, const bool flag)
 {
 	flagOutputScore = flag;
 	if(flag) {
-		string path = param.str();
-		if(path.size() < 2)
-			throw invalid_argument("log path of Strategy " + name + " is not give.");
-		else
-			pathOutputScore = path.substr(1);
+		pathOutputScore = param.str().substr(1);
 	}
 
 }
 
 bool StrategyOFG::testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const
 {
-	int th = static_cast<int>(floor(graphs.size()*pSnap));
-	// return true if #occurence > th
+	int th = static_cast<int>(ceil(graphs.size()*pSnap));
+	// return true if #occurence >= th
 	for(auto& g : graphs) {
 		++stNumGraphChecked;
 		if(g.testEdge(s, d))
-			if(--th < 0)
+			if(--th <= 0)
 				return true;
 	}
 	return false;
@@ -226,12 +212,12 @@ int StrategyOFG::countEdgeInSub(const int s, const int d, const std::vector<Grap
 bool StrategyOFG::testEdgeXSub(const int s, const int d,
 	const std::vector<std::vector<Graph>>& subs, const double minPortion) const
 {
-	int th = static_cast<int>(floor(subs.size()*minPortion));
-	// return true if #occurence > th
+	int th = static_cast<int>(ceil(subs.size()*minPortion));
+	// return true if #occurence >= th
 	for(auto& sub : subs) {
 		++stNumSubjectChecked;
 		if(testEdgeInSub(s, d, sub)) {
-			if(--th < 0)
+			if(--th <= 0)
 				return true;
 		}
 	}
@@ -252,12 +238,12 @@ int StrategyOFG::countEdgeXSub(const int s, const int d, const std::vector<std::
 
 bool StrategyOFG::testMotifInSub(const MotifBuilder& m, const std::vector<Graph>& graphs) const
 {
-	int th = static_cast<int>(floor(graphs.size()*pSnap));
-	// return true if #occurence > th
+	int th = static_cast<int>(ceil(graphs.size()*pSnap));
+	// return true if #occurence >= th
 	for(auto& g : graphs) {
 		++stNumGraphChecked;
 		if(g.testMotif(m))
-			if(--th < 0)
+			if(--th <= 0)
 				return true;
 	}
 	return false;
@@ -277,12 +263,12 @@ int StrategyOFG::countMotifInSub(const MotifBuilder& m, const std::vector<Graph>
 bool StrategyOFG::testMotifXSub(const MotifBuilder & m,
 	const std::vector<std::vector<Graph>>& subs, const double minPortion) const
 {
-	int th = static_cast<int>(floor(subs.size()*minPortion));
-	// return true if #occurence > th
+	int th = static_cast<int>(ceil(subs.size()*minPortion));
+	// return true if #occurence >= th
 	for(auto& sub : subs) {
 		++stNumSubjectChecked;
 		if(testMotifInSub(m, sub)) {
-			if(--th < 0)
+			if(--th <= 0)
 				return true;
 		}
 	}
