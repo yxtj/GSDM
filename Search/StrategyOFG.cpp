@@ -10,7 +10,7 @@ const std::string StrategyOFG::name("ofg");
 const std::string StrategyOFG::usage(
 	"Select the common frequent motifs as result.\n"
 	"Usage: " + StrategyOFG::name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [log]\n"
-	"  <k>: [integer] return top-k result"
+	"  <k>: [integer] return top-k result\n"
 //	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
 	"  <obj-fun>: [string] name for the objective function (supprot: diff, margin, ratio)\n"
