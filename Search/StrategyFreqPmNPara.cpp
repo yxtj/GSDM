@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <mpi.h>
 #include "StrategyFreqPmNPara.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
