@@ -66,7 +66,7 @@ StrategyFuncFreqSD::Signature StrategyFuncFreqSD::genSignture(
 	Signature res(n);
 	for(int i = 0; i < n; ++i)
 		for(int j = 0; j < n; ++j) {
-			nth_element(buf[i][j].begin(), buf[i][j].begin() + th, buf[i][j].end());
+			nth_element(buf[i][j].begin(), buf[i][j].begin() + th - 1, buf[i][j].end());
 			res.sd[i][j] = buf[i][j][th - 1];
 		}
 	return res;

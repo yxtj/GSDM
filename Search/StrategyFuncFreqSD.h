@@ -49,11 +49,12 @@ class StrategyFuncFreqSD
 	};
 
 	// statistics
-	mutable int stNumMotifExplored;
-	mutable int stNumMotifGenerated;
-	mutable int stNumGraphChecked;
-	mutable int stNumFreqPos;
-	mutable int stNumFreqNeg;
+	mutable unsigned long long stNumMotifExplored;
+	mutable unsigned long long stNumMotifGenerated;
+	mutable unsigned long long stNumSubjectChecked;
+	mutable unsigned long long stNumGraphChecked;
+	mutable unsigned long long stNumFreqPos;
+	mutable unsigned long long stNumFreqNeg;
 
 	using objFun_t = double(StrategyFuncFreqSD::*)(double, double);
 	//objFun_t objFun;

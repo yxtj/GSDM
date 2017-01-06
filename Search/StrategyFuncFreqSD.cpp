@@ -86,6 +86,7 @@ std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt,
 	nNode = gPos[0][0].nNode;
 	stNumMotifExplored = 0;
 	stNumMotifGenerated = 0;
+	stNumSubjectChecked = 0;
 	stNumGraphChecked = 0;
 	stNumFreqPos = 0;
 	stNumFreqNeg = 0;
@@ -113,10 +114,15 @@ std::vector<Motif> StrategyFuncFreqSD::search(const Option & opt,
 	}
 	auto ts = timer.elapseS();
 	MPI_Barrier(MPI_COMM_WORLD);
+	auto oldFlag = cout.setf(ios::fixed);
+	auto oldPrec = cout.precision(2);
 	cout << "  Rank " << net.getRank() << " finished in " << ts << " seconds\n"
-		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated
-		<< "; graph counted: " << stNumGraphChecked
-		<< "; frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
+		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
+		<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
+		<< " , on average: " << (double)stNumGraphChecked / stNumSubjectChecked << " graph/subject\n"
+		<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
+	cout.precision(oldPrec);
+	cout.setf(oldFlag);
 	return res;
 }
 
@@ -173,6 +179,7 @@ bool StrategyFuncFreqSD::checkEdge(const int s, const int d, const std::vector<G
 	int th = static_cast<int>(ceil(sub.size()*pSnap));
 	int cnt = 0;
 	for(auto&g : sub) {
+		++stNumGraphChecked;
 		if(g.testEdge(s, d)) {
 			if(++cnt >= th)
 				break;
@@ -185,17 +192,19 @@ bool StrategyFuncFreqSD::checkEdge(const int s, const int d) const
 {
 	int cnt = 0;
 	for(auto&sub : *pgp) {
+		++stNumSubjectChecked;
 		if(checkEdge(s, d, sub))
 			if(++cnt >= nMinSup)
 				break;
 	}
-	if(cnt >= nMinSup)
-		return true;
-	for(auto&sub : *pgn) {
-		if(checkEdge(s, d, sub))
-			if(++cnt >= nMinSup)
-				break;
-	}
+	//if(cnt >= nMinSup)
+	//	return true;
+	//for(auto&sub : *pgn) {
+	//	++stNumSubjectChecked;
+	//	if(checkEdge(s, d, sub))
+	//		if(++cnt >= nMinSup)
+	//			break;
+	//}
 	return cnt >= nMinSup;
 }
 
@@ -203,6 +212,7 @@ int StrategyFuncFreqSD::countEdge(const int s, const int d, const std::vector<st
 {
 	int cnt = 0;
 	for(auto&sub : subs) {
+		++stNumSubjectChecked;
 		if(checkEdge(s, d, sub))
 			++cnt;
 	}
@@ -235,6 +245,7 @@ int StrategyFuncFreqSD::countMotif(const Motif & m, const std::vector<std::vecto
 {
 	int res = 0;
 	for(auto&sub : subs) {
+		++stNumSubjectChecked;
 		if(testMotif(m, sub))
 			++res;
 	}
@@ -295,8 +306,9 @@ std::vector<Motif> StrategyFuncFreqSD::method_edge1_bfs()
 		tie(last, numTotal) = sortUpNewLayer(t);
 		numUnique = last.size();
 		auto _time_ms = timer.elapseMS();
-		cout << "  motifs of size " << s - 1 << " : " << _time_ms << " ms, on "<<numLast<<" motifs."
-			<< "\tgenerate new "<< numUnique << " / " << numTotal << " motifs (valid/total)" << endl;
+		cout << "  level " << s - 1 << " : " << _time_ms << " ms, on " << numLast << " motifs."
+			<< "\tgenerate: " << numUnique << " / " << numTotal << "."
+			<< "\tk-th score: " << holder.lastScore() << endl;
 		if(last.empty())
 			break;
 //		last = move(t);
