@@ -44,22 +44,24 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 		flagDCESBound = true;
 		minSup = 0.0;
 		flagOutputScore = false;
-		regex reg("(sd|net|dces(-[cb])?(:0\\.\\d+)?|log(:.+)?)(-no)?");
+		regex reg_sd("sd(-no)?");
+		regex reg_net("net(-no)?");
+		regex reg_dces("dces(-[cb])?(-no)?(:0\\.\\d+)?");
+		regex reg_log("log(:.+)?(-no)?");
 		for(size_t i = 5; i < param.size(); ++i) {
-			//const string& str = param[i];
 			smatch m;
-			if(regex_match(param[i], m, reg)) {
-				bool flag = !m[5].matched;
-				string name = m[1].str();
-				if(name == "sd") {
-					flagUseSD = flag;
-				} else if(name == "net") {
-					flagNetworkPrune = flag;
-				} else if(name.find("dces") == 0) {
-					parseDCES(m[2], m[3], flag);
-				} else { //if(name.substr(0, 3) == "log")
-					parseLOG(m[4], flag);
-				}
+			if(regex_match(param[i], m, reg_sd)) {
+				bool flag = !m[1].matched;
+				flagUseSD = flag;
+			} else if(regex_match(param[i], m, reg_net)) {
+				bool flag = !m[1].matched;
+				flagNetworkPrune = flag;
+			} else if(regex_match(param[i], m, reg_dces)) {
+				bool flag = !m[2].matched;
+				parseDCES(m[1], m[3], flag);
+			} else if(regex_match(param[i], m, reg_log)) {
+				bool flag = !m[2].matched;
+				parseLOG(m[1], flag);
 			} else {
 				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
 			}
