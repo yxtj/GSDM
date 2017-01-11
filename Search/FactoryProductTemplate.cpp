@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void FactoryProductTemplate::checkNumber(int required, size_t given)
+void FactoryProductTemplate::checkNumber(size_t required, size_t given)
 {
 	given -= 1;
 	if(given != required) {
@@ -13,7 +13,7 @@ void FactoryProductTemplate::checkNumber(int required, size_t given)
 	}
 }
 
-void FactoryProductTemplate::checkNumber(int requiredMin, int requiredMax, size_t given)
+void FactoryProductTemplate::checkNumber(size_t requiredMin, size_t requiredMax, size_t given)
 {
 	given -= 1;
 	if(given < requiredMin || given > requiredMax) {
@@ -35,7 +35,7 @@ void FactoryProductTemplate::checkName(const std::vector<string>& param, const s
 
 
 void FactoryProductTemplate::checkParam(const std::vector<string>& param,
-	int reqired, const std::string & name)// noexcept(false)
+	size_t reqired, const std::string & name)// noexcept(false)
 {
 	try {
 		checkNumber(reqired, param.size());
@@ -47,7 +47,7 @@ void FactoryProductTemplate::checkParam(const std::vector<string>& param,
 }
 
 void FactoryProductTemplate::checkParam(const std::vector<std::string>& param,
-	int reqiredMin, int requiredMax, const std::string & name)// noexcept(false)
+	size_t reqiredMin, size_t requiredMax, const std::string & name)// noexcept(false)
 {
 	try {
 		checkNumber(reqiredMin, requiredMax, param.size());
