@@ -1,6 +1,5 @@
 #pragma once
 #include <utility>
-#include <mpi.h>
 #include "../common/Motif.h"
 
 class Network
