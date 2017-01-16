@@ -1,23 +1,17 @@
+#pragma once
 #include <type_traits>
 #include <utility>
+#include "type_trais_dummy.h"
 
 template<typename T, typename Enable = void>
 struct is_container : public std::false_type {};
-
-
-namespace impl{
-	namespace type_traits {
-		template<typename... Ts>
-		struct is_container_helper {};
-	}
-}
 
 template <typename T>
 struct is_container<
 	T,
 	typename std::conditional<
 		false,
-		impl::type_traits::is_container_helper<
+		impl::type_traits::dummy_t<
 			typename T::value_type,
 			typename T::size_type,
 			typename T::allocator_type,

@@ -24,9 +24,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="is_container.h" />
+    <ClInclude Include="is_iterator.h" />
     <ClInclude Include="is_stl_container.h" />
     <ClInclude Include="slist.hpp" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="type_trais_dummy.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
