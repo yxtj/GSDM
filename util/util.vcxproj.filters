@@ -40,5 +40,8 @@
     <ClInclude Include="type_trais_dummy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="is_pair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
