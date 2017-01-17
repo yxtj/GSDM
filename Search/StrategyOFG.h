@@ -1,13 +1,15 @@
 #pragma once
 #include "StrategyBase.h"
-#include "CandidateMethod.h"
 #include "TopKHolder.hpp"
 #include <vector>
+#include <map>
+#include <functional>
 #include <regex>
 
 class StrategyOFG :
 	public StrategyBase
 {
+protected:
 	// input options:
 	int k; // number of result
 //	int smin, smax; // minimum/maximum motif size
@@ -15,6 +17,8 @@ class StrategyOFG :
 	double pSnap; // minimum show up probability among a subject's all snapshots
 	std::string objFunName; // the name for the objective function
 	double alpha; // penalty for negative frequency
+	bool flagDistributed;
+
 	bool flagUseSD; // whether to use the shortest distance optimization
 	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
 	bool flagDCESConnected; // whether to use the dynamic candiate edge set (connect with valid motif in last layer)
@@ -74,7 +78,7 @@ public:
 		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
 
 	/* Objective Functions: */
-private:
+protected:
 	bool setObjFun(const std::string& name);
 
 	double objFun_diffP2N(const double freqPos, const double freqNeg);
@@ -82,7 +86,7 @@ private:
 	double objFun_ratioP2N(const double freqPos, const double freqNeg);
 
 	/* Basic Utility/Functions */
-private:
+protected:
 	void initStatistics();
 	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
 	void parseLOG(const std::ssub_match& param, const bool flag);
@@ -101,7 +105,7 @@ private:
 
 
 	/* Objective Function Guided Search */
-private:
+protected:
 	std::vector<Motif> method_edge1_bfs();
 	// expand one more layer
 	std::map<MotifBuilder, int> _edge1_bfs(
@@ -111,7 +115,7 @@ private:
 	double scoring(const MotifBuilder& mb, const double lowerBound);
 
 	/* Prune with number of valid parents (network-based pruning) */
-private:
+protected:
 	std::pair<std::vector<MotifBuilder>, size_t> sortUpNewLayer(std::map<MotifBuilder, int>& layer);
 
 	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::map<MotifBuilder, int>& layer);
@@ -122,7 +126,7 @@ private:
 
 	/* Dynamic Candidate Edge Set (DCES) */
 	// TODO: add dedicated class for CES (optimize for: random removal, range finding by value)
-private:
+protected:
 	void setDCESmaintainOrder(bool inorder);
 	std::vector<Edge> initialCandidateEdges();
 	std::vector<std::pair<Edge, double>> getExistedEdges(
@@ -145,10 +149,10 @@ private:
 	maintainDCESBound_t maintainDCESBound;
 
 	/* Valid Subject Set */
-private:
+protected:
 
 	/* Subject Signature */
-private:
+protected:
 	void setSignature();
 
 	bool testMotifInSubSD(const MotifBuilder& m, const MotifSign& ms, const std::vector<Graph>& sub, const Signature& ss) const;

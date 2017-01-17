@@ -98,6 +98,9 @@
     <ClInclude Include="StrategyOFG.h">
       <Filter>Strategies</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyOFGPara.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -191,6 +194,12 @@
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyOFG-OFG.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-handler.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>

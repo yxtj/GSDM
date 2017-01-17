@@ -15,6 +15,7 @@ const std::string StrategyOFG::usage(
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
 	"  <obj-fun>: [string] name for the objective function (supprot: diff, margin, ratio)\n"
 	"  <alpha>: [double] the penalty factor for the negative frequency\n"
+	"  <dist>: optional [dist/dist-no], default disabled, run in distributed manner\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
 	"  [dces]: optional [dces/dces-c/dces-b/decs-no / dces:<ms>/dces-c:<ms>/dces-b:<ms>/decs:<ms>-no], "

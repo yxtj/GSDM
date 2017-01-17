@@ -174,6 +174,7 @@
     <ClInclude Include="StrategyFuncFreq.h" />
     <ClInclude Include="StrategyFuncFreqSD.h" />
     <ClInclude Include="StrategyOFG.h" />
+    <ClInclude Include="StrategyOFGPara.h" />
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
     <ClInclude Include="TopKHolder.hpp" />
@@ -213,6 +214,8 @@
     <ClCompile Include="StrategyOFG-SD.cpp" />
     <ClCompile Include="StrategyOFG-SL.cpp" />
     <ClCompile Include="StrategyOFG.cpp" />
+    <ClCompile Include="StrategyOFGPara-handler.cpp" />
+    <ClCompile Include="StrategyOFGPara.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />
   </ItemGroup>
@@ -223,6 +226,12 @@
   <ItemGroup>
     <ProjectReference Include="..\common\common.vcxproj">
       <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\msgdriver\msgdriver.vcxproj">
+      <Project>{44a08e02-7f8a-4a45-b0c7-7138c2111440}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\net\net.vcxproj">
+      <Project>{1ee713d5-bbc5-4115-ad84-4a819e2652e1}</Project>
     </ProjectReference>
     <ProjectReference Include="..\util\util.vcxproj">
       <Project>{0bdcbb77-869d-461d-8a5d-1f25358455d3}</Project>
