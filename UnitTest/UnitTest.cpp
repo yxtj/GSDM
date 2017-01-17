@@ -8,9 +8,13 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	{
-		cout << "testing module net" << endl;
+	if(0){
+		cout << "Test module net" << endl;
 		testNet(argc, argv);
+	}
+	if(1) {
+		cout << "Test serailization" << endl;
+		testSerialzation(argc, argv);
 	}
 	
 	return 0;

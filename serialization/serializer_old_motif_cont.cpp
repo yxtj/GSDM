@@ -2,35 +2,7 @@
 
 using namespace std;
 
-// (de)seralizes
-
-size_t estimateBufferSize(const Motif & m)
-{
-	//n, (src, dst)*n
-	return sizeof(int) + 2 * m.getnEdge() * sizeof(int);
-}
-
-char* serialize(char* res, const Motif& m) {
-	int* pint = reinterpret_cast<int*>(res);
-	*pint++ = m.getnEdge();
-	for(const Edge& e : m.edges) {
-		*pint++ = e.s;
-		*pint++ = e.d;
-	}
-	return reinterpret_cast<char*>(pint);
-}
-
-pair<Motif, char*> deserialize(char* p) {
-	int* pint = reinterpret_cast<int*>(p);
-	int ne = *pint++;
-	Motif m;
-	while(ne--) {
-		int s = *pint++;
-		int d = *pint++;
-		m.addEdge(s, d);
-	}
-	return make_pair(move(m), reinterpret_cast<char*>(pint));
-}
+// old (de)seralizes of motif containers
 
 pair<char*, unordered_map<Motif, pair<int, double>>::const_iterator> serializeMP(
 	char* res, int bufSize, unordered_map<Motif, pair<int, double>>::const_iterator it,
@@ -56,12 +28,12 @@ pair<char*, unordered_map<Motif, pair<int, double>>::const_iterator> serializeMP
 	return make_pair(res, it);
 }
 
-unordered_map<Motif, pair<int, double>> deserializeMP(char* p) {
+pair<unordered_map<Motif, pair<int, double>>, char*> deserializeMP(char* p) {
 	size_t n = *reinterpret_cast<size_t*>(p);
 	p += sizeof(size_t);
 	unordered_map<Motif, pair<int, double>> res;
 	while(n--) {
-		auto mp = deserialize(p);
+		auto mp = deserialize<Motif>(p);
 		p = mp.second;
 		int count = *reinterpret_cast<int*>(p);
 		p += sizeof(int);
@@ -69,7 +41,7 @@ unordered_map<Motif, pair<int, double>> deserializeMP(char* p) {
 		p += sizeof(double);
 		res[mp.first] = make_pair(count, prob);
 	}
-	return res;
+	return make_pair(move(res), p);
 }
 
 pair<char*, vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
@@ -91,15 +63,15 @@ pair<char*, vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
 	return make_pair(res, it);
 }
 
-vector<Motif> deserializeVM(char *p) {
+pair<vector<Motif>, char*> deserializeVM(char *p) {
 	size_t n = *reinterpret_cast<size_t*>(p);
 	p += sizeof(size_t);
 	vector<Motif> res;
 	while(n--) {
-		auto mp = deserialize(p);
+		auto mp = deserialize<Motif>(p);
 		res.push_back(move(mp.first));
 		p = mp.second;
 	}
-	return res;
+	return make_pair(move(res), p);
 }
 

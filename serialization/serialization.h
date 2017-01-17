@@ -6,20 +6,9 @@
 #include "serializer_basic.hpp"
 #include "serializer_cont.hpp"
 
-size_t estimateBufferSize(const Motif& m);
-
-char* serialize(char* res, const Motif& m);
-std::pair<Motif, char*> deserialize(char* p);
-
-std::pair<char*, std::unordered_map<Motif, std::pair<int, double>>::const_iterator> serializeMP(
-	char* res, int bufSize, std::unordered_map<Motif, std::pair<int, double>>::const_iterator it,
-	std::unordered_map<Motif, std::pair<int, double>>::const_iterator itend);
-std::unordered_map<Motif, std::pair<int, double>> deserializeMP(char* p);
-
-std::pair<char*, std::vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
-	std::vector<Motif>::const_iterator it, std::vector<Motif>::const_iterator itend);
-std::vector<Motif> deserializeVM(char *p);
-
+/***********************************
+	Part I, single item
+************************************/
 
 
 /*
@@ -30,7 +19,7 @@ If the buffer is large enough for $item$, return the pointer one over the end of
 Otherwise, return nullptr.
 */
 template <class T>
-char* serialize(char* res, int bufSize, const T& item)
+inline char* serialize(char* res, int bufSize, const T& item)
 {
 	_Serializer<T> s;
 	return s.serial(res, bufSize, item);
@@ -42,10 +31,10 @@ Input: pointer to the buffer $res$, buffer size: $bufSize$, item to serialize: $
 Output: the pointer one over the end of the used buffer.
 */
 template <class T>
-char* serializeNoCheck(char* res, int bufSize, const T& item)
+inline char* serialize(char* res, const T& item)
 {
 	_Serializer<T> s;
-	return s.serial(res, bufSize, item);
+	return s.serial(res, item);
 }
 
 /*
@@ -54,11 +43,99 @@ Input: pointer to the buffer $p$
 Output: the item and a point one byte over last byte of the item in the buffer
 */
 template <class T>
-std::pair<T, char*> deserialize(char* p) {
+inline std::pair<T, char*> deserialize(char* p) {
 	_Serializer<T> s;
 	return s.deserial(p);
 }
 
+/*
+	Existing overload versions:
+*/
+size_t estimateBufferSize(const Motif& m);
+
+char* serialize(char* res, int bufSize, const Motif& item);
+char* serialize(char* res, const Motif& item);
+std::pair<Motif, char*> deserializeMotif(char* p);
+
+/*
+	Partial specialization versions (utlize existing functions / support customized type)
+*/
+
+// for Motif
+template <>
+inline std::pair<Motif, char*> deserialize<Motif>(char* p) {
+	return deserializeMotif(p);
+}
+
+
+/***********************************
+	Part II, container (using iterator)
+************************************/
+
+
+template <class Cont>
+std::pair<char*,typename Cont::const_iterator> serializeCont(char* res, int bufSize,
+	typename Cont::const_iterator first, typename Cont::const_iterator last)
+{
+	_SerializerCont<Cont> s;
+	return s.serial(res, bufSize, first, last);
+}
+
+template <class Cont>
+std::pair<Cont, char*> deserializeCont(char* p) {
+	_SerializerCont<Cont> s;
+	return s.deserial(p);
+}
+
+/*
+	Expsting overload versions
+*/
+std::pair<char*, std::unordered_map<Motif, std::pair<int, double>>::const_iterator> serializeMP(
+	char* res, int bufSize, std::unordered_map<Motif, std::pair<int, double>>::const_iterator first,
+	std::unordered_map<Motif, std::pair<int, double>>::const_iterator last);
+std::pair<std::unordered_map<Motif, std::pair<int, double>>, char*> deserializeMP(char* p);
+
+std::pair<char*, std::vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
+	std::vector<Motif>::const_iterator first, std::vector<Motif>::const_iterator last);
+std::pair<std::vector<Motif>, char*> deserializeVM(char *p);
+
+
+/*
+	Partial specialization versions (utlizing existing functions)
+*/
+
+// for unordered_map<Motif, pair<int,double>>
+template <>
+inline std::pair<char*, std::unordered_map<Motif, std::pair<int, double>>::const_iterator> 
+serializeCont<std::unordered_map<Motif, std::pair<int, double>>>(
+	char* res, int bufSize,
+	std::unordered_map<Motif, std::pair<int, double>>::const_iterator first,
+	std::unordered_map<Motif, std::pair<int, double>>::const_iterator last)
+{
+	return serializeMP(res, bufSize, first, last);
+}
+
+template <>
+inline std::pair<std::unordered_map<Motif, std::pair<int, double>>, char*>
+deserializeCont<std::unordered_map<Motif, std::pair<int, double>>>(char* p)
+{
+	return deserializeMP(p);
+}
+
+// for vector<Motif>
+template <>
+inline std::pair<char*, std::vector<Motif>::const_iterator>
+serializeCont<std::vector<Motif>>(char* res, int bufSize,
+	std::vector<Motif>::const_iterator first, std::vector<Motif>::const_iterator last)
+{
+	return serializeVM(res, bufSize, first, last);
+}
+
+template <>
+inline std::pair<std::vector<Motif>, char*> deserializeCont<std::vector<Motif>>(char* p)
+{
+	return deserializeVM(p);
+}
 
 
 /*
@@ -73,6 +150,7 @@ If all the items in range [first, last) are serialized, the returned iterator eq
 Format:
 	<num: unit32> <item: T>*num
 */
+/*
 template <class T>
 std::pair<char*, typename std::vector<T>::const_iterator> serializeVec(char* res, int bufSize,
 	typename std::vector<T>::const_iterator first, typename std::vector<T>::const_iterator last)
@@ -109,3 +187,4 @@ std::vector<T> deserializeVec(char* p)
 	return res;
 
 }
+*/

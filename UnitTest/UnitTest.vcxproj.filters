@@ -44,6 +44,9 @@
     <ClCompile Include="msg\common.pb.cc">
       <Filter>msg</Filter>
     </ClCompile>
+    <ClCompile Include="serialization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="msg\common.proto">

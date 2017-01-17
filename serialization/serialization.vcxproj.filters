@@ -11,7 +11,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="serialization.cpp">
+    <ClCompile Include="serializer_motif.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer_old_motif_cont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

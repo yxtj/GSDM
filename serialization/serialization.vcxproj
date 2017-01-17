@@ -19,12 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="serialization.cpp" />
+    <ClCompile Include="serializer_old_motif_cont.cpp" />
+    <ClCompile Include="serializer_motif.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="serialization.h" />
     <ClInclude Include="serializer_basic.hpp" />
     <ClInclude Include="serializer_cont.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\common.vcxproj">
+      <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6DDA110-62A6-4384-B1A1-3E73CAF8E635}</ProjectGuid>

@@ -168,6 +168,7 @@
   <ItemGroup>
     <ClCompile Include="msg\common.pb.cc" />
     <ClCompile Include="net.cpp" />
+    <ClCompile Include="serialization.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -177,6 +178,9 @@
     <ClCompile Include="UnitTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\common\common.vcxproj">
+      <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\msgdriver\msgdriver.vcxproj">
       <Project>{44a08e02-7f8a-4a45-b0c7-7138c2111440}</Project>
     </ProjectReference>
@@ -185,6 +189,9 @@
     </ProjectReference>
     <ProjectReference Include="..\net\net.vcxproj">
       <Project>{1ee713d5-bbc5-4115-ad84-4a819e2652e1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\serialization\serialization.vcxproj">
+      <Project>{e6dda110-62a6-4384-b1a1-3e73caf8e635}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
