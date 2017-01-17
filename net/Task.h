@@ -7,11 +7,12 @@
  */
 #include <string>
 //#include <memory>
-namespace google{
-	namespace protobuf{
-		class MessageLite;
-	}
-}
+
+//namespace google{
+//	namespace protobuf{
+//		class MessageLite;
+//	}
+//}
 
 struct MsgHeader{
 	MsgHeader(const bool reply=false):is_reply(reply){}
@@ -22,6 +23,7 @@ struct TaskBase{
 	int src_dst;
 	int type;
 	static constexpr int ANY_SRC=-1;
+	static constexpr int ANY_DST=-1;
 	static constexpr int ANY_TYPE=-1;
 };
 
@@ -35,15 +37,15 @@ struct Task : public TaskBase{
 	Task(int s_d,int type,std::string&& s):TaskBase{s_d,type},payload(s){}
 	Task(int s_d,int type,const std::string& s):TaskBase{s_d,type},payload(s){}
 
-	Task(int s_d,int type,const google::protobuf::MessageLite& msg,const MsgHeader& h=MsgHeader(false));
+//	Task(int s_d,int type,const google::protobuf::MessageLite& msg,const MsgHeader& h=MsgHeader(false));
 
-	static void Decode(google::protobuf::MessageLite& msg, const std::string& data);
-	void decode(google::protobuf::MessageLite& msg);
+//	static void Decode(google::protobuf::MessageLite& msg, const std::string& data);
+//	void decode(google::protobuf::MessageLite& msg);
 };
 
-inline void Task::decode(google::protobuf::MessageLite& msg){
-	Task::Decode(msg,payload);
-}
+//inline void Task::decode(google::protobuf::MessageLite& msg){
+//	Task::Decode(msg,payload);
+//
 
 //namespace std{
 //template<>
