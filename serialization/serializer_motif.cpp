@@ -11,7 +11,7 @@ size_t estimateBufferSize(const Motif & m)
 }
 
 char* serialize(char* res, int bufSize, const Motif& m) {
-	if(bufSize < estimateBufferSize(m))
+	if(static_cast<size_t>(bufSize) < estimateBufferSize(m))
 		return nullptr;
 	return serialize(res, m);
 }

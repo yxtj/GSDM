@@ -6,6 +6,9 @@
 #include "serializer_basic.hpp"
 #include "serializer_cont.hpp"
 
+// TODO: global header + unit (basic) + cont
+// TODO: core (struct _Serializer) + (customize type with overload non-template function) + function header (delegate function + partial spec. for customized types)
+
 /***********************************
 	Part I, single item
 ************************************/

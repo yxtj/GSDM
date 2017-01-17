@@ -58,7 +58,7 @@ bool Network::readMotif(Motif & res, int & source)
 	if(st.MPI_TAG == TAG_END) {
 		return false;
 	}
-	tie(res,ignore)= deserialize(bufRecv);
+	tie(res,ignore)= deserialize<Motif>(bufRecv);
 	source = st.MPI_SOURCE;
 	return true;
 }
