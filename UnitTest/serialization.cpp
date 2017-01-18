@@ -180,6 +180,15 @@ void test_tostring() {
 	cout << "]" << endl;
 }
 
+void test_fromstring() {
+	int a = 123;
+	string s = serialize(a);
+	cout << "input:  " << a << "\tbytes: " << s.size() << endl;
+	cout << "serialized data: " << printHex(s.data(), s.data() + s.size()) << endl;
+	int ra = deserialize<int>(s);
+	cout << "output: " << ra << endl;
+}
+
 void testSerialzation(int arg, char* argv[]) {
 	cout << "  testing single int" << endl;
 	test_single1();
@@ -206,4 +215,7 @@ void testSerialzation(int arg, char* argv[]) {
 
 	cout << "  testing to string" << endl;
 	test_tostring();
+
+	cout << "  testing from string" << endl;
+	test_fromstring();
 }

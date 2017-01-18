@@ -58,6 +58,12 @@ Output: the item and a point one byte over last byte of the item in the buffer
 template <class T>
 inline std::pair<T, const char*> deserialize(const char* p);
 
+/*
+Deserialize an item of type T from a string
+*/
+template <class T>
+inline T deserialize(const std::string& str);
+
 
 /***********************************
 Part II, serialize container using iterator

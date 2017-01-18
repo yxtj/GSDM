@@ -64,6 +64,15 @@ inline std::pair<T, const char*> deserialize(const char* p) {
 	return s.deserial(p);
 }
 
+/*
+Deserialize an item of type T from a string
+*/
+template <class T>
+inline T deserialize(const std::string& str) {
+	_Serializer<T> s;
+	return s.deserial(str.data()).first;
+}
+
 
 /***********************************
 Part II, serialize container using iterator
