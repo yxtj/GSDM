@@ -38,13 +38,13 @@
     <ClCompile Include="UnitTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="net.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="msg\common.pb.cc">
       <Filter>msg</Filter>
     </ClCompile>
     <ClCompile Include="serialization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="net-protobuf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

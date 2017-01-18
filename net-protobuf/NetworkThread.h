@@ -5,11 +5,11 @@
 #include <string>
 #include <deque>
 #include <vector>
-#include "../netbase/Task.h"
+#include "Task.h"
 #include "../netbase/RPCInfo.h"
-#include "../serialization/serialization.h"
+//#include "../serialization/serialization.h"
 
-//typedef google::protobuf::MessageLite MessageLite;
+typedef google::protobuf::MessageLite MessageLite;
 
 class NetworkImplMPI;
 
@@ -31,22 +31,12 @@ public:
 	// Unblocked read for the given source and message type.
 	bool tryReadAny(std::string& data, int *sosrcReturce=nullptr, int *typeRet=nullptr);
 
-	template <class T>
-	int send(int dst, int tag, const T& msg) {
-		std::string s = serialize(msg);
-		return send(new Task(dst, tag, move(s)));
-	}
 	// Enqueue the given request to pending buffer for transmission.
-	//int send(int dst, int tag, const MessageLite &msg);
+	int send(int dst, int tag, const MessageLite &msg);
 	// Directly send the request bypassing the pending buffer.
-	//int sendDirect(int dst, int method, const MessageLite &msg);
+	int sendDirect(int dst, int method, const MessageLite &msg);
 
-	template <class T>
-	void broadcast(int tag, const T& msg) {
-		std::string s = serialize(msg);
-		return broadcast(new Task(Task::ANY_DST, tag, move(s)));
-	}
-	//void broadcast(int method, const MessageLite& msg);
+	void broadcast(int method, const MessageLite& msg);
 
 	void flush();
 	void shutdown();
@@ -77,10 +67,6 @@ private:
 	std::deque<std::pair<std::string,TaskBase> > receive_buffer;
 	mutable std::recursive_mutex rec_lock;
 
-	// TODO: move this string version to the serialization project
-	template<class T>
-	std::string serialize(const T& msg);
-
 	// Enqueue the given request to pending buffer for transmission.
 	int send(Task *req);
 	// Directly (Physically) send the request.
@@ -96,17 +82,3 @@ private:
 	NetworkThread();
 };
 
-template<class T>
-inline std::string NetworkThread::serialize(const T & msg)
-{
-	int n = 128;
-	std::string str;
-	char* p;
-	// TODO: add size estimation function in serailzation
-	do {
-		str.resize(n);
-		p = serialize(const_cast<char*>(str.data()), str.size(), msg);
-		n *= 2;
-	} while(p == nullptr);
-	return str;
-}

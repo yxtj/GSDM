@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "net/NetworkThread.h"
+#include "../net-protobuf/NetworkThread.h"
 #include "msg/common.pb.h"
 
 using namespace std;

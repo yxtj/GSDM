@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
-#include "../netbase/Task.h"
+#include "Task.h"
 #include <mpi.h>
 //#include <boost/mpi.hpp>
 

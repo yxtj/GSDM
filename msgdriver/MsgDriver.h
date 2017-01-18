@@ -10,7 +10,7 @@
 #define DRIVER_MSGDRIVER_H_
 
 #include "Dispatcher.hpp"
-#include "../net/RPCInfo.h"
+#include "../netbase/RPCInfo.h"
 #include <deque>
 #include <string>
 #include <mutex>

@@ -71,27 +71,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir);$(PROTOBUF_HOME)\include;$(MSMPI_INC);$(IncludePath)</IncludePath>
+    <IncludePath>$(PROTOBUF_HOME)\include;$(MSMPI_INC);$(IncludePath)</IncludePath>
     <LibraryPath>D:\Boost\lib;$(PROTOBUF_HOME)\dll\x86\lib;$(MSMPI_LIB32);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir);$(PROTOBUF_HOME)\include;$(MSMPI_INC);$(IncludePath)</IncludePath>
     <LibraryPath>D:\Boost\lib;$(PROTOBUF_HOME)\dll\x64\lib;$(MSMPI_LIB64);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
-    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir);$(PROTOBUF_HOME)\include;$(MSMPI_INC);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(PROTOBUF_HOME)\include;$(MSMPI_INC);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>D:\Boost\lib;$(PROTOBUF_HOME)\dll\x86\lib;$(MSMPI_LIB32);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir);$(PROTOBUF_HOME)\include;$(MSMPI_INC);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>D:\Boost\lib;$(PROTOBUF_HOME)\dll\x64\lib;$(MSMPI_LIB64);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
-    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -167,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="msg\common.pb.cc" />
-    <ClCompile Include="net.cpp" />
+    <ClCompile Include="net-protobuf.cpp" />
     <ClCompile Include="serialization.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -181,14 +177,11 @@
     <ProjectReference Include="..\common\common.vcxproj">
       <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\msgdriver\msgdriver.vcxproj">
-      <Project>{44a08e02-7f8a-4a45-b0c7-7138c2111440}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\msg\msg.vcxproj">
       <Project>{12e28a31-1ec6-4a39-8e33-4a698ff0f1b5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\net\net.vcxproj">
-      <Project>{1ee713d5-bbc5-4115-ad84-4a819e2652e1}</Project>
+    <ProjectReference Include="..\net-protobuf\net-protobuf.vcxproj">
+      <Project>{b763a53f-9b02-4885-b08d-83f08a3db6b5}</Project>
     </ProjectReference>
     <ProjectReference Include="..\serialization\serialization.vcxproj">
       <Project>{e6dda110-62a6-4384-b1a1-3e73caf8e635}</Project>
