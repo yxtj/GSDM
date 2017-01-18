@@ -4,13 +4,13 @@
 
 using namespace std;
 
-static string printHex(char* f, char* l) {
+static string printHex(const char* f, const char* l) {
 	ostringstream oss;
 	oss << "0x";
 	while(f < l) {
 		char ch = *f;
 		int v = ch;
-		if(v < 15)
+		if(v <= 15)
 			oss << '0';
 		oss << hex << v;
 		++f;
@@ -26,7 +26,7 @@ static void test_single1() {
 	cout << "input:  " << a << "\tbytes: " << p1 - p << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
 	auto res = deserialize<int>(p);
-	char* p2 = res.second;
+	const char* p2 = res.second;
 	cout << "output: " << res.first << "\tbytes: " << p2 - p << endl;
 }
 
@@ -38,7 +38,19 @@ static void test_single2() {
 	cout << "input:  " << a << "\tbytes: " << p1 - p << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
 	auto res = deserialize<int>(p);
-	char* p2 = res.second;
+	const char* p2 = res.second;
+	cout << "output: " << res.first << "\tbytes: " << p2 - p << endl;
+}
+
+static void test_single3() {
+	string a("hello world");
+	char buf[128];
+	char* p = buf;
+	char* p1 = serialize(p, a);
+	cout << "input:  " << a << "\tbytes: " << p1 - p << endl;
+	cout << "serialized data: " << printHex(p, p1) << endl;
+	auto res = deserialize<string>(p);
+	const char* p2 = res.second;
 	cout << "output: " << res.first << "\tbytes: " << p2 - p << endl;
 }
 
@@ -50,7 +62,7 @@ static void test_pair() {
 	cout << "input:  " << a.first << " , " << a.second << "\tbytes: " << p1 - p << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
 	auto res = deserialize<pair<int,double>>(p);
-	char* p2 = res.second;
+	const char* p2 = res.second;
 	cout << "output: " << res.first.first << " , " << res.first.second << "\tbytes: " << p2 - p << endl;
 }
 
@@ -67,7 +79,7 @@ static void test_motif() {
 	cout << "input:  " << m << "\tbytes: " << p1 - p << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
 	auto res = deserialize<Motif>(p);
-	char* p2 = res.second;
+	const char* p2 = res.second;
 	cout << "output: " << res.first << "\tbytes: " << p2 - p << endl;
 }
 
@@ -82,8 +94,8 @@ static void test_vector() {
 	for(auto t : v) cout << t << " ";
 	cout << "]\tbytes: " << p1 - p << "\tnum: " << sr.second - v.cbegin() << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
-	auto res = deserializeCont<vector<int>>(p);
-	char* p2 = res.second;
+	auto res = deserialize<vector<int>>(p);
+	const char* p2 = res.second;
 	cout << "output: [";
 	for(auto t : res.first) cout << t << " ";
 	cout << "]\tbytes: " << p2 - p << "\tnum: " << res.first.size() << endl;
@@ -100,8 +112,8 @@ static void test_map() {
 	for(auto t : m) cout << t.first<<":"<<t.second << " ";
 	cout << "]\tbytes: " << p1 - p << "\tnum: " << distance(m.cbegin(), sr.second) << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
-	auto res = deserializeCont<map<int,int>>(p);
-	char* p2 = res.second;
+	auto res = deserialize<map<int,int>>(p);
+	const char* p2 = res.second;
 	cout << "output: [";
 	for(auto t : res.first) cout << t.first << ":" << t.second << " ";
 	cout << "]\tbytes: " << p2 - p << "\tnum: " << res.first.size() << endl;
@@ -120,11 +132,52 @@ static void test_vm() {
 	for(auto t : v) cout << t << " ";
 	cout << "]\tbytes: " << p1 - p << "\tnum: " << sr.second - v.cbegin() << endl;
 	cout << "serialized data: " << printHex(p, p1) << endl;
-	auto res = deserializeCont<vector<Motif>>(p);
-	char* p2 = res.second;
+	auto res = deserialize<vector<Motif>>(p);
+	const char* p2 = res.second;
 	cout << "output: [";
 	for(auto t : res.first) cout << t << " ";
 	cout << "]\tbytes: " << p2 - p << "\tnum: " << res.first.size() << endl;
+}
+
+void test_ummp() {
+	Motif m1; m1.addEdge(1, 2); m1.addEdge(2, 4);
+	Motif m2; m2.addEdge(2, 3); m2.addEdge(3, 6);
+	unordered_map<Motif, pair<int, double>> cont{ {m1,{3,0.3}},{m2,{5,0.5}} };
+	
+	char buf[128];
+	char *p = buf;
+	auto sr = serializeCont<unordered_map<Motif, pair<int, double>>>(p, 128, cont.cbegin(), cont.cend());
+	char *p1 = sr.first;
+	cout << "input:  [";
+	for(auto& t : cont) cout << t.first << ":(" << t.second.first<<","<<t.second.second << ") ";
+	cout << "]\tbytes: " << p1 - p << "\tnum: " << distance(cont.cbegin(), sr.second) << endl;
+	cout << "serialized data: " << printHex(p, p1) << endl;
+	auto res = deserialize<unordered_map<Motif, pair<int, double>>>(p);
+	const char* p2 = res.second;
+	cout << "output: [";
+	for(auto t : res.first) cout << t.first << ":(" << t.second.first << "," << t.second.second << ") ";
+	cout << "]\tbytes: " << p2 - p << "\tnum: " << res.first.size() << endl;
+}
+
+void test_tostring() {
+	int a = 6;
+	char buf[128];
+	char* p = serialize(buf, a);
+	string str = serialize(a);
+	cout << "char *: " << printHex(buf, p) << endl;
+	cout << "string: " << printHex(str.data(), str.data() + str.size()) << endl;
+	auto res_a = deserialize<int>(str.data());
+	cout << "value: " << res_a.first << endl;
+
+	vector<int> v{ 1,3,5,7 };
+	p = serialize(buf, v);
+	str = serialize(v);
+	cout << "char *: " << printHex(buf, p) << endl;
+	cout << "string: " << printHex(str.data(), str.data() + str.size()) << endl;
+	auto res_v = deserialize<vector<int>>(str.data());
+	cout << "value: [";
+	for(auto temp : res_v.first) cout << temp << " ";
+	cout << "]" << endl;
 }
 
 void testSerialzation(int arg, char* argv[]) {
@@ -132,6 +185,8 @@ void testSerialzation(int arg, char* argv[]) {
 	test_single1();
 	cout << "  testing single double" << endl;
 	test_single2();
+	cout << "  testing single string" << endl;
+	test_single3();
 	
 	cout << "  testing pair<int,double>" << endl;
 	test_pair();
@@ -141,10 +196,14 @@ void testSerialzation(int arg, char* argv[]) {
 
 	cout << "  testing vector" << endl;
 	test_vector();
-
 	cout << "  testing map" << endl;
 	test_map();
 
 	cout << "  testing vector<Motif> (existing overloading function)" << endl;
 	test_vm();
+	cout<<"  testing unordered_map<Motif, pair<int, double>> (existing overloading function)" << endl;
+	test_ummp();
+
+	cout << "  testing to string" << endl;
+	test_tostring();
 }

@@ -9,14 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="serializer_motif.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="serializer_old_motif_cont.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <Filter Include="Custom Types">
+      <UniqueIdentifier>{073b7249-74a2-46b5-8da2-a1297ed67fc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="serialization.h">
@@ -25,8 +20,22 @@
     <ClInclude Include="serializer_basic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="serializer_cont.hpp">
+    <ClInclude Include="serializer_iter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="serialize_general.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="c_motif.h">
+      <Filter>Custom Types</Filter>
+    </ClInclude>
+    <ClInclude Include="c_motif_ps.h">
+      <Filter>Custom Types</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="c_motif.cpp">
+      <Filter>Custom Types</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -19,13 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="serializer_old_motif_cont.cpp" />
-    <ClCompile Include="serializer_motif.cpp" />
+    <ClCompile Include="c_motif.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="c_motif.h" />
+    <ClInclude Include="c_motif_ps.h" />
     <ClInclude Include="serialization.h" />
     <ClInclude Include="serializer_basic.hpp" />
-    <ClInclude Include="serializer_cont.hpp" />
+    <ClInclude Include="serializer_iter.hpp" />
+    <ClInclude Include="serialize_general.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.vcxproj">
