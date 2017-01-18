@@ -3,7 +3,7 @@
 
 template<class T, typename S = double>
 struct TopKHolder {
-	size_t k;
+	const size_t k;
 	std::vector<std::pair<T, S>> data;
 
 	TopKHolder(const size_t k);
@@ -21,7 +21,7 @@ struct TopKHolder {
 
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
-private:
+protected:
 	bool _updateReal(T&& m, const S s);
 };
 

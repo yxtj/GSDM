@@ -101,6 +101,12 @@
     <ClInclude Include="StrategyOFGPara.h">
       <Filter>Strategies</Filter>
     </ClInclude>
+    <ClInclude Include="TopKBoundedHolder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundHolder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

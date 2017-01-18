@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BoundHolder.hpp" />
     <ClInclude Include="CandidateMthdFreqUG.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="StrategyOFGPara.h" />
     <ClInclude Include="StrategyXor.h" />
     <ClInclude Include="StrategySample.h" />
+    <ClInclude Include="TopKBoundedHolder.hpp" />
     <ClInclude Include="TopKHolder.hpp" />
   </ItemGroup>
   <ItemGroup>
