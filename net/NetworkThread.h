@@ -77,10 +77,6 @@ private:
 	std::deque<std::pair<std::string,TaskBase> > receive_buffer;
 	mutable std::recursive_mutex rec_lock;
 
-	// TODO: move this string version to the serialization project
-	template<class T>
-	std::string serialize(const T& msg);
-
 	// Enqueue the given request to pending buffer for transmission.
 	int send(Task *req);
 	// Directly (Physically) send the request.
@@ -96,17 +92,3 @@ private:
 	NetworkThread();
 };
 
-template<class T>
-inline std::string NetworkThread::serialize(const T & msg)
-{
-	int n = 128;
-	std::string str;
-	char* p;
-	// TODO: add size estimation function in serailzation
-	do {
-		str.resize(n);
-		p = serialize(const_cast<char*>(str.data()), str.size(), msg);
-		n *= 2;
-	} while(p == nullptr);
-	return str;
-}

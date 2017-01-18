@@ -70,7 +70,7 @@ static void workRank1(NetworkThread *net) {
 	cout << endl;
 }
 
-void testNet(int argc, char* argv[]) {
+void testNetProtoBuf(int argc, char* argv[]) {
 	NetworkThread::Init(argc, argv);
 	NetworkThread *net = NetworkThread::GetInstance();
 	cout << net->id() << " / " << net->size() << endl;

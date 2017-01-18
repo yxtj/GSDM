@@ -9,12 +9,16 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 	if(0){
-		cout << "Test module net" << endl;
+		cout << "Test module net-protobuf" << endl;
 		testNet(argc, argv);
 	}
-	if(1) {
+	if(0) {
 		cout << "Test serailization" << endl;
 		testSerialzation(argc, argv);
+	}
+	if(1) {
+		cout << "Test module net" << endl;
+		testNet(argc, argv);
 	}
 	
 	return 0;

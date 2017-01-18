@@ -30,6 +30,9 @@
     <ClInclude Include="msg\common.pb.h">
       <Filter>msg</Filter>
     </ClInclude>
+    <ClInclude Include="streamize_types.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="net-protobuf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="net.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
