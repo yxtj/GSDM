@@ -27,7 +27,7 @@ static void workRank0(NetworkThread *net) {
 	map<Motif, double> f;	f[d] = 0.1;	f[d2] = 0.2;
 
 	int size;
-	RPCInfo info;
+	int source, tag;
 	string buff;
 
 	// simple unit
@@ -38,15 +38,15 @@ static void workRank0(NetworkThread *net) {
 	size = net->send(DST, 3, c);
 	printSend(rank, 1, size) << ", value=" << c << endl;
 
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<char>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<char>(buff) << endl;
 
 	// Motif
 	size = net->send(DST, 4, d);
 	printSend(rank, 4, size) << ", value=" << d << endl;
 
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<char>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<char>(buff) << endl;
 
 	// container
 	size = net->send(DST, 5, e);
@@ -54,8 +54,8 @@ static void workRank0(NetworkThread *net) {
 	size = net->send(DST, 6, f);
 	printSend(rank, 6, size) << ", value=" << f << endl;
 
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<char>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<char>(buff) << endl;
 }
 
 static void workRank1(NetworkThread *net) {
@@ -64,32 +64,32 @@ static void workRank1(NetworkThread *net) {
 	int DST = 0;
 
 	int size;
-	RPCInfo info;
+	int source, tag;
 	string buff;
 
 	// simple unit
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<int>(buff) << endl;
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<double>(buff) << endl;
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<pair<int, int>>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<int>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<double>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<pair<int, int>>(buff) << endl;
 
 	size = net->send(DST, SYNC_TAG, 'x');
 	printSend(rank, SYNC_TAG, size) << ", value=" << 'x' << endl;
 
 	// Motif
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<Motif>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<Motif>(buff) << endl;
 
 	size = net->send(DST, SYNC_TAG, 'y');
 	printSend(rank, SYNC_TAG, size) << ", value=" << 'y' << endl;
 
 	// container
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<vector<int>>(buff) << endl;
-	net->readAny(buff, &info.source, &info.tag);
-	printReceive(rank, info.tag, buff.size()) << ", value=" << deserialize<map<Motif, double>>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<vector<int>>(buff) << endl;
+	net->readAny(buff, &source, &tag);
+	printReceive(rank, tag, buff.size()) << ", value=" << deserialize<map<Motif, double>>(buff) << endl;
 
 	size = net->send(DST, SYNC_TAG, 'z');
 	printSend(rank, SYNC_TAG, size) << ", value=" << 'z' << endl;

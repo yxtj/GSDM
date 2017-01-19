@@ -131,10 +131,6 @@ int NetworkThread::send(Task *req){
 	pending_sends_->push_back(req);
 	return size;
 }
-//int NetworkThread::send(int dst, int method, const MessageLite &msg){
-	// TODO: add an alocator for Task
-//	return send(new Task(dst, method, msg));
-//}
 
 // Directly (Physically) send the request.
 int NetworkThread::sendDirect(Task *req){
@@ -142,19 +138,7 @@ int NetworkThread::sendDirect(Task *req){
 	net->send(req);
 	return size;
 }
-//int NetworkThread::sendDirect(int dst, int method, const MessageLite &msg){
-//	return sendDirect(new Task(dst, method, msg));
-//}
 
-
-//void NetworkThread::broadcast(int method, const MessageLite& msg){
-//	net->broadcast(new Task(Task::ANY_SRC, method, msg));
-////	int myid = id();
-////	for(int i = 0; i < net->size(); ++i){
-////		if(i != myid)
-////			send(i, method, msg);
-////	}
-//}
 
 int NetworkThread::broadcast(Task* req) {
 	int size = req->payload.size();
@@ -202,7 +186,6 @@ static void ShutdownImpl(){
 }
 
 void NetworkThread::Init(int argc, char* argv[]){
-//	VLOG(1) << "Initializing network...";
 	NetworkImplMPI::Init(argc, argv);
 	self = new NetworkThread();
 	atexit(&ShutdownImpl);

@@ -6,10 +6,8 @@
 #include <deque>
 #include <vector>
 #include "../netbase/Task.h"
-#include "../netbase/RPCInfo.h"
 #include "../serialization/serialization.h"
 
-//typedef google::protobuf::MessageLite MessageLite;
 
 class NetworkImplMPI;
 
@@ -31,22 +29,24 @@ public:
 	// Unblocked read for the given source and message type.
 	bool tryReadAny(std::string& data, int *sosrcReturce=nullptr, int *typeRet=nullptr);
 
+	// Enqueue the given request to pending buffer for transmission.
 	template <class T>
 	int send(int dst, int tag, const T& msg) {
 		std::string s = serialize(msg);
 		return send(new Task(dst, tag, move(s)));
 	}
-	// Enqueue the given request to pending buffer for transmission.
-	//int send(int dst, int tag, const MessageLite &msg);
 	// Directly send the request bypassing the pending buffer.
-	//int sendDirect(int dst, int method, const MessageLite &msg);
+	template <class T>
+	int sendDirect(int dst, int tag, const T& msg) {
+		std::string s = serialize(msg);
+		return sendDirect(new Task(dst, tag, move(s)));
+	}
 
 	template <class T>
 	void broadcast(int tag, const T& msg) {
 		std::string s = serialize(msg);
 		return broadcast(new Task(Task::ANY_DST, tag, move(s)));
 	}
-	//void broadcast(int method, const MessageLite& msg);
 
 	void flush();
 	void shutdown();
