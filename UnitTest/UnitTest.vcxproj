@@ -163,6 +163,7 @@
     <ClInclude Include="streamize_types.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="msgdriver.cpp" />
     <ClCompile Include="msg\common.pb.cc" />
     <ClCompile Include="net-protobuf.cpp" />
     <ClCompile Include="net.cpp" />
@@ -181,6 +182,9 @@
     </ProjectReference>
     <ProjectReference Include="..\msg-protobuf\msg-protobuf.vcxproj">
       <Project>{12e28a31-1ec6-4a39-8e33-4a698ff0f1b5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\msgdriver\msgdriver.vcxproj">
+      <Project>{44a08e02-7f8a-4a45-b0c7-7138c2111440}</Project>
     </ProjectReference>
     <ProjectReference Include="..\net-protobuf\net-protobuf.vcxproj">
       <Project>{b763a53f-9b02-4885-b08d-83f08a3db6b5}</Project>

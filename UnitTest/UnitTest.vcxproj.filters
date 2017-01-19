@@ -53,6 +53,9 @@
     <ClCompile Include="net.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="msgdriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="msg\common.proto">
