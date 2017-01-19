@@ -13,19 +13,16 @@ MsgDriver::callback_t MsgDriver::GetDummyHandler(){
 	static callback_t dummy=[](const std::string&, const RPCInfo&){};
 	return dummy;
 }
-MsgDriver::MsgDriver():running_(false)
+MsgDriver::MsgDriver()
 {
 	clear();
 }
 
-void MsgDriver::terminate(){
-	running_=false;
-}
 bool MsgDriver::empty() const{
-	return que.empty();
-}
-bool MsgDriver::emptyStrict() const{
 	return !inDisper.busy() && que.empty();
+}
+bool MsgDriver::emptyQueue() const{
+	return que.empty();
 }
 bool MsgDriver::busy() const{
 	return inDisper.busy() || !outDisper.busy() || que.empty();
@@ -59,7 +56,7 @@ void MsgDriver::resetDefaultOutHandler(){
 	defaultHandler=GetDummyHandler();
 }
 void MsgDriver::resetWaitingQueue(){
-//	lock_guard<mutex> ql(lockQue);
+	lock_guard<mutex> ql(queLock);
 	que.clear();
 }
 void MsgDriver::clear(){
@@ -69,7 +66,7 @@ void MsgDriver::clear(){
 	resetDefaultOutHandler();
 }
 size_t MsgDriver::abandonData(const int type){
-//	lock_guard<mutex> ql(lockQue);
+	lock_guard<mutex> ql(queLock);
 	size_t f=0,l=0;
 	while(l<que.size()){
 		if(que[l].second.tag==type){
@@ -91,23 +88,26 @@ bool MsgDriver::pushData(string&& data, RPCInfo& info) {
 }
 bool MsgDriver::popData() {
 	if(que.empty())	return false;
-	//	string d;
-	//	RPCInfo r;
-	//	{
-	//		lock_guard<mutex> ql(lockQue);
-	//		tie(d,r)=move(que.front());
-	auto p = move(que.front());
-	que.pop_front();
-	//	}
-	//	return processOutput(d, r);
-	return processOutput(p.first, p.second);
+	string d;
+	RPCInfo r;
+	{
+		lock_guard<mutex> ql(queLock);
+		tie(d,r)=move(que.front());
+		que.pop_front();
+	}
+	return processOutput(d, r);
+//	auto p = move(que.front());
+//	que.pop_front();
+//	return processOutput(p.first, p.second);
 }
 
 //Process
 bool MsgDriver::processInput(string&& data, RPCInfo& info){
 	if(!inDisper.receiveData(info.tag, data, info)){
-//		lock_guard<mutex> ql(lockQue);
-		que.push_back(make_pair(move(data),move(info)));
+		{
+			lock_guard<mutex> ql(queLock);
+			que.push_back(make_pair(move(data), move(info)));
+		}
 		return true;
 	}
 	return false;

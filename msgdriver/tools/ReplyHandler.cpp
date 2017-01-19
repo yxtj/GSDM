@@ -8,6 +8,7 @@
 #include "ReplyHandler.h"
 #include <algorithm>
 #include <thread>
+#include <mutex>
 
 using namespace std;
 
@@ -21,10 +22,13 @@ struct ConditionAny:public ReplyHandler::Condition{
 struct ConditionEachOne:public ReplyHandler::Condition{
 	ConditionEachOne(const int num):state(num,false){}
 	bool update(const int source){
-		state.at(source)=true;
-//		state[source]=true;
+		{
+			// writing on vector<bool> is not thread safe. (8-bit in one byte)
+			// when multiple thread try to write the bits in the same byte, the new one over-writing old ones.
+			lock_guard<mutex> lg(ms);
+			state.at(source) = true;
+		}
 		if(all_of(state.begin(), state.end(), [](const bool b){return b;})){
-			reset();
 			return true;
 		}
 		return false;
@@ -33,6 +37,7 @@ struct ConditionEachOne:public ReplyHandler::Condition{
 		fill(state.begin(),state.end(),false);
 	}
 private:
+	mutex ms;
 	vector<bool> state;
 };
 struct ConditionGeneral:public ReplyHandler::Condition{
@@ -43,7 +48,6 @@ struct ConditionGeneral:public ReplyHandler::Condition{
 	bool update(const int source){
 		--state[source];
 		if(all_of(state.begin(), state.end(),[](const int v){return v<=0;})){
-			reset();
 			return true;
 		}
 		return false;
@@ -133,8 +137,17 @@ void ReplyHandler::addType(const int type, Condition* cond,
 }
 void ReplyHandler::removeType(const int type){
 	auto it=cont.find(type);
-	if(it!=cont.end())
+	if(it != cont.end()) {
+		delete it->second.cond;
 		cont.erase(it);
+	}
+}
+
+void ReplyHandler::clear(){
+	for(auto& p : cont) {
+		delete p.second.cond;
+	}
+	cont.clear();
 }
 
 void ReplyHandler::launch(Item& item){

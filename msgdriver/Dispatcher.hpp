@@ -11,15 +11,14 @@
 #include <unordered_map>
 #include <functional>
 #include <condition_variable>
-#include <functional>
 
 template<class... Params>
 class Dispatcher{
 public:
 	typedef std::function<void(Params...)> callback_t;
 
-	Dispatcher(int initTypeNum=50, float loadFactor=0.8f)
-		: workLoad(0),callbacks_(initTypeNum),paused_(false) {
+	Dispatcher(int initTypeNum=50, float loadFactor=1.0f)
+		: workLoad(0),paused_(false),callbacks_(initTypeNum) {
 		callbacks_.max_load_factor(loadFactor);
 	}
 

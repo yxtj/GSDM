@@ -14,22 +14,27 @@
 #include <vector>
 
 /*
- * This is a helper class for handling reply message. It can be used with out
- * class MsgDriver or class Dipatcher.
+ * This is a helper class for handling reply message. It invokes registered
+ * handler when a certain condition satifies.
+ * The "Reply" means all the input information is just the source and type.
+ * One reply is an input as (source, type) pair.
+ * It can be used with out class MsgDriver or class Dipatcher.
  * Usage:
- *  1, register types of reply message you want to handle using addType()
+ *  1, register types, their handlers and invoke conditions using addType()
  *  2, active that handler with activateType()
- *  3, input the type and source of a reply message with input()
- * Condition:
- *  1, used to check when the handle should be handled
+ *  3, input the type and source of with input()
+ *  4, when a condition fulfills, its hanlder is called automatically
+ * Condition for trigger a handler.
+ *  1, used to determine when a handler should be called.
  *  2, three types of pre-defined Conditions in condFactory()
- *  2.1, ANY_ONE: trigger handler after reply from any source.
- * 		constructed NO parameter.
- *  2.2, EACH_ONE: trigger handler after each source have replied AT LEAST once.
- *  	constructed with parameter numSource.
- *  2.3, GERNERAL: trigger handler after each source have replied AT LEAST
+ *  2.1, ANY_ONE: triggers after a reply from any source.
+ * 		Constructed with NO parameter.
+ *  2.2, EACH_ONE: triggers after each source have replied AT LEAST once.
+ *  	Constructed with parameter $numSource$. (Source index starts from 0)
+ *  2.3, GERNERAL: triggers after each source have replied AT LEAST
  *  	expected times.
- *  	constructed with parameter expected.
+ *  	Constructed with parameter $expected$. (Source index starts from 0)
+ *  3, remember to reset the condition if you want to use it again after triggered once.
  */
 class ReplyHandler{
 public:
@@ -40,35 +45,42 @@ public:
 		virtual void reset(){}
 		virtual ~Condition(){}
 	};
-	//return whether this input is handled by this calling
-	bool input(const int type, const int source);
 
 	enum ConditionType{
 		ANY_ONE, EACH_ONE, GENERAL
 	};
 
+	// create an ANY_ONE condition: one reply from any source
 	static Condition* condFactory(const ConditionType ct);
+	// create an EACH_ONE condition: at least a reply for each source from 0 to num-1
 	static Condition* condFactory(
 			const ConditionType ct, const int numSource);
+	// create a GENERAL condition: given specific number of replies for each source
 	static Condition* condFactory(
 			const ConditionType ct, const std::vector<int>& expected);
+	// create a GENERAL condition: given specific number of replies for each source
 	static Condition* condFactory(
 			const ConditionType ct, std::vector<int>&& expected);
 
+	//return whether this input is handled by this calling
+	bool input(const int type, const int source);
+
+	// register a type, handler and condition
 	void addType(const int type, Condition* cond,
 			std::function<void()> fn, const bool spwanThread=false);
 	void removeType(const int type);
+
 	void activateType(const int type){
 		cont.at(type).activated=true;
 	}
-	void pauseType(const int type){
+	void deactiveateType(const int type){
 		cont.at(type).activated=false;
 	}
-	void resetType(const int type){
+	void resetTypeCondition(const int type){
 		cont.at(type).cond->reset();
 	}
 
-	void clear(){ cont.clear(); }
+	void clear();
 	size_t size() const{ return cont.size(); }
 
 private:

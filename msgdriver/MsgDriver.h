@@ -27,9 +27,8 @@ public:
 	static callback_t GetDummyHandler();
 
 	MsgDriver();
-	void terminate();
 	bool empty() const;
-	bool emptyStrict() const;
+	bool emptyQueue() const;
 	bool busy() const;
 
 
@@ -73,11 +72,10 @@ private:
 	bool processInput(std::string&& data, RPCInfo& info);
 	bool processOutput(std::string& data, RPCInfo& info);
 
-	bool running_;
 
 	Dispatcher<const std::string&, const RPCInfo&> inDisper; //immediately response
 	std::deque<std::pair<std::string, RPCInfo> > que; //queue for message waiting for process
-//	mutable std::mutex lockQue;
+	mutable std::mutex queLock;
 	Dispatcher<const std::string&, const RPCInfo&> outDisper; //response when processed
 	callback_t defaultHandler;
 };
