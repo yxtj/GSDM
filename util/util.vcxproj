@@ -23,9 +23,11 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="is_associated_container.h" />
     <ClInclude Include="is_container.h" />
     <ClInclude Include="is_iterator.h" />
     <ClInclude Include="is_pair.h" />
+    <ClInclude Include="is_sequential_container.h" />
     <ClInclude Include="is_stl_container.h" />
     <ClInclude Include="slist.hpp" />
     <ClInclude Include="Timer.h" />

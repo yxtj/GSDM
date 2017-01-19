@@ -43,5 +43,11 @@
     <ClInclude Include="is_pair.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="is_associated_container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="is_sequential_container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
