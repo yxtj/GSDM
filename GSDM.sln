@@ -22,8 +22,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net", "net\net.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msgdriver", "msgdriver\msgdriver.vcxproj", "{44A08E02-7F8A-4A45-B0C7-7138C2111440}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msg", "msg\msg.vcxproj", "{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{2A822265-7AC9-44AE-99BE-02BFE08D542E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enumerator", "Search\enumerator\enumerator.vcxproj", "{C2305F4D-377C-413C-BA0A-702EDD396193}"
@@ -35,6 +33,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netbase", "netbase\netbase.vcxproj", "{27184A80-403F-4FDA-81DA-CED790F808A0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net-protobuf", "net-protobuf\net-protobuf.vcxproj", "{B763A53F-9B02-4885-B08D-83F08A3DB6B5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msg-protobuf", "msg-protobuf\msg-protobuf.vcxproj", "{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,14 +108,6 @@ Global
 		{44A08E02-7F8A-4A45-B0C7-7138C2111440}.Release|x64.Build.0 = Release|x64
 		{44A08E02-7F8A-4A45-B0C7-7138C2111440}.Release|x86.ActiveCfg = Release|Win32
 		{44A08E02-7F8A-4A45-B0C7-7138C2111440}.Release|x86.Build.0 = Release|Win32
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x64.ActiveCfg = Debug|x64
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x64.Build.0 = Debug|x64
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x86.ActiveCfg = Debug|Win32
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x86.Build.0 = Debug|Win32
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x64.ActiveCfg = Release|x64
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x64.Build.0 = Release|x64
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x86.ActiveCfg = Release|Win32
-		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x86.Build.0 = Release|Win32
 		{2A822265-7AC9-44AE-99BE-02BFE08D542E}.Debug|x64.ActiveCfg = Debug|x64
 		{2A822265-7AC9-44AE-99BE-02BFE08D542E}.Debug|x64.Build.0 = Debug|x64
 		{2A822265-7AC9-44AE-99BE-02BFE08D542E}.Debug|x86.ActiveCfg = Debug|Win32
@@ -164,6 +156,14 @@ Global
 		{B763A53F-9B02-4885-B08D-83F08A3DB6B5}.Release|x64.Build.0 = Release|x64
 		{B763A53F-9B02-4885-B08D-83F08A3DB6B5}.Release|x86.ActiveCfg = Release|Win32
 		{B763A53F-9B02-4885-B08D-83F08A3DB6B5}.Release|x86.Build.0 = Release|Win32
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x64.ActiveCfg = Debug|x64
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x64.Build.0 = Debug|x64
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x86.ActiveCfg = Debug|Win32
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Debug|x86.Build.0 = Debug|Win32
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x64.ActiveCfg = Release|x64
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x64.Build.0 = Release|x64
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x86.ActiveCfg = Release|Win32
+		{12E28A31-1EC6-4A39-8E33-4A698FF0F1B5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
