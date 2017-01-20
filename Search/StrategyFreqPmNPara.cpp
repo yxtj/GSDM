@@ -3,7 +3,7 @@
 #include "StrategyFreqPmNPara.h"
 #include "CandidateMethodFactory.h"
 #include "Option.h"
-#include "serialization.h"
+#include "../serialization/c_motif.h"
 
 using namespace std;
 
@@ -111,7 +111,7 @@ std::unordered_map<Motif, std::pair<int, double>> StrategyFreqPmNPara::freqOnSet
 			if(st.MPI_TAG == 1) {
 				cntFinish++;
 			} else {
-				auto mp = deserializeMP(buf);
+				auto mp = deserializeMP(buf).first;
 				for(auto& p : mp) {
 					phase1[p.first].first += p.second.first;
 					phase1[p.first].second += p.second.second;
@@ -225,7 +225,7 @@ std::vector<Motif> StrategyFreqPmNPara::filterByNegative(
 			if(st.MPI_TAG == 1) {
 				finish = true;
 			} else {
-				auto v = deserializeVM(buf);
+				auto v = deserializeVM(buf).first;
 				if(motifs.empty()) {
 					motifs = move(v);
 				} else {

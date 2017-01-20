@@ -21,9 +21,6 @@
     <Filter Include="Strategies\Source">
       <UniqueIdentifier>{72e1f70d-7819-41de-b646-442980977487}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Serialization">
-      <UniqueIdentifier>{5998694e-5f8e-46e7-8c6c-8f076f16ccb4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Network">
       <UniqueIdentifier>{95cedda2-5904-47b7-8acd-fc0c4c38fa13}</UniqueIdentifier>
     </Filter>
@@ -59,14 +56,8 @@
     <ClInclude Include="StrategyBase.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="serialization.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyXor.h">
       <Filter>Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="MotifCommunicator.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StrategyDUG.h">
       <Filter>Strategies</Filter>
@@ -110,6 +101,9 @@
     <ClInclude Include="MType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MotifCommunicator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -148,17 +142,11 @@
     <ClCompile Include="StrategySample.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="serialization.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyFactory.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyXor.cpp">
       <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="MotifCommunicator.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyDUG.cpp">
       <Filter>Strategies\Source</Filter>
@@ -210,6 +198,9 @@
     </ClCompile>
     <ClCompile Include="StrategyOFGPara-handler.cpp">
       <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MotifCommunicator.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

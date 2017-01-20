@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "MotifCommunicator.h"
-#include "serialization.h"
+#include "../serialization/c_motif.h"
 
 using namespace std;
 
@@ -104,7 +104,7 @@ std::vector<Motif> MotifCommunicator::_shuffle_receive_thread()
 		if(st.MPI_TAG == TAG_END) {
 			finish = true;
 		} else {
-			auto tmp = deserializeVM(buf);
+			auto tmp = deserializeVM(buf).first;
 			move(tmp.begin(), tmp.end(), back_inserter(res));
 		}
 	} while(!finish);
@@ -132,7 +132,7 @@ bool MotifReceiver::receive(std::vector<Motif> & res)
 	if(st.MPI_TAG == termTag) {
 		return false;
 	} else {
-		auto tmp = deserializeVM(buffer);
+		auto tmp = deserializeVM(buffer).first;
 		move(tmp.begin(), tmp.end(), back_inserter(res));
 	}
 	return true;
@@ -155,11 +155,11 @@ MotifSender::~MotifSender()
 
 void MotifSender::send(const Motif & m)
 {
-	size_t s = estimateBufferSize(m);
+	size_t s = estimateSizeMotif(m);
 	if(s > restSize) {
 		flush();
 	} else {
-		p = serialize(p, m);
+		p = serializeMotif(p, m);
 		restSize -= s;
 		++numMotif;
 	}

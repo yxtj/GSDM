@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Network.h"
-#include "serialization.h"
+#include "../serialization/c_motif.h"
 
 
 const size_t Network::bufSize = 64 * 1024;
@@ -34,7 +34,7 @@ int Network::getRank() const
 
 void Network::sendMotif(const int target, const Motif & m)
 {
-	size_t s = estimateBufferSize(m);
+	size_t s = estimateSizeMotif(m);
 	if(s > restBufSizeSend) {
 		do {
 			restBufSizeSend *= 2;
@@ -43,7 +43,7 @@ void Network::sendMotif(const int target, const Motif & m)
 		bufSend = new char[restBufSizeSend];
 		pSend = bufSend;
 	}
-	pSend = serialize(bufSend, m);
+	pSend = serializeMotif(bufSend, m);
 //	cout << "net: send " << s << endl;
 	MPI_Send(bufSend, s, MPI_CHAR, target, TAG_MOTIF, MPI_COMM_WORLD);
 }
@@ -58,7 +58,7 @@ bool Network::readMotif(Motif & res, int & source)
 	if(st.MPI_TAG == TAG_END) {
 		return false;
 	}
-	tie(res,ignore)= deserialize(bufRecv);
+	tie(res,ignore)= deserializeMotif(bufRecv);
 	source = st.MPI_SOURCE;
 	return true;
 }

@@ -163,7 +163,6 @@
     <ClInclude Include="MType.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Option.h" />
-    <ClInclude Include="serialization.h" />
     <ClInclude Include="StrategyBase.h" />
     <ClInclude Include="CandidateMethod.h" />
     <ClInclude Include="CandidateMethodFactory.h" />
@@ -193,7 +192,6 @@
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="Search.cpp" />
-    <ClCompile Include="serialization.cpp" />
     <ClCompile Include="StrategyBase.cpp" />
     <ClCompile Include="CandidateMethod.cpp" />
     <ClCompile Include="CandidateMethodFactory.cpp" />
