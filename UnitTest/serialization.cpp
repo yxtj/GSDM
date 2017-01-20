@@ -83,6 +83,19 @@ static void test_motif() {
 	cout << "output: " << res.first << "\tbytes: " << p2 - p << endl;
 }
 
+static void test_edge() {
+	Edge e(1, 4);
+
+	char buf[128];
+	char *p = buf;
+	char *p1 = serialize(p, e);
+	cout << "input:  (" << e.s << "," << e.d << ")\tbytes: " << p1 - p << endl;
+	cout << "serialized data: " << printHex(p, p1) << endl;
+	auto res = deserialize<Edge>(p);
+	const char* p2 = res.second;
+	cout << "output: (" << res.first.s << "," << res.first.d << ")\tbytes: " << p2 - p << endl;
+}
+
 static void test_vector() {
 	vector<int> v{1,2,3,5,7,11};
 
@@ -202,6 +215,8 @@ void testSerialzation(int arg, char* argv[]) {
 
 	cout << "  testing motif" << endl;
 	test_motif();
+	cout << "  testing edge (POD)" << endl;
+	test_edge();
 
 	cout << "  testing vector" << endl;
 	test_vector();

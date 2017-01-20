@@ -4,7 +4,7 @@
 
 struct Edge {
 	int s, d;
-	Edge() {}
+	Edge() = default;
 	Edge(const int a, const int b) :s(a), d(b) {
 		//undirected edge : s<d
 		if(s > d) std::swap(s, d);
@@ -21,7 +21,7 @@ inline bool operator==(const Edge &lth, const Edge &rth) {
 	//		|| (lth.s == rth.d && lth.d == rth.s);
 }
 inline bool operator!=(const Edge &lth, const Edge &rth) {
-	return !(lth == rth);
+	return lth.s != rth.s || lth.d != rth.d;
 }
 inline bool operator<(const Edge &lth, const Edge &rth) {
 	return lth.s < rth.s ? true : lth.s == rth.s && lth.d < rth.d;
