@@ -46,11 +46,13 @@ inline size_t TopKBoundedHolder<T, S>::size() const
 template<class T, typename S>
 constexpr S TopKBoundedHolder<T, S>::worstScore()
 {
-	if(std::is_floating_point<S>::value) {
+/*	if(std::is_floating_point<S>::value) {
 		return nextafter(bound, std::numeric_limits<S>::lowest());
 	} else {
 		return bound == std::numeric_limits<S>::lowest() ? bound : bound - 1;
 	}
+	*/
+	return std::numeric_limits<S>::lowest();
 }
 template<class T, typename S>
 inline bool TopKBoundedHolder<T, S>::updatable(const S s) const
@@ -61,8 +63,9 @@ inline bool TopKBoundedHolder<T, S>::updatable(const S s) const
 template<class T, typename S>
 bool TopKBoundedHolder<T, S>::_updateReal(T&& m, const S s)
 {
-	auto it = std::upper_bound(data.begin(), data.end(), s, [s](const std::pair<T, S>&p) {
-		return p.second <= newBound;
+	auto it = std::upper_bound(data.begin(), data.end(), s, 
+		[s](const S s, const std::pair<T, S>&p) {
+		return s < p.second;
 	});
 	data.insert(it, make_pair(move(m), s));
 	if(data.size() >= k)
@@ -90,12 +93,15 @@ inline bool TopKBoundedHolder<T, S>::update(const T& m, const S s)
 template<class T, typename S>
 inline int TopKBoundedHolder<T, S>::updateBound(const S newBound)
 {
-	auto it=std::upper_bound(data.begin(), data.end(), s, [newBound](const std::pair<T, S>&p) {
-		return p.second <= newBound;
+	auto it=std::upper_bound(data.begin(), data.end(), newBound,
+		[](const S v, const std::pair<T, S>&p) {
+		return v < p.second;
 	});
 	int count = 0;
-	while(it != data.end())
+	while(it != data.end()) {
 		it = data.erase(it);
+		++count;
+	}
 	return count;
 }
 

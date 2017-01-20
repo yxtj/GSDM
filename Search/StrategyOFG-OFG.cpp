@@ -78,7 +78,7 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 	for(const auto& mb : last) {
 		// work on a motif
 		double score = scoring(mb, holder.lastScore());
-		if(score == holder.worstScore()) {
+		if(score == numeric_limits<double>::lowest()) {
 			// abandon if not promissing
 			continue;
 		} else if(holder.updatable(score)) {
@@ -131,7 +131,7 @@ double StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
 	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
 	if(scoreUB <= lowerBound)
-		return -numeric_limits<double>::max();
+		return numeric_limits<double>::lowest();
 	// calculate the how score
 	int cntNeg;
 	if(flagUseSD)
