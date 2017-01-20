@@ -80,10 +80,10 @@ size_t MsgDriver::abandonData(const int type){
 }
 
 //Main working functions
-bool MsgDriver::pushData(string& data, RPCInfo& info) {
+bool MsgDriver::pushData(string& data, const RPCInfo& info) {
 	return processInput(move(data), info);
 }
-bool MsgDriver::pushData(string&& data, RPCInfo& info) {
+bool MsgDriver::pushData(string&& data, const RPCInfo& info) {
 	return processInput(move(data), info);
 }
 bool MsgDriver::popData() {
@@ -102,7 +102,7 @@ bool MsgDriver::popData() {
 }
 
 //Process
-bool MsgDriver::processInput(string&& data, RPCInfo& info){
+bool MsgDriver::processInput(string&& data, const RPCInfo& info){
 	if(!inDisper.receiveData(info.tag, data, info)){
 		{
 			lock_guard<mutex> ql(queLock);
@@ -112,7 +112,7 @@ bool MsgDriver::processInput(string&& data, RPCInfo& info){
 	}
 	return false;
 }
-bool MsgDriver::processOutput(string& data, RPCInfo& info){
+bool MsgDriver::processOutput(string& data, const RPCInfo& info){
 	if(!outDisper.receiveData(info.tag, data, info)){
 		defaultHandler(data,info);
 		return true;

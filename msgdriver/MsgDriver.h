@@ -62,15 +62,15 @@ public:
 	}
 
 	// return whether the input bypasses the dispatcher (enqueue)
-	bool pushData(std::string& data, RPCInfo& info);
-	bool pushData(std::string&& data, RPCInfo& info);
+	bool pushData(std::string& data, const RPCInfo& info);
+	bool pushData(std::string&& data, const RPCInfo& info);
 	// return whether a value is picked and bypasses the dispatcher (default handled)
 	bool popData();
 
 private:
 	//return whether the provided data bypasses dispatcher (enqueue & default handled)
-	bool processInput(std::string&& data, RPCInfo& info);
-	bool processOutput(std::string& data, RPCInfo& info);
+	bool processInput(std::string&& data, const RPCInfo& info);
+	bool processOutput(std::string& data, const RPCInfo& info);
 
 
 	Dispatcher<const std::string&, const RPCInfo&> inDisper; //immediately response
