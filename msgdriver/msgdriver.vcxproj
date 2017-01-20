@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClCompile Include="MsgDriver.cpp" />
     <ClCompile Include="tools\ReplyHandler.cpp" />
+    <ClCompile Include="tools\SyncUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\netbase\netbase.vcxproj">

@@ -41,5 +41,8 @@
     <ClCompile Include="tools\ReplyHandler.cpp">
       <Filter>tools</Filter>
     </ClCompile>
+    <ClCompile Include="tools\SyncUnit.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
