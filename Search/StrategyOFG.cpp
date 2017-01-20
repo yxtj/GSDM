@@ -18,7 +18,7 @@ const std::string StrategyOFG::usage(
 	"  <dist>: optional [dist/dist-no], default disabled, run in distributed manner\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
-	"  [dces]: optional [dces/dces-c/dces-b/decs-no / dces:<ms>/dces-c:<ms>/dces-b:<ms>/decs:<ms>-no], "
+	"  [dces]: optional [dces/dces-c/dces-b/decs-no](:<ms>), "
 	"default enabled, use dynamic candidate edge set ('c' for connected-condition, 'b' for bound-condition) "
 	"<ms> is the minimum frequency of candidate edges, default 0.0\n"
 	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path"
@@ -82,13 +82,7 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
 	// initialization
-	pgp = &gPos;
-	pgn = &gNeg;
-	nSubPosGlobal = opt.nPosInd;
-	nSubNegGlobal = opt.nNegInd;
-	//nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
-	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
-	nNode = gPos[0][0].nNode;
+	initParams(gPos, gNeg);
 	initStatistics();
 
 	if(flagUseSD) {
@@ -150,6 +144,16 @@ double StrategyOFG::objFun_ratioP2N(const double freqPos, const double freqNeg)
 {
 	//return freqNeg != 0.0 ? freqPos / freqNeg : freqPos;
 	return freqPos*freqPos / (freqPos + freqNeg);
+}
+
+void StrategyOFG::initParams(
+	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+{
+	pgp = &gPos;
+	pgn = &gNeg;
+	//nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
+	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
+	nNode = gPos[0][0].nNode;
 }
 
 void StrategyOFG::initStatistics()

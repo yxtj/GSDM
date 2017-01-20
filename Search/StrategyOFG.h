@@ -34,7 +34,6 @@ protected:
 	using subject_t = std::vector<Graph>;
 	using dataset_t = std::vector<subject_t>;
 	const std::vector<std::vector<Graph>>* pgp, *pgn;
-	size_t nSubPosGlobal, nSubNegGlobal;
 
 	// statistics
 	mutable unsigned long long stNumMotifExplored;
@@ -87,6 +86,7 @@ protected:
 
 	/* Basic Utility/Functions */
 protected:
+	void initParams(const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
 	void initStatistics();
 	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
 	void parseLOG(const std::ssub_match& param, const bool flag);
