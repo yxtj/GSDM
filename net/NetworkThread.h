@@ -49,13 +49,16 @@ public:
 	}
 
 	void flush();
-	void shutdown();
 
 	int id() const;
 	int size() const;
 
 	static NetworkThread *GetInstance();
 	static void Init(int argc, char* argv[]);
+	// finish current tasks and terminate
+	static void Shutdown();
+	// abandon ongoing tasks and terminate all network related functions
+	static void Terminate();
 
 	bool pause_=false;
 

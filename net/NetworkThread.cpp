@@ -165,28 +165,33 @@ NetworkThread* NetworkThread::GetInstance(){
 	return self;
 }
 
-void NetworkThread::shutdown(){
-	if(running){
-		flush();	//finish all the sending
-		running = false;
-		//wait for Run() to exit
-		while(!done){
-			Sleep();
-		}
-		net=nullptr;
-		NetworkImplMPI::Shutdown();
-	}
-	NetworkThread* v=nullptr;
-	swap(v,self); // use the swap primitive to preform safe deletion
-	delete v;
-}
-
-static void ShutdownImpl(){
-	NetworkThread::GetInstance()->shutdown();
-}
-
 void NetworkThread::Init(int argc, char* argv[]){
 	NetworkImplMPI::Init(argc, argv);
 	self = new NetworkThread();
-	atexit(&ShutdownImpl);
+	atexit(&NetworkThread::Terminate);
+}
+
+void NetworkThread::Shutdown() {
+	if(self != nullptr) {
+		NetworkThread* p = nullptr;
+		swap(self, p); // use the swap primitive to preform safe deletion
+		if(p->running) {
+			p->flush();	//finish all the sending
+			p->running = false;
+			//wait for Run() to exit
+			while(!p->done) {
+				Sleep();
+			}
+			p->net = nullptr;
+			NetworkImplMPI::Shutdown();
+		}
+	}
+}
+
+void NetworkThread::Terminate()
+{
+	NetworkThread* p = nullptr;
+	swap(p, self);
+	delete p;
+	NetworkImplMPI::Shutdown();
 }
