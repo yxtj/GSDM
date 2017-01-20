@@ -107,6 +107,9 @@
     <ClInclude Include="BoundHolder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

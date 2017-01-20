@@ -124,6 +124,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,6 +160,7 @@
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="MotifCommunicator.h" />
+    <ClInclude Include="MType.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="serialization.h" />
