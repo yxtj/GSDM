@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 		cout << "Test module net-protobuf" << endl;
 		testNet(argc, argv);
 	}
-	if(0) {
+	if(1) {
 		cout << "Test module serailization" << endl;
 		testSerialzation(argc, argv);
 	}
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 		cout << "Test module net" << endl;
 		testNet(argc, argv);
 	}
-	if(1) {
+	if(0) {
 		cout << "Test module message driver" << endl;
 		testMsgDriver(argc, argv);
 	}

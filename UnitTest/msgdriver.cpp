@@ -60,10 +60,10 @@ public:
 
 		rph.addType(tpReg, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, 2),
 			bind(&SyncUnit::notify, &su_reg));
-		rph.activateType(tpReg);
+		//rph.activateType(tpReg);
 		rph.addType(tpStop, ReplyHandler::condFactory(ReplyHandler::ANY_ONE),
 			bind([&] {running = false; }));
-		rph.activateType(tpStop);
+		//rph.activateType(tpStop);
 	}
 
 	void go() {

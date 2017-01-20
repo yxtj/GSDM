@@ -97,7 +97,7 @@ ReplyHandler::Condition* ReplyHandler::condFactory(
  */
 
 ReplyHandler::Item::Item():
-		cond(nullptr),spwanThread(false),activated(false){}
+		cond(nullptr),spwanThread(false),activated(true){}
 ReplyHandler::Item::Item(const Item& i):fn(i.fn), cond(nullptr),
 		spwanThread(i.spwanThread),activated(i.activated)
 {
@@ -109,7 +109,7 @@ ReplyHandler::Item::Item(Item&& i):fn(move(i.fn)),cond(nullptr),
 	std::swap(cond,i.cond);
 }
 ReplyHandler::Item::Item(std::function<void()> f, Condition* c, const bool st):
-	fn(f), cond(c), spwanThread(st), activated(false){}
+	fn(f), cond(c), spwanThread(st), activated(true){}
 
 ReplyHandler::Item::~Item(){
 	delete cond;

@@ -21,9 +21,8 @@
  * It can be used with out class MsgDriver or class Dipatcher.
  * Usage:
  *  1, register types, their handlers and invoke conditions using addType()
- *  2, active that handler with activateType()
- *  3, input the type and source of with input()
- *  4, when a condition fulfills, its hanlder is called automatically
+ *  2, input the type and source of with input()
+ *  3, when a condition fulfills, its hanlder is called automatically
  * Condition for trigger a handler.
  *  1, used to determine when a handler should be called.
  *  2, three types of pre-defined Conditions in condFactory()
@@ -65,7 +64,7 @@ public:
 	//return whether this input is handled by this calling
 	bool input(const int type, const int source);
 
-	// register a type, handler and condition
+	// register a type, handler and condition, and activate it
 	void addType(const int type, Condition* cond,
 			std::function<void()> fn, const bool spwanThread=false);
 	void removeType(const int type);
@@ -73,7 +72,7 @@ public:
 	void activateType(const int type){
 		cont.at(type).activated=true;
 	}
-	void deactiveateType(const int type){
+	void deactivateType(const int type){
 		cont.at(type).activated=false;
 	}
 	void resetTypeCondition(const int type){
