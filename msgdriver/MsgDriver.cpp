@@ -25,7 +25,7 @@ bool MsgDriver::emptyQueue() const{
 	return que.empty();
 }
 bool MsgDriver::busy() const{
-	return inDisper.busy() || !outDisper.busy() || que.empty();
+	return inDisper.busy() || outDisper.busy() || !que.empty();
 }
 
 //Register
