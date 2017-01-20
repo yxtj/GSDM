@@ -17,9 +17,11 @@ Option::Option()
 		("prefix-graph", value<string>(&graphFolder)->default_value(string("graph/")),
 			"[string] the folder/subfolder for graph files. "
 			"If the option starts with a '/', it is a absolute path. Otherwise it is a subfolder of <prefix>")
+		("all-data", bool_switch(&holdAllData)->default_value(false),
+			"[flag] for distributed case: whether to make each worker process all the input data.")
 		("shared-input", bool_switch(&graphFolderShared)->default_value(false),
-			"[flag] for distribution to make sure each worker loads different part of the dataset. "
-			"Whether the each graph input folder contains all the data (usally true for DFS and NFS)")
+			"[flag] whether the input folder of each worker holds all the data (the folder is shared, usually true for DFS and NFS). "
+			"Used for distributed case where different worker shoudld process different piece of the data.")
 		("out", value<string>(&outFolder)->default_value(string("out-")), "[string] the file name prefix for output files")
 		("blacklist", value<vector<int>>(&blacklist)->multitoken()->default_value(vector<int>(),""),"[integer]s of individuals removed")
 		("n", value<int>(&nNode)->default_value(-1), "[integer] size of each graph (number of nodes)")

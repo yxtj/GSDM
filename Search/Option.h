@@ -18,7 +18,9 @@ public:
 
 	std::vector<int> blacklist;
 
-	bool graphFolderShared; //for distributed case, whether the input data folder contains all the graphs
+	bool holdAllData; //for distributed case, whether to make all workers hold all the data
+	bool graphFolderShared; //for distributed case, when each worker holds different part of data:
+							//  whether the input data folder contains all the graphs
 	std::string prefix, graphFolder;//data folder prefix and graph sub-folder
 	std::string outFolder;//the file name prefix for output files
 

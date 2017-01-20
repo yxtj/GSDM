@@ -7,10 +7,11 @@
 //#include "Motif.h"
 #include "../common/Graph.h"
 #include "../common/Motif.h"
+#include "../common/SubjectInfo.h"
+#include "../net/NetworkThread.h"
 #include "Option.h"
 #include "CandidateMethodFactory.h"
 #include "StrategyFactory.h"
-#include "../common/SubjectInfo.h"
 
 using namespace std;
 
@@ -85,8 +86,6 @@ vector<vector<Graph> > loadData(
 			id2fn[sub.id].push_back(move(fn));
 		}
 	}
-//	int rank;
-//	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	// load data
 	vector<vector<Graph> > res(min(limitSub,id2fn.size()));
 	int cntSub = 0;
@@ -225,12 +224,16 @@ int main(int argc, char* argv[])
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
 	}
-//	MPI_Init(&argc, &argv);
-	int mpiMTLevel;
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpiMTLevel);
+	int mpiMTLevel = 0;
+/*	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &mpiMTLevel);
 	int rank, size;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);*/
+
+	NetworkThread::Init(argc, argv);
+	NetworkThread* net = NetworkThread::GetInstance();
+	int rank = net->id();
+	int size = net->size();
 
 	if(rank == 0) {
 		cout << "MPI: \n"
@@ -262,14 +265,14 @@ int main(int argc, char* argv[])
 	}
 
 	// part 3: load data
-	if(opt.nPosInd == -1)
+	if(opt.nPosInd < 0)
 		opt.nPosInd = getTotalSubjectNumber(opt.graphFolder, opt.typePos);
-	if(opt.nNegInd == -1)
+	if(opt.nNegInd < 0)
 		opt.nNegInd = getTotalSubjectNumber(opt.graphFolder, opt.typeNeg);
 	int nPosSub = opt.nPosInd, nPosSkip = 0;
 	int nNegSub = opt.nNegInd, nNegSkip = 0;
 //	cout << "rank " << rank << " # pos " << opt.nPosInd << " # neg " << opt.nNegInd << endl;
-	if(size != 1) {
+	if(opt.holdAllData==false && size != 1) {
 		// need to set different number and starting point of different worker
 		double partPos = static_cast<double>(nPosSub) / size;
 		nPosSkip = static_cast<int>(floor(partPos*rank));
