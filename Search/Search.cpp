@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
 	outputFoundMotifs(fout, res);
 	fout.close();
 
-	MPI_Finalize();
+	NetworkThread::Terminate();
 	return 0;
 }
 
