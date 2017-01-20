@@ -3,6 +3,7 @@
 For customized type: Motif
 */
 #include "../common/Motif.h"
+#include "../common/MotifBuilder.h"
 #include <vector>
 #include <unordered_map>
 
@@ -14,6 +15,11 @@ size_t estimateSizeMotif(const Motif& m);
 char* serializeMotif(char* res, int bufSize, const Motif& item);
 char* serializeMotif(char* res, const Motif& item);
 std::pair<Motif, const char*> deserializeMotif(const char* p);
+
+size_t estimateSizeMotif(const MotifBuilder& m);
+char* serializeMotif(char* res, int bufSize, const MotifBuilder& item);
+char* serializeMotif(char* res, const MotifBuilder& item);
+std::pair<MotifBuilder, const char*> deserializeMotifBuilder(const char* p);
 
 /*
 some existing container

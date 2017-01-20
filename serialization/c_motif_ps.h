@@ -17,3 +17,19 @@ struct _Serializer<Motif> {
 		return deserializeMotif(p);
 	}
 };
+
+template <>
+struct _Serializer<MotifBuilder> {
+	int estimateSize(const MotifBuilder& item) {
+		return estimateSizeMotif(item);
+	}
+	char* serial(char* res, int bufSize, const MotifBuilder& item) {
+		return serializeMotif(res, bufSize, item);
+	}
+	char* serial(char* res, const MotifBuilder& item) {
+		return serializeMotif(res, item);
+	}
+	std::pair<MotifBuilder, const char*> deserial(const char* p) {
+		return deserializeMotifBuilder(p);
+	}
+};

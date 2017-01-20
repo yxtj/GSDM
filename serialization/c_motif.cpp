@@ -38,6 +38,42 @@ pair<Motif, const char*> deserializeMotif(const char* p) {
 	return make_pair(move(m), reinterpret_cast<const char*>(pint));
 }
 
+size_t estimateSizeMotif(const MotifBuilder & m)
+{
+	return sizeof(int) + 2 * m.getnEdge() * sizeof(int);
+}
+
+char * serializeMotif(char * res, int bufSize, const MotifBuilder & m)
+{
+	if(static_cast<size_t>(bufSize) < estimateSizeMotif(m))
+		return nullptr;
+	return serializeMotif(res, m);
+}
+
+char * serializeMotif(char * res, const MotifBuilder & m)
+{
+	int* pint = reinterpret_cast<int*>(res);
+	*pint++ = m.getnEdge();
+	for(const Edge& e : m.edges) {
+		*pint++ = e.s;
+		*pint++ = e.d;
+	}
+	return reinterpret_cast<char*>(pint);
+}
+
+std::pair<MotifBuilder, const char*> deserializeMotifBuilder(const char * p)
+{
+	const int* pint = reinterpret_cast<const int*>(p);
+	int ne = *pint++;
+	MotifBuilder m;
+	while(ne--) {
+		int s = *pint++;
+		int d = *pint++;
+		m.addEdge(s, d);
+	}
+	return make_pair(move(m), reinterpret_cast<const char*>(pint));
+}
+
 // old (de)seralizes of motif containers
 
 pair<char*, unordered_map<Motif, pair<int, double>>::const_iterator> serializeMP(
