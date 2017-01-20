@@ -43,7 +43,7 @@ public:
 	}
 
 	template <class T>
-	void broadcast(int tag, const T& msg) {
+	int broadcast(int tag, const T& msg) {
 		std::string s = serialize(msg);
 		return broadcast(new Task(Task::ANY_DST, tag, move(s)));
 	}
