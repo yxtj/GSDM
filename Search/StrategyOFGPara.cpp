@@ -24,6 +24,7 @@ const std::string StrategyOFGPara::usageParam(
 	"  [dces]: optional [dces/dces-c/dces-b/decs-no](:<ms>), "
 	"default enabled, use dynamic candidate edge set ('c' for connected-condition, 'b' for bound-condition) "
 	"<ms> is the minimum frequency of candidate edges, default 0.0\n"
+	"  [npar]: opetional [npar-estim/npar-exact], default estimated, which way used to calculated the number of parents of a motif\n"
 	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path"
 );
 const std::string StrategyOFGPara::usage = StrategyOFGPara::usageDesc + "\n" + StrategyOFGPara::usageParam;
@@ -81,9 +82,9 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt, const std::vector
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
 	// step 0: initialization: parameters, message driver, network thread, message thread
-	initParams(gPos, gNeg);
-	initStatistics();
 	net = NetworkThread::GetInstance();
+	initParams(gPos, gNeg); //should be put after the initialization of net
+	initStatistics();
 	initHandlers(); // should be put after the initialization fo net
 	running_ = true;
 	thread tRecvMsg(bind(&StrategyOFGPara::messageReceiver, this));
@@ -100,10 +101,10 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt, const std::vector
 		cout << "[LOG] candidate edges initialized: " << edges.size() << " in all." << endl;
 
 	// step 3: search independently (each worker holds motif whose score is larger than current k-th)
-	TopKHolder<Motif, double> res = work_para();
+	work_para();
 	{
 		ostringstream oss;
-		oss << "[LOG] at " << net->id() << " finishes searching.\n";
+		oss << "[LOG : " << net->id() << "] finishes searching.\n";
 		cout << oss.str();
 		cout.flush();
 	}
@@ -113,6 +114,8 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt, const std::vector
 	if(net->id() == 0) {
 		cout << "[LOG] global top-k motifs gathered." << endl;
 	}
+	vector<Motif> res = holder->getResultMove();
+	delete holder;
 
 	// step 5: merge statistics to Rank 0
 	gatherStatistics();
@@ -130,7 +133,26 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt, const std::vector
 	running_ = false;
 	tRecvMsg.join();
 
-	return std::vector<Motif>();
+	return res;
+}
+
+void StrategyOFGPara::initParams(
+	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+{
+	StrategyOFG::initParams(gPos, gNeg);
+	running_ = true;
+	lowerBound = numeric_limits<decltype(lowerBound)>::lowest();
+	holder = new TopKBoundedHolder<Motif, double>(k);
+	searchFinished = false;
+}
+
+void StrategyOFGPara::initLRTables()
+{
+	double lb = edges.back().second;
+	ltable.init(&StrategyOFGPara::getNParents, lb);
+	rtables.resize(net->size());
+	for(auto& rt : rtables)
+		rt.init(lb);
 }
 
 void StrategyOFGPara::registerAllWorkers()
@@ -143,7 +165,7 @@ void StrategyOFGPara::registerAllWorkers()
 	int timeToRegister = 5;
 	if(!suReg.wait_for(chrono::seconds(timeToRegister))) {
 		// error if not finished within XX seconds
-		throw runtime_error("[Register Error]: at " + to_string(net->id()) + 
+		throw runtime_error("[Register Error : " + to_string(net->id()) + "]"
 			" Cannot detect all workers within " + to_string(timeToRegister) + " seconds");
 	}
 
@@ -152,7 +174,7 @@ void StrategyOFGPara::registerAllWorkers()
 	net->broadcast(MType::CReady, net->id());
 	int timeToReady = 5;
 	if(!suStart.wait_for(chrono::seconds(timeToReady))) {
-		throw runtime_error("[Start Error]: at " + to_string(net->id()) +
+		throw runtime_error("[Start Error : " + to_string(net->id()) + "]"
 			" Cannot start all workers within " + to_string(timeToReady) + " seconds");
 	}
 }
@@ -200,9 +222,49 @@ void StrategyOFGPara::initialCE_para()
 		return lth.second < rth.second; });
 }
 
-TopKHolder<Motif, double> StrategyOFGPara::work_para()
+void StrategyOFGPara::work_para()
 {
-	return TopKHolder<Motif, double>(k);
+	// initial the first level
+	assignBeginningMotifs();
+	int id = net->id();
+	int size = net->size();
+	// work on the activated motifs
+	int ProcessInterval = 10; //milliseconds
+	while(!searchFinished) {
+		Timer t;
+		while(!ltable.emptyActivated()) {
+			bool b;
+			std::pair<Motif, double> mu;
+			tie(b, mu) = ltable.getOne();
+			if(!b) {
+				break;
+			} else if(mu.second < lowerBound) {
+				continue;
+			}
+			pair<vector<Motif>, double> temp = explore(mu.first);
+			// TODO: add local lowerbound update logic (change explore logic)
+			if(temp.second > lowerBound) {
+				for(auto& m : temp.first) {
+					generalUpdateCandidateMotif(m, temp.second);
+				}
+			} else {
+				for(auto& m : temp.first)
+					generalAbandonCandidateMotif(m);
+			}
+
+		}
+		for(int i = 0; i < size; i++) {
+			if(i == id)
+				continue;
+			auto vec = rtables[i].collect();
+			net->send(i, MType::MNormal, vec);
+		}
+
+		int e = ProcessInterval - static_cast<int>(t.elapseMS());
+		if(e > 0) {
+			this_thread::sleep_for(chrono::milliseconds(e));
+		}
+	}
 }
 
 void StrategyOFGPara::cooridnateTopK()
@@ -247,3 +309,87 @@ std::pair<int, int> StrategyOFGPara::num2Edge(const int idx)
 	int j = idx - n + nNode;
 	return make_pair(i, j);
 }
+
+int StrategyOFGPara::getMotifOwner(const Motif & m)
+{
+	return hash<Motif>()(m) % net->size();
+}
+
+std::pair<std::vector<Motif>, double> StrategyOFGPara::explore(const Motif& m)
+{
+	MotifBuilder mb(m);
+	double score = scoring(mb, lowerBound);
+	if(score == numeric_limits<double>::lowest()) {
+		// abandon if not promissing
+		return make_pair(vector<Motif>(), score);
+	} else if(holder->updatable(score)) {
+		holder->update(mb.toMotif(), score);
+		//if(flagDCESBound)
+		//	maintainDCESBound(edges, holder.lastScore());
+	}
+	// generate new motifs if not abandon
+	vector<Motif> res = expand(m);
+	return make_pair(move(res), score);
+}
+
+std::vector<Motif> StrategyOFGPara::expand(const Motif & m)
+{
+	vector<Motif> res;
+	MotifBuilder mb(m);
+	lock_guard<mutex> lg(mce);
+	for(size_t i = 0; i < edges.size(); ++i) {
+		const Edge& e = edges[i].first;
+		if((mb.containNode(e.s) || mb.containNode(e.d)) && !mb.containEdge(e.s, e.d)) {
+			Motif t(m);
+			t.addEdge(e.s, e.d);
+			res.push_back(move(t));
+			//usedEdge[i] = true;
+			++stNumMotifGenerated;
+		}
+	}
+	return res;
+}
+/*
+int StrategyOFGPara::getNParents(const MotifBuilder & m)
+{
+	return quickEstimiateNumberOfParents(m);
+}
+*/
+int StrategyOFGPara::getNParents(const Motif & m)
+{
+	return quickEstimiateNumberOfParents(m);
+}
+
+void StrategyOFGPara::assignBeginningMotifs()
+{
+	int id = net->id();
+	for(auto & ef : edges) {
+		Motif m;
+		m.addEdge(ef.first.s, ef.first.d);
+		int o = getMotifOwner(m);
+		if(o == id)
+			ltable.update(m, ef.second);
+	}
+}
+
+void StrategyOFGPara::generalUpdateCandidateMotif(const Motif & m, const double ub)
+{
+	int o = getMotifOwner(m);
+	if(o == net->id()) {
+		ltable.update(m, ub);
+	} else {
+		rtables[o].update(m, ub);
+	}
+}
+
+void StrategyOFGPara::generalAbandonCandidateMotif(const Motif & m)
+{
+	static constexpr double WORSTSCORE = numeric_limits<double>::lowest();
+	int o = getMotifOwner(m);
+	if(o == net->id()) {
+		ltable.update(m, WORSTSCORE);
+	} else {
+		rtables[o].update(m, WORSTSCORE);
+	}
+}
+

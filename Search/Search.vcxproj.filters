@@ -104,6 +104,12 @@
     <ClInclude Include="MotifCommunicator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LocalTables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -200,6 +206,12 @@
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="MotifCommunicator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalTables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

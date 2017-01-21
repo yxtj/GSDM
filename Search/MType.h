@@ -9,13 +9,19 @@ struct MType {
 
 	// Candidate edge related
 	static constexpr int CEInit = 10;
-	static constexpr int CEUpdateThreshold = 11;
-	static constexpr int CERemove = 12;
+	static constexpr int CEUsed = 12;
+	static constexpr int CERemove = 13;
 
 	// Motif
-	static constexpr int MGenerated = 20;
-	static constexpr int MFailed = 21;
+	static constexpr int MNormal= 20;
+	static constexpr int MAbondan = 21;
 	static constexpr int MGather = 22;
+
+	// Motif Level progress
+	static constexpr int MLComplete = 23;
+
+	// Top-k related
+	static constexpr int TUpdateLB = 30;
 	
 	// Staticstics
 	static constexpr int SGather = 40;

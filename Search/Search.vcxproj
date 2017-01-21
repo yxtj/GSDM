@@ -159,10 +159,12 @@
     <ClInclude Include="CandidateMthdFreqUG.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
+    <ClInclude Include="LocalTables.h" />
     <ClInclude Include="MotifCommunicator.h" />
     <ClInclude Include="MType.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Option.h" />
+    <ClInclude Include="RemoteTable.h" />
     <ClInclude Include="StrategyBase.h" />
     <ClInclude Include="CandidateMethod.h" />
     <ClInclude Include="CandidateMethodFactory.h" />
@@ -188,9 +190,11 @@
     <ClCompile Include="CandidateMthdFreq-node.cpp" />
     <ClCompile Include="CandidateMthdFreqUG.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
+    <ClCompile Include="LocalTables.cpp" />
     <ClCompile Include="MotifCommunicator.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Option.cpp" />
+    <ClCompile Include="RemoteTable.cpp" />
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="StrategyBase.cpp" />
     <ClCompile Include="CandidateMethod.cpp" />

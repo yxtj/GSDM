@@ -120,8 +120,10 @@ protected:
 
 	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::map<MotifBuilder, int>& layer);
 
-	int quickEstimiateNumberOfParents(const Motif& m);
-	int quickEstimiateNumberOfParents(const MotifBuilder& m);
+	// estimate num. of parents by the num. of nodes whose degree is 1
+	static int quickEstimiateNumberOfParents(const Motif& m);
+	static int quickEstimiateNumberOfParents(const MotifBuilder& m);
+
 	std::pair<std::vector<MotifBuilder>, size_t> pruneWithNumberOfParents(std::map<MotifBuilder, int>& mbs);
 
 	/* Dynamic Candidate Edge Set (DCES) */
