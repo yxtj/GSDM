@@ -28,6 +28,7 @@
     <ClInclude Include="serializer_basic.hpp" />
     <ClInclude Include="serializer_iter.hpp" />
     <ClInclude Include="serialize_general.hpp" />
+    <ClInclude Include="tuple3_ps.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.vcxproj">

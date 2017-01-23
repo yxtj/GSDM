@@ -32,6 +32,9 @@
     <ClInclude Include="c_motif_ps.h">
       <Filter>Custom Types</Filter>
     </ClInclude>
+    <ClInclude Include="tuple3_ps.h">
+      <Filter>Custom Types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_motif.cpp">
