@@ -49,5 +49,8 @@
     <ClInclude Include="is_sequential_container.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="is_tuple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
