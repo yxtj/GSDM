@@ -1,6 +1,7 @@
 #pragma once
-#include <vector>
 #include <utility>
+#include <vector>
+#include <list>
 #include <map>
 #include <mutex>
 #include <functional>
@@ -8,18 +9,22 @@
 
 class LocalTables
 {
-	std::vector<std::mutex> mcts;
-	std::mutex mat;
-	double lowerBound;
-	std::function<int(const Motif&)> fnGetNParents;
-public:
 	// motif: current-tightest-upper-bound, #-generation-left-until-activated
 	typedef std::map<Motif, std::pair<double, int>> CT_t;
+	std::vector<CT_t> candidateTables; // one for each level
+	std::mutex mct; // lock mct first then mat, if they both should be locked
+
 	// motif, current-tightest-upper-bound
 	typedef	std::list<std::pair<Motif, double>> AT_t;
-
-	std::vector<CT_t> candidateTables;
 	AT_t activatedTable;
+	std::mutex mat; // lock mct first then mat, if they both should be locked
+	std::vector<int> nActLevel; // num. of activated motifs in each level
+
+	double lowerBound;
+	std::function<int(const Motif&)> fnGetNParents;
+
+public:
+
 
 	// initialize the lower-bound and the function for estimating a motif's num. of parents
 	void init(std::function<int(const Motif&)> fn, double LB=std::numeric_limits<double>::lowest());
@@ -29,8 +34,20 @@ public:
 	void sortUp(const int l);
 	// update bound
 	int updateLowerBound(double newLB);
+
+	// is there any candidate motif
+	bool emptyCandidate();
+	// is there any candidate motif of a certain level
+	bool emptyCandidate(const int level);
+
 	// is there any activated motif
 	bool emptyActivated();
+	// is there any activated motif of a certain level
+	bool emptyActivated(const int level);
+
+	bool empty();
+	bool empty(const int level);
+
 	// pick one activated motif
 	std::pair<bool, std::pair<Motif, double>> getOne();
 };

@@ -17,12 +17,15 @@ struct MType {
 	static constexpr int MAbondan = 21;
 	static constexpr int MGather = 22;
 
-	// Motif Level progress
-	static constexpr int MLComplete = 23;
+	// Global progress flow
+	static constexpr int GLevelFinish= 30;
+	static constexpr int GLowerBound= 31;
+	static constexpr int GSearchFinish= 32;
 
 	// Top-k related
-	static constexpr int TUpdateLB = 30;
+	static constexpr int TGather = 50;
+	static constexpr int TDistribute = 51;
 	
 	// Staticstics
-	static constexpr int SGather = 40;
+	static constexpr int SGather = 60;
 };

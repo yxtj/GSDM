@@ -25,6 +25,7 @@ void StrategyOFGPara::initHandlers()
 	regDSPProcess(MType::CReady, &StrategyOFGPara::cbStart);	
 	rph.addType(MType::CReady, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&SyncUnit::notify, &suStart));
+
 	// candidate edge inititalization
 	regDSPProcess(MType::CEInit, &StrategyOFGPara::cbCEInit);
 	rph.addType(MType::CEInit, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
@@ -33,12 +34,30 @@ void StrategyOFGPara::initHandlers()
 	regDSPProcess(MType::CERemove, &StrategyOFGPara::cbCERemove);
 
 	// update lowerbound
-	regDSPProcess(MType::TUpdateLB, &StrategyOFGPara::cbUpdateLowerBound);
+	regDSPProcess(MType::GLowerBound, &StrategyOFGPara::cbUpdateLowerBound);
 	
 	// normal motifs
 	regDSPProcess(MType::MNormal, &StrategyOFGPara::cbRecvCandidateMotifs);
 	// abandoned motifs
 	regDSPProcess(MType::MAbondan, &StrategyOFGPara::cbRecvAbandonedMotifs);
+
+	// one level finish
+	regDSPProcess(MType::GLevelFinish, &StrategyOFGPara::cbLevelFinish);
+	// main search loop finish
+	regDSPProcess(MType::GSearchFinish, &StrategyOFGPara::cbSearchFinish);
+	rph.addType(MType::GSearchFinish, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
+		bind(&SyncUnit::notify, &suSearchEnd));
+
+	// gather top-k motifs
+	regDSPProcess(MType::TGather, &StrategyOFGPara::cbRecvTopK);
+	regDSPProcess(MType::TDistribute, &StrategyOFGPara::cbRecvTopK);
+	rph.addType(MType::TGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
+		bind(&SyncUnit::notify, &suTKGather));
+
+	// statistics gathering
+	regDSPProcess(MType::SGather, &StrategyOFGPara::cbRecvStat);
+	rph.addType(MType::SGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
+		bind(&SyncUnit::notify, &suStart));
 }
 
 void StrategyOFGPara::cbRegisterWorker(const std::string & d, const RPCInfo & info)
@@ -81,6 +100,19 @@ void StrategyOFGPara::cbUpdateLowerBound(const std::string & d, const RPCInfo & 
 	updateThresholdWaitingMotifs(newLB);
 }
 
+void StrategyOFGPara::cbLevelFinish(const std::string & d, const RPCInfo & info)
+{
+	int level = deserialize<int>(d);
+	lock_guard<mutex> lg(mnfl);
+	++nFinishLevel[level];
+}
+
+void StrategyOFGPara::cbSearchFinish(const std::string & d, const RPCInfo & info)
+{
+	//assert(deserialize<int>(d) == info.source);
+	rph.input(MType::GSearchFinish, info.source);
+}
+
 void StrategyOFGPara::cbRecvCandidateMotifs(const std::string & d, const RPCInfo & info)
 {
 	vector<pair<Motif, pair<double, int>>> temp = 
@@ -97,6 +129,20 @@ void StrategyOFGPara::cbRecvAbandonedMotifs(const std::string & d, const RPCInfo
 	for(auto& m : temp) {
 		ltable.update(m, WORSTSCORE);
 	}
+}
+
+void StrategyOFGPara::cbRecvTopK(const std::string & d, const RPCInfo & info)
+{
+	vector<pair<Motif, double>> recv = deserialize<vector<pair<Motif, double>>>(d);
+	topKMerge(recv);
+	rph.input(MType::TGather, info.source);
+}
+
+void StrategyOFGPara::cbRecvStat(const std::string & d, const RPCInfo & info)
+{
+	vector<unsigned long long> recv = deserialize<vector<unsigned long long>>(d);
+	statMerge(recv);
+	rph.input(MType::SGather, info.source);
 }
 
 int StrategyOFGPara::updateThresholdCE(double newLB)
@@ -126,6 +172,23 @@ int StrategyOFGPara::updateThresholdWaitingMotifs(double newLB)
 		}
 	}
 	return count;
+}
+
+void StrategyOFGPara::topKMerge(std::vector<std::pair<Motif, double>>& recv)
+{
+	for(auto& p : recv) {
+		holder->update(move(p.first), p.second);
+	}
+}
+
+void StrategyOFGPara::statMerge(std::vector<unsigned long long>& recv)
+{
+	stNumMotifExplored += recv[0];
+	stNumMotifGenerated += recv[1];
+	stNumGraphChecked += recv[2];
+	stNumSubjectChecked += recv[3];
+	stNumFreqPos += recv[4];
+	stNumFreqNeg += recv[5];
 }
 
 

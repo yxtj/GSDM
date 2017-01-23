@@ -77,7 +77,7 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 	std::map<MotifBuilder, int> newLayer;
 	for(const auto& mb : last) {
 		// work on a motif
-		double score = scoring(mb, holder.lastScore());
+		double score = scoring(mb, holder.lastScore()).second;
 		if(score == numeric_limits<double>::lowest()) {
 			// abandon if not promissing
 			continue;
@@ -101,7 +101,7 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 	return newLayer;
 }
 
-double StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
+std::pair<double, double> StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
 {
 	MotifSign ms(nNode);
 	++stNumMotifExplored;
@@ -131,7 +131,7 @@ double StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
 	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
 	if(scoreUB <= lowerBound)
-		return numeric_limits<double>::lowest();
+		return make_pair(numeric_limits<double>::lowest(), numeric_limits<double>::lowest());
 	// calculate the how score
 	int cntNeg;
 	if(flagUseSD)
@@ -140,7 +140,7 @@ double StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
 		cntNeg = countMotifXSub(mb, *pgn);
 	++stNumFreqNeg;
 	double freqNeg = static_cast<double>(cntNeg) / pgn->size();
-	return objFun(freqPos, freqNeg);
+	return make_pair(scoreUB, objFun(freqPos, freqNeg));
 }
 
 std::pair<std::vector<MotifBuilder>, size_t> StrategyOFG::sortUpNewLayer(std::map<MotifBuilder, int>& layer)

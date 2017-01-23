@@ -112,7 +112,8 @@ protected:
 		TopKHolder<Motif, double>& holder, const std::vector<MotifBuilder>& last,
 		std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& usedEdge);
 
-	double scoring(const MotifBuilder& mb, const double lowerBound);
+	// returns: <upper-bound, score>. if upper-bound < lowerBound, returns -numeric_limits<double>::lowest()
+	std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
 
 	/* Prune with number of valid parents (network-based pruning) */
 protected:
