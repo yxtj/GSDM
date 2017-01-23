@@ -21,6 +21,8 @@ struct TopKHolder {
 
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
+	std::vector<std::pair<T, S>> getResultScore() const;
+	std::vector<std::pair<T, S>> getResultScoreMove();
 protected:
 	bool _updateReal(T&& m, const S s);
 };
@@ -108,5 +110,25 @@ std::vector<T> TopKHolder<T, S>::getResultMove()
 	res.reserve(data.size());
 	for(auto& p : data)
 		res.push_back(std::move(p.first));
+	return res;
+}
+
+template<class T, typename S>
+inline std::vector<std::pair<T, S>> TopKHolder<T, S>::getResultScore() const
+{
+	std::vector<std::pair<T, S>> res;
+	res.reserve(data.size());
+	for(auto& p : data)
+		res.push_back(p);
+	return res;
+}
+
+template<class T, typename S>
+inline std::vector<std::pair<T, S>> TopKHolder<T, S>::getResultScoreMove()
+{
+	std::vector<std::pair<T, S>> res;
+	res.reserve(data.size());
+	for(auto& p : data)
+		res.push_back(std::move(p));
 	return res;
 }

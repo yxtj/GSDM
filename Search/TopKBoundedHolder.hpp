@@ -28,6 +28,8 @@ struct TopKBoundedHolder {
 
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
+	std::vector<std::pair<T, S>> getResultScore() const;
+	std::vector<std::pair<T, S>> getResultScoreMove();
 private:
 	bool _updateReal(T&& m, const S s);
 };
@@ -67,6 +69,7 @@ bool TopKBoundedHolder<T, S>::_updateReal(T&& m, const S s)
 		[s](const S s, const std::pair<T, S>&p) {
 		return s < p.second;
 	});
+	if(it == data.end())	return false;
 	data.insert(it, make_pair(move(m), s));
 	if(data.size() >= k)
 		data.erase(--data.end());
@@ -134,5 +137,25 @@ std::vector<T> TopKBoundedHolder<T, S>::getResultMove()
 	res.reserve(data.size());
 	for(auto& p : data)
 		res.push_back(std::move(p.first));
+	return res;
+}
+
+template<class T, typename S>
+inline std::vector<std::pair<T, S>> TopKBoundedHolder<T, S>::getResultScore() const
+{
+	std::vector<std::pair<T, S>> res;
+	res.reserve(data.size());
+	for(auto& p : data)
+		res.push_back(p);
+	return res;
+}
+
+template<class T, typename S>
+inline std::vector<std::pair<T, S>> TopKBoundedHolder<T, S>::getResultScoreMove()
+{
+	std::vector<std::pair<T, S>> res;
+	res.reserve(data.size());
+	for(auto& p : data)
+		res.push_back(std::move(p));
 	return res;
 }
