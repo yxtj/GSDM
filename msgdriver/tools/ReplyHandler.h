@@ -23,6 +23,8 @@
  *  1, register types, their handlers and invoke conditions using addType()
  *  2, input the type and source of with input()
  *  3, when a condition fulfills, its hanlder is called automatically
+ *  4, reset the condition with resetTypeCondition(), if you want to use it 
+ *     after being called once.
  * Condition for trigger a handler.
  *  1, used to determine when a handler should be called.
  *  2, three types of pre-defined Conditions in condFactory()
@@ -33,7 +35,7 @@
  *  2.3, GERNERAL: triggers after each source have replied AT LEAST
  *  	expected times.
  *  	Constructed with parameter $expected$. (Source index starts from 0)
- *  3, remember to reset the condition if you want to use it again after triggered once.
+ *  3, RESET the condition if you want to use it again after triggered once.
  */
 class ReplyHandler{
 public:
@@ -61,7 +63,7 @@ public:
 	static Condition* condFactory(
 			const ConditionType ct, std::vector<int>&& expected);
 
-	//return whether this input is handled by this calling
+	// return whether this input is handled by this calling
 	bool input(const int type, const int source);
 
 	// register a type, handler and condition, and activate it
