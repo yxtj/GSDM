@@ -30,7 +30,7 @@ struct _Serializer<T, typename std::enable_if<is_tuple_n<T, 3>::value>::type> {
 	std::pair<T, const char*> deserial(const char* p) {
 		auto t0 = s0.deserial(p);
 		auto t1 = s1.deserial(t0.second);
-		auto t2 = s2.deserial(t1.second)
+		auto t2 = s2.deserial(t1.second);
 		return std::make_pair(std::make_tuple(
 			std::move(t0.first), std::move(t1.first), std::move(t2.first))
 			, t2.second);

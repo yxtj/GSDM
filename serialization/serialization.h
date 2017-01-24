@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "serialize_general.hpp"
+#include "tuple3_ps.h"
 //#include "c_motif.h"
 #include "c_motif_ps.h"
 
