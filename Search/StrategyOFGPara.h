@@ -36,12 +36,12 @@ private:
 
 	// local tables
 	LocalTables ltable; // candidate tables (one per level) + activation table
-	std::mutex mfl;
+	std::mutex mfl; // for lastFinsihLevel, nFinishLevel, finishedAtLevel
 	int lastFinishLevel;
 	std::vector<int> nFinishLevel; // num. of workers which finished all local motifs of level k
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
-	std::vector<int> finishedAtLevel; // level of each work finishes at
+	std::vector<int> endAtLevel; // level of each work ends at
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -97,8 +97,14 @@ private:
 	void generalUpdateCandidateMotif(const Motif& m, const double ub); //local + buffer for net
 	void generalAbandonCandidateMotif(const Motif& m);
 
+	/* Logic for level & search finish while using activation queue mechanishm:
+		Condition:	1, all previous workers finished their parts of all previous levels;
+					2, there is no more unprocessed active motifs of current level.
+		Conclusion:	current worker finishes its part on current level.
+
+	*/
 	bool processLevelFinish();
-	void moveToNewLevel(const int from); // the task need to be done for level movement
+	void moveToNewLevel(const int from); // the tasks need to be done for level movement
 	bool checkLevelFinish(const int level);
 	bool checkSearchFinish();
 

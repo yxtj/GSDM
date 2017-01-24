@@ -127,7 +127,11 @@ void StrategyOFGPara::cbLevelFinish(const std::string & d, const RPCInfo & info)
 
 void StrategyOFGPara::cbSearchFinish(const std::string & d, const RPCInfo & info)
 {
-	//assert(deserialize<int>(d) == info.source);
+	int endLevel = deserialize<int>(d);
+	{
+		lock_guard<mutex> lg(mfl);
+		endAtLevel[info.source] = endLevel;
+	}
 	rph.input(MType::GSearchFinish, info.source);
 }
 

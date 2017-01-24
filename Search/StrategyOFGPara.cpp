@@ -155,6 +155,7 @@ void StrategyOFGPara::initParams(
 	holder = new TopKBoundedHolder<Motif, double>(k);
 	lastFinishLevel = 0;
 	nFinishLevel.resize(16, 0);
+	endAtLevel.resize(net->size(), numeric_limits<int>::max());
 }
 
 void StrategyOFGPara::initLRTables()
@@ -284,6 +285,8 @@ void StrategyOFGPara::work_para()
 			this_thread::sleep_for(chrono::milliseconds(e));
 		}
 	}
+	// send level finish signal if not send before
+	processLevelFinish();
 	// send search finish signal
 	rph.input(MType::GSearchFinish, id);
 	net->broadcast(MType::GSearchFinish, lastFinishLevel);
@@ -468,7 +471,10 @@ bool StrategyOFGPara::checkLevelFinish(const int level)
 		nFinishLevel.resize(max<size_t>(nFinishLevel.size(), level + 1), 0);
 		return false;
 	}
-	if(net->size() == nFinishLevel[level - 1]) {
+	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
+		return l < level;
+	});
+	if(net->size() == ec + nFinishLevel[level - 1]) {
 		if(ltable.emptyActivated(level)) {
 			return true;
 		}
