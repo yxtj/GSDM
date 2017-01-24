@@ -32,7 +32,12 @@ void StrategyOFGPara::initHandlers()
 		bind(&SyncUnit::notify, &suCEinit));
 	// candidate edge maintain
 	regDSPProcess(MType::CERemove, &StrategyOFGPara::cbCERemove);
+	regDSPProcess(MType::CEUsage, &StrategyOFGPara::cbCEUsage);
 
+	// maintain global top-k score
+	regDSPProcess(MType::GGatherLocalTopK, &StrategyOFGPara::cbRecvTopScore);
+	rph.addType(MType::GGatherLocalTopK, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
+		bind(&StrategyOFGPara::topKCoordinateFinish, this));
 	// update lowerbound
 	regDSPProcess(MType::GLowerBound, &StrategyOFGPara::cbUpdateLowerBound);
 	
@@ -48,10 +53,9 @@ void StrategyOFGPara::initHandlers()
 	rph.addType(MType::GSearchFinish, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&SyncUnit::notify, &suSearchEnd));
 
-	// gather top-k motifs
-	regDSPProcess(MType::TGather, &StrategyOFGPara::cbRecvTopK);
-	regDSPProcess(MType::TDistribute, &StrategyOFGPara::cbRecvTopK);
-	rph.addType(MType::TGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
+	// gather result motifs
+	regDSPProcess(MType::MGather, &StrategyOFGPara::cbRecvResult);
+	rph.addType(MType::MGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&SyncUnit::notify, &suTKGather));
 
 	// statistics gathering
@@ -72,7 +76,7 @@ void StrategyOFGPara::cbStart(const std::string & d, const RPCInfo & info)
 
 void StrategyOFGPara::cbCEInit(const std::string & d, const RPCInfo & info)
 {
-	vector<pair<Edge, double>> temp = deserialize<vector<pair<Edge, double>>>(d);
+	auto temp = deserialize<vector<tuple<Edge, double, int>>>(d);
 	{
 		lock_guard<mutex> lg(mce);
 		move(temp.begin(), temp.end(), back_inserter(edges));
@@ -85,10 +89,23 @@ void StrategyOFGPara::cbCERemove(const std::string & d, const RPCInfo & info)
 {
 	vector<Edge> re = deserialize<vector<Edge>>(d);
 	lock_guard<mutex> lg(mce);
-	auto it = remove_if(edges.begin(), edges.end(), [&](const pair<Edge, double>& p) {
-		return find(re.begin(), re.end(), p.first) != re.end();
+	auto it = remove_if(edges.begin(), edges.end(), [&](const tuple <Edge, double, int>& p) {
+		return find(re.begin(), re.end(), get<0>(p)) != re.end();
 	});
 	edges.erase(it, edges.end());
+}
+
+void StrategyOFGPara::cbCEUsage(const std::string & d, const RPCInfo & info)
+{
+	vector<pair<Edge, int>> usage = deserialize<vector<pair<Edge, int>>>(d);
+	edgeUsageUpdate(usage);
+}
+
+void StrategyOFGPara::cbRecvTopScore(const std::string & d, const RPCInfo & info)
+{
+	vector<double> localK = deserialize<vector<double>>(d);
+	topKMerge(localK, info.source);
+	rph.input(MType::GGatherLocalTopK, info.source);
 }
 
 void StrategyOFGPara::cbUpdateLowerBound(const std::string & d, const RPCInfo & info)
@@ -103,7 +120,8 @@ void StrategyOFGPara::cbUpdateLowerBound(const std::string & d, const RPCInfo & 
 void StrategyOFGPara::cbLevelFinish(const std::string & d, const RPCInfo & info)
 {
 	int level = deserialize<int>(d);
-	lock_guard<mutex> lg(mnfl);
+	lock_guard<mutex> lg(mfl);
+	nFinishLevel.resize(max<size_t>(nFinishLevel.size(), level + 1), 0);
 	++nFinishLevel[level];
 }
 
@@ -131,11 +149,11 @@ void StrategyOFGPara::cbRecvAbandonedMotifs(const std::string & d, const RPCInfo
 	}
 }
 
-void StrategyOFGPara::cbRecvTopK(const std::string & d, const RPCInfo & info)
+void StrategyOFGPara::cbRecvResult(const std::string & d, const RPCInfo & info)
 {
 	vector<pair<Motif, double>> recv = deserialize<vector<pair<Motif, double>>>(d);
-	topKMerge(recv);
-	rph.input(MType::TGather, info.source);
+	ResultMerge(recv);
+	rph.input(MType::MGather, info.source);
 }
 
 void StrategyOFGPara::cbRecvStat(const std::string & d, const RPCInfo & info)
@@ -149,7 +167,7 @@ int StrategyOFGPara::updateThresholdCE(double newLB)
 {
 	lock_guard<mutex> lg(mce);
 	auto it = upper_bound(edges.begin(), edges.end(), newLB,
-		[](double th, const pair<Edge, double>& p) {return th < p.second; });
+		[](double th, const tuple<Edge, double, int>& p) {return th < get<1>(p); });
 	int num = distance(it, edges.end());
 	edges.erase(it, edges.end());
 	return num;
@@ -174,7 +192,7 @@ int StrategyOFGPara::updateThresholdWaitingMotifs(double newLB)
 	return count;
 }
 
-void StrategyOFGPara::topKMerge(std::vector<std::pair<Motif, double>>& recv)
+void StrategyOFGPara::ResultMerge(std::vector<std::pair<Motif, double>>& recv)
 {
 	for(auto& p : recv) {
 		holder->update(move(p.first), p.second);

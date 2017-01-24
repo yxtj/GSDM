@@ -18,25 +18,30 @@ class StrategyOFGPara :
 	using callback_t = void(StrategyOFGPara::*)(const std::string&, const RPCInfo&);
 
 	int MASTER_ID = 0;
-	int INTERVAL_PROCESS = 10; //milliseconds
-	int INTERVAL_UPDATE_WAITING_MOTIFS = 50; //milliseconds
+	int INTERVAL_PROCESS = 10; //in millisecond
+	int INTERVAL_UPDATE_WAITING_MOTIFS = 50; //in millisecond
+	int INTERVAL_COORDINATE_TOP_K = 5*1000; //in millisecond
 private:
 	// candidate edge set
 	std::mutex mce;
-	std::vector<std::pair<Edge, double>> edges; // TODO: <Edge, freq, last-used-level>
+	std::vector<std::tuple<Edge, double, int>> edges; // <Edge, freq, last-used-level>
+
 	// top-k results:
 	std::mutex mtk;
 	TopKBoundedHolder<Motif, double>* holder;
+	std::mutex mgtk; // global top-k
+	std::vector<std::pair<double, int>> globalTopKScores; // globl top-k scores <score, owner>, only used on master
 	// score to prune with
 	double lowerBound;
 
 	// local tables
 	LocalTables ltable; // candidate tables (one per level) + activation table
-	std::mutex mnfl;
+	std::mutex mfl;
 	int lastFinishLevel;
 	std::vector<int> nFinishLevel; // num. of workers which finished all local motifs of level k
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
+	std::vector<int> finishedAtLevel; // level of each work finishes at
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -67,7 +72,7 @@ private:
 	void work_para();
 
 	SyncUnit suTKGather;
-	void cooridnateTopK();
+	void gatherResult();
 	
 	SyncUnit suStat;
 	void gatherStatistics();
@@ -92,14 +97,38 @@ private:
 	void generalUpdateCandidateMotif(const Motif& m, const double ub); //local + buffer for net
 	void generalAbandonCandidateMotif(const Motif& m);
 
-	bool checkNSendLevelFinishSignal();
-	bool checkNSendLevelFinishSignal(const int level);
+	bool processLevelFinish();
+	void moveToNewLevel(const int from); // the task need to be done for level movement
+	bool checkLevelFinish(const int level);
 	bool checkSearchFinish();
 
+	/* Logic for DCES-connected:
+		1, [main] Send local edge-usage (last-used-level) at the end of each level.
+			Before sending level-finish signal.
+		2, [msg] Receive edge-usage and update local usage.
+		3, [main] Remove the edges unused until the finished level.
+	*/
+	void edgeUsageSend(const int since); // send edges used AFTER given level
+	void edgeUsageUpdate(const std::vector<std::pair<Edge, int>>& usage);
 	void removeUnusedEdges();
+	
+	/* Logic for DCES-bound & OFG-bound:
+		0, [data-structure] Maintain a <score, source> list for global top-k
+		1, [main on normal] Periodically send local top-k to master.
+		2, [msg on master] Update <score, source> list with received list
+			Key: only changes the entries from identical source
+			=> maintains a correct out-date global top-k
+		3, [main on master] Periodically broadcast current global k-th score
+	*/
+	// start a global top-k coordinate process
+	void topKCoordinate();
+	// a callback to finish a global top-k coordinate process
+	void topKCoordinateFinish();
+	// replace the entries with the same source & sort up
+	void topKMerge(const std::vector<double>& recv, const int source);
 
-	void topKSend();
-	void topKReceive();
+	void resultSend();
+	void resultReceive();
 
 	void statSend();
 	void statReceive();
@@ -114,7 +143,9 @@ public:
 
 	void cbCEInit(const std::string& d, const RPCInfo& info);
 	void cbCERemove(const std::string& d, const RPCInfo& info);
+	void cbCEUsage(const std::string& d, const RPCInfo& info);
 
+	void cbRecvTopScore(const std::string& d, const RPCInfo& info);
 	void cbUpdateLowerBound(const std::string& d, const RPCInfo& info);
 
 	void cbLevelFinish(const std::string& d, const RPCInfo& info);
@@ -123,7 +154,7 @@ public:
 	void cbRecvCandidateMotifs(const std::string& d, const RPCInfo& info);
 	void cbRecvAbandonedMotifs(const std::string& d, const RPCInfo& info);
 
-	void cbRecvTopK(const std::string& d, const RPCInfo& info);
+	void cbRecvResult(const std::string& d, const RPCInfo& info);
 
 	void cbRecvStat(const std::string& d, const RPCInfo& info);
 
@@ -133,7 +164,8 @@ private:
 	int updateThresholdResult(double newLB);
 	int updateThresholdWaitingMotifs(double newLB);
 
-	void topKMerge(std::vector<std::pair<Motif, double>>& recv);
+	void ResultMerge(std::vector<std::pair<Motif, double>>& recv);
 	void statMerge(std::vector<unsigned long long>& recv);
+
 };
 

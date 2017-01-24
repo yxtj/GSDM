@@ -15,10 +15,11 @@ void LocalTables::update(const Motif & m, const double newUB, const int num)
 	int l = m.getnEdge();
 	lock_guard<mutex> lg(mct);
 	// add new level
-	candidateTables.resize(max<size_t>(candidateTables.size(), l + 1));
 	{
-		lock_guard<mutex> lga(mat);
-		activatedTable.resize(max<size_t>(activatedTable.size(), l + 1));
+		size_t len = max<size_t>(candidateTables.size(), l + 1);
+		candidateTables.resize(len);
+		nActLevel.resize(len);
+		nActLevelTotal.resize(len);
 	}
 	// update the num. left for activation
 	CT_t& ct = candidateTables[l];
@@ -31,11 +32,16 @@ void LocalTables::update(const Motif & m, const double newUB, const int num)
 		it->second.second -= num;
 	}
 	// move a motif from candiate to active
-	if(it->second.second <= 0) {
-		lock_guard<mutex> lga(mat);
-		activatedTable.push_back(make_pair(move(it->first), it->second.first));
-		++nActLevel[l];
-		ct.erase(it);
+	if(it->second.second == 0) {
+		if(it->second.first >= lowerBound) {
+			lock_guard<mutex> lga(mat);
+			activatedTable.push_back(make_pair(move(it->first), it->second.first));
+			++nActLevel[l];
+			++nActLevelTotal[l];
+		}
+		// Special Case: when using estimated num. parent algorithm:
+		//   #-left may be negative. If remove it the first time, it may be activated again.
+		//ct.erase(it);
 	}
 
 }
@@ -44,7 +50,7 @@ void LocalTables::sortUp(const int l)
 {
 	lock_guard<mutex> lg(mct);
 	size_t end = min(static_cast<size_t>(l + 1), candidateTables.size());
-	for(size_t i = 0; i < end; ++i) {
+	for(size_t i = 1; i < end; ++i) {
 		candidateTables[i].clear();
 	}
 }
@@ -71,7 +77,7 @@ int LocalTables::updateLowerBound(double newLB)
 	return s0 - activatedTable.size();
 }
 
-bool LocalTables::emptyCandidate()
+bool LocalTables::emptyCandidate() const
 {
 	for(size_t i = 0; i < candidateTables.size(); ++i) {
 		if(emptyCandidate(i))
@@ -80,22 +86,30 @@ bool LocalTables::emptyCandidate()
 	return false;
 }
 
-bool LocalTables::emptyCandidate(const int level)
+bool LocalTables::emptyCandidate(const int level) const
 {
-	return candidateTables[level].empty();
+	return static_cast<int>(candidateTables.size()) > level
+		&& candidateTables[level].empty();
 }
 
-bool LocalTables::emptyActivated()
+bool LocalTables::emptyActivated() const
 {
 	return activatedTable.empty();
 }
 
-bool LocalTables::emptyActivated(const int level)
+bool LocalTables::emptyActivated(const int level) const
 {
-	return nActLevel[level] == 0;
+	return static_cast<int>(activatedTable.size()) > level
+		&& nActLevel[level] == 0;
 }
 
-bool LocalTables::empty()
+int LocalTables::getNumEverActive(const int level) const
+{
+	return static_cast<int>(nActLevelTotal.size()) > level ?
+		nActLevelTotal[level] : 0;
+}
+
+bool LocalTables::empty() const
 {
 	unique_lock<mutex> ulc(mct, defer_lock);
 	unique_lock<mutex> ula(mat, defer_lock);
@@ -109,7 +123,7 @@ bool LocalTables::empty()
 	return false;
 }
 
-bool LocalTables::empty(const int level)
+bool LocalTables::empty(const int level) const
 {
 	unique_lock<mutex> ulc(mct, defer_lock);
 	unique_lock<mutex> ula(mat, defer_lock);

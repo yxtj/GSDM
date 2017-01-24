@@ -12,13 +12,14 @@ class LocalTables
 	// motif: current-tightest-upper-bound, #-generation-left-until-activated
 	typedef std::map<Motif, std::pair<double, int>> CT_t;
 	std::vector<CT_t> candidateTables; // one for each level
-	std::mutex mct; // lock mct first then mat, if they both should be locked
+	mutable std::mutex mct; // lock mct first then mat, if they both should be locked
 
 	// motif, current-tightest-upper-bound
 	typedef	std::list<std::pair<Motif, double>> AT_t;
 	AT_t activatedTable;
-	std::mutex mat; // lock mct first then mat, if they both should be locked
+	mutable std::mutex mat; // lock mct first then mat, if they both should be locked
 	std::vector<int> nActLevel; // num. of activated motifs in each level
+	std::vector<int> nActLevelTotal; // num. of motifs which had once being active at each level
 
 	double lowerBound;
 	std::function<int(const Motif&)> fnGetNParents;
@@ -36,17 +37,19 @@ public:
 	int updateLowerBound(double newLB);
 
 	// is there any candidate motif
-	bool emptyCandidate();
+	bool emptyCandidate() const;
 	// is there any candidate motif of a certain level
-	bool emptyCandidate(const int level);
+	bool emptyCandidate(const int level) const;
 
 	// is there any activated motif
-	bool emptyActivated();
+	bool emptyActivated() const;
 	// is there any activated motif of a certain level
-	bool emptyActivated(const int level);
+	bool emptyActivated(const int level) const;
+	// the total num. of motifs had once being activated
+	int getNumEverActive(const int level) const;
 
-	bool empty();
-	bool empty(const int level);
+	bool empty() const;
+	bool empty(const int level) const;
 
 	// pick one activated motif
 	std::pair<bool, std::pair<Motif, double>> getOne();

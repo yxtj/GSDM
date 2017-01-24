@@ -11,6 +11,7 @@ struct MType {
 	static constexpr int CEInit = 10;
 	static constexpr int CEUsed = 12;
 	static constexpr int CERemove = 13;
+	static constexpr int CEUsage = 14;
 
 	// Motif
 	static constexpr int MNormal= 20;
@@ -19,12 +20,13 @@ struct MType {
 
 	// Global progress flow
 	static constexpr int GLevelFinish= 30;
-	static constexpr int GLowerBound= 31;
-	static constexpr int GSearchFinish= 32;
+	static constexpr int GSearchFinish= 31;
+	static constexpr int GLowerBound = 32;
+	static constexpr int GGatherLocalTopK = 33; // gather local top-k scores
 
 	// Top-k related
-	static constexpr int TGather = 50;
-	static constexpr int TDistribute = 51;
+//	static constexpr int TScoreGather = 50;
+//	static constexpr int TDistribute = 51;
 	
 	// Staticstics
 	static constexpr int SGather = 60;
