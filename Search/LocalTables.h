@@ -25,12 +25,11 @@ class LocalTables
 	std::function<int(const Motif&)> fnGetNParents;
 
 public:
-
-
 	// initialize the lower-bound and the function for estimating a motif's num. of parents
 	void init(std::function<int(const Motif&)> fn, double LB=std::numeric_limits<double>::lowest());
 	// input a motif with a given upperbound, put into AT if ub>lowerBound & #left<=0
 	void update(const Motif& m, const double newUB, const int num = 1);
+	void addToActivated(const Motif& m, const double newUB);
 	// remove all the motifs with no-more than l edges
 	void sortUp(const int l);
 	// update bound

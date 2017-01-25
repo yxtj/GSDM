@@ -8,6 +8,9 @@ void LocalTables::init(std::function<int(const Motif&)> fn, double LB)
 {
 	fnGetNParents = fn;
 	lowerBound = LB;
+	candidateTables.reserve(16);
+	nActLevel.reserve(16);
+	nActLevelTotal.reserve(16);
 }
 
 void LocalTables::update(const Motif & m, const double newUB, const int num)
@@ -15,9 +18,11 @@ void LocalTables::update(const Motif & m, const double newUB, const int num)
 	int l = m.getnEdge();
 	lock_guard<mutex> lg(mct);
 	// add new level
-	{
-		size_t len = max<size_t>(candidateTables.size(), l + 1);
+	if(static_cast<int>(candidateTables.size()) < l ) {
+		size_t len = max(candidateTables.size(), nActLevel.size());
+		len = max<size_t>(len, l + 1);
 		candidateTables.resize(len);
+		lock_guard<mutex> lga(mat);
 		nActLevel.resize(len);
 		nActLevelTotal.resize(len);
 	}
@@ -39,11 +44,29 @@ void LocalTables::update(const Motif & m, const double newUB, const int num)
 			++nActLevel[l];
 			++nActLevelTotal[l];
 		}
-		// Special Case: when using estimated num. parent algorithm:
+		// Special Case: when using estimated num. parents algorithm:
 		//   #-left may be negative. If remove it the first time, it may be activated again.
+		//   Therefore, instead of remove it, I set its #-left to a very large number.
+		// TODO: distinguish the method for calculating num. partents, exact type & estimated type
 		//ct.erase(it);
+		it->second.second = numeric_limits<int>::max();
 	}
 
+}
+
+void LocalTables::addToActivated(const Motif & m, const double newUB)
+{
+	int l = m.getnEdge();
+	lock_guard<mutex> lga(mat);
+	// add new level
+	if(static_cast<int>(nActLevel.size()) < l) {
+		size_t len = max<size_t>(nActLevel.size(), l + 1);
+		nActLevel.resize(len);
+		nActLevelTotal.resize(len);
+	}
+	activatedTable.push_back(make_pair(m, newUB));
+	++nActLevel[l];
+	++nActLevelTotal[l];
 }
 
 void LocalTables::sortUp(const int l)
