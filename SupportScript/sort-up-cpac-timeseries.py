@@ -12,6 +12,7 @@ Created on Wed Nov  9 16:33:41 2016
 
 import sys,os,re
 import shutil
+import datetime
 
 ROI_LIST={"aal_mask_pad":'aal', "CC200":"cc200", "CC400":"cc400", "ez_mask_pad":'ez',
           "ho_mask_pad":'ho', "rois_3mm":'3mm', "tt_mask_pad":'tt'}
@@ -32,7 +33,7 @@ def parseSession_ABIDE(s):
     r=re.match(_pat_session_ABIDE,s)
     if not r: return None
     return (r.group(1), r.group(2))
-    
+
 _pat_session_ADNI=r"(\d+)_S_(\d+)[^\d]*";
 def parseSession_ADNI(s):
     r=re.match(_pat_session_ADNI,s)
@@ -44,19 +45,19 @@ def parseSession_ADNI(s):
 
 _pat_scan_ABIDE=r"_scan_(.+?)_(\d+)"
 def parseScan_ABIDE(s):
-    r=re.match(_pat_session_ABIDE,s)
+    r=re.match(_pat_scan_ABIDE,s)
     if not r: return None
     return (r.group(1), r.group(2))
 
 _pat_scan_ADNI=r"_scan_scan(\d+)_.*"
 def parseScan_ADNI(s):
-    r=re.match(_pat_session_ADNI,s)
+    r=re.match(_pat_scan_ADNI,s)
     if not r: return None
     return ('scan', r.group(1))
 
 _pat_scan_ANY=r"_scan_(.*?)(\d+)"
 def parseScan_ANY(s):
-    r=re.match(_pat_session_ADNI,s)
+    r=re.match(_pat_scan_ANY,s)
     if not r: return None
     return (r.group(1), r.group(2))
 
@@ -95,12 +96,13 @@ def main(inFolder, outFolder, dataset, globalOpt):
         if not os.path.exists(fn):
             os.makedirs(fn)
 
+    nameRecord={}
+
     cntSsn=0
     cntSsnVld=0
     for session in os.listdir(inFolder):
         #<session id>
-        #r=re.match(pat_session,session)
-        r=fun_session(s)
+        r=fun_session(session)
         if not r:
             print(session+' invalid session name')
             continue
@@ -112,20 +114,17 @@ def main(inFolder, outFolder, dataset, globalOpt):
             continue
         cntSsn+=1
         print(session)
-#        ssnId=r.group(1)
         cntScan=0
         for scan in os.listdir(pi):
             #<session id>/roi_timeseries/_scan*
-            #r2=re.match(pat_scan,scan)
             r2=fun_scan(scan)
             if not r2:
                 continue
             (scnName,scnId)=r2
-            pii=pi+scan+'/'
-            #scnName=r2.group(1)
-            #scnId=r2.group(2)
             #outFn=ssnId+'_'+scnName+'_'+scnId+'.1D'
-            outFn='scan_'+str(cntScan)+'.1D'
+            #outFn='scan_'+str(cntScan)+'.1D'
+            outFn=scnName+'_'+scnId+'.1D'
+            pii=pi+scan+'/'
             lcsf=os.listdir(pii)
             #<session id>/roi_timeseries/_scan*/_csf*
             if len(lcsf)==0 or not re.match(pat_csf,lcsf[0]):
@@ -151,6 +150,7 @@ def main(inFolder, outFolder, dataset, globalOpt):
                 #<session id>/roi_timeseries/_scan*/_csf*/_gm*/_wm*/_compcor*global(0/1)*/_bandpass*
                 if len(lib)==0 or not re.match(pat_bp,lib[0]):
                     continue
+                nameRecord[subId+"-"+str(cntScan)]=session+" - "+scan
                 cntMask=0
                 #print('  '+scan,end=' ') #only work on python 3
                 sys.stdout.write('  '+scan+' with ')
@@ -161,7 +161,7 @@ def main(inFolder, outFolder, dataset, globalOpt):
                     #print(roi, mask+'/'+'roi_'+roi+'.1D')
                     pim=pii+fnCor+'/'+lib[0]+'/'+mask+'/'+'roi_'+roi+'.1D'
                     if os.path.exists(pim):
-                        po=outFolder+ROI_LIST[roi]+'/'+ssnId+'/'
+                        po=outFolder+ROI_LIST[roi]+'/'+subId+'/'
                         usedRoi.append(ROI_LIST[roi])
                         if not os.path.exists(po):
                             os.mkdir(po)
@@ -181,16 +181,27 @@ def main(inFolder, outFolder, dataset, globalOpt):
         else:
             cntSsnVld+=1
     print(str(cntSsn)+' session(s) and '+str(cntSsnVld)+' valid session(s)')
+    print('writing name mapping...')
+    fout=open(outFolder+'nameMapping.txt','a')
+    fout.write(str(datetime.datetime.now()))
+    fout.write('\n')
+    for (k,v) in nameRecord.items():
+        fout.write(k+'\t:\t'+v+'\n')
+    fout.close()
 
 
 #opt/ABIDEII_CPAC_series_holo/pipeline_abide_rerun_II_4CORE__freq-filter/50051_baseline/roi_timeseries/_scan_rest_1_rest/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1$
+#output/pipeline_ADNI_pipeline/014_S_4615_MoCoSeries/roi_timeseries/_scan_scan0_ASL_PERFUSION/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.08/_mask_aal_mask_pad
+
 #subjects:
 #29433_session_1  28716_session_1  28949_session_1  28983_session_1
 #002_S_0413_Resting_State_fMRI  002_S_4799_Resting_State_fMRI  013_S_4616_Resting_State_fMRI
+
 #scans:
 #_scan_rest_1_rest
 #_scan_scan0_S111991  _scan_scan1_S150694  _scan_scan2_S189129
 #_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0  _compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0
+
 #_mask_aal_mask_pad  _mask_CC200  _mask_CC400  _mask_ez_mask_pad  _mask_ho_mask_pad  _mask_rois_3mm  _mask_tt_mask_pad
 #roi_aal_mask_pad.1D  roi_aal_mask_pad.csv  roi_aal_mask_pad.npz  roi_aal_mask_pad.txt
 #roi_CC200.1D  roi_CC200.csv  roi_CC200.npz  roi_CC200.txt
