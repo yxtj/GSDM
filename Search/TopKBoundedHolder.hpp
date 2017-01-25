@@ -60,7 +60,7 @@ constexpr S TopKBoundedHolder<T, S>::worstScore()
 template<class T, typename S>
 inline bool TopKBoundedHolder<T, S>::updatable(const S s) const
 {
-	return data.size() < k || s > lastScore();
+	return s > lastScore() || s == lastScore() && data.size() < k;
 }
 
 template<class T, typename S>
@@ -97,6 +97,7 @@ inline bool TopKBoundedHolder<T, S>::update(const T& m, const S s)
 template<class T, typename S>
 inline int TopKBoundedHolder<T, S>::updateBound(const S newBound)
 {
+	bound = newBound;
 	auto it=std::upper_bound(data.begin(), data.end(), newBound,
 		[](const S v, const std::pair<T, S>&p) {
 		return v < p.second;
@@ -112,13 +113,13 @@ inline int TopKBoundedHolder<T, S>::updateBound(const S newBound)
 template<class T, typename S>
 inline S TopKBoundedHolder<T, S>::lastScore() const
 {
-	return data.empty() ? worstScore() : data.back().second;
+	return data.empty() ? bound : data.back().second;
 }
 
 template<class T, typename S>
 inline S TopKBoundedHolder<T, S>::lastScore4Update() const
 {
-	return data.size() < k ? worstScore() : data.back().second;
+	return data.size() < k ? bound : data.back().second;
 }
 
 template<class T, typename S>

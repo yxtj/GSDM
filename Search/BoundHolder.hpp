@@ -43,11 +43,7 @@ inline size_t BoundedHolder<T, S>::size() const
 template<class T, typename S>
 constexpr S BoundedHolder<T, S>::worstScore()
 {
-	if(std::is_floating_point<S>::value) {
-		return nextafter(bound, std::numeric_limits<S>::lowest());
-	} else {
-		return bound == std::numeric_limits<S>::lowest() ? bound : bound - 1;
-	}
+	return std::numeric_limits<S>::lowest();
 }
 template<class T, typename S>
 inline bool BoundedHolder<T, S>::updatable(const S s) const
@@ -83,6 +79,7 @@ inline bool BoundedHolder<T, S>::update(const T& m, const S s)
 template<class T, typename S>
 inline int BoundedHolder<T, S>::updateBound(const S newBound)
 {
+	bound = newBound;
 	auto it = std::upper_bound(data.begin(), data.end(), s, [newBound](const std::pair<T, S>&p) {
 		return p.second <= newBound;
 	});
@@ -95,13 +92,13 @@ inline int BoundedHolder<T, S>::updateBound(const S newBound)
 template<class T, typename S>
 inline S BoundedHolder<T, S>::lastScore() const
 {
-	return data.empty() ? worstScore() : data.back().second;
+	return data.empty() ? bound : data.back().second;
 }
 
 template<class T, typename S>
 inline S BoundedHolder<T, S>::lastScore4Update() const
 {
-	return data.size() < k ? worstScore() : data.back().second;
+	return data.size() < k ? bound : data.back().second;
 }
 
 template<class T, typename S>
