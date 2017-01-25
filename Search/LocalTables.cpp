@@ -85,9 +85,6 @@ int LocalTables::updateLowerBound(double newLB)
 	lowerBound = newLB;
 	lock_guard<mutex> lg(mat);
 	size_t s0 = activatedTable.size();
-	activatedTable.remove_if([=](const pair<Motif, double>& p) {
-		return p.second < lowerBound;
-	});
 	auto it = activatedTable.begin();
 	while(it != activatedTable.end()) {
 		if(it->second < lowerBound) {

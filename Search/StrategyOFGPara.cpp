@@ -77,7 +77,8 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-std::vector<Motif> StrategyOFGPara::search(const Option & opt, const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+std::vector<Motif> StrategyOFGPara::search(const Option & opt,
+	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	if(!checkInput(gPos, gNeg))
 		return std::vector<Motif>();
@@ -160,11 +161,10 @@ void StrategyOFGPara::initParams(
 
 void StrategyOFGPara::initLRTables()
 {
-	double lb = get<1>(edges.back());
-	ltable.init(&StrategyOFGPara::getNParents, lb);
+	ltable.init(&StrategyOFGPara::getNParents, lowerBound);
 	rtables.resize(net->size());
 	for(auto& rt : rtables)
-		rt.init(lb);
+		rt.init(lowerBound);
 }
 
 void StrategyOFGPara::registerAllWorkers()
@@ -191,60 +191,20 @@ void StrategyOFGPara::registerAllWorkers()
 	}
 }
 
-void StrategyOFGPara::initialCE_para()
-{
-	int size = net->size();
-	int id = net->id();
-	// split the edge space evenly and check them individually
-
-	int nEdgeInAll = nNode*(nNode - 1) / 2;
-	pair<int, int> cef = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*id));
-	pair<int, int> cel = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*(id+1)));
-
-	double factor = 1.0 / pgp->size();
-	int th = static_cast<int>(ceil(minSup*pgp->size()));
-	th = max(th, 1); // in case of minSup=0
-	vector<tuple<Edge, double, int>> ceLocal;
-	for(int i = cef.first; i <= cel.first; ++i) {
-		int j = (i == cef.first ? cef.second : i + 1);
-		int endj = (i == cel.first ? cel.second : nNode);
-		while(j < endj) {
-			int t = countEdgeXSub(i, j, *pgp);
-			if(t >= th) {
-				auto f = t*factor;
-				ceLocal.emplace_back(Edge(i, j), f, 0);
-			}
-			++j;
-		}
-	}
-
-	// shared the candidate edges among all workers
-	rph.input(MType::CEInit, net->id());
-	net->broadcast(MType::CEInit, ceLocal);
-	{
-		lock_guard<mutex> lg(mce);
-		if(edges.empty())
-			edges = ceLocal;
-		else
-			move(ceLocal.begin(), ceLocal.end(), back_inserter(edges));
-	}
-	suCEinit.wait();
-	sort(edges.begin(), edges.end(),
-		[](const tuple<Edge, double, int>& lth, const tuple<Edge, double, int>& rth) {
-		return get<1>(lth) < get<1>(rth); });
-}
 
 void StrategyOFGPara::work_para()
 {
 	// initial the first level
+	initLRTables();
+	initLowerBound();
 	assignBeginningMotifs();
 	lastFinishLevel = 0;
 	net->broadcast(MType::GLevelFinish, 0); // level 0 starts as finished by definition
 	int id = net->id();
 	int size = net->size();
 	// work on the activated motifs
-	Timer twm; // timer for waiting motifs
-	Timer tct; // timer for coordinate top-k
+	Timer twm; // timer for updating the bound for waiting motifs
+	Timer tct; // timer for coordinating global top-k
 	while(!checkSearchFinish()) {
 		Timer t;
 		// process all activated motifs
@@ -257,12 +217,14 @@ void StrategyOFGPara::work_para()
 			} else if(mu.second < lowerBound) {
 				continue;
 			}
-			if(explore(mu.first)) {
-				updateThresholdCE(lowerBound);
+			// update lower bound
+			if(explore(mu.first) && holder->size() == k) {
+				bool modifyTables = false;
 				if(static_cast<int>(twm.elapseMS()) > INTERVAL_UPDATE_WAITING_MOTIFS) {
-					updateThresholdWaitingMotifs(lowerBound);
+					modifyTables = true;
 					twm.restart();
 				}
+				updateLowerBound(holder->lastScore(), modifyTables, true);
 			}
 		}
 		// send remote table buffers
@@ -293,24 +255,6 @@ void StrategyOFGPara::work_para()
 	suSearchEnd.wait();
 }
 
-void StrategyOFGPara::gatherResult()
-{
-	if(net->id() == 0) {
-		resultReceive();
-	} else {
-		resultSend();
-	}
-}
-
-void StrategyOFGPara::gatherStatistics()
-{
-	if(net->id() == 0) {
-		statReceive();
-	} else {
-		statSend();
-	}
-}
-
 void StrategyOFGPara::messageReceiver()
 {
 	string data;
@@ -329,22 +273,6 @@ void StrategyOFGPara::messageReceiver()
 	}
 }
 
-std::pair<int, int> StrategyOFGPara::num2Edge(const int idx)
-{
-	// i, j and idx all start from 0
-	if(idx == nNode*(nNode - 1) / 2)
-		// the normal look cannot finish for this case
-		return make_pair(nNode - 2, nNode - 1);
-	int i = 0;
-	int n = nNode - i - 1;
-	while(idx >= n) {
-		++i;
-		n += nNode - i - 1;
-	}
-	int j = idx - n + nNode;
-	return make_pair(i, j);
-}
-
 int StrategyOFGPara::getMotifOwner(const Motif & m)
 {
 	return hash<Motif>()(m) % net->size();
@@ -358,8 +286,8 @@ bool StrategyOFGPara::explore(const Motif & m)
 	tie(ub, score) = scoring(mb, lowerBound);
 	// score == numeric_limits<double>::lowest() if the upper bound is not promising
 	if(holder->updatable(score)) {
+		lock_guard<mutex> lg(mtk);
 		holder->update(m, score);
-		lowerBound = holder->lastScore();
 		used = true;
 	}
 	if(used) {
@@ -377,6 +305,7 @@ std::vector<Motif> StrategyOFGPara::expand(const Motif & m, const bool used)
 {
 	vector<Motif> res;
 	MotifBuilder mb(m);
+	int l = m.getnEdge();
 	lock_guard<mutex> lg(mce);
 	for(size_t i = 0; i < edges.size(); ++i) {
 		const Edge& e = get<0>(edges[i]);
@@ -384,8 +313,9 @@ std::vector<Motif> StrategyOFGPara::expand(const Motif & m, const bool used)
 			Motif t(m);
 			t.addEdge(e.s, e.d);
 			res.push_back(move(t));
-			// TODO: update the last-used-level field of edges if used is set
-			//usedEdge[i] = true;
+			// update the last-used-level field of edges if used is set
+			if(used)
+				get<2>(edges[i]) = l;
 			++stNumMotifGenerated;
 		}
 	}
@@ -411,8 +341,9 @@ void StrategyOFGPara::assignBeginningMotifs()
 		auto& e = get<0>(ef);
 		m.addEdge(e.s, e.d);
 		int o = getMotifOwner(m);
-		if(o == id)
-			ltable.update(m, get<1>(ef));
+		if(o == id) {
+			ltable.addToActivated(m, get<1>(ef));
+		}
 	}
 }
 
@@ -458,6 +389,8 @@ bool StrategyOFGPara::processLevelFinish()
 
 void StrategyOFGPara::moveToNewLevel(const int from)
 {
+	cout << "[LOG : " + to_string(net->id()) + "] Moved from level " 
+		+ to_string(from) + " to new level " + to_string(lastFinishLevel) << endl;
 	if(flagDCESConnected) {
 		edgeUsageSend(from);
 		removeUnusedEdges();
@@ -471,6 +404,7 @@ bool StrategyOFGPara::checkLevelFinish(const int level)
 		nFinishLevel.resize(max<size_t>(nFinishLevel.size(), level + 1), 0);
 		return false;
 	}
+	// TODO: use moveToNewLevel() to merge this into nFinishLevel
 	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
 		return l < level;
 	});
@@ -484,140 +418,11 @@ bool StrategyOFGPara::checkLevelFinish(const int level)
 
 bool StrategyOFGPara::checkSearchFinish()
 {
-	// condition: normal messages arrive before level-finish message
-	return net->size() == nFinishLevel[lastFinishLevel]
+	// guarantee: normal messages arrive before level-finish message
+	// TODO: use moveToNewLevel() to merge this into nFinishLevel
+	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
+		return l < lastFinishLevel;
+	});
+	return net->size() == ec + nFinishLevel[lastFinishLevel]
 		&& ltable.getNumEverActive(lastFinishLevel + 1) == 0;
 }
-
-void StrategyOFGPara::edgeUsageSend(const int since)
-{
-	vector<pair<Edge, int>> update;
-	update.reserve(edges.size());
-	{
-		lock_guard<mutex> lg(mce);
-		for(auto& et : edges) {
-			// mark > since
-			if(get<2>(et) >= since) {
-				update.emplace_back(get<0>(et), get<2>(et));
-			}
-		}
-	}
-	net->broadcast(MType::CEUsage, update);
-}
-
-void StrategyOFGPara::edgeUsageUpdate(const std::vector<std::pair<Edge, int>>& usage)
-{
-	auto fu = usage.begin(), lu = usage.end();
-	lock_guard<mutex> lg(mce);
-	auto fe = edges.begin(), le = edges.end();
-	// rationale: edges and usage are sorted with 
-	while(fe != le && fu != lu) {
-		if(fu->first < get<0>(*fe)) {
-			++fu;
-		} else if(get<0>(*fe) < fu->first) {
-			++fe;
-		} else {
-			get<2>(*fe) = max(get<2>(*fe), fu->second);
-			++fe;
-			++fu;
-		}
-	}
-}
-
-void StrategyOFGPara::removeUnusedEdges()
-{
-	lock_guard<mutex> lg(mce);
-	auto it = remove_if(edges.begin(), edges.end(),
-		[=](const tuple<Edge, double, int>& t) {
-		return get<2>(t) < lastFinishLevel;
-	});
-	edges.erase(it, edges.end());
-}
-
-
-void StrategyOFGPara::topKCoordinate()
-{
-	if(net->id() != MASTER_ID) {
-		net->send(MASTER_ID, MType::GGatherLocalTopK, holder->getScore());
-		// the rest work will be done by cbRecvTopScore() and topKCoordinateFinish()
-	} else {
-		lock_guard<mutex> lg(mgtk);
-		topKMerge(holder->getScore(), net->id());
-	}
-}
-
-void StrategyOFGPara::topKCoordinateFinish()
-{
-	rph.resetTypeCondition(MType::GGatherLocalTopK);
-	net->broadcast(MType::GLowerBound, lowerBound);
-	updateThresholdCE(lowerBound);
-	updateThresholdResult(lowerBound);
-	updateThresholdWaitingMotifs(lowerBound);
-}
-
-void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int source)
-{
-	vector<pair<double, int>> temp;
-	auto it = back_inserter(temp);
-	int cnt = 0;
-	lock_guard<mutex> lg(mgtk);
-	auto first1 = globalTopKScores.begin(), last1 = globalTopKScores.end();
-	auto first2 = recv.begin(), last2 = recv.end();
-	// replace the entries with the same source & sort up
-	//   Implemented by ignoring the entries in gTopKScoures with the same source
-	while(first1 != last1 && first2 != last2 && cnt <= k) {
-		if(first1->second == source) {
-			++first1;
-		} else if(first1->first <= *first2) {
-			*it++ = *first1++;
-			++cnt;
-		} else {
-			*it++ = make_pair(*first2++, source);
-			++cnt;
-		}
-	}
-	while(cnt <= k && first1 != last1) {
-		*it++ = *first1++;
-		++cnt;
-	}
-	while(cnt <= k && first2 != last2) {
-		*it++ = make_pair(*first2++, source);
-		++cnt;
-	}
-	globalTopKScores = move(temp);
-	lowerBound = max(lowerBound, globalTopKScores.back().first);
-}
-
-void StrategyOFGPara::resultSend()
-{
-	vector<pair<Motif, double>> topk = holder->getResultScore();
-	net->send(MASTER_ID, MType::MGather, topk);
-}
-
-void StrategyOFGPara::resultReceive()
-{
-	rph.input(MType::MGather, net->id());
-	suTKGather.wait();
-	suTKGather.reset();
-
-}
-
-void StrategyOFGPara::statSend()
-{
-	vector<unsigned long long> stat = {
-		stNumMotifExplored,
-		stNumMotifGenerated,
-		stNumGraphChecked,
-		stNumSubjectChecked,
-		stNumFreqPos,
-		stNumFreqNeg
-	};
-	net->send(MASTER_ID, MType::SGather, stat);
-}
-
-void StrategyOFGPara::statReceive()
-{
-	rph.input(MType::SGather, net->id());
-	suStat.wait();
-}
-

@@ -39,9 +39,9 @@ private:
 	std::mutex mfl; // for lastFinsihLevel, nFinishLevel, finishedAtLevel
 	int lastFinishLevel;
 	std::vector<int> nFinishLevel; // num. of workers which finished all local motifs of level k
+	std::vector<int> endAtLevel; // level of each work ends at
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
-	std::vector<int> endAtLevel; // level of each work ends at
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -135,11 +135,20 @@ private:
 
 	void resultSend();
 	void resultReceive();
+	void resultMerge(std::vector<std::pair<Motif, double>>& recv);
 
 	void statSend();
 	void statReceive();
+	void statMerge(std::vector<unsigned long long>& recv);
 
-/* helpers which should be public: */
+	void initLowerBound(); // can only be called after CE is ready
+	void updateLowerBound(double newLB, bool modifyTables, bool fromLocal);
+	int updateLBCandEdge(double newLB);
+	int updateLBResult(double newLB);
+	int updateLBWaitingMotifs(double newLB);
+	void lowerBoundSend();
+
+/* Thread function and callbacks: */
 public:
 	// message looper
 	void messageReceiver();
@@ -151,7 +160,7 @@ public:
 	void cbCERemove(const std::string& d, const RPCInfo& info);
 	void cbCEUsage(const std::string& d, const RPCInfo& info);
 
-	void cbRecvTopScore(const std::string& d, const RPCInfo& info);
+	void cbRecvLocalTopK(const std::string& d, const RPCInfo& info);
 	void cbUpdateLowerBound(const std::string& d, const RPCInfo& info);
 
 	void cbLevelFinish(const std::string& d, const RPCInfo& info);
@@ -163,15 +172,6 @@ public:
 	void cbRecvResult(const std::string& d, const RPCInfo& info);
 
 	void cbRecvStat(const std::string& d, const RPCInfo& info);
-
-/* detailed functions for callbacks (usually be able to used both locally and by net) */
-private:
-	int updateThresholdCE(double newLB);
-	int updateThresholdResult(double newLB);
-	int updateThresholdWaitingMotifs(double newLB);
-
-	void ResultMerge(std::vector<std::pair<Motif, double>>& recv);
-	void statMerge(std::vector<unsigned long long>& recv);
 
 };
 

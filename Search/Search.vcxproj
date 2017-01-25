@@ -220,7 +220,10 @@
     <ClCompile Include="StrategyOFG-SD.cpp" />
     <ClCompile Include="StrategyOFG-SL.cpp" />
     <ClCompile Include="StrategyOFG.cpp" />
+    <ClCompile Include="StrategyOFGPara-DCES.cpp" />
+    <ClCompile Include="StrategyOFGPara-GTK.cpp" />
     <ClCompile Include="StrategyOFGPara-handler.cpp" />
+    <ClCompile Include="StrategyOFGPara-mis.cpp" />
     <ClCompile Include="StrategyOFGPara.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />

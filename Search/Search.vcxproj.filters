@@ -214,6 +214,15 @@
     <ClCompile Include="RemoteTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StrategyOFGPara-DCES.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-GTK.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-mis.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />
