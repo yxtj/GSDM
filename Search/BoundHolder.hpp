@@ -6,6 +6,7 @@
 template<class T, typename S = double>
 struct BoundedHolder {
 	S bound;
+	// sorted list with decreasing (non-increasing) order of score
 	std::list<std::pair<T, S>> data;
 
 	BoundedHolder(const S bound);
@@ -55,7 +56,7 @@ template<class T, typename S>
 bool BoundedHolder<T, S>::_updateReal(T&& m, const S s)
 {
 	auto it = std::upper_bound(data.begin(), data.end(), s, [s](const std::pair<T, S>&p) {
-		return p.second <= newBound;
+		return p.second > newBound;
 	});
 	if(it == data.end())
 		return false;
@@ -81,7 +82,7 @@ inline int BoundedHolder<T, S>::updateBound(const S newBound)
 {
 	bound = newBound;
 	auto it = std::upper_bound(data.begin(), data.end(), s, [newBound](const std::pair<T, S>&p) {
-		return p.second <= newBound;
+		return p.second > newBound;
 	});
 	int count = 0;
 	while(it != data.end())

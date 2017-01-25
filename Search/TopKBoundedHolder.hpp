@@ -8,6 +8,7 @@ template<class T, typename S = double>
 struct TopKBoundedHolder {
 	const size_t k;
 	S bound;
+	// sorted list with decreasing (non-increasing) order of score
 	std::list<std::pair<T, S>> data;
 
 	TopKBoundedHolder(const size_t k, const S bound = worstScore());
@@ -68,7 +69,7 @@ bool TopKBoundedHolder<T, S>::_updateReal(T&& m, const S s)
 {
 	auto it = std::upper_bound(data.begin(), data.end(), s, 
 		[s](const S s, const std::pair<T, S>&p) {
-		return s < p.second;
+		return s > p.second;
 	});
 	if(it == data.end())	return false;
 	data.insert(it, make_pair(move(m), s));
@@ -100,7 +101,7 @@ inline int TopKBoundedHolder<T, S>::updateBound(const S newBound)
 	bound = newBound;
 	auto it=std::upper_bound(data.begin(), data.end(), newBound,
 		[](const S v, const std::pair<T, S>&p) {
-		return v < p.second;
+		return v > p.second;
 	});
 	int count = 0;
 	while(it != data.end()) {
