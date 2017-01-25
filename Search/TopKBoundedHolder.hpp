@@ -71,9 +71,10 @@ bool TopKBoundedHolder<T, S>::_updateReal(T&& m, const S s)
 		[s](const S s, const std::pair<T, S>&p) {
 		return s > p.second;
 	});
-	if(it == data.end())	return false;
+	if(it == data.end() && data.size() == k)
+		return false;
 	data.insert(it, make_pair(move(m), s));
-	if(data.size() >= k)
+	if(data.size() > k)
 		data.erase(--data.end());
 	return true;
 }

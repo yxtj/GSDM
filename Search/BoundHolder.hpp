@@ -55,11 +55,10 @@ inline bool BoundedHolder<T, S>::updatable(const S s) const
 template<class T, typename S>
 bool BoundedHolder<T, S>::_updateReal(T&& m, const S s)
 {
-	auto it = std::upper_bound(data.begin(), data.end(), s, [s](const std::pair<T, S>&p) {
+	auto it = std::upper_bound(data.begin(), data.end(), s,
+		[s](const std::pair<T, S>&p) {
 		return p.second > newBound;
 	});
-	if(it == data.end())
-		return false;
 	data.insert(it, make_pair(move(m), s));
 	return true;
 }
@@ -81,7 +80,8 @@ template<class T, typename S>
 inline int BoundedHolder<T, S>::updateBound(const S newBound)
 {
 	bound = newBound;
-	auto it = std::upper_bound(data.begin(), data.end(), s, [newBound](const std::pair<T, S>&p) {
+	auto it = std::upper_bound(data.begin(), data.end(), s,
+		[newBound](const std::pair<T, S>&p) {
 		return p.second > newBound;
 	});
 	int count = 0;
