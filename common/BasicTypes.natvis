@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="Edge">
+    <DisplayString>({s},{d})</DisplayString>
+  </Type>
+  <!-- VC 2013 -->
+  <Type Name="Motif" Priority="MediumLow">
+    <Expand>
+      <Item Name="[size]">edges._Mylast - edges._Myfirst</Item>
+      <ExpandedItem>edges,view(simple)</ExpandedItem>
+    </Expand>
+  </Type>
+  <Type Name="MotifBuilder" Priority="MediumLow">
+    <Expand>
+      <Item Name="[size]">edges._Mysize</Item>
+      <ExpandedItem>edges,view(simple)</ExpandedItem>
+      <Item Name="nodes" >nodes,view(simple)</Item>
+    </Expand>
+  </Type>
+  <!-- VC 2015 -->
+  <Type Name="Motif" Priority="Medium">
+    <Expand>
+      <Item Name="[size]">edges._Mypair._Myval2._Mylast - edges._Mypair._Myval2._Myfirst</Item>
+      <ExpandedItem>edges,view(simple)</ExpandedItem>
+    </Expand>
+  </Type>
+  <Type Name="MotifBuilder" Priority="Medium">
+    <Expand>
+      <Item Name="[size]">edges._Mypair._Myval2._Myval2._Mysize</Item>
+      <ExpandedItem>edges,view(simple)</ExpandedItem>
+      <Item Name="nodes" >nodes,view(simple)</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

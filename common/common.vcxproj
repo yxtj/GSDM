@@ -148,6 +148,9 @@
     <ClCompile Include="SubjectInfo.cpp" />
     <ClCompile Include="Util4IO.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="BasicTypes.natvis" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
