@@ -53,6 +53,11 @@ public:
 	// return whether the edge is deleted by this call
 	bool removeEdge(const int s, const int d);
 
+	// make the edges in increasing order
+	void sortUpEdges();
+	// make edges inorder and additionally remove reduandent edges
+	void sortUpEdges(const bool unique);
+
 	bool containNode(const int n) const;
 	bool containEdge(const int s, const int d) const;
 	const Edge& lastEdge() const;

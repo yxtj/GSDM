@@ -35,6 +35,20 @@ bool Motif::removeEdge(const int s, const int d)
 	return false;
 }
 
+void Motif::sortUpEdges()
+{
+	sort(edges.begin(), edges.end());
+}
+
+void Motif::sortUpEdges(const bool unique)
+{
+	sortUpEdges();
+	if(unique) {
+		auto it = std::unique(edges.begin(), edges.end());
+		edges.erase(it, edges.end());
+	}
+}
+
 bool Motif::containNode(const int n) const
 {
 	for(const Edge& e : edges) {
