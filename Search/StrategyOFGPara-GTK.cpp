@@ -11,10 +11,18 @@ using namespace std;
 void StrategyOFGPara::topKCoordinate()
 {
 	if(net->id() != MASTER_ID) {
+		// On workers: send local top-k to master
 		net->send(MASTER_ID, MType::GGatherLocalTopK, holder->getScore());
-		// the rest work will be done by cbRecvLocalTopK() and topKCoordinateFinish()
+		// the rest calculattion work will be done by master 
+		// global top-k will be received later and handled by cbUpdateLowerBound()
 	} else {
+		// On master: initialize current local top-k
 		topKMerge(holder->getScore(), net->id());
+		// then wait for workers' GGatherLocalTopK message and 
+		//   process them with cbLocalTopK()
+		rph.input(MType::GGatherLocalTopK, net->id());
+		// after received the GGatherLocalTopK messages from all the workers,
+		//   finish this process with topKCoordinateFinish
 	}
 }
 
@@ -22,6 +30,8 @@ void StrategyOFGPara::topKCoordinateFinish()
 {
 	rph.resetTypeCondition(MType::GGatherLocalTopK);
 	net->broadcast(MType::GLowerBound, lowerBound);
+	// cannot use updateLowerBound() directly,
+	//   because lowerBound have been updated with new value in cbLocakTopK()
 	updateLBCandEdge(lowerBound);
 	updateLBResult(lowerBound);
 	updateLBWaitingMotifs(lowerBound);
@@ -78,8 +88,9 @@ void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fro
 			updateLBWaitingMotifs(newLB);
 	}
 	if(fromLocal) {
-		updateLBResult(newLB);
 		lowerBoundSend();
+	} else {
+		updateLBResult(newLB);
 	}
 }
 

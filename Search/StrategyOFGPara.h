@@ -120,11 +120,11 @@ private:
 	
 	/* Logic for DCES-bound & OFG-bound:
 		0, [data-structure] Maintain a <score, source> list for global top-k
-		1, [main on normal] Periodically send local top-k to master.
+		1, [main on workers] Periodically send local top-k to master.
 		2, [msg on master] Update <score, source> list with received list
-			Key: only changes the entries from identical source
+			Key trick: only changes the entries from identical source
 			=> maintains a correct out-date global top-k
-		3, [main on master] Periodically broadcast current global k-th score
+		3, [main on master] Broadcast current updated global k-th score
 	*/
 	// start a global top-k coordinate process
 	void topKCoordinate();
@@ -160,7 +160,7 @@ public:
 	void cbCERemove(const std::string& d, const RPCInfo& info);
 	void cbCEUsage(const std::string& d, const RPCInfo& info);
 
-	void cbRecvLocalTopK(const std::string& d, const RPCInfo& info);
+	void cbLocalTopK(const std::string& d, const RPCInfo& info);
 	void cbUpdateLowerBound(const std::string& d, const RPCInfo& info);
 
 	void cbLevelFinish(const std::string& d, const RPCInfo& info);
@@ -169,9 +169,9 @@ public:
 	void cbRecvCandidateMotifs(const std::string& d, const RPCInfo& info);
 	void cbRecvAbandonedMotifs(const std::string& d, const RPCInfo& info);
 
-	void cbRecvResult(const std::string& d, const RPCInfo& info);
+	void cbGatherResult(const std::string& d, const RPCInfo& info);
 
-	void cbRecvStat(const std::string& d, const RPCInfo& info);
+	void cbGatherStat(const std::string& d, const RPCInfo& info);
 
 };
 

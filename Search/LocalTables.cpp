@@ -119,7 +119,7 @@ bool LocalTables::emptyActivated() const
 
 bool LocalTables::emptyActivated(const int level) const
 {
-	return static_cast<int>(activatedTable.size()) > level
+	return static_cast<int>(nActLevel.size()) > level
 		&& nActLevel[level] == 0;
 }
 

@@ -198,10 +198,14 @@ void StrategyOFGPara::work_para()
 	initLRTables();
 	initLowerBound();
 	assignBeginningMotifs();
-	lastFinishLevel = 0;
-	net->broadcast(MType::GLevelFinish, 0); // level 0 starts as finished by definition
+
 	int id = net->id();
 	int size = net->size();
+
+	lastFinishLevel = 0;
+	nFinishLevel[0] = size;
+	net->broadcast(MType::GLevelFinish, 0); // level 0 starts as finished by definition
+
 	// work on the activated motifs
 	Timer twm; // timer for updating the bound for waiting motifs
 	Timer tct; // timer for coordinating global top-k

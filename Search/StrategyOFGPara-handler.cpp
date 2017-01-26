@@ -35,7 +35,7 @@ void StrategyOFGPara::initHandlers()
 	regDSPProcess(MType::CEUsage, &StrategyOFGPara::cbCEUsage);
 
 	// maintain global top-k score
-	regDSPProcess(MType::GGatherLocalTopK, &StrategyOFGPara::cbRecvLocalTopK);
+	regDSPProcess(MType::GGatherLocalTopK, &StrategyOFGPara::cbLocalTopK);
 	rph.addType(MType::GGatherLocalTopK, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&StrategyOFGPara::topKCoordinateFinish, this));
 	// update lowerbound
@@ -54,14 +54,14 @@ void StrategyOFGPara::initHandlers()
 		bind(&SyncUnit::notify, &suSearchEnd));
 
 	// gather result motifs
-	regDSPProcess(MType::MGather, &StrategyOFGPara::cbRecvResult);
+	regDSPProcess(MType::MGather, &StrategyOFGPara::cbGatherResult);
 	rph.addType(MType::MGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&SyncUnit::notify, &suTKGather));
 
 	// statistics gathering
-	regDSPProcess(MType::SGather, &StrategyOFGPara::cbRecvStat);
+	regDSPProcess(MType::SGather, &StrategyOFGPara::cbGatherStat);
 	rph.addType(MType::SGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
-		bind(&SyncUnit::notify, &suStart));
+		bind(&SyncUnit::notify, &suStat));
 }
 
 void StrategyOFGPara::cbRegisterWorker(const std::string & d, const RPCInfo & info)
@@ -101,7 +101,7 @@ void StrategyOFGPara::cbCEUsage(const std::string & d, const RPCInfo & info)
 	edgeUsageUpdate(usage);
 }
 
-void StrategyOFGPara::cbRecvLocalTopK(const std::string & d, const RPCInfo & info)
+void StrategyOFGPara::cbLocalTopK(const std::string & d, const RPCInfo & info)
 {
 	vector<double> localK = deserialize<vector<double>>(d);
 	topKMerge(localK, info.source);
@@ -150,14 +150,14 @@ void StrategyOFGPara::cbRecvAbandonedMotifs(const std::string & d, const RPCInfo
 	}
 }
 
-void StrategyOFGPara::cbRecvResult(const std::string & d, const RPCInfo & info)
+void StrategyOFGPara::cbGatherResult(const std::string & d, const RPCInfo & info)
 {
 	vector<pair<Motif, double>> recv = deserialize<vector<pair<Motif, double>>>(d);
 	resultMerge(recv);
 	rph.input(MType::MGather, info.source);
 }
 
-void StrategyOFGPara::cbRecvStat(const std::string & d, const RPCInfo & info)
+void StrategyOFGPara::cbGatherStat(const std::string & d, const RPCInfo & info)
 {
 	vector<unsigned long long> recv = deserialize<vector<unsigned long long>>(d);
 	statMerge(recv);
