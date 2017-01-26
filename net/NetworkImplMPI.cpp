@@ -104,7 +104,7 @@ void NetworkImplMPI::send(const Task* t){
 
 void NetworkImplMPI::broadcast(const Task* t){
 	//MPI_IBcast does not support tag
-	int myid = id();
+	const int& myid = id_;
 	for(int i = 0; i < size(); ++i){
 		if(i != myid){
 			//make sure each pointer given to send() is unique
