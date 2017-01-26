@@ -190,8 +190,12 @@ void NetworkThread::Shutdown() {
 
 void NetworkThread::Terminate()
 {
-	NetworkThread* p = nullptr;
-	swap(p, self);
-	delete p;
-	NetworkImplMPI::Shutdown();
+	if(self != nullptr) {
+		NetworkThread* p = nullptr;
+		swap(p, self);
+		p->running = false;
+		p->t_.~thread();
+		delete p;
+		NetworkImplMPI::Shutdown();
+	}
 }
