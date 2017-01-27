@@ -22,6 +22,7 @@ class StrategyOFGPara :
 	int INTERVAL_UPDATE_WAITING_MOTIFS = 50; //in millisecond
 	int INTERVAL_COORDINATE_TOP_K = 5*1000; //in millisecond
 	int BATCH_SIZE_ACTIVE = 100; // num. of active motifs explored at each step
+	int INTERVAL_STATE_REPORT = 10; // in seconds
 private:
 	// candidate edge set
 	std::mutex mce;
@@ -40,7 +41,7 @@ private:
 	std::mutex mfl; // for lastFinsihLevel, nFinishLevel, finishedAtLevel
 	int lastFinishLevel;
 	std::vector<int> nFinishLevel; // num. of workers which finished all local motifs of level k
-	std::vector<int> endAtLevel; // level of each work ends at
+	std::vector<int> finishedAtLevel; // level of each work ends at
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
 public:
@@ -179,5 +180,6 @@ public:
 private:
 	std::string logHead(const std::string& head) const;
 	std::string logHeadID(const std::string& head) const;
+	void reportState() const;
 };
 

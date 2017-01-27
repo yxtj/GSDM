@@ -94,3 +94,45 @@ std::string StrategyOFGPara::logHeadID(const std::string& head) const
 {
 	return "[" + head + " : " + to_string(net->id()) + "] ";
 }
+
+void StrategyOFGPara::reportState() const
+{
+	ostringstream oss;
+	const int size = net->size();
+	const int id = net->id();
+	// basic
+	int mostRecent = ltable.mostRecentLevel();
+	oss << logHeadID("PROGRESS") << "#-CE: " << edges.size()
+		<< ", LB: " << lowerBound << "; #-local-result: " << holder->size()
+		<< ", last-score: " << holder->lastScore()
+		<< "; last-finished-level: " << lastFinishLevel
+		<< ", most-recent-level: " << mostRecent;
+	// local candidate
+	oss << "\n    Local candidate: {";
+	for(auto v : ltable.getNumCandidates())
+		oss << " " << v;
+	oss << " }";
+	// local activated
+	oss << "\n    Local activated: {";
+	for(auto v : ltable.getNumActives())
+		oss << " " << v;
+	oss << " }";
+	// nFinishedLevel
+	oss << "\n    # of finished workers on each level: {";
+	for(int i = 0; i < mostRecent; ++i)
+		oss << " " << nFinishLevel[i];
+	oss << " }";
+	// remote
+	oss << "\n    # of motifs for remote: {";
+	for(int i = 0; i < size; ++i)
+		oss << " " << i << ":" << rtables[i].size();
+	oss << " }";
+	// finish marker
+	oss << "\n    Finish Marker: {";
+	for(int i = 0; i < size; ++i)
+		oss << " " << i << ":" << 
+		(finishedAtLevel[i] == numeric_limits<int>::max() ? -1 : finishedAtLevel[i]);
+	oss << " }";
+
+	cout << oss.str() << endl;
+}

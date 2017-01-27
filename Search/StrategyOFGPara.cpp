@@ -167,7 +167,7 @@ void StrategyOFGPara::initParams(
 	holder = new TopKBoundedHolder<Motif, double>(k);
 	lastFinishLevel = 0;
 	nFinishLevel.resize(16, 0);
-	endAtLevel.resize(net->size(), numeric_limits<int>::max());
+	finishedAtLevel.resize(net->size(), numeric_limits<int>::max());
 }
 
 void StrategyOFGPara::initLRTables()

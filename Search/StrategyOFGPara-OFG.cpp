@@ -15,14 +15,14 @@ void StrategyOFGPara::work_para()
 	int id = net->id();
 	int size = net->size();
 
+	// level 0 starts as finished by definition
 	lastFinishLevel = 0;
 	nFinishLevel[lastFinishLevel] = size;
-	// level 0 starts as finished by definition
-	net->broadcast(MType::GLevelFinish, lastFinishLevel);
 
 	// work on the activated motifs
 	Timer twm; // timer for updating the bound for waiting motifs
 	Timer tct; // timer for coordinating global top-k
+	Timer tsr; // timer for state report
 	Timer t; // timer for controlling working frequency (INTERVAL_PROCESS)
 	while(!checkSearchFinish()) {
 		// process all activated motifs
@@ -52,16 +52,23 @@ void StrategyOFGPara::work_para()
 			if(i == id)
 				continue;
 			auto vec = rtables[i].collect();
-			cout << logHeadID("DBG") + "Collected " + to_string(vec.size()) + " motifs for " + to_string(i) << endl;
-			if(!vec.empty())
+			if(!vec.empty()) {
+//				cout << logHeadID("DBG") + "Collected " + to_string(vec.size())
+//					+ " motifs for " + to_string(i) << endl;
 				net->send(i, MType::MNormal, vec);
+			}
 		}
 		// send level finish signal if possible
 		processLevelFinish();
 		// get the global top-k if necessary
-		if(static_cast<int>(tct.elapseMS()) > INTERVAL_COORDINATE_TOP_K) {
+		if(static_cast<int>(tct.elapseMS()) >= INTERVAL_COORDINATE_TOP_K) {
 			topKCoordinate();
 			tct.restart();
+		}
+		// report local state
+		if(static_cast<int>(tsr.elapseS()) >= INTERVAL_STATE_REPORT) {
+			reportState();
+			tsr.restart();
 		}
 
 		int e = INTERVAL_PROCESS - static_cast<int>(t.elapseMS());
@@ -134,11 +141,13 @@ bool StrategyOFGPara::processLevelFinish()
 		lock_guard<mutex> lg(mfl);
 		++nFinishLevel[lastFinishLevel + 1]; // local finish
 		++lastFinishLevel;
+//		cout << logHeadID("DBG") + "Locally changed n-finish-level changed to "
+//			+ to_string(nFinishLevel[lastFinishLevel]) + ", at level " + to_string(lastFinishLevel) << endl;
 		moved = true;
 	}
 	if(moved) {
 		moveToNewLevel(oldlfl);
-		for(int i = oldlfl; i < lastFinishLevel + 1; ++i)
+		for(int i = oldlfl + 1; i < lastFinishLevel + 1; ++i)
 			net->broadcast(MType::GLevelFinish, i);
 	}
 	return moved;
@@ -152,6 +161,14 @@ void StrategyOFGPara::moveToNewLevel(const int from)
 		edgeUsageSend(from);
 		removeUnusedEdges();
 	}
+	ltable.sortUp(lastFinishLevel);
+	const int size = net->size();
+	const int id = net->id();
+	for(int i = 0; i < size; ++i) {
+		if(i == id)
+			continue;
+		rtables[i].sortUp(lastFinishLevel);
+	}
 }
 
 bool StrategyOFGPara::checkLevelFinish(const int level)
@@ -161,8 +178,8 @@ bool StrategyOFGPara::checkLevelFinish(const int level)
 		nFinishLevel.resize(max<size_t>(nFinishLevel.size(), level + 1), 0);
 		return false;
 	}
-	// TODO: use moveToNewLevel() to merge this into nFinishLevel
-	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
+	// TODO: merge nFinishLevel and finishedAtLevel
+	int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(), [=](const int l) {
 		return l < level;
 	});
 	if(net->size() == ec + nFinishLevel[level - 1]) {
@@ -176,8 +193,8 @@ bool StrategyOFGPara::checkLevelFinish(const int level)
 bool StrategyOFGPara::checkSearchFinish()
 {
 	// guarantee: normal messages arrive before level-finish message
-	// TODO: use moveToNewLevel() to merge this into nFinishLevel
-	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
+	// TODO: merge nFinishLevel and finishedAtLevel
+	int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(), [=](const int l) {
 		return l < lastFinishLevel;
 	});
 	return net->size() == ec + nFinishLevel[lastFinishLevel]
