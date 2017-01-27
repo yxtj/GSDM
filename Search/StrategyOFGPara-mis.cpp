@@ -6,6 +6,7 @@
 Miscellaneous:
 	1, result
 	2, statistics
+	3, log
 */
 
 using namespace std;
@@ -80,4 +81,16 @@ void StrategyOFGPara::statMerge(std::vector<unsigned long long>& recv)
 	stNumSubjectChecked += recv[3];
 	stNumFreqPos += recv[4];
 	stNumFreqNeg += recv[5];
+}
+
+// -------------- Log -----------------
+
+std::string StrategyOFGPara::logHead(const std::string& head) const
+{
+	return "[" + head + "] ";
+}
+
+std::string StrategyOFGPara::logHeadID(const std::string& head) const
+{
+	return "[" + head + " : " + to_string(net->id()) + "] ";
 }

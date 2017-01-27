@@ -223,6 +223,9 @@
     <ClCompile Include="StrategyOFGPara-mis.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
+    <ClCompile Include="StrategyOFGPara-OFG.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />

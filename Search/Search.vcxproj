@@ -224,6 +224,7 @@
     <ClCompile Include="StrategyOFGPara-GTK.cpp" />
     <ClCompile Include="StrategyOFGPara-handler.cpp" />
     <ClCompile Include="StrategyOFGPara-mis.cpp" />
+    <ClCompile Include="StrategyOFGPara-OFG.cpp" />
     <ClCompile Include="StrategyOFGPara.cpp" />
     <ClCompile Include="StrategyXor.cpp" />
     <ClCompile Include="StrategySample.cpp" />

@@ -21,6 +21,7 @@ class StrategyOFGPara :
 	int INTERVAL_PROCESS = 10; //in millisecond
 	int INTERVAL_UPDATE_WAITING_MOTIFS = 50; //in millisecond
 	int INTERVAL_COORDINATE_TOP_K = 5*1000; //in millisecond
+	int BATCH_SIZE_ACTIVE = 100; // num. of active motifs explored at each step
 private:
 	// candidate edge set
 	std::mutex mce;
@@ -88,7 +89,8 @@ private:
 	int getMotifOwner(const Motif& m);
 
 	bool explore(const Motif& m);
-	std::vector<Motif> expand(const Motif& m, const bool used);
+	// return new motifs and their upper-bounds ( min(ub, new-edge.ub) )
+	std::vector<std::pair<Motif, double>> expand(const Motif& m, const double ub, const bool used);
 //	static int getNParents(const MotifBuilder& m);
 	static int getNParents(const Motif& m);
 
@@ -173,5 +175,9 @@ public:
 
 	void cbGatherStat(const std::string& d, const RPCInfo& info);
 
+/* log related: */
+private:
+	std::string logHead(const std::string& head) const;
+	std::string logHeadID(const std::string& head) const;
 };
 

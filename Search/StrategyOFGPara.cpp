@@ -88,14 +88,10 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	initStatistics();
 	initHandlers(); // should be put after the initialization fo net
 	if(flagUseSD) {
-		ostringstream oss;
-		oss << "[LOG : " << net->id() << "] Generating subject signatures...";
-		cout << oss.str() << endl;
+		cout << logHeadID("LOG") + "Generating subject signatures..." << endl;
 		Timer timer;
 		setSignature();
-		oss.clear();
-		oss << "[LOG: " << net->id() << "]   Signatures generated in " << timer.elapseS() << " s" << endl;
-		cout << oss.str() << endl;
+		cout << logHeadID("LOG") + "  Signatures generated in " + to_string(timer.elapseS()) + " s" << endl;
 	}
 	running_ = true;
 	thread tRecvMsg(bind(&StrategyOFGPara::messageReceiver, this));
@@ -103,42 +99,57 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	// step 1: register all workers
 	registerAllWorkers();
 	if(net->id() == MASTER_ID)
-		cout << "[LOG] All workers started." << endl;
+		cout << logHead("LOG") + "All workers started." << endl;
 
 	// step 2: initial candidate edge set
 	Timer t;
 	initialCE_para();
-	if(net->id() == MASTER_ID)
-		cout << "[LOG] Candidate edges initialized: " << edges.size() << " in all." << endl;
+	if(net->id() == MASTER_ID) {
+		cout << logHead("LOG") + "Candidate edges initialized: " + to_string(edges.size()) + " in all." << endl;
+		/*stream fout("../data_adhd/try/edge1.txt");
+		for(auto& ef : edges) {
+			fout << get<1>(ef) << "\t(" << get<0>(ef).s << "," << get<0>(ef).d << ")\n";
+		}*/
+	}
 
 	// step 3: search independently (each worker holds motif whose score is larger than current k-th)
 	work_para();
-	{
-		ostringstream oss;
-		oss << "[LOG : " << net->id() << "] Finish searching.\n";
-		cout << oss.str();
-		cout.flush();
+	if(net->id() == MASTER_ID) {
+		cout << logHead("LOG") + "Global search finished." << endl;
 	}
 
 	// step 4: coordinate the top-k motifs of all workers
-	gatherResult();
 	if(net->id() == MASTER_ID) {
-		cout << "[LOG] Global top-k motifs gathered." << endl;
+		cout << logHead("LOG") + "Gathering results..." << endl;
 	}
-	vector<Motif> res = holder->getResultMove();
+	gatherResult();
+	vector<Motif> res;
+	if(net->id() == MASTER_ID) {
+		cout << logHead("LOG") + "Global top-k motifs gathered, k-th score="
+			+ to_string(holder->lastScore()) << endl;
+		if(flagOutputScore) {
+			ofstream fout(pathOutputScore);
+			for(auto& p : holder->data) {
+				fout << p.second << "\t" << p.first << "\n";
+			}
+		}
+		res = holder->getResultMove();
+	}
 	delete holder;
 
 	// step 5: merge statistics to Rank 0
+	if(net->id() == MASTER_ID) {
+		cout << logHead("LOG") + "Gathering Statistics..." << endl;
+	}
 	gatherStatistics();
 	auto ts = t.elapseS();
 	if(net->id() == MASTER_ID) {
-		cout << "[LOG] Statistical information gathered." << endl;
+		cout << logHead("LOG") + "Statistical information gathered." << endl;
 		cout << "  Finished in " << ts << " seconds\n"
 			<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
 			<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
 			<< " , on average: " << (double)stNumGraphChecked / stNumSubjectChecked << " graph/subject\n"
 			<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
-
 	}
 
 	running_ = false;
@@ -177,8 +188,8 @@ void StrategyOFGPara::registerAllWorkers()
 	int timeToRegister = 5;
 	if(!suReg.wait_for(chrono::seconds(timeToRegister))) {
 		// error if not finished within XX seconds
-		throw runtime_error("[Register Error : " + to_string(net->id()) + "]"
-			" Cannot detect all workers within " + to_string(timeToRegister) + " seconds");
+		throw runtime_error(logHeadID("Register Error") + 
+			"Cannot detect all workers within " + to_string(timeToRegister) + " seconds");
 	}
 
 	// broadcast starting signal
@@ -186,77 +197,9 @@ void StrategyOFGPara::registerAllWorkers()
 	net->broadcast(MType::CReady, net->id());
 	int timeToReady = 5;
 	if(!suStart.wait_for(chrono::seconds(timeToReady))) {
-		throw runtime_error("[Start Error : " + to_string(net->id()) + "]"
-			" Cannot start all workers within " + to_string(timeToReady) + " seconds");
+		throw runtime_error(logHeadID("Start Error") +
+			"Cannot start all workers within " + to_string(timeToReady) + " seconds");
 	}
-}
-
-
-void StrategyOFGPara::work_para()
-{
-	// initial the first level
-	initLRTables();
-	initLowerBound();
-	assignBeginningMotifs();
-
-	int id = net->id();
-	int size = net->size();
-
-	lastFinishLevel = 0;
-	nFinishLevel[0] = size;
-	net->broadcast(MType::GLevelFinish, 0); // level 0 starts as finished by definition
-
-	// work on the activated motifs
-	Timer twm; // timer for updating the bound for waiting motifs
-	Timer tct; // timer for coordinating global top-k
-	while(!checkSearchFinish()) {
-		Timer t;
-		// process all activated motifs
-		while(!ltable.emptyActivated()) {
-			bool b;
-			std::pair<Motif, double> mu;
-			tie(b, mu) = ltable.getOne();
-			if(!b) {
-				break;
-			} else if(mu.second < lowerBound) {
-				continue;
-			}
-			// update lower bound
-			if(explore(mu.first) && holder->size() == k) {
-				bool modifyTables = false;
-				if(static_cast<int>(twm.elapseMS()) > INTERVAL_UPDATE_WAITING_MOTIFS) {
-					modifyTables = true;
-					twm.restart();
-				}
-				updateLowerBound(holder->lastScore(), modifyTables, true);
-			}
-		}
-		// send remote table buffers
-		for(int i = 0; i < size; i++) {
-			if(i == id)
-				continue;
-			auto vec = rtables[i].collect();
-			net->send(i, MType::MNormal, vec);
-		}
-		// send level finish signal if possible
-		processLevelFinish();
-		// get the global top-k if necessary
-		if(static_cast<int>(tct.elapseMS()) > INTERVAL_COORDINATE_TOP_K) {
-			topKCoordinate();
-			tct.restart();
-		}
-
-		int e = INTERVAL_PROCESS - static_cast<int>(t.elapseMS());
-		if(e > 0) {
-			this_thread::sleep_for(chrono::milliseconds(e));
-		}
-	}
-	// send level finish signal if not send before
-	processLevelFinish();
-	// send search finish signal
-	rph.input(MType::GSearchFinish, id);
-	net->broadcast(MType::GSearchFinish, lastFinishLevel);
-	suSearchEnd.wait();
 }
 
 void StrategyOFGPara::messageReceiver()
@@ -280,50 +223,6 @@ void StrategyOFGPara::messageReceiver()
 int StrategyOFGPara::getMotifOwner(const Motif & m)
 {
 	return hash<Motif>()(m) % net->size();
-}
-
-bool StrategyOFGPara::explore(const Motif & m)
-{
-	bool used = false;
-	MotifBuilder mb(m);
-	double ub, score;
-	tie(ub, score) = scoring(mb, lowerBound);
-	// score == numeric_limits<double>::lowest() if the upper bound is not promising
-	if(holder->updatable(score)) {
-		lock_guard<mutex> lg(mtk);
-		holder->update(m, score);
-		used = true;
-	}
-	if(used) {
-		for(auto& m : expand(m, used)) {
-			generalUpdateCandidateMotif(m, ub);
-		}
-	} else {
-		for(auto& m : expand(m, used))
-			generalAbandonCandidateMotif(m);
-	}
-	return used;
-}
-
-std::vector<Motif> StrategyOFGPara::expand(const Motif & m, const bool used)
-{
-	vector<Motif> res;
-	MotifBuilder mb(m);
-	int l = m.getnEdge();
-	lock_guard<mutex> lg(mce);
-	for(size_t i = 0; i < edges.size(); ++i) {
-		const Edge& e = get<0>(edges[i]);
-		if((mb.containNode(e.s) || mb.containNode(e.d)) && !mb.containEdge(e.s, e.d)) {
-			Motif t(m);
-			t.addEdge(e.s, e.d);
-			res.push_back(move(t));
-			// update the last-used-level field of edges if used is set
-			if(used)
-				get<2>(edges[i]) = l;
-			++stNumMotifGenerated;
-		}
-	}
-	return res;
 }
 
 /*
@@ -370,63 +269,4 @@ void StrategyOFGPara::generalAbandonCandidateMotif(const Motif & m)
 	} else {
 		rtables[o].update(m, WORSTSCORE);
 	}
-}
-
-bool StrategyOFGPara::processLevelFinish()
-{
-	bool moved = false;
-	int oldlfl = lastFinishLevel;
-	while(checkLevelFinish(lastFinishLevel + 1)) {
-		ltable.sortUp(lastFinishLevel + 1);
-		lock_guard<mutex> lg(mfl);
-		++nFinishLevel[lastFinishLevel + 1]; // local finish
-		++lastFinishLevel;
-		moved = true;
-	}
-	if(moved) {
-		moveToNewLevel(oldlfl);
-		for(int i = oldlfl; i < lastFinishLevel + 1; ++i)
-			net->broadcast(MType::GLevelFinish, i);
-	}
-	return moved;
-}
-
-void StrategyOFGPara::moveToNewLevel(const int from)
-{
-	cout << "[LOG : " + to_string(net->id()) + "] Moved from level " 
-		+ to_string(from) + " to new level " + to_string(lastFinishLevel) << endl;
-	if(flagDCESConnected) {
-		edgeUsageSend(from);
-		removeUnusedEdges();
-	}
-}
-
-bool StrategyOFGPara::checkLevelFinish(const int level)
-{
-	if(static_cast<int>(nFinishLevel.size()) <= level) {
-		lock_guard<mutex> lg(mfl);
-		nFinishLevel.resize(max<size_t>(nFinishLevel.size(), level + 1), 0);
-		return false;
-	}
-	// TODO: use moveToNewLevel() to merge this into nFinishLevel
-	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
-		return l < level;
-	});
-	if(net->size() == ec + nFinishLevel[level - 1]) {
-		if(ltable.emptyActivated(level)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool StrategyOFGPara::checkSearchFinish()
-{
-	// guarantee: normal messages arrive before level-finish message
-	// TODO: use moveToNewLevel() to merge this into nFinishLevel
-	int ec = count_if(endAtLevel.begin(), endAtLevel.end(), [=](const int l) {
-		return l < lastFinishLevel;
-	});
-	return net->size() == ec + nFinishLevel[lastFinishLevel]
-		&& ltable.getNumEverActive(lastFinishLevel + 1) == 0;
 }

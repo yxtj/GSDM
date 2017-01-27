@@ -35,6 +35,7 @@ void StrategyOFGPara::topKCoordinateFinish()
 	updateLBCandEdge(lowerBound);
 	updateLBResult(lowerBound);
 	updateLBWaitingMotifs(lowerBound);
+	cout << logHeadID("LOG") + "Coordinate global top-k finished" << endl;
 }
 
 void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int source)
@@ -86,6 +87,7 @@ void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fro
 		updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
+		cout << logHeadID("DBG") + "lowerbound is changed to " + to_string(newLB) << endl;
 	}
 	if(fromLocal) {
 		lowerBoundSend();
