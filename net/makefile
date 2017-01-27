@@ -8,16 +8,11 @@ MPI_LINK_FLAGS = $(shell mpic++ --showme:link)
 SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
-EXE = Search
+EXE = libnet.a
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil -lnet -lserialization -lmsgdriver
-ifeq ($(OS),Windows_NT)
-  LIBS += -lboost-program-options -lboost-filesystem -lboost-system
-else
-  LIBS += -lboost_program_options -lboost_filesystem -lboost_system
-endif
+LIBS = -lserialization
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -50,16 +45,12 @@ all: release
 debug: ../$(DEGEXE)
 
 ../$(DEGEXE): $(DBGEXE)
-	cd ../common; make debug
-	cd ../util; make debug
-	cd ../net; make debug
-	cd ../msgdriver; make debug
 	cd ../serialization; make debug
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	ar rcs $@ $^ $(LIBS) $(MPI_LINK_FLAGS)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -72,16 +63,12 @@ $(DBGDIR)/%.o: %.cpp
 release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELEXE)
-	cd ../common; make release
-	cd ../util; make release
-	cd ../net; make release
-	cd ../msgdriver; make release
 	cd ../serialization; make release
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	ar rcs $@ $^ $(LIBS) $(MPI_LINK_FLAGS)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

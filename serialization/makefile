@@ -3,21 +3,14 @@ CC ?= gcc
 #CMAKE = cmake
 #TOP = $(shell pwd)
 MAKE := $(MAKE) --no-print-directory
-MPI_COMPILE_FLAGS = $(shell mpic++ --showme:compile)
-MPI_LINK_FLAGS = $(shell mpic++ --showme:link)
 SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
-EXE = Search
+EXE = libserialization.a
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil -lnet -lserialization -lmsgdriver
-ifeq ($(OS),Windows_NT)
-  LIBS += -lboost-program-options -lboost-filesystem -lboost-system
-else
-  LIBS += -lboost_program_options -lboost_filesystem -lboost_system
-endif
+LIBS = -lcommon
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -51,19 +44,15 @@ debug: ../$(DEGEXE)
 
 ../$(DEGEXE): $(DBGEXE)
 	cd ../common; make debug
-	cd ../util; make debug
-	cd ../net; make debug
-	cd ../msgdriver; make debug
-	cd ../serialization; make debug
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	ar rcs $@ $^ $(DBGLIBDIR) $(LIBS)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
-	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
 
 #
 # Release rules
@@ -73,19 +62,15 @@ release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELEXE)
 	cd ../common; make release
-	cd ../util; make release
-	cd ../net; make release
-	cd ../msgdriver; make release
-	cd ../serialization; make release
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	ar rcs $@ $^ $(RELLIBDIR) $(LIBS)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
-	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
 
 #
 # common rules
@@ -98,9 +83,6 @@ directories:
 	@mkdir -p $(RELDIR)
 	@mkdir -p ../$(RELDIR)
 
-stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.h -o stdafx.h.gch
-	
 clean:
 	rm -rf $(DBGDIR)
 	rm -rf $(RELDIR)
