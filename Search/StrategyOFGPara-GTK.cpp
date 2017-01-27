@@ -69,7 +69,8 @@ void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int sourc
 		++cnt;
 	}
 	globalTopKScores = move(temp);
-	if(!globalTopKScores.empty())
+	//if(!globalTopKScores.empty())
+	if(globalTopKScores.size() == static_cast<size_t>(k))
 		lowerBound = max(lowerBound, globalTopKScores.back().first);
 }
 
