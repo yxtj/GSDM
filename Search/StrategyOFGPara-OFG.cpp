@@ -15,15 +15,11 @@ void StrategyOFGPara::work_para()
 	int id = net->id();
 	int size = net->size();
 
-	// level 0 starts as finished by definition
-	lastFinishLevel = 0;
-	nFinishLevel[lastFinishLevel] = size;
-
-	// work on the activated motifs
 	Timer twm; // timer for updating the bound for waiting motifs
 	Timer tct; // timer for coordinating global top-k
 	Timer tsr; // timer for state report
 	Timer t; // timer for controlling working frequency (INTERVAL_PROCESS)
+	// work on the activated motifs
 	while(!checkSearchFinish()) {
 		// process all activated motifs
 		int cnt = 0;
@@ -81,7 +77,7 @@ void StrategyOFGPara::work_para()
 	processLevelFinish();
 	// send search finish signal
 	rph.input(MType::GSearchFinish, id);
-	net->broadcast(MType::GSearchFinish, lastFinishLevel);
+	net->broadcast(MType::GSearchFinish, *lastFinishLevel);
 	cout << logHeadID("LOG") + "Local search finished." << endl;
 	suSearchEnd.wait();
 }
@@ -135,20 +131,17 @@ std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
 bool StrategyOFGPara::processLevelFinish()
 {
 	bool moved = false;
-	int oldlfl = lastFinishLevel;
-	while(checkLevelFinish(lastFinishLevel + 1)) {
-		ltable.sortUp(lastFinishLevel + 1);
+	int oldlfl = *lastFinishLevel;
+	while(checkLevelFinish(*lastFinishLevel + 1)) {
+		ltable.sortUp(*lastFinishLevel + 1);
 		lock_guard<mutex> lg(mfl);
-		++nFinishLevel[lastFinishLevel + 1]; // local finish
-		++lastFinishLevel;
-//		cout << logHeadID("DBG") + "Locally changed n-finish-level changed to "
-//			+ to_string(nFinishLevel[lastFinishLevel]) + ", at level " + to_string(lastFinishLevel) << endl;
+		++finishedAtLevel[net->id()]; // local finish
+//		cout << logHeadID("DBG") + "Change finish-level to " + to_string(*lastFinishLevel) << endl;
 		moved = true;
 	}
 	if(moved) {
 		moveToNewLevel(oldlfl);
-		for(int i = oldlfl + 1; i < lastFinishLevel + 1; ++i)
-			net->broadcast(MType::GLevelFinish, i);
+		net->broadcast(MType::GLevelFinish, *lastFinishLevel);
 	}
 	return moved;
 }
@@ -156,47 +149,56 @@ bool StrategyOFGPara::processLevelFinish()
 void StrategyOFGPara::moveToNewLevel(const int from)
 {
 	cout << logHeadID("LOG") + "Moved from level " + to_string(from) + 
-		" to level " + to_string(lastFinishLevel) << endl;
+		" to level " + to_string(*lastFinishLevel) << endl;
 	if(flagDCESConnected) {
 		edgeUsageSend(from);
 		removeUnusedEdges();
 	}
-	ltable.sortUp(lastFinishLevel);
+	ltable.sortUp(*lastFinishLevel);
 	const int size = net->size();
 	const int id = net->id();
 	for(int i = 0; i < size; ++i) {
 		if(i == id)
 			continue;
-		rtables[i].sortUp(lastFinishLevel);
+		rtables[i].sortUp(*lastFinishLevel);
 	}
 }
 
 bool StrategyOFGPara::checkLevelFinish(const int level)
 {
-	if(static_cast<int>(nFinishLevel.size()) <= level) {
-		lock_guard<mutex> lg(mfl);
-		nFinishLevel.resize(max<size_t>(nFinishLevel.size(), level + 1), 0);
-		return false;
-	}
-	// TODO: merge nFinishLevel and finishedAtLevel
-	int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(), [=](const int l) {
-		return l < level;
-	});
-	if(net->size() == ec + nFinishLevel[level - 1]) {
-		if(ltable.emptyActivated(level)) {
+	if(ltable.emptyActivated(level)) {
+		int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(),
+			[=](const int l) {
+			return l >= level - 1;
+		});
+		if(net->size() == ec) {
 			return true;
 		}
 	}
 	return false;
+/*	return ltable.emptyActivated(level)
+		&& net->size() == count_if(
+			finishedAtLevel.begin(), finishedAtLevel.end(), [=](const int l) {
+		return l >= level - 1;
+	});*/
 }
 
 bool StrategyOFGPara::checkSearchFinish()
 {
-	// guarantee: normal messages arrive before level-finish message
-	// TODO: merge nFinishLevel and finishedAtLevel
-	int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(), [=](const int l) {
-		return l < lastFinishLevel;
-	});
-	return net->size() == ec + nFinishLevel[lastFinishLevel]
-		&& ltable.getNumEverActive(lastFinishLevel + 1) == 0;
+	// correctness requirement: normal messages arrive before level-finish messages
+	if(ltable.getNumEverActive(*lastFinishLevel + 1) == 0) {
+		int ec= count_if(finishedAtLevel.begin(), finishedAtLevel.end(),
+			[=](const int l) {
+			return l >= *lastFinishLevel;
+		});
+		if(net->size() == ec) {
+			return true;
+		}
+	}
+	return false;
+/*	return ltable.getNumEverActive(*lastFinishLevel + 1) == 0
+		&& net->size() == count_if(
+			finishedAtLevel.begin(), finishedAtLevel.end(), [=](const int l) {
+		return l >= *lastFinishLevel;
+	});*/
 }

@@ -118,13 +118,9 @@ void StrategyOFGPara::cbLevelFinish(const std::string & d, const RPCInfo & info)
 {
 	int level = deserialize<int>(d);
 	lock_guard<mutex> lg(mfl);
-	if(static_cast<int>(nFinishLevel.size()) <= level) {
-		nFinishLevel.resize(level + 1, 0);
-	}
-	++nFinishLevel[level];
-//	cout << logHeadID("DBG") + "Receive level finish signal from " + to_string(info.source)
-//		+ ", for level " + to_string(level)
-//		+ ", n-finish-level changed to " + to_string(nFinishLevel[level]) << endl;
+	finishedAtLevel[info.source] = max(finishedAtLevel[info.source], level);
+//	cout << logHeadID("DBG") + "Receive level finish signal from "
+//		+ to_string(info.source) + " as " + to_string(level) << endl;
 }
 
 void StrategyOFGPara::cbSearchFinish(const std::string & d, const RPCInfo & info)
@@ -132,7 +128,9 @@ void StrategyOFGPara::cbSearchFinish(const std::string & d, const RPCInfo & info
 	int endLevel = deserialize<int>(d);
 	{
 		lock_guard<mutex> lg(mfl);
-		finishedAtLevel[info.source] = endLevel;
+		//finishedAtLevel[info.source] = endLevel;
+		using T = decltype(finishedAtLevel)::value_type;
+		finishedAtLevel[info.source] = numeric_limits<T>::max();
 	}
 	rph.input(MType::GSearchFinish, info.source);
 }

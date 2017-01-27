@@ -125,8 +125,9 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	gatherResult();
 	vector<Motif> res;
 	if(net->id() == MASTER_ID) {
-		cout << logHead("LOG") + "Global top-k motifs gathered, k-th score="
-			+ to_string(holder->lastScore()) << endl;
+		cout << logHead("LOG") + "Global top-k motifs gathered, "
+			+ to_string(holder->size()) + "/" + to_string(k) + " in all, "
+			+ "last score=" + to_string(holder->lastScore()) << endl;
 		if(flagOutputScore) {
 			ofstream fout(pathOutputScore);
 			for(auto& p : holder->data) {
@@ -165,9 +166,9 @@ void StrategyOFGPara::initParams(
 	running_ = true;
 	lowerBound = numeric_limits<decltype(lowerBound)>::lowest();
 	holder = new TopKBoundedHolder<Motif, double>(k);
-	lastFinishLevel = 0;
-	nFinishLevel.resize(16, 0);
-	finishedAtLevel.resize(net->size(), numeric_limits<int>::max());
+	// level 0 starts as finished by its definition
+	finishedAtLevel.resize(net->size(), 0);
+	lastFinishLevel = &finishedAtLevel[net->id()];
 }
 
 void StrategyOFGPara::initLRTables()
@@ -262,7 +263,8 @@ void StrategyOFGPara::generalUpdateCandidateMotif(const Motif & m, const double 
 
 void StrategyOFGPara::generalAbandonCandidateMotif(const Motif & m)
 {
-	static constexpr double WORSTSCORE = numeric_limits<double>::lowest();
+	using T = decltype(holder->lastScore());
+	static constexpr double WORSTSCORE = numeric_limits<T>::lowest();
 	int o = getMotifOwner(m);
 	if(o == net->id()) {
 		ltable.update(m, WORSTSCORE);

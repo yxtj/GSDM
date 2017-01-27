@@ -39,9 +39,8 @@ private:
 	// local tables
 	LocalTables ltable; // candidate tables (one per level) + activation table
 	std::mutex mfl; // for lastFinsihLevel, nFinishLevel, finishedAtLevel
-	int lastFinishLevel;
-	std::vector<int> nFinishLevel; // num. of workers which finished all local motifs of level k
-	std::vector<int> finishedAtLevel; // level of each work ends at
+	std::vector<int> finishedAtLevel; // level progress of each work
+	const int * lastFinishLevel; // a self short-cut for &lastFinishLevel[net->id()]
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
 public:
@@ -107,8 +106,11 @@ private:
 
 	*/
 	bool processLevelFinish();
-	void moveToNewLevel(const int from); // the tasks need to be done for level movement
+	// the tasks need to be done for level movement
+	void moveToNewLevel(const int from);
+	// check whether local worker have finished processing all local motifs of the given level
 	bool checkLevelFinish(const int level);
+	// check whether local worker have finished processing all possible motifs
 	bool checkSearchFinish();
 
 	/* Logic for DCES-connected:

@@ -105,7 +105,7 @@ void StrategyOFGPara::reportState() const
 	oss << logHeadID("PROGRESS") << "#-CE: " << edges.size()
 		<< ", LB: " << lowerBound << "; #-local-result: " << holder->size()
 		<< ", last-score: " << holder->lastScore()
-		<< "; last-finished-level: " << lastFinishLevel
+		<< "; last-finished-level: " << *lastFinishLevel
 		<< ", most-recent-level: " << mostRecent;
 	// local candidate
 	oss << "\n    Local candidate: {";
@@ -116,11 +116,6 @@ void StrategyOFGPara::reportState() const
 	oss << "\n    Local activated: {";
 	for(auto v : ltable.getNumActives())
 		oss << " " << v;
-	oss << " }";
-	// nFinishedLevel
-	oss << "\n    # of finished workers on each level: {";
-	for(int i = 0; i < mostRecent; ++i)
-		oss << " " << nFinishLevel[i];
 	oss << " }";
 	// remote
 	oss << "\n    # of motifs for remote: {";
@@ -134,5 +129,7 @@ void StrategyOFGPara::reportState() const
 		(finishedAtLevel[i] == numeric_limits<int>::max() ? -1 : finishedAtLevel[i]);
 	oss << " }";
 
-	cout << oss.str() << endl;
+	oss << "\n";
+	cout << oss.str();
+	cout.flush();
 }

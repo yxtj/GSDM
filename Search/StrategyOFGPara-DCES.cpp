@@ -109,7 +109,7 @@ void StrategyOFGPara::removeUnusedEdges()
 	lock_guard<mutex> lg(mce);
 	auto it = remove_if(edges.begin(), edges.end(),
 		[=](const tuple<Edge, double, int>& t) {
-		return get<2>(t) < lastFinishLevel;
+		return get<2>(t) < *lastFinishLevel;
 	});
 	edges.erase(it, edges.end());
 }
