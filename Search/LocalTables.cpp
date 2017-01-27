@@ -18,7 +18,7 @@ void LocalTables::update(const Motif & m, const double newUB, const int num)
 	int l = m.getnEdge();
 	lock_guard<mutex> lg(mct);
 	// add new level
-	if(static_cast<int>(candidateTables.size()) < l ) {
+	if(static_cast<int>(candidateTables.size()) <= l ) {
 		size_t len = max(candidateTables.size(), nActLevel.size());
 		len = max<size_t>(len, l + 1);
 		candidateTables.resize(len);
@@ -59,7 +59,7 @@ void LocalTables::addToActivated(const Motif & m, const double newUB)
 	int l = m.getnEdge();
 	lock_guard<mutex> lga(mat);
 	// add new level
-	if(static_cast<int>(nActLevel.size()) < l) {
+	if(static_cast<int>(nActLevel.size()) <= l) {
 		size_t len = max<size_t>(nActLevel.size(), l + 1);
 		nActLevel.resize(len);
 		nActLevelTotal.resize(len);
