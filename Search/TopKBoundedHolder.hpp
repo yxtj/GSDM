@@ -61,7 +61,8 @@ constexpr S TopKBoundedHolder<T, S>::worstScore()
 template<class T, typename S>
 inline bool TopKBoundedHolder<T, S>::updatable(const S s) const
 {
-	return s > lastScore() || s == lastScore() && data.size() < k;
+	S temp = lastScore4Update();
+	return s > temp || s == temp && data.size() < k;
 }
 
 template<class T, typename S>
