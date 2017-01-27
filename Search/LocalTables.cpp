@@ -30,7 +30,8 @@ void LocalTables::update(const Motif & m, const double newUB, const int num)
 	CT_t& ct = candidateTables[l];
 	auto it = ct.find(m);
 	if(it == ct.end()) {
-		int np = fnGetNParents(m) - num;
+		// the max(0,...) here is for the special case where fnGetNParents(m)-num < 0
+		int np = max(0, fnGetNParents(m) - num);
 		it = ct.insert(make_pair(move(m), make_pair(newUB, np))).first;
 	} else {
 		it->second.first = min(it->second.first, newUB);
