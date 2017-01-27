@@ -85,10 +85,11 @@ void StrategyOFGPara::initLowerBound()
 void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fromLocal) {
 	if(newLB > lowerBound) {
 		lowerBound = newLB;
+//		newLB-= 1.0 / pgp->size();
 		updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
-		cout << logHeadID("DBG") + "LB changed to " + to_string(newLB) << endl;
+		cout << logHeadID("DBG") + "LB changed to " + to_string(lowerBound) << endl;
 	}
 	if(fromLocal) {
 		lowerBoundSend();
@@ -101,7 +102,8 @@ int StrategyOFGPara::updateLBCandEdge(double newLB)
 {
 	lock_guard<mutex> lg(mce);
 	auto it = upper_bound(edges.begin(), edges.end(), newLB,
-		[](double th, const tuple<Edge, double, int>& p) {return th > get<1>(p);
+		[](double th, const tuple<Edge, double, int>& p) {
+		return th > get<1>(p);
 	});
 	int num = distance(it, edges.end());
 	edges.erase(it, edges.end());

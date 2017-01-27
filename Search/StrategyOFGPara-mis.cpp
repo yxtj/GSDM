@@ -26,6 +26,8 @@ void StrategyOFGPara::resultSend()
 {
 	vector<pair<Motif, double>> topk = holder->getResultScore();
 	net->send(MASTER_ID, MType::MGather, topk);
+	cout << logHeadID("LOG") + "Send result: num=" + to_string(topk.size())
+		+ ", last-score=" + (topk.empty() ? "nan" : to_string(topk.back().second)) << endl;
 }
 
 void StrategyOFGPara::resultReceive()
