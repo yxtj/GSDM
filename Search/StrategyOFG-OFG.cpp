@@ -165,7 +165,7 @@ std::pair<std::vector<MotifBuilder>, size_t> StrategyOFG::removeDuplicate(std::m
 
 int StrategyOFG::quickEstimiateNumberOfParents(const Motif & m)
 {
-	unordered_set<int> uniqueNodes, duplicateNodes;
+/*	unordered_set<int> uniqueNodes, duplicateNodes;
 	auto fun = [&](const int n) {
 		if(duplicateNodes.find(n) == duplicateNodes.end()) {
 			auto it = uniqueNodes.find(n);
@@ -181,7 +181,14 @@ int StrategyOFG::quickEstimiateNumberOfParents(const Motif & m)
 		fun(e.s);
 		fun(e.d);
 	}
-	return uniqueNodes.size();
+	return uniqueNodes.size();*/
+	unordered_map<int, int> cont;
+	for(auto&e : m.edges) {
+		++cont[e.s];
+		++cont[e.d];
+	}
+	return count_if(cont.begin(), cont.end(), [](const auto& p) {return p.second == 1; });
+
 }
 
 int StrategyOFG::quickEstimiateNumberOfParents(const MotifBuilder & m)
