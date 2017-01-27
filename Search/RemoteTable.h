@@ -28,5 +28,8 @@ public:
 	// collect valid motifs to send and clear the #-generation field.
 	// valid is defined as : #-generation>0 && up>=lowerBound
 	std::vector<std::pair<Motif, std::pair<double, int>>> collect();
+
+	size_t size() const;
+
 };
 

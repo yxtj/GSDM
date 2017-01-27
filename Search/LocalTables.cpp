@@ -97,6 +97,26 @@ int LocalTables::updateLowerBound(double newLB)
 	return s0 - activatedTable.size();
 }
 
+std::pair<bool, std::pair<Motif, double>> LocalTables::getOne()
+{
+	if(activatedTable.empty()) {
+		return make_pair(false, make_pair(Motif(), 0.0));
+	}
+	lock_guard<mutex> lg(mat);
+	if(activatedTable.empty()) {
+		return make_pair(false, make_pair(Motif(), 0.0));
+	}
+	auto mu = move(activatedTable.front());
+	--nActLevel[mu.first.getnEdge()];
+	activatedTable.pop_front();
+	return make_pair(true, move(mu));
+}
+
+int LocalTables::mostRecentLevel() const
+{
+	return candidateTables.size();
+}
+
 bool LocalTables::emptyCandidate() const
 {
 	for(size_t i = 0; i < candidateTables.size(); ++i) {
@@ -121,6 +141,46 @@ bool LocalTables::emptyActivated(const int level) const
 {
 	return static_cast<int>(nActLevel.size()) > level
 		&& nActLevel[level] == 0;
+}
+
+int LocalTables::getNumCandidate() const
+{
+	int res = 0;
+	size_t n = candidateTables.size();
+	for(size_t i = 0; i < n; ++i)
+		res += candidateTables[i].size();
+	return res;
+}
+
+std::vector<int> LocalTables::getNumCandidates() const
+{
+	size_t n = candidateTables.size();
+	std::vector<int> res(n);
+	for(size_t i = 0; i < n; ++i)
+		res[i] = candidateTables[i].size();
+	return res;
+}
+
+int LocalTables::getNumCandidate(const int level) const
+{
+	return static_cast<int>(candidateTables.size()) > level
+		? candidateTables[level].size() : 0;
+}
+
+int LocalTables::getNumActive() const
+{
+	return activatedTable.size();
+}
+
+std::vector<int> LocalTables::getNumActives() const
+{
+	return nActLevel;
+}
+
+int LocalTables::getNumActive(const int level) const
+{
+	return static_cast<int>(nActLevel.size()) > level
+		? nActLevel[level] : 0;
 }
 
 int LocalTables::getNumEverActive(const int level) const
@@ -151,17 +211,3 @@ bool LocalTables::empty(const int level) const
 	return candidateTables[level].empty() && nActLevel[level] == 0;
 }
 
-std::pair<bool, std::pair<Motif, double>> LocalTables::getOne()
-{
-	if(activatedTable.empty()) {
-		return make_pair(false, make_pair(Motif(), 0.0));
-	}
-	lock_guard<mutex> lg(mat);
-	if(activatedTable.empty()) {
-		return make_pair(false, make_pair(Motif(), 0.0));
-	}
-	auto mu = move(activatedTable.front());
-	--nActLevel[mu.first.getnEdge()];
-	activatedTable.pop_front();
-	return make_pair(true, move(mu));
-}

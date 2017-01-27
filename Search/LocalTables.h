@@ -35,6 +35,11 @@ public:
 	// update bound
 	int updateLowerBound(double newLB);
 
+	// pick one activated motif
+	std::pair<bool, std::pair<Motif, double>> getOne();
+
+	int mostRecentLevel() const;
+
 	// is there any candidate motif
 	bool emptyCandidate() const;
 	// is there any candidate motif of a certain level
@@ -44,13 +49,19 @@ public:
 	bool emptyActivated() const;
 	// is there any activated motif of a certain level
 	bool emptyActivated(const int level) const;
+
+	int getNumCandidate() const;
+	std::vector<int> getNumCandidates() const;
+	int getNumCandidate(const int level) const;
+
+	int getNumActive() const;
+	std::vector<int> getNumActives() const;
+	int getNumActive(const int level) const;
 	// the total num. of motifs had once being activated
 	int getNumEverActive(const int level) const;
 
 	bool empty() const;
 	bool empty(const int level) const;
 
-	// pick one activated motif
-	std::pair<bool, std::pair<Motif, double>> getOne();
 };
 

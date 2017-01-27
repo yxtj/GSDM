@@ -4,7 +4,7 @@
 using namespace std;
 
 struct RemoteTable::_DataBlock {
-	std::mutex m;
+	std::mutex m; // mutex can not be moved or copied
 	double lowerBound;
 	// motif: current-tightest-upper-bound, #-generation
 	std::map<Motif, std::pair<double, int>> table;
@@ -17,8 +17,10 @@ RemoteTable::RemoteTable()
 
 RemoteTable::RemoteTable(RemoteTable && oth)
 {
+	delete pimpl;
 	pimpl = nullptr;
 	swap(pimpl, oth.pimpl);
+	oth.pimpl = new _DataBlock();
 }
 
 RemoteTable::~RemoteTable()
@@ -93,4 +95,9 @@ std::vector<std::pair<Motif, std::pair<double, int>>> RemoteTable::collect()
 		}
 	}
 	return res;
+}
+
+size_t RemoteTable::size() const
+{
+	return pimpl->table.size();
 }
