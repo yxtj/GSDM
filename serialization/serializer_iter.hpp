@@ -12,14 +12,16 @@ struct _SerializerCont {
 	std::pair<char*, const_iterator> serial(char* res, int bufSize,
 		const_iterator first, const_iterator last)
 	{
-		static_assert(false, "serialization of this container is not provided.");
+		static_assert(impl::type_traits::template_false_type<Cont>::value,
+			"serialization of this container is not provided.");
 		return std::make_pair(nullptr, res);
 	}
 	template <typename const_iterator>
 	std::pair<char*, const_iterator> serial(char* res,
 		const_iterator first, const_iterator last)
 	{
-		static_assert(false, "serialization of this container is not provided.");
+		static_assert(impl::type_traits::template_false_type<Cont>::value,
+			"serialization of this container is not provided.");
 		return std::make_pair(nullptr, res);
 	}
 };

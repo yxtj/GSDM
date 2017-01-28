@@ -2,27 +2,31 @@
 #include <utility>
 #include <type_traits>
 #include <cstdint>
-#include <string>
+#include <cstring>
 #include "../util/is_container.h"
 #include "../util/is_pair.h"
-#include "serialization.h"
+#include "../util/type_trais_dummy.h"
 
 template <class T, class Enable = void>
 struct _Serializer {
 	int estimateSize(const T& item) {
-		static_assert(false, "serialization of this type is not provided.");
+		static_assert(impl::type_traits::template_false_type<T>::value,
+			"serialization of this type is not provided.");
 		return 0;
 	}
 	char* serial(char* res, int bufSize, const T& item) {
-		static_assert(false, "serialization of this type is not provided.");
+		static_assert(impl::type_traits::template_false_type<T>::value,
+			"serialization of this type is not provided.");
 		return nullptr;
 	}
 	char* serial(char* res, const T& item) {
-		static_assert(false, "serialization of this type is not provided.");
+		static_assert(impl::type_traits::template_false_type<T>::value,
+			"serialization of this type is not provided.");
 		return nullptr;
 	}
 	std::pair<T, const char*> deserial(const char* p) {
-		static_assert(false, "deserialization of this type is not provided.");
+		static_assert(impl::type_traits::template_false_type<T>::value, 
+			"deserialization of this type is not provided.");
 		return std::make_pair(T(), nullptr);
 	}
 };
@@ -64,13 +68,13 @@ struct _Serializer<std::string> {
 	char* serial(char* res, const std::string& item) {
 		uint32_t size = item.size();
 		*reinterpret_cast<uint32_t*>(res) = size;
-		memcpy(res + sizeof(uint32_t), item.data(), item.size());
+		std::memcpy(res + sizeof(uint32_t), item.data(), item.size());
 		return res + sizeof(uint32_t) + item.size();
 	}
 	std::pair<std::string, const char*> deserial(const char* p) {
 		uint32_t size = *reinterpret_cast<const uint32_t*>(p);
 		std::string str(size, 0);
-		memcpy(const_cast<char*>(str.data()), p + sizeof(uint32_t), size);
+		std::memcpy(const_cast<char*>(str.data()), p + sizeof(uint32_t), size);
 		return std::make_pair(move(str), p + sizeof(uint32_t) + size);
 	}
 };
@@ -119,11 +123,13 @@ struct _Serializer<T, typename std::enable_if<is_container<T>::value>::type> {
 		return c;
 	}
 	char* serial(char* res, int bufSize, const T& item) {
-		static_assert(false, "Please use iterator version for container");
+		static_assert(impl::type_traits::template_false_type<T>::value, 
+			"Please use iterator version for container");
 		return nullptr;
 	}
 	char* serial(char* res, const T& item) {
-		//static_assert(false, "Please use iterator version for container");
+		//static_assert(impl::type_traits::template_false_type<T>::value,
+		//	"Please use iterator version for container");
 		uint32_t* numObj = reinterpret_cast<uint32_t*>(res);
 		res += sizeof(uint32_t);
 		uint32_t count = 0;
