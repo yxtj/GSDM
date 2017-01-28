@@ -21,7 +21,8 @@ DBGDIR = Debug
 DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
-DBGLIBDIR = $(LIBDIR) -L../Debug
+DBGLIBDIR = $(LIBDIR) -L../$(DBGDIR)
+DBGLIBS= $(foreach LIB,$(LIBS),../$(DBGDIR)/lib$(LIB:-l%=%.a))
 
 #
 # Release build settings
@@ -30,7 +31,8 @@ RELDIR = Release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
-RELLIBDIR = $(LIBDIR) -L../Release
+RELLIBDIR = $(LIBDIR) -L../$(RELDIR)
+DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -43,12 +45,12 @@ all: release
 debug: ../$(DEGEXE)
 
 ../$(DEGEXE): $(DBGEXE)
-	cd ../common; make debug
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	ar rcs $@ $^ $(DBGLIBDIR) $(LIBS)
+	cd ../common; make debug
+	ar rcs $@ $^ $(DBGLIBS)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -66,7 +68,8 @@ release: ../$(RELEXE)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	ar rcs $@ $^ $(RELLIBDIR) $(LIBS)
+	cd ../common; make release
+	ar rcs $@ $^ $(RELLIBS)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

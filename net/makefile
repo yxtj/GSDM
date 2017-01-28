@@ -12,7 +12,6 @@ EXE = libnet.a
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lserialization
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -23,7 +22,8 @@ DBGDIR = Debug
 DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
-DBGLIBDIR = $(LIBDIR) -L../Debug
+DBGLIBDIR = $(LIBDIR) -L../$(DBGDIR)
+DBGLIBS= $(foreach LIB,$(LIBS),../$(DBGDIR)/lib$(LIB:-l%=%.a))
 
 #
 # Release build settings
@@ -32,7 +32,8 @@ RELDIR = Release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
-RELLIBDIR = $(LIBDIR) -L../Release
+RELLIBDIR = $(LIBDIR) -L../$(RELDIR)
+DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -45,12 +46,11 @@ all: release
 debug: ../$(DEGEXE)
 
 ../$(DEGEXE): $(DBGEXE)
-	cd ../serialization; make debug
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	ar rcs $@ $^ $(LIBS) $(MPI_LINK_FLAGS)
+	ar rcs $@ $^
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -63,12 +63,11 @@ $(DBGDIR)/%.o: %.cpp
 release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELEXE)
-	cd ../serialization; make release
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	ar rcs $@ $^ $(LIBS) $(MPI_LINK_FLAGS)
+	ar rcs $@ $^
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

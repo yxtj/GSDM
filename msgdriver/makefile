@@ -21,7 +21,7 @@ DBGDIR = Debug
 DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
-DBGLIBDIR = $(LIBDIR) -L../Debug
+DBGLIBDIR = $(LIBDIR) -L../$(DBGDIR)
 
 #
 # Release build settings
@@ -30,7 +30,7 @@ RELDIR = Release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
-RELLIBDIR = $(LIBDIR) -L../Release
+RELLIBDIR = $(LIBDIR) -L../$(RELDIR)
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE

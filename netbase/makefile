@@ -47,7 +47,7 @@ debug: ../$(DEGEXE)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	ar rcs $@ $^
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -64,7 +64,7 @@ release: ../$(RELEXE)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	ar rcs $@ $^
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
