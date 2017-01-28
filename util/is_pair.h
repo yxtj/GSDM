@@ -14,7 +14,7 @@ struct is_pair<
 		impl::type_traits::dummy_t<
 			typename T::first_type,
 			typename T::second_type
-	>,
-	void
+		>,
+		void
 	>::type
 > : public std::true_type{};
