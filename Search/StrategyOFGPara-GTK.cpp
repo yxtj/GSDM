@@ -10,6 +10,13 @@ using namespace std;
 
 void StrategyOFGPara::topKCoordinate()
 {
+	ostringstream oss;
+	auto tt = holder->getScore();
+	oss << logHeadID("GTK-Coord") << tt.size() << " { ";
+	for(auto& v : tt)
+		oss << v << " ";
+	oss << "}";
+	cout << oss.str() << endl;
 	if(net->id() != MASTER_ID) {
 		// On workers: send local top-k to master
 		net->send(MASTER_ID, MType::GGatherLocalTopK, holder->getScore());
@@ -17,7 +24,7 @@ void StrategyOFGPara::topKCoordinate()
 		// global top-k will be received later and handled by cbUpdateLowerBound()
 	} else {
 		// On master: initialize current local top-k
-		topKMerge(holder->getScore(), net->id());
+		globalTopKScores.update(holder->getScore(), net->id());
 		// then wait for workers' GGatherLocalTopK message and 
 		//   process them with cbLocalTopK()
 		rph.input(MType::GGatherLocalTopK, net->id());
@@ -29,49 +36,17 @@ void StrategyOFGPara::topKCoordinate()
 void StrategyOFGPara::topKCoordinateFinish()
 {
 	rph.resetTypeCondition(MType::GGatherLocalTopK);
-	net->broadcast(MType::GLowerBound, lowerBound);
-	// cannot use updateLowerBound() directly,
-	//   because lowerBound have been updated with new value in cbLocakTopK()
-	updateLBCandEdge(lowerBound);
-	updateLBResult(lowerBound);
-	updateLBWaitingMotifs(lowerBound);
+	if(globalTopKScores.full()) {
+		updateLowerBound(globalTopKScores.lowest(), true, true);
+	}
 	cout << logHead("LOG") + "Global top-k coordination finished, LB="
 		+ to_string(lowerBound) << endl;
 }
 
 void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int source)
 {
-	vector<pair<double, int>> temp;
-	auto it = back_inserter(temp);
-	int cnt = 0;
 	lock_guard<mutex> lg(mgtk);
-	auto first1 = globalTopKScores.begin(), last1 = globalTopKScores.end();
-	auto first2 = recv.begin(), last2 = recv.end();
-	// replace the entries with the same source & sort up
-	//   Implemented by ignoring the entries in gTopKScoures with the same source
-	while(first1 != last1 && first2 != last2 && cnt <= k) {
-		if(first1->second == source) {
-			++first1;
-		} else if(first1->first <= *first2) {
-			*it++ = *first1++;
-			++cnt;
-		} else {
-			*it++ = make_pair(*first2++, source);
-			++cnt;
-		}
-	}
-	while(cnt <= k && first1 != last1) {
-		*it++ = *first1++;
-		++cnt;
-	}
-	while(cnt <= k && first2 != last2) {
-		*it++ = make_pair(*first2++, source);
-		++cnt;
-	}
-	globalTopKScores = move(temp);
-	//if(!globalTopKScores.empty())
-	if(globalTopKScores.size() == static_cast<size_t>(k))
-		lowerBound = max(lowerBound, globalTopKScores.back().first);
+	globalTopKScores.update(recv, source);
 }
 
 // -------------- Lower Bound Maintaince ----------------
@@ -80,22 +55,22 @@ void StrategyOFGPara::initLowerBound()
 {
 	// move lb down half a unit to accept every thing at the beginning
 	double lb = get<1>(edges.back()) - 0.5 / pgp->size();
-	updateLowerBound(lb, true, false);
+	updateLowerBound(lb, true, true);
 }
 
 void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fromLocal) {
 	if(newLB > lowerBound) {
 		lowerBound = newLB;
-//		newLB-= 1.0 / pgp->size();
 		updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
-		cout << logHeadID("DBG") + "LB changed to " + to_string(lowerBound) << endl;
+		cout << logHeadID("DBG") + "LB changed to " + to_string(lowerBound)
+			+ (fromLocal ? " by local" : " by remote") << endl;
 	}
 	if(fromLocal) {
 		lowerBoundSend();
 	} else {
-		updateLBResult(newLB);
+//		updateLBResult(newLB);
 	}
 }
 

@@ -3,6 +3,7 @@
 #include "TopKBoundedHolder.hpp"
 #include "LocalTables.h"
 #include "RemoteTable.h"
+#include "DistributedTopKMaintainer.h"
 #include "../net/NetworkThread.h"
 #include "../msgdriver/MsgDriver.h"
 #include "../msgdriver/tools/ReplyHandler.h"
@@ -32,7 +33,7 @@ private:
 	std::mutex mtk;
 	TopKBoundedHolder<Motif, double>* holder;
 	std::mutex mgtk; // global top-k
-	std::vector<std::pair<double, int>> globalTopKScores; // globl top-k scores <score, owner>, only used on master
+	DistributedTopKMaintainer globalTopKScores; // globl top-k scores <score, owner>, only used on master
 	// score to prune with
 	double lowerBound;
 
@@ -135,8 +136,8 @@ private:
 	void topKCoordinate();
 	// a callback to finish a global top-k coordinate process
 	void topKCoordinateFinish();
-	// replace the entries with the same source & sort up
 	void topKMerge(const std::vector<double>& recv, const int source);
+
 
 	void resultSend();
 	void resultReceive();

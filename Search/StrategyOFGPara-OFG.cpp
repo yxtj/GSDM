@@ -11,6 +11,7 @@ void StrategyOFGPara::work_para()
 	initLRTables();
 	initLowerBound();
 	assignBeginningMotifs();
+	globalTopKScores.init(k);
 
 	int id = net->id();
 	int size = net->size();
@@ -19,6 +20,7 @@ void StrategyOFGPara::work_para()
 	Timer tct; // timer for coordinating global top-k
 	Timer tsr; // timer for state report
 	Timer t; // timer for controlling working frequency (INTERVAL_PROCESS)
+	INTERVAL_COORDINATE_TOP_K = 1000;
 	// work on the activated motifs
 	while(!checkSearchFinish()) {
 		// process all activated motifs
@@ -34,7 +36,7 @@ void StrategyOFGPara::work_para()
 			}
 			++cnt;
 			// update lower bound
-			if(explore(mu.first) && holder->size() == k) {
+			if(explore(mu.first) && holder->lastScore() >= lowerBound) {
 				bool modifyTables = false;
 				if(static_cast<int>(twm.elapseMS()) > INTERVAL_UPDATE_WAITING_MOTIFS) {
 					modifyTables = true;
