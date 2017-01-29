@@ -32,8 +32,9 @@ private:
 	// top-k results:
 	std::mutex mtk;
 	TopKBoundedHolder<Motif, double>* holder;
+	// global top-k score
 	std::mutex mgtk; // global top-k
-	DistributedTopKMaintainer globalTopKScores; // globl top-k scores <score, owner>, only used on master
+	DistributedTopKMaintainer globalTopKScores; // only used on master
 	// score to prune with
 	double globalBound;
 

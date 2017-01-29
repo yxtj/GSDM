@@ -11,7 +11,6 @@ void StrategyOFGPara::work_para()
 	initLRTables();
 	initLowerBound();
 	assignBeginningMotifs();
-	globalTopKScores.init(k);
 
 	int id = net->id();
 	int size = net->size();

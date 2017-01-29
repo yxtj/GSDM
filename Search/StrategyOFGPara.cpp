@@ -166,9 +166,11 @@ void StrategyOFGPara::initParams(
 	running_ = true;
 	globalBound = numeric_limits<decltype(globalBound)>::lowest();
 	holder = new TopKBoundedHolder<Motif, double>(k);
+	holder->updateBound(globalBound);
 	// level 0 starts as finished by its definition
 	finishedAtLevel.resize(net->size(), 0);
 	lastFinishLevel = &finishedAtLevel[net->id()];
+	globalTopKScores.init(k);
 }
 
 void StrategyOFGPara::initLRTables()
