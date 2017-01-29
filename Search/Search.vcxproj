@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="BoundHolder.hpp" />
     <ClInclude Include="CandidateMthdFreqUG.h" />
+    <ClInclude Include="DistributedTopKMaintainer.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="LocalTables.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="CandidateMthdFreq-enum.cpp" />
     <ClCompile Include="CandidateMthdFreq-node.cpp" />
     <ClCompile Include="CandidateMthdFreqUG.cpp" />
+    <ClCompile Include="DistributedTopKMaintainer.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="LocalTables.cpp" />
     <ClCompile Include="MotifCommunicator.cpp" />
