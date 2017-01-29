@@ -60,6 +60,13 @@ void StrategyOFGPara::initLowerBound()
 
 void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fromLocal) {
 	if(newLB > globalBound) {
+		// this epsilon checking is IMPORTANT.
+		//   because in float numbers: (3.0/100 - 2.0/100) > (2.0/100 - 1.0/100)
+		// this method may loose the bound but does not lose anyone qualified
+		if(!(newLB - numeric_limits<double>::epsilon() > globalBound))
+			return;
+		newLB -= numeric_limits<double>::epsilon();
+		// normal logic:
 		globalBound = newLB;
 		updateLBCandEdge(newLB);
 		if(modifyTables)
