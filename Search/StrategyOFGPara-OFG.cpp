@@ -31,18 +31,20 @@ void StrategyOFGPara::work_para()
 			tie(b, mu) = ltable.getOne(); // implicit lock here
 			if(!b) { // the check after lock
 				break;
-			} else if(mu.second < lowerBound) {
+			} else if(mu.second < globalBound) {
 				continue;
 			}
 			++cnt;
 			// update lower bound
-			if(explore(mu.first) && holder->lastScore() >= lowerBound) {
-				bool modifyTables = false;
-				if(static_cast<int>(twm.elapseMS()) > INTERVAL_UPDATE_WAITING_MOTIFS) {
-					modifyTables = true;
-					twm.restart();
+			if(explore(mu.first)) {
+				if(holder->size() >= k && holder->lastScore() >= globalBound) {
+					bool modifyTables = false;
+					if(static_cast<int>(twm.elapseMS()) > INTERVAL_UPDATE_WAITING_MOTIFS) {
+						modifyTables = true;
+						twm.restart();
+					}
+					updateLowerBound(holder->lastScore(), modifyTables, true);
 				}
-				updateLowerBound(holder->lastScore(), modifyTables, true);
 			}
 		}
 		// send remote table buffers
@@ -89,14 +91,14 @@ bool StrategyOFGPara::explore(const Motif & m)
 	bool used = false;
 	MotifBuilder mb(m);
 	double ub, score;
-	tie(ub, score) = scoring(mb, lowerBound);
+	tie(ub, score) = scoring(mb, globalBound);
 	// score == numeric_limits<double>::lowest() if the upper bound is not promising
 	if(holder->updatable(score)) {
 		lock_guard<mutex> lg(mtk);
 		holder->update(m, score);
 		used = true;
 	}
-	if(ub >= lowerBound) {
+	if(ub >= globalBound) {
 		for(auto& mf : expand(m, ub, true)) {
 			generalUpdateCandidateMotif(mf.first, mf.second);
 		}

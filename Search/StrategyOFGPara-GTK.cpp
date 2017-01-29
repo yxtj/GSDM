@@ -40,7 +40,7 @@ void StrategyOFGPara::topKCoordinateFinish()
 		updateLowerBound(globalTopKScores.lowest(), true, true);
 	}
 	cout << logHead("LOG") + "Global top-k coordination finished, LB="
-		+ to_string(lowerBound) << endl;
+		+ to_string(globalBound) << endl;
 }
 
 void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int source)
@@ -59,18 +59,18 @@ void StrategyOFGPara::initLowerBound()
 }
 
 void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fromLocal) {
-	if(newLB > lowerBound) {
-		lowerBound = newLB;
+	if(newLB > globalBound) {
+		globalBound = newLB;
 		updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
-		cout << logHeadID("DBG") + "LB changed to " + to_string(lowerBound)
+		cout << logHeadID("DBG") + "LB changed to " + to_string(globalBound)
 			+ (fromLocal ? " by local" : " by remote") << endl;
 	}
 	if(fromLocal) {
 		lowerBoundSend();
 	} else {
-//		updateLBResult(newLB);
+		updateLBResult(newLB);
 	}
 }
 
@@ -107,6 +107,6 @@ int StrategyOFGPara::updateLBWaitingMotifs(double newLB)
 
 void StrategyOFGPara::lowerBoundSend()
 {
-	net->broadcast(MType::GLowerBound, lowerBound);
+	net->broadcast(MType::GLowerBound, globalBound);
 }
 

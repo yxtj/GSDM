@@ -35,7 +35,7 @@ private:
 	std::mutex mgtk; // global top-k
 	DistributedTopKMaintainer globalTopKScores; // globl top-k scores <score, owner>, only used on master
 	// score to prune with
-	double lowerBound;
+	double globalBound;
 
 	// local tables
 	LocalTables ltable; // candidate tables (one per level) + activation table

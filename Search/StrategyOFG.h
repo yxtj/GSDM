@@ -11,7 +11,7 @@ class StrategyOFG :
 {
 protected:
 	// input options:
-	int k; // number of result
+	size_t k; // number of result
 //	int smin, smax; // minimum/maximum motif size
 	double minSup; // minimum show up probability among postive subjects
 	double pSnap; // minimum show up probability among a subject's all snapshots

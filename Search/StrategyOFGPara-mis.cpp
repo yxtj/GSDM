@@ -105,7 +105,7 @@ void StrategyOFGPara::reportState() const
 	// basic
 	int mostRecent = ltable.mostRecentLevel();
 	oss << logHeadID("PROGRESS") << "#-CE: " << edges.size()
-		<< ", LB: " << lowerBound << "; #-local-result: " << holder->size()
+		<< ", LB: " << globalBound << "; #-local-result: " << holder->size()
 		<< ", last-score: " << holder->lastScore()
 		<< "; last-finished-level: " << *lastFinishLevel
 		<< ", most-recent-level: " << mostRecent;

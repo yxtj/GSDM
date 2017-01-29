@@ -164,7 +164,7 @@ void StrategyOFGPara::initParams(
 {
 	StrategyOFG::initParams(gPos, gNeg);
 	running_ = true;
-	lowerBound = numeric_limits<decltype(lowerBound)>::lowest();
+	globalBound = numeric_limits<decltype(globalBound)>::lowest();
 	holder = new TopKBoundedHolder<Motif, double>(k);
 	// level 0 starts as finished by its definition
 	finishedAtLevel.resize(net->size(), 0);
@@ -173,10 +173,10 @@ void StrategyOFGPara::initParams(
 
 void StrategyOFGPara::initLRTables()
 {
-	ltable.init(&StrategyOFGPara::getNParents, lowerBound);
+	ltable.init(&StrategyOFGPara::getNParents, globalBound);
 	rtables.resize(net->size());
 	for(auto& rt : rtables)
-		rt.init(lowerBound);
+		rt.init(globalBound);
 }
 
 void StrategyOFGPara::registerAllWorkers()
