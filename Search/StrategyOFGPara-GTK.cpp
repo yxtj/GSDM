@@ -38,6 +38,8 @@ void StrategyOFGPara::topKCoordinateFinish()
 	rph.resetTypeCondition(MType::GGatherLocalTopK);
 	if(globalTopKScores.full()) {
 		updateLowerBound(globalTopKScores.lowest(), true, true);
+		// update message will not send to master, so result is not updated
+		updateLBResult(globalBound);
 	}
 	cout << logHead("LOG") + "Global top-k coordination finished, LB="
 		+ to_string(globalBound) << endl;
@@ -59,26 +61,28 @@ void StrategyOFGPara::initLowerBound()
 }
 
 void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fromLocal) {
+	// this epsilon checking is IMPORTANT for those with equal score to the k-th.
+	//   because in float numbers: (3.0/100 - 2.0/100) > (2.0/100 - 1.0/100)
+	// this method may loose the bound but does not lose anyone qualified
+	//newLB -= numeric_limits<double>::epsilon();
 	if(newLB > globalBound) {
-		// this epsilon checking is IMPORTANT.
-		//   because in float numbers: (3.0/100 - 2.0/100) > (2.0/100 - 1.0/100)
-		// this method may loose the bound but does not lose anyone qualified
-		if(!(newLB - numeric_limits<double>::epsilon() > globalBound))
-			return;
-		newLB -= numeric_limits<double>::epsilon();
-		// normal logic:
 		globalBound = newLB;
 		updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
 		cout << logHeadID("DBG") + "LB changed to " + to_string(globalBound)
 			+ (fromLocal ? " by local" : " by remote") << endl;
-	}
-	if(fromLocal) {
-		lowerBoundSend();
-	} else {
-		updateLBResult(newLB);
-	}
+		if(fromLocal) {
+			lowerBoundSend();
+		} else {
+			updateLBResult(newLB);
+		}
+	}/* else if(fromLocal) {
+		ostringstream oss;
+		oss.precision(200);
+		oss << logHeadID("XXXX") << "CMP: "<< (newLB > globalBound)<<" Diff: " << newLB - globalBound;
+		cout << oss.str() << endl;
+	}*/
 }
 
 int StrategyOFGPara::updateLBCandEdge(double newLB)
