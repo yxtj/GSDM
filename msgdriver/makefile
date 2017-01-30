@@ -3,7 +3,7 @@ CC ?= gcc
 #CMAKE = cmake
 #TOP = $(shell pwd)
 MAKE := $(MAKE) --no-print-directory
-SRCS = $(shell ls *.cpp)
+SRCS = $(shell ls *.cpp) $(shell ls tools/*.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
 EXE = libmsgdriver.a
@@ -51,6 +51,7 @@ $(DBGEXE): $(DBGOBJS)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
+	@mkdir -p $(DBGDIR)/tools
 	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
 
 #
@@ -68,6 +69,7 @@ $(RELEXE): $(RELOBJS)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
+	@mkdir -p $(RELDIR)/tools
 	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
 
 #
