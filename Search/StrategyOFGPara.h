@@ -4,6 +4,7 @@
 #include "LocalTables.h"
 #include "RemoteTable.h"
 #include "DistributedTopKMaintainer.h"
+#include "Stat.h"
 #include "../net/NetworkThread.h"
 #include "../msgdriver/MsgDriver.h"
 #include "../msgdriver/tools/ReplyHandler.h"
@@ -45,6 +46,8 @@ private:
 	const int * lastFinishLevel; // a self short-cut for &lastFinishLevel[net->id()]
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
+
+	mutable Stat st;
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -146,7 +149,7 @@ private:
 
 	void statSend();
 	void statReceive();
-	void statMerge(std::vector<unsigned long long>& recv);
+	void statMerge(Stat& recv);
 
 	void initLowerBound(); // can only be called after CE is ready
 	void updateLowerBound(double newLB, bool modifyTables, bool fromLocal);

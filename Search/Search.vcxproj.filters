@@ -113,6 +113,9 @@
     <ClInclude Include="DistributedTopKMaintainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Stat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -230,6 +233,9 @@
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="DistributedTopKMaintainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

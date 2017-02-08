@@ -77,6 +77,7 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 	std::map<MotifBuilder, int> newLayer;
 	for(const auto& mb : last) {
 		// work on a motif
+		++stNumMotifExplored;
 		double score = scoring(mb, holder.lastScore()).second;
 		if(score == numeric_limits<double>::lowest()) {
 			// abandon if not promissing
@@ -104,7 +105,6 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 std::pair<double, double> StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
 {
 	MotifSign ms(nNode);
-	++stNumMotifExplored;
 	// TODO: optimize with parent selection and marked SD checking
 	int cntPos;
 	if(flagUseSD) {

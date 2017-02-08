@@ -89,6 +89,7 @@ bool StrategyOFGPara::explore(const Motif & m)
 {
 	bool used = false;
 	MotifBuilder mb(m);
+	++st.nMotifExplored;
 	double ub, score;
 	tie(ub, score) = scoring(mb, globalBound);
 	// score == numeric_limits<double>::lowest() if the upper bound is not promising
@@ -126,7 +127,8 @@ std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
 			// update the last-used-level field of edges if mark is set
 			if(mark)
 				get<2>(edges[i]) = l;
-			++stNumMotifGenerated;
+			//++stNumMotifGenerated;
+			++st.nMotifGenerated;
 		}
 	}
 	return res;

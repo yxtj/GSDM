@@ -147,10 +147,10 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	if(net->id() == MASTER_ID) {
 		cout << logHead("LOG") + "Statistical information gathered." << endl;
 		cout << "  Finished in " << ts << " seconds\n"
-			<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
-			<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
-			<< " , on average: " << (double)stNumGraphChecked / stNumSubjectChecked << " graph/subject\n"
-			<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
+			<< "    motif explored " << st.nMotifExplored << " , generated " << st.nMotifGenerated << "\n"
+			<< "    subject counted: " << st.nSubjectChecked << " , graph counted: " << st.nGraphChecked
+			<< " , on average: " << (double)st.nGraphChecked / st.nSubjectChecked << " graph/subject\n"
+			<< "    frequency calculated on positive: " << st.nFreqPos << " , on negative: " << st.nFreqNeg << endl;
 	}
 
 	running_ = false;

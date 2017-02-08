@@ -139,6 +139,7 @@ void StrategyOFGPara::cbRecvCandidateMotifs(const std::string & d, const RPCInfo
 {
 	vector<pair<Motif, pair<double, int>>> temp = 
 		deserialize<vector<pair<Motif, pair<double, int>>>>(d);
+	st.nMotifRecv += temp.size();
 	for(auto& mp : temp) {
 		ltable.update(mp.first, mp.second.first, mp.second.second);
 	}
@@ -148,6 +149,7 @@ void StrategyOFGPara::cbRecvAbandonedMotifs(const std::string & d, const RPCInfo
 {
 	static constexpr double WORSTSCORE = numeric_limits<double>::lowest();
 	vector<Motif> temp = deserialize<vector<Motif>>(d);
+	st.nMotifRecv += temp.size();
 	for(auto& m : temp) {
 		ltable.update(m, WORSTSCORE);
 	}
@@ -162,7 +164,7 @@ void StrategyOFGPara::cbGatherResult(const std::string & d, const RPCInfo & info
 
 void StrategyOFGPara::cbGatherStat(const std::string & d, const RPCInfo & info)
 {
-	vector<unsigned long long> recv = deserialize<vector<unsigned long long>>(d);
+	Stat recv = deserialize<Stat>(d);
 	statMerge(recv);
 	rph.input(MType::SGather, info.source);
 }

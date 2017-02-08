@@ -49,7 +49,7 @@ void StrategyOFGPara::resultMerge(std::vector<std::pair<Motif, double>>& recv)
 
 void StrategyOFGPara::gatherStatistics()
 {
-	if(net->id() == 0) {
+	if(net->id() == MASTER_ID) {
 		statReceive();
 	} else {
 		statSend();
@@ -58,14 +58,11 @@ void StrategyOFGPara::gatherStatistics()
 
 void StrategyOFGPara::statSend()
 {
-	vector<unsigned long long> stat = {
-		stNumMotifExplored,
-		stNumMotifGenerated,
-		stNumGraphChecked,
-		stNumSubjectChecked,
-		stNumFreqPos,
-		stNumFreqNeg
-	};
+	// TODO: change scan functions to use Stat
+	st.nGraphChecked = stNumGraphChecked;
+	st.nSubjectChecked = stNumSubjectChecked;
+	st.nFreqPos = stNumFreqPos;
+	st.nFreqNeg = stNumFreqNeg;
 	net->send(MASTER_ID, MType::SGather, stat);
 }
 
@@ -75,14 +72,9 @@ void StrategyOFGPara::statReceive()
 	suStat.wait();
 }
 
-void StrategyOFGPara::statMerge(std::vector<unsigned long long>& recv)
+void StrategyOFGPara::statMerge(Stat& recv)
 {
-	stNumMotifExplored += recv[0];
-	stNumMotifGenerated += recv[1];
-	stNumGraphChecked += recv[2];
-	stNumSubjectChecked += recv[3];
-	stNumFreqPos += recv[4];
-	stNumFreqNeg += recv[5];
+	st.merge(recv);
 }
 
 // -------------- Log -----------------
