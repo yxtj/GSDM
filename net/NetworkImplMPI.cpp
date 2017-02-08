@@ -92,7 +92,7 @@ void NetworkImplMPI::send(const Task* t){
 //		world.Isend(t->payload.data(), t->payload.size(), MPI_BYTE,t->src_dst, t->type)};
 	TaskSendMPI tm;
 	tm.tsk = t;
-	MPI_Isend(t->payload.data(), t->payload.size(), MPI_BYTE, t->src_dst, t->type, world, &tm.req);
+	MPI_Isend(const_cast<char*>(t->payload.data()), t->payload.size(), MPI_BYTE, t->src_dst, t->type, world, &tm.req);
 	unconfirmed_send_buffer.push_back(tm);
 }
 //void NetworkImplMPI::send(const int dst, const int type, const std::string& data){

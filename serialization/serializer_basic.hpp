@@ -50,7 +50,7 @@ struct _Serializer<T, typename std::enable_if<std::is_pod<T>::value>::type> {
 	}
 	std::pair<T, const char*> deserial(const char* p) {
 		T item = *reinterpret_cast<const T*>(p);
-		return make_pair(move(item), p + size);
+		return std::make_pair(std::move(item), p + size);
 	}
 };
 
@@ -75,7 +75,7 @@ struct _Serializer<std::string> {
 		uint32_t size = *reinterpret_cast<const uint32_t*>(p);
 		std::string str(size, 0);
 		std::memcpy(const_cast<char*>(str.data()), p + sizeof(uint32_t), size);
-		return std::make_pair(move(str), p + sizeof(uint32_t) + size);
+		return std::make_pair(std::move(str), p + sizeof(uint32_t) + size);
 	}
 };
 
@@ -149,9 +149,9 @@ struct _Serializer<T, typename std::enable_if<is_container<T>::value>::type> {
 		while(n--) {
 			auto mp = sv.deserial(p);
 			//auto mp = deserialize<value_type>(p);
-			res.insert(res.end(), move(mp.first));
+			res.insert(res.end(), std::move(mp.first));
 			p = mp.second;
 		}
-		return make_pair(move(res), p);
+		return std::make_pair(std::move(res), p);
 	}
 };
