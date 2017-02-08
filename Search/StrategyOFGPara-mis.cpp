@@ -63,7 +63,7 @@ void StrategyOFGPara::statSend()
 	st.nSubjectChecked = stNumSubjectChecked;
 	st.nFreqPos = stNumFreqPos;
 	st.nFreqNeg = stNumFreqNeg;
-	net->send(MASTER_ID, MType::SGather, stat);
+	net->send(MASTER_ID, MType::SGather, st);
 }
 
 void StrategyOFGPara::statReceive()

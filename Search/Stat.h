@@ -68,6 +68,7 @@ struct _Serializer<Stat> {
 		res= reinterpret_cast<char*>(p);
 		res = sp.serial(res, item.progBound);
 		res = sp.serial(res, item.progCESize);
+		return res;
 	}
 	std::pair<Stat, const char*> deserial(const char* p) {
 		Stat item;
@@ -89,7 +90,8 @@ struct _Serializer<Stat> {
 		item.timeNetwork = *up++;
 		item.timeWait = *up++;
 		p = reinterpret_cast<const char*>(up);
-		std::tie(item.progBound, p) = move(sp.deserial(p));
-		std::tie(item.progCESize, p) = move(sp.deserial(p));
+		std::tie(item.progBound, p) = std::move(sp.deserial(p));
+		std::tie(item.progCESize, p) = std::move(sp.deserial(p));
+		return std::make_pair(std::move(item), p);
 	}
 };
