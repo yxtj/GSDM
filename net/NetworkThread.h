@@ -62,8 +62,8 @@ public:
 
 	bool pause_=false;
 
-//	static constexpr int ANY_SRC = TaskBase::ANY_SRC;
-//	static constexpr int ANY_TAG = TaskBase::ANY_TYPE;
+	uint64_t stat_send_pkg, stat_recv_pkg;
+	uint64_t stat_send_byte, stat_recv_byte;
 
 private:
 	bool running;

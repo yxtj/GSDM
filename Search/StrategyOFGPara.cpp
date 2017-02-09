@@ -25,14 +25,15 @@ const std::string StrategyOFGPara::usageParam(
 	"default enabled, use dynamic candidate edge set ('c' for connected-condition, 'b' for bound-condition) "
 	"<ms> is the minimum frequency of candidate edges, default 0.0\n"
 	"  [npar]: opetional [npar-estim/npar-exact], default estimated, which way used to calculated the number of parents of a motif\n"
-	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path"
+	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path\n"
+	"  [stat]: optional [stat:<path>/stat-no], default disabled, dump the statistics of all workers to a file"
 );
 const std::string StrategyOFGPara::usage = StrategyOFGPara::usageDesc + "\n" + StrategyOFGPara::usageParam;
 
 bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 4, 8, name);
+		checkParam(param, 4, 9, name);
 		k = stoi(param[1]);
 		pSnap = stod(param[2]);
 		if(!setObjFun(param[3]))
@@ -46,10 +47,12 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 		flagDCESBound = true;
 		minSup = 0.0;
 		flagOutputScore = false;
+		flagStatDump = false;
 		regex reg_sd("sd(-no)?");
 		regex reg_net("net(-no)?");
 		regex reg_dces("dces(-[cb])?(-no)?(:0\\.\\d+)?");
 		regex reg_log("log(:.+)?(-no)?");
+		regex reg_stat("stat(:.+)?(-no)?");
 		for(size_t i = 5; i < param.size(); ++i) {
 			smatch m;
 			if(regex_match(param[i], m, reg_sd)) {
@@ -64,6 +67,9 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 			} else if(regex_match(param[i], m, reg_log)) {
 				bool flag = !m[2].matched;
 				parseLOG(m[1], flag);
+			} else if(regex_match(param[i], m, reg_stat)) {
+				bool flag = !m[2].matched;
+				parseStat(m[1], flag);
 			} else {
 				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
 			}
@@ -75,6 +81,15 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 		return false;
 	}
 	return true;
+}
+
+void StrategyOFGPara::parseStat(const ssub_match & param, const bool flag)
+{
+	flagStatDump = flag;
+	if(flag) {
+		pathStatDump = param.str().substr(1);
+	}
+
 }
 
 std::vector<Motif> StrategyOFGPara::search(const Option & opt,
@@ -95,16 +110,18 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	}
 	running_ = true;
 	thread tRecvMsg(bind(&StrategyOFGPara::messageReceiver, this));
+	int id = net->id();
+	int size = net->size();
 
 	// step 1: register all workers
 	registerAllWorkers();
-	if(net->id() == MASTER_ID)
+	if(id == MASTER_ID)
 		cout << logHead("LOG") + "All workers started." << endl;
 
 	// step 2: initial candidate edge set
-	Timer t;
+	timer.restart();
 	initialCE_para();
-	if(net->id() == MASTER_ID) {
+	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Candidate edges initialized: " + to_string(edges.size()) + " in all." << endl;
 		/*stream fout("../data_adhd/try/edge1.txt");
 		for(auto& ef : edges) {
@@ -114,17 +131,17 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 
 	// step 3: search independently (each worker holds motif whose score is larger than current k-th)
 	work_para();
-	if(net->id() == MASTER_ID) {
+	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Global search finished." << endl;
 	}
 
 	// step 4: coordinate the top-k motifs of all workers
-	if(net->id() == MASTER_ID) {
+	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Gathering results..." << endl;
 	}
 	gatherResult();
 	vector<Motif> res;
-	if(net->id() == MASTER_ID) {
+	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Global top-k motifs gathered, "
 			+ to_string(holder->size()) + "/" + to_string(k) + " in all, "
 			+ "last score=" + to_string(holder->lastScore()) << endl;
@@ -138,19 +155,26 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	}
 	delete holder;
 
-	// step 5: merge statistics to Rank 0
-	if(net->id() == MASTER_ID) {
+	// step 5: merge statistics to the master
+	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Gathering Statistics..." << endl;
 	}
+	// TODO: change scan functions to use Stat
+	st.nGraphChecked += stNumGraphChecked;
+	st.nSubjectChecked += stNumSubjectChecked;
+	st.nFreqPos += stNumFreqPos;
+	st.nFreqNeg += stNumFreqNeg;
+	st.netByteSend += net->stat_send_byte;
+	st.netByteRecv += net->stat_recv_byte;
+
 	gatherStatistics();
-	auto ts = t.elapseS();
-	if(net->id() == MASTER_ID) {
+	auto ts = timer.elapseS();
+	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Statistical information gathered." << endl;
-		cout << "  Finished in " << ts << " seconds\n"
-			<< "    motif explored " << st.nMotifExplored << " , generated " << st.nMotifGenerated << "\n"
-			<< "    subject counted: " << st.nSubjectChecked << " , graph counted: " << st.nGraphChecked
-			<< " , on average: " << (double)st.nGraphChecked / st.nSubjectChecked << " graph/subject\n"
-			<< "    frequency calculated on positive: " << st.nFreqPos << " , on negative: " << st.nFreqNeg << endl;
+		cout << "Finished in " << ts << " seconds\n";
+		statFormatOutput(cout, st);
+		if(flagStatDump)
+			statDump();
 	}
 
 	running_ = false;
@@ -246,6 +270,7 @@ void StrategyOFGPara::assignBeginningMotifs()
 		Motif m;
 		auto& e = get<0>(ef);
 		m.addEdge(e.s, e.d);
+		++st.nMotifGenerated;
 		int o = getMotifOwner(m);
 		if(o == id) {
 			ltable.addToActivated(m, get<1>(ef));

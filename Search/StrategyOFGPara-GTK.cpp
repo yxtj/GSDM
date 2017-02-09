@@ -19,6 +19,7 @@ void StrategyOFGPara::topKCoordinate()
 	cout << oss.str() << endl;
 	if(net->id() != MASTER_ID) {
 		// On workers: send local top-k to master
+		++st.topkSend;
 		net->send(MASTER_ID, MType::GGatherLocalTopK, holder->getScore());
 		// the rest calculattion work will be done by master 
 		// global top-k will be received later and handled by cbUpdateLowerBound()
@@ -66,6 +67,7 @@ void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fro
 	// this method may loose the bound but does not lose anyone qualified
 	//newLB -= numeric_limits<double>::epsilon();
 	if(newLB > globalBound) {
+		st.progBound.emplace_back(timer.elapseMS(), newLB);
 		globalBound = newLB;
 		updateLBCandEdge(newLB);
 		if(modifyTables)
@@ -118,6 +120,7 @@ int StrategyOFGPara::updateLBWaitingMotifs(double newLB)
 
 void StrategyOFGPara::lowerBoundSend()
 {
+	++st.boundSend;
 	net->broadcast(MType::GLowerBound, globalBound);
 }
 

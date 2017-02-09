@@ -22,6 +22,8 @@ void StrategyOFGPara::initialCE_para()
 		int j = (i == cef.first ? cef.second : i + 1);
 		int endj = (i == cel.first ? cel.second : nNode);
 		while(j < endj) {
+			++st.nEdgeChecked;
+			++st.nFreqPos;
 			int t = countEdgeXSub(i, j, *pgp);
 			if(t >= th) {
 				auto f = t*factor;
@@ -47,6 +49,7 @@ void StrategyOFGPara::initialCE_para()
 		[](const tuple<Edge, double, int>& lth, const tuple<Edge, double, int>& rth) {
 		return get<1>(lth) > get<1>(rth);
 	});
+	st.progCESize.emplace_back(timer.elapseMS(), edges.size());
 	// check trivial case
 	if(edges.empty()) {
 		throw invalid_argument("No candidate edge available. Directly exit.");
@@ -111,5 +114,21 @@ void StrategyOFGPara::removeUnusedEdges()
 		[=](const tuple<Edge, double, int>& t) {
 		return get<2>(t) < *lastFinishLevel;
 	});
-	edges.erase(it, edges.end());
+	if(it != edges.end()) {
+		edges.erase(it, edges.end());
+		st.progCESize.emplace_back(timer.elapseMS(), edges.size());
+	}
+}
+
+void StrategyOFGPara::removeGivenEdges(const std::vector<Edge>& given)
+{
+	lock_guard<mutex> lg(mce);
+	auto it = remove_if(edges.begin(), edges.end(),
+		[&](const tuple <Edge, double, int>& p) {
+		return find(given.begin(), given.end(), get<0>(p)) != given.end();
+	});
+	if(it != edges.end()) {
+		edges.erase(it, edges.end());
+		st.progCESize.emplace_back(timer.elapseMS(), edges.size());
+	}
 }

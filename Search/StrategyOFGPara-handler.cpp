@@ -88,11 +88,7 @@ void StrategyOFGPara::cbCEInit(const std::string & d, const RPCInfo & info)
 void StrategyOFGPara::cbCERemove(const std::string & d, const RPCInfo & info)
 {
 	vector<Edge> re = deserialize<vector<Edge>>(d);
-	lock_guard<mutex> lg(mce);
-	auto it = remove_if(edges.begin(), edges.end(), [&](const tuple <Edge, double, int>& p) {
-		return find(re.begin(), re.end(), get<0>(p)) != re.end();
-	});
-	edges.erase(it, edges.end());
+	removeGivenEdges(re);
 }
 
 void StrategyOFGPara::cbCEUsage(const std::string & d, const RPCInfo & info)
@@ -165,7 +161,7 @@ void StrategyOFGPara::cbGatherResult(const std::string & d, const RPCInfo & info
 void StrategyOFGPara::cbGatherStat(const std::string & d, const RPCInfo & info)
 {
 	Stat recv = deserialize<Stat>(d);
-	statMerge(recv);
+	statMerge(info.source, recv);
 	rph.input(MType::SGather, info.source);
 }
 

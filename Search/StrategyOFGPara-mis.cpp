@@ -49,6 +49,10 @@ void StrategyOFGPara::resultMerge(std::vector<std::pair<Motif, double>>& recv)
 
 void StrategyOFGPara::gatherStatistics()
 {
+	if(flagStatDump && net->id() == MASTER_ID) {
+		statBuff.resize(net->size());
+		statBuff[MASTER_ID] = st;
+	}
 	if(net->id() == MASTER_ID) {
 		statReceive();
 	} else {
@@ -58,11 +62,6 @@ void StrategyOFGPara::gatherStatistics()
 
 void StrategyOFGPara::statSend()
 {
-	// TODO: change scan functions to use Stat
-	st.nGraphChecked = stNumGraphChecked;
-	st.nSubjectChecked = stNumSubjectChecked;
-	st.nFreqPos = stNumFreqPos;
-	st.nFreqNeg = stNumFreqNeg;
 	net->send(MASTER_ID, MType::SGather, st);
 }
 
@@ -70,11 +69,46 @@ void StrategyOFGPara::statReceive()
 {
 	rph.input(MType::SGather, net->id());
 	suStat.wait();
+	st.average(net->size());
 }
 
-void StrategyOFGPara::statMerge(Stat& recv)
+void StrategyOFGPara::statMerge(const int source, Stat& recv)
 {
+	if(flagStatDump)
+		statBuff[source] = move(recv);
 	st.merge(recv);
+}
+
+void StrategyOFGPara::statFormatOutput(std::ostream & os, const Stat & st)
+{
+	os << "  Motifs: exlpored " << st.nMotifExplored << " , generated " << st.nMotifGenerated
+		<< " , ratio: " << (double)st.nMotifExplored / st.nMotifGenerated << "\n";
+	os << "  Freqencies: on positive " << st.nFreqPos << " , on negative " << st.nFreqNeg
+		<< " , ratio: " << (double)st.nFreqNeg / st.nFreqPos << "\n";
+	os << "  Subjects: " << st.nSubjectChecked << " , Graphs: " << st.nGraphChecked << "\n";
+	os << "  G-ratio: " << (double)st.nGraphChecked / st.nSubjectChecked << " graph/subject"
+		<< " , F-ratio: " << (double)st.nSubjectChecked / (st.nFreqPos + st.nFreqNeg) << " subject/frequency"
+		<< " , M-ratio: " << (double)st.nSubjectChecked / (st.nMotifExplored + st.nEdgeChecked) << " subject/motif\n";
+	os << "  Network: send (KB) " << st.netByteSend / 1024 << ", receive (KB) " << st.netByteRecv / 1024 << "\n";
+	os << "    send (motif) " << st.nMotifSend << " , receive (motif) " << st.nMotifRecv << "\n"
+		<< "    send (bound) " << st.boundSend << " , send (local top-k) " << st.topkSend << "\n";
+	os << "  Time waited: " << st.timeWait << " ms\n";
+}
+
+void StrategyOFGPara::statDump()
+{
+	int size = net->size();
+	ofstream fout(pathStatDump);
+	if(!fout) {
+		cerr << "[Warn] Cannot open stat file: " + pathOutputScore << endl;
+		return;
+	}
+	fout << "[On Average]:\n";
+	statFormatOutput(fout, st);
+	for(int i = 0; i < size; ++i) {
+		fout << "\n[Worker " << i << "]:\n";
+		statFormatOutput(fout, statBuff[i]);
+	}
 }
 
 // -------------- Log -----------------

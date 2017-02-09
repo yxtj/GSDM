@@ -10,6 +10,8 @@ static inline void Sleep(){
 }
 
 NetworkThread::NetworkThread() :
+		stat_send_pkg(0), stat_send_byte(0),
+		stat_recv_pkg(0), stat_recv_byte(0),
 		running(false), done(false), net(nullptr){
 	net = NetworkImplMPI::GetInstance();
 
@@ -119,6 +121,8 @@ bool NetworkThread::tryReadAny(string& data, int *srcRet, int *typeRet){
 	if(checkReceiveQueue(data,info)){
 		if(srcRet) *srcRet = info.src_dst;
 		if(typeRet) *typeRet = info.type;
+		++stat_recv_pkg;
+		stat_recv_byte += data.size();
 		return true;
 	}
 	return false;
@@ -129,6 +133,8 @@ int NetworkThread::send(Task *req){
 	int size = req->payload.size();
 	lock_guard<recursive_mutex> sl(ps_lock);
 	pending_sends_->push_back(req);
+	++stat_send_pkg;
+	stat_send_byte += size;
 	return size;
 }
 
@@ -136,6 +142,8 @@ int NetworkThread::send(Task *req){
 int NetworkThread::sendDirect(Task *req){
 	int size = req->payload.size();
 	net->send(req);
+	++stat_send_pkg;
+	stat_send_byte += size;
 	return size;
 }
 
@@ -143,11 +151,8 @@ int NetworkThread::sendDirect(Task *req){
 int NetworkThread::broadcast(Task* req) {
 	int size = req->payload.size();
 	net->broadcast(req);
-//	int myid = id();
-//	for(int i = 0; i < net->size(); ++i){
-//		if(i != myid)
-//			send(i, method, msg);
-//	}
+	++stat_send_pkg;
+	stat_send_byte += size;
 	return size;
 }
 

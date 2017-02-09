@@ -54,6 +54,7 @@ void StrategyOFGPara::work_para()
 			if(!vec.empty()) {
 //				cout << logHeadID("DBG") + "Collected " + to_string(vec.size())
 //					+ " motifs for " + to_string(i) << endl;
+				st.nMotifSend += vec.size();
 				net->send(i, MType::MNormal, vec);
 			}
 		}
@@ -72,6 +73,7 @@ void StrategyOFGPara::work_para()
 
 		int e = INTERVAL_PROCESS - static_cast<int>(t.elapseMS());
 		if(e > 0) {
+			st.timeWait += e;
 			this_thread::sleep_for(chrono::milliseconds(e));
 			t.restart();
 		}

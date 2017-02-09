@@ -5,6 +5,7 @@
 #include "RemoteTable.h"
 #include "DistributedTopKMaintainer.h"
 #include "Stat.h"
+#include "../util/Timer.h"
 #include "../net/NetworkThread.h"
 #include "../msgdriver/MsgDriver.h"
 #include "../msgdriver/tools/ReplyHandler.h"
@@ -47,7 +48,13 @@ private:
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
 
+private:
+	Timer timer;
+
+	bool flagStatDump;
+	std::string pathStatDump;
 	mutable Stat st;
+	std::vector<Stat> statBuff; // only used for StatDump on master
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -90,6 +97,8 @@ private:
 	
 /* helpers */
 private:
+	void parseStat(const std::ssub_match& m, const bool flag);
+
 	std::pair<int, int> num2Edge(const int idx);
 	int getMotifOwner(const Motif& m);
 
@@ -122,11 +131,12 @@ private:
 		1, [main] Send local edge-usage (last-used-level) at the end of each level.
 			Before sending level-finish signal.
 		2, [msg] Receive edge-usage and update local usage.
-		3, [main] Remove the edges unused until the finished level.
+		3, [main] Remove the edges unused at (until) the latest finished level.
 	*/
 	void edgeUsageSend(const int since); // send edges used AFTER given level
 	void edgeUsageUpdate(const std::vector<std::pair<Edge, int>>& usage);
 	void removeUnusedEdges();
+	void removeGivenEdges(const std::vector<Edge>& given);
 	
 	/* Logic for DCES-bound & OFG-bound:
 		0, [data-structure] Maintain a <score, source> list for global top-k
@@ -149,7 +159,9 @@ private:
 
 	void statSend();
 	void statReceive();
-	void statMerge(Stat& recv);
+	void statMerge(const int source, Stat& recv);
+	static void statFormatOutput(std::ostream& os, const Stat& st);
+	void statDump();
 
 	void initLowerBound(); // can only be called after CE is ready
 	void updateLowerBound(double newLB, bool modifyTables, bool fromLocal);
