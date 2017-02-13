@@ -2,6 +2,7 @@
 #include "LoaderBaseCPAC.h"
 
 class QCChecker;
+// Type: 1=Autism; 2=Control
 class LoaderABIDE2 :
 	public LoaderBaseCPAC
 {

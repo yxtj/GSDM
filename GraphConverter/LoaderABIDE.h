@@ -4,6 +4,7 @@
 #include <map>
 
 class QCChecker;
+// Type: 1=Autism; 2=Control
 class LoaderABIDE
 	:public TCLoader
 

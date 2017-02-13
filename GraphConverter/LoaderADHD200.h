@@ -3,6 +3,7 @@
 #include <tuple>
 
 class QCChecker;
+// Type: 0=Control; 1=ADHD-Combined; 2=ADHD-Hyperactive/Impulsive; 3=ADHD-Inattentive
 class LoaderADHD200
 	: public TCLoader
 {

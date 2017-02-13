@@ -2,6 +2,7 @@
 #include "LoaderBaseCPAC.h"
 
 class QCChecker;
+// Type: 0=Control; 1=AD; 2=SMC; 3=EMCI; 4=LMCI
 class LoaderADNI :
 	public LoaderBaseCPAC
 {
