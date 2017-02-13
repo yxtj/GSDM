@@ -11,12 +11,12 @@ using namespace std;
 void StrategyOFGPara::topKCoordinate()
 {
 	ostringstream oss;
-	auto tt = holder->getScore();
-	oss << logHeadID("GTK-Coord") << tt.size() << " { ";
-	for(auto& v : tt)
-		oss << v << " ";
-	oss << "}";
-	cout << oss.str() << endl;
+	//auto tt = holder->getScore();
+	//oss << logHeadID("GTK-Coord") << tt.size() << " { ";
+	//for(auto& v : tt)
+	//	oss << v << " ";
+	//oss << "}";
+	//cout << oss.str() << endl;
 	if(net->id() != MASTER_ID) {
 		// On workers: send local top-k to master
 		++st.topkSend;
@@ -42,8 +42,8 @@ void StrategyOFGPara::topKCoordinateFinish()
 		// update message will not send to master, so result is not updated
 		updateLBResult(globalBound);
 	}
-	cout << logHead("LOG") + "Global top-k coordination finished, LB="
-		+ to_string(globalBound) << endl;
+//	cout << logHead("LOG") + "Global top-k coordination finished, LB="
+//		+ to_string(globalBound) << endl;
 }
 
 void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int source)
@@ -72,8 +72,8 @@ void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fro
 		updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
-		cout << logHeadID("DBG") + "LB changed to " + to_string(globalBound)
-			+ (fromLocal ? " by local" : " by remote") << endl;
+//		cout << logHeadID("DBG") + "LB changed to " + to_string(globalBound)
+//			+ (fromLocal ? " by local" : " by remote") << endl;
 		if(fromLocal) {
 			lowerBoundSend();
 		} else {

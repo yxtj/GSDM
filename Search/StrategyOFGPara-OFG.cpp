@@ -19,7 +19,7 @@ void StrategyOFGPara::work_para()
 	Timer tct; // timer for coordinating global top-k
 	Timer tsr; // timer for state report
 	Timer t; // timer for controlling working frequency (INTERVAL_PROCESS)
-	INTERVAL_COORDINATE_TOP_K = 1000;
+	//INTERVAL_COORDINATE_TOP_K = 1000;
 	// work on the activated motifs
 	while(!checkSearchFinish()) {
 		// process all activated motifs

@@ -115,7 +115,7 @@ std::pair<bool, std::pair<Motif, double>> LocalTables::getOne()
 
 int LocalTables::mostRecentLevel() const
 {
-	return candidateTables.size();
+	return candidateTables.size() - 1;
 }
 
 bool LocalTables::emptyCandidate() const
