@@ -166,8 +166,9 @@ int main(int argc, char* argv[])
 	cout << "  # negative subjects: " << gNeg.size() << endl;
 
 	string line;
-	cout << "Waiting for input: Format:\n"
-		"nNode	nEdge	(a,b) (c,d) (...)"<< endl;
+	cout << "Format:\n"
+		"sth	nEdge	(a,b) (c,d) (...)"
+		"Waiting for input (one per line): "<< endl;
 	while(getline(cin, line)) {
 		Motif m;
 		try {
