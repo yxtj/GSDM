@@ -36,7 +36,7 @@ void RemoteTable::init(const double LB)
 void RemoteTable::sortUp(const int l)
 {
 	auto& table = pimpl->table;
-
+	// TODO: only sort up the abandon list
 	auto it = table.begin();
 	while(it != table.end()) {
 		if(it->first.getnEdge() <= l) {
@@ -49,15 +49,17 @@ void RemoteTable::sortUp(const int l)
 
 void RemoteTable::update(const Motif & mt, const double newUB)
 {
+	if(newUB < pimpl->lowerBound)
+		return;
 	auto& table = pimpl->table;
 	auto& m = pimpl->m;
+	// TODO: add an abandon list for non-promising motifs (each layer)
 
 	auto it = table.find(mt);
+	lock_guard<mutex> lg(m);
 	if(it == table.end()) {
-		lock_guard<mutex> lg(m);
 		table.emplace(mt, make_pair(newUB, 1));
 	} else {
-		lock_guard<mutex> lg(m);
 		it->second.first = min(it->second.first, newUB);
 		++it->second.second;
 	}
@@ -94,6 +96,8 @@ std::vector<std::pair<Motif, std::pair<double, int>>> RemoteTable::collect()
 			it->second.second = 0;
 		}
 	}
+	// TODO: clear those not in the abandon list
+	table.clear();
 	return res;
 }
 
