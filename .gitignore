@@ -257,4 +257,4 @@ conf/
 # other helper folders
 tmp/
 temp/
-logs/
+log*/
