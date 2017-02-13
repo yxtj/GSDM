@@ -105,9 +105,9 @@ bool StrategyOFGPara::explore(const Motif & m)
 			generalUpdateCandidateMotif(mf.first, mf.second);
 		}
 	} else {
-		for(auto& mf : expand(m, ub, false)) {
-			generalAbandonCandidateMotif(mf.first);
-		}
+		//for(auto& mf : expand(m, ub, false)) {
+		//	generalAbandonCandidateMotif(mf.first);
+		//}
 	}
 	return used;
 }
