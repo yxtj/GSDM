@@ -27,6 +27,7 @@ struct Stat
 
 	// time
 	unsigned long long timeTotal; //in MS
+	unsigned long long timeSearch; //in MS
 	unsigned long long timeWait; //in MS
 	unsigned long long timeData; //in MS
 
@@ -40,7 +41,7 @@ struct Stat
 
 template <>
 struct _Serializer<Stat> {
-	static constexpr int fixed = sizeof(unsigned long long) * (7 + 6 + 3);
+	static constexpr int fixed = sizeof(unsigned long long) * (7 + 6 + 4);
 	_Serializer<std::vector<std::pair<unsigned long long, double>>> sd;
 	_Serializer<std::vector<std::pair<unsigned long long, int>>> si;
 	int estimateSize(const Stat& item) {
@@ -69,6 +70,7 @@ struct _Serializer<Stat> {
 		*p++ = item.topkSend;
 		// time
 		*p++ = item.timeTotal;
+		*p++ = item.timeSearch;
 		*p++ = item.timeWait;
 		*p++ = item.timeData;
 		res= reinterpret_cast<char*>(p);
@@ -95,6 +97,7 @@ struct _Serializer<Stat> {
 		item.topkSend = *up++;
 		// time
 		item.timeTotal = *up++;
+		item.timeSearch = *up++;
 		item.timeWait = *up++;
 		item.timeData = *up++;
 		p = reinterpret_cast<const char*>(up);

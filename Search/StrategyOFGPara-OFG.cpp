@@ -86,7 +86,12 @@ void StrategyOFGPara::work_para()
 	rph.input(MType::GSearchFinish, id);
 	net->broadcast(MType::GSearchFinish, *lastFinishLevel);
 	cout << logHeadID("LOG") + "Local search finished." << endl;
-	suSearchEnd.wait();
+	st.timeSearch = t.elapseMS();
+	{
+		t.restart();
+		suSearchEnd.wait();
+		st.timeWait += t.elapseMS();
+	}
 }
 
 bool StrategyOFGPara::explore(const Motif & m)

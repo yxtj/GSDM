@@ -23,6 +23,7 @@ void Stat::merge(const Stat & other)
 	topkSend += other.topkSend;
 
 	timeTotal += other.timeTotal;
+	timeSearch += other.timeSearch;
 	timeWait += other.timeWait;
 	timeData+= other.timeData;
 }
@@ -51,6 +52,7 @@ void Stat::average(const int n)
 	topkSend /= n;
 
 	timeTotal /= n;
+	timeSearch /= n;
 	timeWait /= n;
 	timeData /= n;
 }

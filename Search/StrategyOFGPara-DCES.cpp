@@ -43,7 +43,11 @@ void StrategyOFGPara::initialCE_para()
 		else
 			move(ceLocal.begin(), ceLocal.end(), back_inserter(edges));
 	}
-	suCEinit.wait();
+	{
+		Timer t;
+		suCEinit.wait();
+		st.timeWait += t.elapseMS();
+	}
 	// sort edge with decreasing order
 	sort(edges.begin(), edges.end(),
 		[](const tuple<Edge, double, int>& lth, const tuple<Edge, double, int>& rth) {

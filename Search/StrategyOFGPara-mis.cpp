@@ -15,7 +15,7 @@ using namespace std;
 
 void StrategyOFGPara::gatherResult()
 {
-	if(net->id() == 0) {
+	if(net->id() == MASTER_ID) {
 		resultReceive();
 	} else {
 		resultSend();
@@ -33,9 +33,12 @@ void StrategyOFGPara::resultSend()
 void StrategyOFGPara::resultReceive()
 {
 	rph.input(MType::MGather, net->id());
-	suTKGather.wait();
+	{
+		Timer t;
+		suTKGather.wait();
+		st.timeWait += t.elapseMS();
+	}
 	suTKGather.reset();
-
 }
 void StrategyOFGPara::resultMerge(std::vector<std::pair<Motif, double>>& recv)
 {
@@ -51,7 +54,7 @@ void StrategyOFGPara::resultMerge(std::vector<std::pair<Motif, double>>& recv)
 void StrategyOFGPara::gatherStatistics()
 {
 	if(flagStatDump && net->id() == MASTER_ID) {
-		if(statBuff.size() < net->size()) {
+		if(statBuff.size() < static_cast<size_t>(net->size())) {
 			statBuff.resize(net->size());
 			statBuff[MASTER_ID] = st;
 		}
@@ -71,14 +74,18 @@ void StrategyOFGPara::statSend()
 void StrategyOFGPara::statReceive()
 {
 	rph.input(MType::SGather, net->id());
-	suStat.wait();
+	{
+		Timer t;
+		suStat.wait();
+		st.timeWait += t.elapseMS();
+	}
 	st.average(net->size());
 }
 
 void StrategyOFGPara::statMerge(const int source, Stat& recv)
 {
 	if(flagStatDump) {
-		if(statBuff.size() < net->size()) {
+		if(statBuff.size() < static_cast<size_t>(net->size())) {
 			statBuff.resize(net->size());
 			statBuff[MASTER_ID] = st;
 		}
@@ -100,9 +107,8 @@ void StrategyOFGPara::statFormatOutput(std::ostream & os, const Stat & st)
 	os << "  Network: send (KB) " << st.netByteSend / 1024 << ", receive (KB) " << st.netByteRecv / 1024 << "\n";
 	os << "    send (motif) " << st.nMotifSend << " , receive (motif) " << st.nMotifRecv << "\n"
 		<< "    send (bound) " << st.boundSend << " , send (local top-k) " << st.topkSend << "\n";
-	os << "  Time: total (s) "<<st.timeTotal/1000
-		<<", score/data (s) "<<st.timeData/1000
-		<< ", wait (ms) " << st.timeWait << "\n";
+	os << "  Time: total (s) " << st.timeTotal / 1000 << ", search (s) " << st.timeSearch / 1000
+		<< ", wait (ms) " << st.timeWait << ", scoring/data (s) " << st.timeData / 1000 << "\n";
 }
 
 void StrategyOFGPara::statDump()

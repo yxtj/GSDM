@@ -159,6 +159,7 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Gathering Statistics..." << endl;
 	}
+	st.timeTotal = timer.elapseMS();
 	// TODO: change scan functions to use Stat
 	st.nGraphChecked += stNumGraphChecked;
 	st.nSubjectChecked += stNumSubjectChecked;
