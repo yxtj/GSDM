@@ -77,8 +77,9 @@ vector<vector<Graph> > loadData(
 		if(sfp.second.size() <= limitSnp) {
 			sort(sfp.second.begin(), sfp.second.end());
 		} else {
-			auto it = sfp.second.begin() + limitSnp;
-			partial_sort(sfp.second.begin(), it, sfp.second.end());
+			//auto it = sfp.second.begin() + limitSnp;
+			//partial_sort(sfp.second.begin(), it, sfp.second.end());
+			sort(sfp.second.begin(), sfp.second.end());
 		}
 		vector<Graph>& vec = res[pres++];
 		size_t cntSnp = 0;
@@ -113,6 +114,7 @@ Motif parseMotif(const std::string& line) {
 	return m;
 }
 
+// method group 1
 bool existOnSub(const std::vector<Graph>& gs, const Motif& m, const double theta)
 {
 	int cnt = 0;
@@ -125,8 +127,6 @@ bool existOnSub(const std::vector<Graph>& gs, const Motif& m, const double theta
 	}
 	return false;
 }
-
-
 double probOnGS(const vector<vector<Graph>>& gs, const Motif& m, const double theta)
 {
 	int cnt = 0;
@@ -135,6 +135,30 @@ double probOnGS(const vector<vector<Graph>>& gs, const Motif& m, const double th
 			++cnt;
 	return static_cast<double>(cnt) / gs.size();
 }
+
+// method group 2
+bool testMotifInSub(const MotifBuilder& m, const std::vector<Graph>& graphs, const double theta)
+{
+	int th = static_cast<int>(ceil(graphs.size()*theta));
+	// return true if #occurence >= th
+	for(auto& g : graphs) {
+		if(g.testMotif(m))
+			if(--th <= 0)
+				return true;
+	}
+	return false;
+}
+int countMotifXSub(const MotifBuilder & m, const std::vector<std::vector<Graph>>& subs, const double theta)
+{
+	int cnt = 0;
+	for(auto& sub : subs) {
+		if(testMotifInSub(m, sub, theta))
+			++cnt;
+	}
+	return cnt;
+
+}
+
 
 template<typename T>
 ostream& operator<<(ostream& os, const vector<T>& param) {
@@ -149,6 +173,18 @@ int main(int argc, char* argv[])
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
 	}
+	cout << "Data folder prefix: " << opt.prefix << "\tGraph (sub-)folder: " << opt.graphFolder << "\n"
+		<< "Data parameters:\n"
+		<< "  # Nodes: " << opt.nNode << "\n"
+		<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
+		<< "  # Snapshots: " << opt.nSnapshot << "\n"
+		<< "  Type(s) of positive subject: " << opt.typePos << "\n"
+		<< "  Type(s) of negative subject: " << opt.typeNeg << "\n"
+		<< "  Data in shared folder: " << boolalpha << opt.graphFolderShared << "\n"
+		<< "Blacklist size: " << opt.blacklist.size() << "\n"
+		<< "Theta = " << opt.theta << "\n"
+		<< "Objective function: " << opt.funName << " , alpha " << opt.alpha
+		<< endl;
 
 	function<double(const double, const double)> objFun;
 	if(opt.funName == "diff") {
@@ -170,6 +206,8 @@ int main(int argc, char* argv[])
 		"XXX	nEdge	(a,b) (c,d) (...)\n"
 		"Waiting for input (one per line): "<< endl;
 	while(getline(cin, line)) {
+		if(line.empty())
+			continue;
 		Motif m;
 		try {
 			m = parseMotif(line);
@@ -181,6 +219,10 @@ int main(int argc, char* argv[])
 		double fNeg = probOnGS(gNeg, m, opt.theta);
 		double score = objFun(fPos, fNeg);
 		cout << "fPos=" << fPos << ", fNeg=" << fNeg << ", score=" << score << endl;
+//		fPos = countMotifXSub(m, gPos, opt.theta)/(double)gPos.size();
+//		fNeg = countMotifXSub(m, gNeg, opt.theta)/(double)gNeg.size();
+//		score = objFun(fPos, fNeg);
+//		cout<< "fPos=" << fPos << ", fNeg=" << fNeg << ", score=" << score << endl;
 	}
 	return 0;
 }
