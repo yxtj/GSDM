@@ -22,8 +22,9 @@ void Stat::merge(const Stat & other)
 	boundSend += other.boundSend;
 	topkSend += other.topkSend;
 
-	timeNetwork += other.timeNetwork;
+	timeTotal += other.timeTotal;
 	timeWait += other.timeWait;
+	timeData+= other.timeData;
 }
 
 void Stat::average(const int n)
@@ -49,6 +50,7 @@ void Stat::average(const int n)
 	boundSend /= n;
 	topkSend /= n;
 
-	timeNetwork /= n;
+	timeTotal /= n;
 	timeWait /= n;
+	timeData /= n;
 }

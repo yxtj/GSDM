@@ -51,9 +51,10 @@ void StrategyOFGPara::resultMerge(std::vector<std::pair<Motif, double>>& recv)
 void StrategyOFGPara::gatherStatistics()
 {
 	if(flagStatDump && net->id() == MASTER_ID) {
-		if(statBuff.size() < net->size())
+		if(statBuff.size() < net->size()) {
 			statBuff.resize(net->size());
-		statBuff[MASTER_ID] = st;
+			statBuff[MASTER_ID] = st;
+		}
 	}
 	if(net->id() == MASTER_ID) {
 		statReceive();
@@ -77,8 +78,10 @@ void StrategyOFGPara::statReceive()
 void StrategyOFGPara::statMerge(const int source, Stat& recv)
 {
 	if(flagStatDump) {
-		if(statBuff.size() < net->size())
+		if(statBuff.size() < net->size()) {
 			statBuff.resize(net->size());
+			statBuff[MASTER_ID] = st;
+		}
 		statBuff[source] = move(recv);
 	}
 	st.merge(recv);
@@ -97,7 +100,9 @@ void StrategyOFGPara::statFormatOutput(std::ostream & os, const Stat & st)
 	os << "  Network: send (KB) " << st.netByteSend / 1024 << ", receive (KB) " << st.netByteRecv / 1024 << "\n";
 	os << "    send (motif) " << st.nMotifSend << " , receive (motif) " << st.nMotifRecv << "\n"
 		<< "    send (bound) " << st.boundSend << " , send (local top-k) " << st.topkSend << "\n";
-	os << "  Time waited: " << st.timeWait << " ms\n";
+	os << "  Time: total (s) "<<st.timeTotal/1000
+		<<", score/data (s) "<<st.timeData/1000
+		<< ", wait (ms) " << st.timeWait << "\n";
 }
 
 void StrategyOFGPara::statDump()

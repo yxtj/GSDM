@@ -25,8 +25,10 @@ struct Stat
 	unsigned long long boundSend;
 	unsigned long long topkSend;
 
-	unsigned long long timeNetwork; //in MS
+	// time
+	unsigned long long timeTotal; //in MS
 	unsigned long long timeWait; //in MS
+	unsigned long long timeData; //in MS
 
 	// progress
 	std::vector<std::pair<unsigned long long, double>> progBound;
@@ -38,7 +40,7 @@ struct Stat
 
 template <>
 struct _Serializer<Stat> {
-	static constexpr int fixed = sizeof(unsigned long long) * (7 + 6 + 1 + 1);
+	static constexpr int fixed = sizeof(unsigned long long) * (7 + 6 + 3);
 	_Serializer<std::vector<std::pair<unsigned long long, double>>> sd;
 	_Serializer<std::vector<std::pair<unsigned long long, int>>> si;
 	int estimateSize(const Stat& item) {
@@ -66,8 +68,9 @@ struct _Serializer<Stat> {
 		*p++ = item.boundSend;
 		*p++ = item.topkSend;
 		// time
-		*p++ = item.timeNetwork;
+		*p++ = item.timeTotal;
 		*p++ = item.timeWait;
+		*p++ = item.timeData;
 		res= reinterpret_cast<char*>(p);
 		res = sd.serial(res, item.progBound);
 		res = si.serial(res, item.progCESize);
@@ -91,8 +94,9 @@ struct _Serializer<Stat> {
 		item.boundSend = *up++;
 		item.topkSend = *up++;
 		// time
-		item.timeNetwork = *up++;
+		item.timeTotal = *up++;
 		item.timeWait = *up++;
+		item.timeData = *up++;
 		p = reinterpret_cast<const char*>(up);
 		std::tie(item.progBound, p) = std::move(sd.deserial(p));
 		std::tie(item.progCESize, p) = std::move(si.deserial(p));

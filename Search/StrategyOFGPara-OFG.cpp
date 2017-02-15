@@ -95,7 +95,11 @@ bool StrategyOFGPara::explore(const Motif & m)
 	MotifBuilder mb(m);
 	++st.nMotifExplored;
 	double ub, score;
-	tie(ub, score) = scoring(mb, globalBound);
+	{
+		Timer t;
+		tie(ub, score) = scoring(mb, globalBound);
+		st.timeData += t.elapseMS();
+	}
 	// score == numeric_limits<double>::lowest() if the upper bound is not promising
 	if(holder->updatable(score)) {
 		lock_guard<mutex> lg(mtk);
