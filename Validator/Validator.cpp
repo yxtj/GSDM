@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
 
 	string line;
 	cout << "Format:\n"
-		"sth	nEdge	(a,b) (c,d) (...)"
+		"XXX	nEdge	(a,b) (c,d) (...)\n"
 		"Waiting for input (one per line): "<< endl;
 	while(getline(cin, line)) {
 		Motif m;
