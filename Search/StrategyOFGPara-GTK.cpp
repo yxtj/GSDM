@@ -10,7 +10,8 @@ using namespace std;
 
 void StrategyOFGPara::topKCoordinate()
 {
-	ostringstream oss;
+	// TODO: make it total asynchronous (remove rph.input(...), send if there is a recent local-k change, broadcast if global k-th changes, change INTERVAL_COORDINATE_TOP_K smaller as a buffer timer)
+	//ostringstream oss;
 	//auto tt = holder->getScore();
 	//oss << logHeadID("GTK-Coord") << tt.size() << " { ";
 	//for(auto& v : tt)

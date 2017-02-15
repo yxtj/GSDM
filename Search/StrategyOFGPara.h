@@ -117,13 +117,15 @@ private:
 		Condition:	1, all previous workers finished their parts of all previous levels;
 					2, there is no more unprocessed active motifs of current level.
 		Conclusion:	current worker finishes its part on current level.
-
+		Optimization: move as more levels as possible.
+					Implemented by recursively increase last-finished-local-level
+					Post-condition: not all other workers finished last-finished-local-level
 	*/
 	bool processLevelFinish();
 	// the tasks need to be done for level movement
 	void moveToNewLevel(const int from);
 	// check whether local worker have finished processing all local motifs of the given level
-	bool checkLevelFinish(const int level);
+	bool checkLocalLevelFinish(const int level);
 	// check whether local worker have finished processing all possible motifs
 	bool checkSearchFinish();
 
@@ -131,11 +133,11 @@ private:
 		1, [main] Send local edge-usage (last-used-level) at the end of each level.
 			Before sending level-finish signal.
 		2, [msg] Receive edge-usage and update local usage.
-		3, [main] Remove the edges unused at (until) the latest finished level.
+		3, [main] Remove the edges unused at (since) the latest finished level - 1.
 	*/
 	void edgeUsageSend(const int since); // send edges used AFTER given level
 	void edgeUsageUpdate(const std::vector<std::pair<Edge, int>>& usage);
-	void removeUnusedEdges();
+	void removeUnusedEdges(const int since);
 	void removeGivenEdges(const std::vector<Edge>& given);
 	
 	/* Logic for DCES-bound & OFG-bound:

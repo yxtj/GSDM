@@ -18,9 +18,11 @@ void StrategyOFGPara::work_para()
 	Timer twm; // timer for updating the bound for waiting motifs
 	Timer tct; // timer for coordinating global top-k
 	Timer tsr; // timer for state report
+	// TODO: add time calculation for each task during report interval
 	Timer t; // timer for controlling working frequency (INTERVAL_PROCESS)
 	//INTERVAL_COORDINATE_TOP_K = 1000;
 	// work on the activated motifs
+	processLevelFinish();
 	while(!checkSearchFinish()) {
 		// process all activated motifs
 		int cnt = 0;
@@ -140,7 +142,7 @@ bool StrategyOFGPara::processLevelFinish()
 {
 	bool moved = false;
 	int oldlfl = *lastFinishLevel;
-	while(checkLevelFinish(*lastFinishLevel + 1)) {
+	while(checkLocalLevelFinish(*lastFinishLevel + 1)) {
 		ltable.sortUp(*lastFinishLevel + 1);
 		lock_guard<mutex> lg(mfl);
 		++finishedAtLevel[net->id()]; // local finish
@@ -148,6 +150,10 @@ bool StrategyOFGPara::processLevelFinish()
 		moved = true;
 	}
 	if(moved) {
+		// conditions:
+		// 1, local worker finished level lfl
+		// 2, all other workers finished level lfl-1
+		// 3, NOT all of other worker finished level lfl (if so, lfl will be increased by the loop)
 		moveToNewLevel(oldlfl);
 		net->broadcast(MType::GLevelFinish, *lastFinishLevel);
 	}
@@ -160,7 +166,8 @@ void StrategyOFGPara::moveToNewLevel(const int from)
 		" to level " + to_string(*lastFinishLevel) << endl;
 	if(flagDCESConnected) {
 		edgeUsageSend(from);
-		removeUnusedEdges();
+		// require: all edge usages before level $from$ are already received
+		removeUnusedEdges(*lastFinishLevel - 1);
 	}
 	ltable.sortUp(*lastFinishLevel);
 	const int size = net->size();
@@ -172,7 +179,7 @@ void StrategyOFGPara::moveToNewLevel(const int from)
 	}
 }
 
-bool StrategyOFGPara::checkLevelFinish(const int level)
+bool StrategyOFGPara::checkLocalLevelFinish(const int level)
 {
 	if(ltable.emptyActivated(level)) {
 		int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(),

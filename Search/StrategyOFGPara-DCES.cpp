@@ -93,7 +93,7 @@ void StrategyOFGPara::edgeUsageUpdate(const std::vector<std::pair<Edge, int>>& u
 	auto fu = usage.begin(), lu = usage.end();
 	lock_guard<mutex> lg(mce);
 	auto fe = edges.begin(), le = edges.end();
-	// rationale: edges and usage are sorted with 
+	// rationale: edges and usage are sorted 
 	while(fe != le && fu != lu) {
 		if(fu->first < get<0>(*fe)) {
 			++fu;
@@ -107,12 +107,13 @@ void StrategyOFGPara::edgeUsageUpdate(const std::vector<std::pair<Edge, int>>& u
 	}
 }
 
-void StrategyOFGPara::removeUnusedEdges()
+void StrategyOFGPara::removeUnusedEdges(const int since)
 {
+	min_element(finishedAtLevel.begin(), finishedAtLevel.end());
 	lock_guard<mutex> lg(mce);
 	auto it = remove_if(edges.begin(), edges.end(),
 		[=](const tuple<Edge, double, int>& t) {
-		return get<2>(t) < *lastFinishLevel;
+		return get<2>(t) < since;
 	});
 	if(it != edges.end()) {
 		edges.erase(it, edges.end());
