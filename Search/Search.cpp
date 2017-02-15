@@ -100,8 +100,9 @@ vector<vector<Graph> > loadData(
 		if(sfp.second.size() <= limitSnp) {
 			sort(sfp.second.begin(), sfp.second.end());
 		} else {
-			auto it = sfp.second.begin() + limitSnp;
-			partial_sort(sfp.second.begin(), it, sfp.second.end());
+			//auto it = sfp.second.begin() + limitSnp;
+			//partial_sort(sfp.second.begin(), it, sfp.second.end());
+			sort(sfp.second.begin(), sfp.second.end());
 		}
 		vector<Graph>& vec = res[pres++];
 		size_t cntSnp = 0;
