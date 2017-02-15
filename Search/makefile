@@ -50,15 +50,15 @@ all: release
 debug: ../$(DEGEXE)
 
 ../$(DEGEXE): $(DBGEXE)
+	@mkdir -p ../$(DBGDIR)
+	cp $(DBGEXE) ../$(DBGEXE)
+	
+$(DBGEXE): $(DBGOBJS)
 	cd ../common; make debug
 	cd ../util; make debug
 	cd ../net; make debug
 	cd ../msgdriver; make debug
 	cd ../serialization; make debug
-	@mkdir -p ../$(DBGDIR)
-	cp $(DBGEXE) ../$(DBGEXE)
-	
-$(DBGEXE): $(DBGOBJS)
 	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
@@ -72,15 +72,15 @@ $(DBGDIR)/%.o: %.cpp
 release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELEXE)
+	@mkdir -p ../$(RELDIR)
+	cp $(RELEXE) ../$(RELEXE)
+
+$(RELEXE): $(RELOBJS)
 	cd ../common; make release
 	cd ../util; make release
 	cd ../net; make release
 	cd ../msgdriver; make release
 	cd ../serialization; make release
-	@mkdir -p ../$(RELDIR)
-	cp $(RELEXE) ../$(RELEXE)
-
-$(RELEXE): $(RELOBJS)
 	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
