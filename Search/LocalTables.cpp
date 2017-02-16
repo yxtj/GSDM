@@ -73,8 +73,8 @@ void LocalTables::addToActivated(const Motif & m, const double newUB)
 void LocalTables::sortUp(const int l)
 {
 	lock_guard<mutex> lg(mct);
-	size_t end = min(static_cast<size_t>(l + 1 + 1), candidateTables.size());
-	// first +1 : clear the CT of level l+1 ; second +1 : loop in [x,x) manner
+	size_t end = min(static_cast<size_t>(l + 1), candidateTables.size());
+	// l+1 : loop in [x,x) manner
 	for(size_t i = 1; i < end; ++i) {
 		candidateTables[i].clear();
 	}
