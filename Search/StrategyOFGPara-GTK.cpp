@@ -58,8 +58,8 @@ void StrategyOFGPara::topKMerge(const std::vector<double>& recv, const int sourc
 void StrategyOFGPara::initLowerBound()
 {
 	// move lb down half a unit to accept every thing at the beginning
-	double lb = get<1>(edges.back()) - 0.5 / pgp->size();
-	updateLowerBound(lb, true, true);
+	//double lb = get<1>(edges.back()) - 0.5 / pgp->size();
+	updateLowerBound(0.0, false, false);
 }
 
 void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fromLocal) {

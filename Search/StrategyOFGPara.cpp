@@ -173,6 +173,7 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Statistical information gathered." << endl;
 		cout << "Finished in " << ts << " seconds\n";
+		cout << "[Summary on average of " << size << " workers]:\n";
 		statFormatOutput(cout, st);
 		if(flagStatDump)
 			statDump();
