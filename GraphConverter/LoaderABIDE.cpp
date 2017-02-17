@@ -183,7 +183,7 @@ std::tuple<bool, std::string, int> LoaderABIDE::parsePhenotypeLine(
 		} else if(find(POS_QC.begin(), POS_QC.end(), count) != POS_QC.end()) {
 			if(p != plast) {
 				string x = line.substr(plast, p - plast);
-				pchecker->input(stoi(x) > 0);
+				pchecker->input(x == "OK");
 			} else {
 				pchecker->input();
 			}
