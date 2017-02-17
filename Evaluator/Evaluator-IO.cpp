@@ -35,7 +35,7 @@ vector<SubjectData> loadGraph(const string& folder, const vector<int>& graphType
 			dit->second.id = sub.id;
 			dit->second.type = sub.type;
 		}
-		ifstream fin(folder + fn);
+		std::ifstream fin(folder + fn);
 		dit->second.snapshots.push_back(loadGraph(fin));
 		if(cnt >= limit)
 			break;
@@ -101,7 +101,7 @@ vector<Motif> loadMotif(const string& folder, const string& fnPattern, int nMoti
 			continue;
 		if(++cnt <= nSkip)
 			continue;
-		ifstream fin(folder + fn);
+		std::ifstream fin(folder + fn);
 		auto temp = readMotif(fin);
 		move(temp.begin(), temp.end(), back_inserter(res));
 		if(res.size() >= limit)
