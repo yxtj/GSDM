@@ -70,7 +70,8 @@ void StrategyOFGPara::updateLowerBound(double newLB, bool modifyTables, bool fro
 	if(newLB > globalBound) {
 		st.progBound.emplace_back(timer.elapseMS(), newLB);
 		globalBound = newLB;
-		updateLBCandEdge(newLB);
+		if(flagDCESBound)
+			updateLBCandEdge(newLB);
 		if(modifyTables)
 			updateLBWaitingMotifs(newLB);
 //		cout << logHeadID("DBG") + "LB changed to " + to_string(globalBound)
