@@ -96,7 +96,7 @@ void StrategyOFGPara::statMerge(const int source, Stat& recv)
 
 void StrategyOFGPara::statFormatOutput(std::ostream & os, const Stat & st)
 {
-	os << "  Motifs: exlpored " << st.nMotifExplored << " , generated " << st.nMotifGenerated
+	os << "  Motifs: explored " << st.nMotifExplored << " , generated " << st.nMotifGenerated
 		<< " , ratio: " << (double)st.nMotifExplored / st.nMotifGenerated << "\n";
 	os << "  Freqencies: on positive " << st.nFreqPos << " , on negative " << st.nFreqNeg
 		<< " , ratio: " << (double)st.nFreqNeg / st.nFreqPos << "\n";
