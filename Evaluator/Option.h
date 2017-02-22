@@ -1,12 +1,14 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
 
 class Option
 {
-	boost::program_options::options_description desc;
+	struct implDesc;
+	implDesc* pimpl;
 public:
+	bool show;
+
 	int nGraph;
 	int nMotif; // number of subject need to be loaded from the dataset
 	int nSkipGraph, nSkipMotif; // skip some of the first items(graph,motif), to efficiently restart after failure
@@ -23,11 +25,11 @@ public:
 
 	std::vector<std::string> testMethodSingle;
 	std::vector<std::string> testMethodGroup;
-	int testGroupSize;
+	std::vector<std::string> groupGenerateMethod;
 
 public:
 	Option();
-	boost::program_options::options_description& getDesc();
+	~Option();
 
 	bool parseInput(int argc, char *argv[]);
 private:

@@ -9,6 +9,7 @@
 #include "../libEval/SubjectData.h"
 #include "../libEval/MTesterSingle.h"
 #include "../libEval/MTesterGroup.h"
+#include "../libEval/GroupGenerator.h"
 #include "Evaluator-IO.h"
 
 using namespace std;
@@ -71,55 +72,23 @@ vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs, const vect
 	return res;
 }
 
-vector< vector<int> > genGroupIndexDFS(const int p, vector<int>& used, const int n) {
-	vector<vector<int>> res;
-	if(p <= 0) {
-		res.push_back(used);
-		return res;
-	}
-	int end = n - p;
-	for(int i = used.empty() ? 0 : used.back() + 1; i <= end; ++i) {
-		used.push_back(i);
-		auto t = genGroupIndexDFS(p - 1, used, n);
-		used.pop_back();
-		move(t.begin(), t.end(), back_inserter(res));
-	}
+MTesterGroup transGIndex2GTester(const vector<int>& idx, const vector<MTesterSingle>& ms, const Option& opt)
+{
+	MTesterGroup res(opt.testMethodGroup);
+	res.setParam4Single(opt.testMethodSingle);
+	vector<MTesterSingle> m;
+	for(int i : idx)
+		m.push_back(ms[i]);
+	res.set(move(m));
 	return res;
 }
+
 
 vector<MTesterGroup> transGIndex2GTester(const vector< vector<int> >& idx, const vector<MTesterSingle>& ms, const Option& opt)
 {
 	vector<MTesterGroup> res;
 	for(auto& line : idx) {
-		MTesterGroup t(opt.testMethodGroup);
-		t.setParam4Single(opt.testMethodSingle);
-		vector<MTesterSingle> m;
-		for(int i : line)
-			m.push_back(ms[i]);
-		t.set(m);
-		res.push_back(move(t));
-	}
-	return res;
-}
-
-vector<MTesterGroup> genGroupTesterDFS(const int p, vector<int>& used, const vector<MTesterSingle>& ms, const Option& opt) {
-	vector<MTesterGroup> res;
-	if(p <= 0) {
-		MTesterGroup t(opt.testMethodGroup);
-		t.setParam4Single(opt.testMethodSingle);
-		vector<MTesterSingle> m;
-		for(int i : used)
-			m.push_back(ms[i]);
-		t.set(m);
-		res.push_back(move(t));
-		return res;
-	}
-	int end = ms.size() - p;
-	for(int i = used.empty() ? 0 : used.back() + 1; i <= end; ++i) {
-		used.push_back(i);
-		auto t = genGroupTesterDFS(p - 1, used, ms, opt);
-		used.pop_back();
-		move(t.begin(), t.end(), back_inserter(res));
+		res.push_back(transGIndex2GTester(line, ms, opt));
 	}
 	return res;
 }
@@ -141,25 +110,28 @@ int main(int argc, char* argv[])
 		return 1;
 
 	ios::sync_with_stdio(false);
-	cout << "Input Graph:\n"
-		<< "  Folder: " << opt.graphPath << "\n"
-		<< "  Types of positive graph: " << opt.graphTypePos << "\t"
-		<< "  Types of negative graph: " << opt.graphTypeNeg << "\n"
-		<< "  # of graph: " << opt.nGraph << "\t"
-		<< "  # of skipped: " << opt.nSkipGraph << "\n";
-	cout << "Input Motif:\n"
-		<< "  # of motif folders: "<<opt.motifPath.size()<< "\n"
-		<< "  Folders: " << opt.motifPath << "\n"
-		<< "  File name pattern: " << opt.motifPattern << "\n"
-		<< "  # of motifs in each folder: " << opt.nMotif << "\t"
-		<< "  # of skipped in each folder: " << opt.nSkipMotif << "\n";
-	cout << "Testing Method:\n"
-		<< "  single motif metohd: " << opt.testMethodSingle << "\n"
-		<< "  # of motifs of each group: " << opt.testGroupSize << "\n";
-	if(opt.testGroupSize >= 2)
-		cout << "  group motif method: " << opt.testMethodGroup << "\n";
-	cout << "Output files: " << opt.outputFile << endl;
+	if(opt.show) {
+		cout << "Input Graph:\n"
+			<< "  Folder: " << opt.graphPath << "\n"
+			<< "  Types of positive graph: " << opt.graphTypePos << "\t"
+			<< "  Types of negative graph: " << opt.graphTypeNeg << "\n"
+			<< "  # of graph: " << opt.nGraph << "\t"
+			<< "  # of skipped: " << opt.nSkipGraph << "\n";
+		cout << "Input Motif:\n"
+			<< "  # of motif folders: " << opt.motifPath.size() << "\n"
+			<< "  Folders: " << opt.motifPath << "\n"
+			<< "  File name pattern: " << opt.motifPattern << "\n"
+			<< "  # of motifs in each folder: " << opt.nMotif << "\t"
+			<< "  # of skipped in each folder: " << opt.nSkipMotif << "\n";
+		cout << "Testing Method:\n"
+			<< "  single motif metohd: " << opt.testMethodSingle << "\n"
+			<< "  group generate method: " << opt.groupGenerateMethod << "\n"
+			<< "  motif group metohd: " << opt.testMethodGroup << "\n";
+		cout << "Output files: " << opt.outputFile << endl;
+	}
+	GroupGenerator gpGen(opt.groupGenerateMethod);
 
+	// load data
 	vector<SubjectData> gts;
 	try {
 		cout << "Loading graph data...";
@@ -171,12 +143,12 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 	
-	// for each motif folder/output folder
+	// evaluate for each motif-output folder pair
 	for(size_t i = 0; i < opt.motifPath.size(); ++i) {
 		const string& mpath = opt.motifPath[i];
 		const string& opath = opt.outputFile[i];
 		cout << "(" << i+1 << "/" << opt.motifPath.size() <<
-			") Loading motif from path..." << endl;
+			") Loading motifs..." << endl;
 		vector<MTesterGroup> mts;
 		vector<Motif> ms;
 		vector< vector<int> > idx;
@@ -189,12 +161,9 @@ int main(int argc, char* argv[])
 				mtSingle.emplace_back(opt.testMethodSingle);
 				mtSingle.back().set(m);
 			}
-			vector<int> used;
-			used.reserve(opt.testGroupSize);
-			idx = genGroupIndexDFS(opt.testGroupSize, used, ms.size());
+			idx = gpGen.generate(ms.size());
 			mts = transGIndex2GTester(idx, mtSingle, opt);
-			//mts = genGroupTesterDFS(opt.testGroupSize, used, mtSingle, opt);
-			cout << "  # of generated motif testers: " << mts.size() << endl;
+			cout << "  # of motif testers: " << mts.size() << endl;
 		} catch(exception& e) {
 			cerr << "Load motif failed!\n  " << e.what() << endl;
 			continue;
@@ -264,7 +233,7 @@ int main(int argc, char* argv[])
 		}
 
 		if(opt.flgOutSmy) {
-			cout << "  Transforming containing table to summary information..." << endl;
+			cout << "  Transforming table to summary information..." << endl;
 			// vector<ConfusionMatrix> smy = evaluate(gts, ms, opt);
 			vector<ConfusionMatrix> smy = transTable2Smy(gts, tbl, opt);
 			ofstream fout(opath);
