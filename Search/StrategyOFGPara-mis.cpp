@@ -54,6 +54,7 @@ void StrategyOFGPara::resultMerge(std::vector<std::pair<Motif, double>>& recv)
 void StrategyOFGPara::gatherStatistics()
 {
 	if(flagStatDump && net->id() == MASTER_ID) {
+		lock_guard<mutex> lg(mst);
 		if(statBuff.size() < static_cast<size_t>(net->size())) {
 			statBuff.resize(net->size());
 			statBuff[MASTER_ID] = st;
@@ -85,6 +86,7 @@ void StrategyOFGPara::statReceive()
 void StrategyOFGPara::statMerge(const int source, Stat& recv)
 {
 	if(flagStatDump) {
+		lock_guard<mutex> lg(mst);
 		if(statBuff.size() < static_cast<size_t>(net->size())) {
 			statBuff.resize(net->size());
 			statBuff[MASTER_ID] = st;

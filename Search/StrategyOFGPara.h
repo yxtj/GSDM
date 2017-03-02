@@ -53,6 +53,7 @@ private:
 
 	bool flagStatDump;
 	std::string pathStatDump;
+	std::mutex mst;
 	mutable Stat st;
 	std::vector<Stat> statBuff; // only used for StatDump on master
 public:
