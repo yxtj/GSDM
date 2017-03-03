@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-#include <mpi.h>
 //#include "Graph.h"
 //#include "Motif.h"
 #include "../common/Graph.h"
@@ -195,7 +194,8 @@ int main(int argc, char* argv[])
 	// part 2: parse the options and generate a strategy
 	StrategyBase* strategy = StrategyFactory::generate(opt.getStrategyName());
 	if(!strategy->parse(opt.stgParam)) {
-		MPI_Finalize();
+		//MPI_Finalize();
+		NetworkThread::Terminate();
 		return 1;
 	}
 

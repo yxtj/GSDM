@@ -79,8 +79,8 @@ $(RELEXE): $(RELOBJS)
 	cd ../net; make release
 	cd ../msgdriver; make release
 	cd ../serialization; make release
-#	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+#	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
