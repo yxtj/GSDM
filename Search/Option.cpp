@@ -1,18 +1,23 @@
 #include "stdafx.h"
 #include "Option.h"
 #include "StrategyFactory.h"
-#include "CandidateMethodFactory.h"
+#include <boost/program_options.hpp>
 #include "../util/Util.h"
 
 using namespace std;
 
+struct Option::Impl {
+	boost::program_options::options_description desc;
+};
+
 Option::Option()
-	:desc("Options", getScreenSize().first)
+	:pimpl(new Impl{ boost::program_options::options_description("Options", getScreenSize().first) })
 {
 	using boost::program_options::value;
 	using boost::program_options::bool_switch;
-	desc.add_options()
+	pimpl->desc.add_options()
 		("help", "Print help messages")
+		("showInfo", value<bool>(&show)->default_value(1), "Print the initializing information")
 		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
 		("prefix-graph", value<string>(&graphFolder)->default_value(string("graph/")),
 			"[string] the folder/subfolder for graph files. "
@@ -32,11 +37,8 @@ Option::Option()
 			"The type(s) of positive individual")
 		("typeNeg", value<vector<int>>(&typeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
 			"The type(s) of negative individual")
-//		("smmin", value<int>(&sMotifMin)->default_value(2), "[integer] minimum size of a motif")
-//		("smmax", value<int>(&sMotifMax)->default_value(2), "[integer] maximum size of a motif")
 //		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
 //			"a motif as existed on a individual (num over snapshot)")
-		(CandidateMethodFactory::optName.c_str(), value<vector<string>>(&mtdParam)->multitoken(), CandidateMethodFactory::getUsage().c_str())
 //		("topk", value<int>(&topK)->default_value(10), "number of returned results")
 //		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
 //			"a motif as existed all on individual (num over individual)")
@@ -47,11 +49,7 @@ Option::Option()
 
 Option::~Option()
 {
-}
-
-boost::program_options::options_description & Option::getDesc()
-{
-	return desc;
+	delete pimpl;
 }
 
 void Option::addParser(std::function<bool()>& fun)
@@ -66,7 +64,7 @@ bool Option::parseInput(int argc, char * argv[])
 	try {
 		boost::program_options::variables_map var_map;
 		boost::program_options::store(
-			boost::program_options::parse_command_line(argc, argv, desc), var_map);
+			boost::program_options::parse_command_line(argc, argv, pimpl->desc), var_map);
 		boost::program_options::notify(var_map);
 
 		sortUpPath(prefix);
@@ -91,10 +89,6 @@ bool Option::parseInput(int argc, char * argv[])
 			if(stgParam.empty() || !StrategyFactory::isValid(stgParam[0])) {
 				throw invalid_argument("strategy is not given or not supported.");
 			}
-			if(mtdParam.empty() || !CandidateMethodFactory::isValid(mtdParam[0])) {
-				throw invalid_argument("method is not given or not supported.");
-			}
-
 		} while(false);
 
 		sort(blacklist.begin(), blacklist.end());
@@ -108,7 +102,7 @@ bool Option::parseInput(int argc, char * argv[])
 	}
 
 	if(true == flag_help) {
-		cerr << desc << endl;
+		cerr << pimpl->desc << endl;
 		return false;
 	}
 	return true;
@@ -117,11 +111,6 @@ bool Option::parseInput(int argc, char * argv[])
 std::string Option::getStrategyName() const
 {
 	return stgParam[0];
-}
-
-std::string Option::getMethodName() const
-{
-	return mtdParam[0];
 }
 
 std::string& Option::sortUpPath(std::string & path)

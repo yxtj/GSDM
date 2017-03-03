@@ -1,15 +1,16 @@
 #pragma once
-#include <boost/program_options.hpp>
 #include <string>
 
 class Option
 {
-	boost::program_options::options_description desc;
+	struct Impl;
+	Impl* pimpl;
 	std::vector<std::function<bool()>> paramParser;
 public:
 	
-	std::vector<std::string> mtdParam;
 	std::vector<std::string> stgParam;
+	
+	bool show;// print the initializing information
 
 	int nNode;//number of nodes;
 	int nPosInd, nNegInd;//number of +/- individuals
@@ -28,13 +29,11 @@ public:
 	Option();
 	~Option();
 
-	boost::program_options::options_description& getDesc();
 	void addParser(std::function<bool()>& fun);
 
 	bool parseInput(int argc, char* argv[]);
 
 	std::string getStrategyName() const;
-	std::string getMethodName() const;
 private:
 	static std::string& sortUpPath(std::string & path);
 	std::string& processSubPath(std::string& path);

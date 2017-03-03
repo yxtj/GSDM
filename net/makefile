@@ -33,7 +33,7 @@ RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
 RELLIBDIR = $(LIBDIR) -L../$(RELDIR)
-DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
+RELLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -83,9 +83,6 @@ directories:
 	@mkdir -p ../$(DBGDIR)
 	@mkdir -p $(RELDIR)
 	@mkdir -p ../$(RELDIR)
-
-stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) $(MPI_COMPILE_FLAGS) -c stdafx.h -o stdafx.h.gch
 	
 clean:
 	rm -rf $(DBGDIR)

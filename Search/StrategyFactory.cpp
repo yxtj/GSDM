@@ -3,14 +3,7 @@
 #include "Option.h"
 
 // TODO: add new strategy headers
-#include "StrategyFreqP.h"
-#include "StrategyFreqPmN.h"
-#include "StrategyFreqPmNPara.h"
-#include "StrategySample.h"
-#include "StrategyXor.h"
 #include "StrategyDUG.h"
-#include "StrategyFuncFreq.h"
-#include "StrategyFuncFreqSD.h"
 #include "StrategyOFG.h"
 #include "StrategyOFGPara.h"
 
@@ -28,21 +21,19 @@ template <>
 std::map<std::string, parent_t::createFun> parent_t::contGen{};
 template <>
 std::map<std::string, std::string> parent_t::contUsage{};
+std::map<std::string, std::string> StrategyFactory::contDesc{};
 
+void StrategyFactory::registerDesc(const std::string & name, const std::string & desc)
+{
+	contDesc[name] = desc;
+}
 
 void StrategyFactory::init()
 {
 	// TODO: add new strategy here
-	registerInOne<StrategyFreqP>();
-	registerInOne<StrategyFreqPmN>();
-	registerInOne<StrategySample>();
-	registerInOne<StrategyXor>();
-	registerInOne<StrategyFreqPmNPara>();
-	registerInOne<StrategyDUG>();
-	registerInOne<StrategyFuncFreq>();
-	registerInOne<StrategyFuncFreqSD>();
-	registerInOne<StrategyOFG>();
-	registerInOne<StrategyOFGPara>();
+	reg<StrategyDUG>();
+	reg<StrategyOFG>();
+	reg<StrategyOFGPara>();
 }
 
 StrategyBase * StrategyFactory::generate(const std::string & name)

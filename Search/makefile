@@ -3,8 +3,10 @@ CC ?= gcc
 #CMAKE = cmake
 #TOP = $(shell pwd)
 MAKE := $(MAKE) --no-print-directory
-MPI_COMPILE_FLAGS = $(shell mpic++ --showme:compile)
+#MPI_COMPILE_FLAGS = $(shell mpic++ --showme:compile)
+MPI_COMPILE_FLAGS = 
 MPI_LINK_FLAGS = $(shell mpic++ --showme:link)
+#MPI_LINK_FLAGS = 
 SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
@@ -13,11 +15,7 @@ CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
 LIBS = -lcommon -lutil -lnet -lserialization -lmsgdriver
-ifeq ($(OS),Windows_NT)
-  LIBS += -lboost-program-options -lboost-filesystem -lboost-system
-else
-  LIBS += -lboost_program_options -lboost_filesystem -lboost_system
-endif
+LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -81,7 +79,8 @@ $(RELEXE): $(RELOBJS)
 	cd ../net; make release
 	cd ../msgdriver; make release
 	cd ../serialization; make release
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+#	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

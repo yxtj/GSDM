@@ -156,69 +156,40 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BoundHolder.hpp" />
-    <ClInclude Include="CandidateMthdFreqUG.h" />
     <ClInclude Include="DistributedTopKMaintainer.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="LocalTables.h" />
-    <ClInclude Include="MotifCommunicator.h" />
     <ClInclude Include="MType.h" />
-    <ClInclude Include="Network.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="RemoteTable.h" />
     <ClInclude Include="Stat.h" />
     <ClInclude Include="StrategyBase.h" />
-    <ClInclude Include="CandidateMethod.h" />
-    <ClInclude Include="CandidateMethodFactory.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="CandidateMthdFreq.h" />
     <ClInclude Include="StrategyDUG.h" />
     <ClInclude Include="StrategyFactory.h" />
-    <ClInclude Include="StrategyFreqP.h" />
-    <ClInclude Include="StrategyFreqPmN.h" />
-    <ClInclude Include="StrategyFreqPmNPara.h" />
-    <ClInclude Include="StrategyFuncFreq.h" />
-    <ClInclude Include="StrategyFuncFreqSD.h" />
     <ClInclude Include="StrategyOFG.h" />
     <ClInclude Include="StrategyOFGPara.h" />
-    <ClInclude Include="StrategyXor.h" />
-    <ClInclude Include="StrategySample.h" />
     <ClInclude Include="TopKBoundedHolder.hpp" />
     <ClInclude Include="TopKHolder.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CandidateMthdFreq-edge.cpp" />
-    <ClCompile Include="CandidateMthdFreq-enum.cpp" />
-    <ClCompile Include="CandidateMthdFreq-node.cpp" />
-    <ClCompile Include="CandidateMthdFreqUG.cpp" />
     <ClCompile Include="DistributedTopKMaintainer.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="LocalTables.cpp" />
-    <ClCompile Include="MotifCommunicator.cpp" />
-    <ClCompile Include="Network.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="RemoteTable.cpp" />
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="Stat.cpp" />
     <ClCompile Include="StrategyBase.cpp" />
-    <ClCompile Include="CandidateMethod.cpp" />
-    <ClCompile Include="CandidateMethodFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="CandidateMthdFreq.cpp" />
     <ClCompile Include="StrategyDUG.cpp" />
     <ClCompile Include="StrategyFactory.cpp" />
-    <ClCompile Include="StrategyFreqP.cpp" />
-    <ClCompile Include="StrategyFreqPmN.cpp" />
-    <ClCompile Include="StrategyFreqPmNPara.cpp" />
-    <ClCompile Include="StrategyFuncFreq-dis.cpp" />
-    <ClCompile Include="StrategyFuncFreq.cpp" />
-    <ClCompile Include="StrategyFuncFreqSD-SD.cpp" />
-    <ClCompile Include="StrategyFuncFreqSD.cpp" />
     <ClCompile Include="StrategyOFG-DCES.cpp" />
     <ClCompile Include="StrategyOFG-OFG.cpp" />
     <ClCompile Include="StrategyOFG-SD.cpp" />
@@ -230,8 +201,6 @@
     <ClCompile Include="StrategyOFGPara-mis.cpp" />
     <ClCompile Include="StrategyOFGPara-OFG.cpp" />
     <ClCompile Include="StrategyOFGPara.cpp" />
-    <ClCompile Include="StrategyXor.cpp" />
-    <ClCompile Include="StrategySample.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
