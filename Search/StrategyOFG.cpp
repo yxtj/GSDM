@@ -110,6 +110,11 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	return res;
 }
 
+std::vector<Motif> StrategyOFG::search(const Option & opt, const DataHolder & dPos, const DataHolder & dNeg)
+{
+	return std::vector<Motif>();
+}
+
 bool StrategyOFG::setObjFun(const std::string & name)
 {
 	if(name == "diff") {

@@ -2,35 +2,19 @@
 //
 
 #include "stdafx.h"
-//#include "Graph.h"
-//#include "Motif.h"
 #include "../common/Graph.h"
 #include "../common/Motif.h"
 #include "../common/SubjectInfo.h"
 #include "../net/NetworkThread.h"
 #include "Option.h"
 #include "StrategyFactory.h"
+#include "DataHolder.h"
 
 using namespace std;
 
 Graph loadGraph(istream& is) {
 	Graph res;
 	res.readFromStream(is);
-	return res;
-}
-
-vector<vector<Graph> > loadData(const string& pre,const int n, const int m) {
-	vector<vector<Graph> > res;
-	res.reserve(n);
-	for(int i = 0; i < n; ++i) {
-		vector<Graph> temp;
-		temp.reserve(m);
-		for(int j = 0; j < m; ++j) {
-			ifstream fin(pre + to_string(i) + "-" + to_string(j) + ".txt");
-			temp.push_back(loadGraph(fin));
-		}
-		res.push_back(move(temp));
-	}
 	return res;
 }
 
@@ -58,8 +42,8 @@ int getTotalSubjectNumber(const string& folder, const vector<int>& types) {
 	return subjects.size();
 }
 
-vector<vector<Graph> > loadData(
-	const string& folder, const vector<int>& types, const int nSub, const int nSnap, const int nSkip = 0) 
+vector<vector<string>> loadFnList(const string& folder,
+	const vector<int>& types, const int nSub, const int nSnap, const int nSkip = 0)
 {
 	boost::filesystem::path root(folder);
 	if(!exists(root)) {
@@ -67,11 +51,11 @@ vector<vector<Graph> > loadData(
 		throw invalid_argument("cannot open graph folder: " + folder);
 	}
 	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
-	size_t limitSnp= nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
+	size_t limitSnp = nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
 	unordered_set<int> validType(types.begin(), types.end());
 
 	// sort up the file list (ensure the file order)
-	map<decltype(SubjectInfo::id), vector<string>> id2fn;
+	map<decltype(SubjectInfo::id), vector<SubjectInfo>> id2fn;
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
@@ -81,37 +65,48 @@ vector<vector<Graph> > loadData(
 			// check type
 			if(validType.find(sub.type) == validType.end())
 				continue;
-			id2fn[sub.id].push_back(move(fn));
+			id2fn[sub.id].push_back(move(sub));
 		}
 	}
-	// load data
-	vector<vector<Graph> > res(min(limitSub,id2fn.size()));
-	int cntSub = 0;
-	size_t pres = 0;
+	if(nSkip > 0) {
+		auto it = id2fn.begin();
+		advance(id2fn.begin(), nSkip);
+		id2fn.erase(id2fn.begin(), it);
+	}
+
+	vector<vector<string>> fnList;
+	fnList.reserve(min(limitSub, id2fn.size()));
+	size_t cntSub = 0;
 	for(auto& sfp : id2fn) {
-		if(++cntSub <= nSkip)
-			continue;
-		else if(pres >= limitSub)
+		if(cntSub++ >= limitSub)
 			break;
 //		cout <<"rank: "<<rank<< " type: " << types[0] << " id: " << sfp.first << endl;
 		// sort the snapshot files
-		if(sfp.second.size() <= limitSnp) {
+		if(sfp.second.size() > limitSnp) {
+			//partial_sort(sfp.second.begin(), sfp.second.begin() + limitSnp, sfp.second.end());
 			sort(sfp.second.begin(), sfp.second.end());
-		} else {
-			//auto it = sfp.second.begin() + limitSnp;
-			//partial_sort(sfp.second.begin(), it, sfp.second.end());
-			sort(sfp.second.begin(), sfp.second.end());
+			sfp.second.erase(sfp.second.begin() + limitSnp, sfp.second.end());
 		}
-		vector<Graph>& vec = res[pres++];
-		size_t cntSnp = 0;
-		for(auto& fn : sfp.second) {
-			if(++cntSnp > limitSnp)
-				break;
+		vector<string> fns;
+		fns.reserve(min(sfp.second.size(), limitSnp));
+		for(auto& sub : sfp.second)
+			fns.push_back(sub.genFilename());
+		fnList.push_back(move(fns));
+	}
+	return fnList;
+}
+
+DataHolder loadData(const string& folder, const vector<vector<string>>& fnList)
+{
+	DataHolder res;
+	for(auto& sfl : fnList) {
+		Subject sub;
+		for(auto& fn : sfl) {
 			ifstream fin(folder + fn);
 			if(!fin) {
 				cerr << "cannot open file: " << fn << endl;
 			}
-			vec.push_back(loadGraph(fin));
+			sub.addGraph(loadGraph(fin));
 		}
 	}
 	return res;
@@ -220,17 +215,22 @@ int main(int argc, char* argv[])
 		}
 	}
 	cout << "Loading graphs on rank " << rank << "..." << endl;
-	vector<vector<Graph> > gPos = loadData(opt.graphFolder, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
-	cout << "  # positive subjects: " << gPos.size() << endl;
-	vector<vector<Graph> > gNeg = loadData(opt.graphFolder, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);	
-	cout << "  # negative subjects: " << gNeg.size() << endl;
+	//vector<vector<Graph> > gPos = loadData(opt.graphFolder, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
+	DataHolder dPos = loadData(opt.graphFolder,
+		loadFnList(opt.graphFolder, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip));
+	cout << "  # positive subjects: " << dPos.size() << endl;
+	//vector<vector<Graph> > gNeg = loadData(opt.graphFolder, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);	
+	DataHolder dNeg = loadData(opt.graphFolder,
+		loadFnList(opt.graphFolder, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip));
+	cout << "  # negative subjects: " << dNeg.size() << endl;
 
 	// part 4: search for motifs
 	if(!opt.outFolder.empty() && (opt.outFolder.back() == '/' || opt.outFolder.back() == '\\')) {
 		boost::filesystem::path p(opt.outFolder);
 		boost::filesystem::create_directories(p);
 	}
-	auto res=strategy->search(opt, gPos, gNeg);
+	//auto res=strategy->search(opt, gPos, gNeg);
+	auto res = strategy->search(opt, dPos, dNeg);
 	cout << rank << " - " << res.size() << endl;
 //	if(res.empty()) {
 //		cerr << "Warning: zero result is found." << endl;

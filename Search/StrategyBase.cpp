@@ -9,3 +9,8 @@ bool StrategyBase::checkInput(const std::vector<std::vector<Graph>>& gPos, const
 		&& !gNeg.empty() && !gNeg.front().empty();
 }
 
+bool StrategyBase::checkInput(const DataHolder & dPos, const DataHolder & dNeg)
+{
+	return !dPos.empty() && !dNeg.empty();
+}
+

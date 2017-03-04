@@ -135,6 +135,11 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 	return res;
 }
 
+std::vector<Motif> StrategyDUG::search(const Option & opt, const DataHolder & dPos, const DataHolder & dNeg)
+{
+	return std::vector<Motif>();
+}
+
 std::vector<GraphProb> StrategyDUG::getUGfromCGs(const std::vector<std::vector<Graph>>& gs)
 {
 	std::vector<GraphProb> res;

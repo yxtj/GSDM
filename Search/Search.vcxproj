@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BoundHolder.hpp" />
+    <ClInclude Include="DataHolder.h" />
     <ClInclude Include="DistributedTopKMaintainer.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
@@ -170,10 +171,12 @@
     <ClInclude Include="StrategyFactory.h" />
     <ClInclude Include="StrategyOFG.h" />
     <ClInclude Include="StrategyOFGPara.h" />
+    <ClInclude Include="Subject.h" />
     <ClInclude Include="TopKBoundedHolder.hpp" />
     <ClInclude Include="TopKHolder.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DataHolder.cpp" />
     <ClCompile Include="DistributedTopKMaintainer.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="LocalTables.cpp" />
@@ -201,6 +204,7 @@
     <ClCompile Include="StrategyOFGPara-mis.cpp" />
     <ClCompile Include="StrategyOFGPara-OFG.cpp" />
     <ClCompile Include="StrategyOFGPara.cpp" />
+    <ClCompile Include="Subject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
