@@ -69,7 +69,7 @@ public:
 	virtual std::vector<Motif> search(const Option& opt,
 		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
 	virtual std::vector<Motif> search(const Option& opt,
-		const DataHolder& dPos, const DataHolder& dNeg);
+		DataHolder& dPos, DataHolder& dNeg);
 
 	// Steps
 private:

@@ -73,13 +73,19 @@ bool StrategyDUG::parseSMethod()
 std::vector<Motif> StrategyDUG::search(const Option & opt,
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
-	if(!checkInput(gPos, gNeg))
+	vector<Motif> res;
+	return res;
+}
+
+std::vector<Motif> StrategyDUG::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
+{
+	if(!checkInput(dPos, dNeg))
 		return std::vector<Motif>();
 
 	cout << "phase 1 (prepare uncertain graph):" << endl;
-	nNode = gPos.front().front().nNode;
-	vector<GraphProb> ugp = getUGfromCGs(gPos);
-	vector<GraphProb> ugn = getUGfromCGs(gNeg);
+	nNode = dPos.nNode();
+	vector<GraphProb> ugp = getUGfromCGs(dPos.get());
+	vector<GraphProb> ugn = getUGfromCGs(dNeg.get());
 	GraphProb ugall(nNode);
 	pugp = &ugp;
 	pugn = &ugn;
@@ -89,14 +95,14 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 	for(auto& ug : ugp) {
 		ugall.iterAccum(ug, true);
 	}
-	for(auto& ug : gNeg) {
+	for(auto& ug : ugn) {
 		ugall.iterAccum(ug, true);
 	}
 	ugall.finishAccum();
 	// init other local data
-	minSupN = static_cast<int>((gPos.size() + gNeg.size())*minSup);
+	minSupN = static_cast<int>((dPos.size() + dNeg.size())*minSup);
 	topKScores.assign(k, numeric_limits<double>::min());
-	
+
 	{
 		int nep = 0, nen = 0;
 		double pep = 0.0, pen = 0.0;
@@ -117,11 +123,11 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 		double total = nNode*nNode;
 		cout << "avg edges on positive: " << anep << ", rate: " << anep / total << " avg. edge prob.: " << pep / nep << "\n";
 		cout << "avg edges on negative: " << anen << ", rate: " << anen / total << " avg. edge prob.: " << pen / nen << "\n";
-		cout << "avg edges on all: " << static_cast<double>(nep +nen)/ (ugp.size()+ugn.size())
+		cout << "avg edges on all: " << static_cast<double>(nep + nen) / (ugp.size() + ugn.size())
 			<< ", rate: " << static_cast<double>(nep + nen) / (ugp.size() + ugn.size()) / total
 			<< " avg. edge prob.: " << (pep + pen) / (nep + nen) << endl;
 	}
-	
+
 	// start searching:
 	cout << "phase 2 (search for discriminative frequent score):" << endl;
 	vector<Motif> res;
@@ -135,17 +141,12 @@ std::vector<Motif> StrategyDUG::search(const Option & opt,
 	return res;
 }
 
-std::vector<Motif> StrategyDUG::search(const Option & opt, const DataHolder & dPos, const DataHolder & dNeg)
-{
-	return std::vector<Motif>();
-}
-
-std::vector<GraphProb> StrategyDUG::getUGfromCGs(const std::vector<std::vector<Graph>>& gs)
+std::vector<GraphProb> StrategyDUG::getUGfromCGs(const std::vector<Subject>& gs)
 {
 	std::vector<GraphProb> res;
 	res.reserve(gs.size());
-	for(auto& vec : gs) {
-		res.emplace_back(vec);
+	for(auto& s : gs) {
+		res.emplace_back(s.get());
 	}
 	return res;
 }

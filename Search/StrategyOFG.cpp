@@ -110,7 +110,7 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	return res;
 }
 
-std::vector<Motif> StrategyOFG::search(const Option & opt, const DataHolder & dPos, const DataHolder & dNeg)
+std::vector<Motif> StrategyOFG::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
 {
 	return std::vector<Motif>();
 }

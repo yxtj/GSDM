@@ -22,6 +22,12 @@ public:
 
 	size_t size() const;
 	bool empty() const;
+	int nNode() const;
+
+	std::vector<Graph>& get();
+	const std::vector<Graph>& get() const;
+	Graph& get(const int idx);
+	const Graph& get(const int idx) const;
 
 	void initSignature();
 

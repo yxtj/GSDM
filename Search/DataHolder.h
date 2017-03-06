@@ -15,6 +15,12 @@ public:
 	
 	size_t size() const;
 	bool empty() const;
+	int nNode() const;
+
+	std::vector<Subject>& get();
+	const std::vector<Subject>& get() const;
+	Subject& get(const int idx);
+	const Subject& get(const int idx) const;
 
 	void setTheta(const double theta);
 	bool contain(const Edge& e, const double minPortion) const;

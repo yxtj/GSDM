@@ -62,6 +62,31 @@ bool Subject::empty() const
 	return gs.empty();
 }
 
+int Subject::nNode() const
+{
+	return gs.empty() ? 0 : gs.front().nNode;
+}
+
+std::vector<Graph>& Subject::get()
+{
+	return gs;
+}
+
+const std::vector<Graph>& Subject::get() const
+{
+	return gs;
+}
+
+Graph & Subject::get(const int idx)
+{
+	return gs[idx];
+}
+
+const Graph & Subject::get(const int idx) const
+{
+	return gs[idx];
+}
+
 void Subject::setTheta(const double theta)
 {
 	th = static_cast<int>(ceil(gs.size()*theta));

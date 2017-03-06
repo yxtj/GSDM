@@ -32,6 +32,31 @@ bool DataHolder::empty() const
 	return ss.empty();
 }
 
+int DataHolder::nNode() const
+{
+	return ss.empty() ? 0 : ss.front().nNode();
+}
+
+std::vector<Subject>& DataHolder::get()
+{
+	return ss;
+}
+
+const std::vector<Subject>& DataHolder::get() const
+{
+	return ss;
+}
+
+Subject & DataHolder::get(const int idx)
+{
+	return ss[idx];
+}
+
+const Subject & DataHolder::get(const int idx) const
+{
+	return ss[idx];
+}
+
 void DataHolder::setTheta(const double theta)
 {
 	for(auto& s : ss)
