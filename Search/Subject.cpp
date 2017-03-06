@@ -108,7 +108,7 @@ bool Subject::contain_normal(const Edge & e) const
 	return false;
 }
 
-bool Subject::contain_normal(const Motif & m) const
+bool Subject::contain_normal(const MotifBuilder & m) const
 {
 	int req = th;
 	for(auto& g : gs) {
@@ -125,7 +125,7 @@ bool Subject::contain_sd(const Edge & e) const
 	return (*psign)[e.s][e.d] <= 1;
 }
 
-bool Subject::contain_sd(const Motif & m, const SDSignature & ms) const
+bool Subject::contain_sd(const MotifBuilder & m, const SDSignature & ms) const
 {
 	if(!checkSDNecessary(m, ms))
 		return false;
@@ -153,7 +153,7 @@ SDSignature* Subject::generateSignature()
 	return p;
 }
 
-bool Subject::checkSDNecessary(const Motif& m, const SDSignature & ms) const
+bool Subject::checkSDNecessary(const MotifBuilder& m, const SDSignature & ms) const
 {
 	// all edges should: sdis(e;g) <= sdis(e;m)
 	for(const Edge& e : m.edges) {

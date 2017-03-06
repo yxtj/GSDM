@@ -67,22 +67,22 @@ void DataHolder::setTheta(const double theta)
 
 bool DataHolder::contain(const Edge & e, const double minPortion) const
 {
-	return fConE(e, minPortion);
+	return (this->*fConE)(e, minPortion);
 }
 
-bool DataHolder::contain(const Motif & m, const double minPortion) const
+bool DataHolder::contain(const MotifBuilder & m, const double minPortion) const
 {
-	return fConM(m, minPortion);
+	return (this->*fConM)(m, minPortion);
 }
 
 int DataHolder::count(const Edge & e) const
 {
-	return fCountE(e);
+	return (this->*fCountE)(e);
 }
 
-int DataHolder::count(const Motif & m) const
+int DataHolder::count(const MotifBuilder & m) const
 {
-	return fCountM(m);
+	return (this->*fCountM)(m);
 }
 
 void DataHolder::initSignature()
@@ -123,20 +123,20 @@ void DataHolder::setSignature(const int idx, SDSignature && sign)
 
 void DataHolder::bindCheckFunNormal()
 {
-	fConE = bind(&DataHolder::_contain_e_normal, this, placeholders::_1, placeholders::_2);
-	fConM = bind(&DataHolder::_contain_m_normal, this, placeholders::_1, placeholders::_2);
+	fConE = &DataHolder::_contain_e_normal;
+	fConM = &DataHolder::_contain_m_normal;
 
-	fCountE = bind(&DataHolder::_count_e_normal, this, placeholders::_1);
-	fCountM = bind(&DataHolder::_count_m_normal, this, placeholders::_1);
+	fCountE = &DataHolder::_count_e_normal;
+	fCountM = &DataHolder::_count_m_normal;
 }
 
 void DataHolder::bindCheckFunSD()
 {
-	fConE = bind(&DataHolder::_contain_e_sd, this, placeholders::_1, placeholders::_2);
-	fConM = bind(&DataHolder::_contain_m_sd, this, placeholders::_1, placeholders::_2);
+	fConE = &DataHolder::_contain_e_sd;
+	fConM = &DataHolder::_contain_m_sd;
 
-	fCountE = bind(&DataHolder::_count_e_sd, this, placeholders::_1);
-	fCountM = bind(&DataHolder::_count_m_sd, this, placeholders::_1);
+	fCountE = &DataHolder::_count_e_sd;
+	fCountM = &DataHolder::_count_m_sd;
 }
 
 bool DataHolder::_contain_e_normal(const Edge & e, const double minPortion) const
@@ -153,7 +153,7 @@ bool DataHolder::_contain_e_normal(const Edge & e, const double minPortion) cons
 	return false;
 }
 
-bool DataHolder::_contain_m_normal(const Motif & m, const double minPortion) const
+bool DataHolder::_contain_m_normal(const MotifBuilder & m, const double minPortion) const
 {
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
 	// return true if #occurence >= th
@@ -179,7 +179,7 @@ int DataHolder::_count_e_normal(const Edge & e) const
 	return cnt;
 }
 
-int DataHolder::_count_m_normal(const Motif & m) const
+int DataHolder::_count_m_normal(const MotifBuilder & m) const
 {
 	int cnt = 0;
 	for(auto& sub : ss) {
@@ -204,7 +204,7 @@ bool DataHolder::_contain_e_sd(const Edge & e, const double minPortion) const
 	return false;
 }
 
-bool DataHolder::_contain_m_sd(const Motif & m, const double minPortion) const
+bool DataHolder::_contain_m_sd(const MotifBuilder & m, const double minPortion) const
 {
 	SDSignature ms(m, getnNode());
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
@@ -231,7 +231,7 @@ int DataHolder::_count_e_sd(const Edge & e) const
 	return cnt;
 }
 
-int DataHolder::_count_m_sd(const Motif & m) const
+int DataHolder::_count_m_sd(const MotifBuilder & m) const
 {
 	SDSignature ms(m, getnNode());
 	int cnt = 0;

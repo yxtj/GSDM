@@ -1,6 +1,6 @@
 #pragma once
 #include "../common/Graph.h"
-#include "../common/Motif.h"
+#include "../common/MotifBuilder.h"
 #include <vector>
 #include <functional>
 
@@ -34,12 +34,12 @@ public:
 	void setTheta(const double theta);
 
 	bool contain_normal(const Edge& e) const;
-	bool contain_normal(const Motif& m) const;
+	bool contain_normal(const MotifBuilder& m) const;
 	bool contain_sd(const Edge& e) const;
-	bool contain_sd(const Motif& m, const SDSignature& ms) const;
+	bool contain_sd(const MotifBuilder& m, const SDSignature& ms) const;
 
 	void initSignature();
-	bool checkSDNecessary(const Motif& m, const SDSignature & ms) const;
+	bool checkSDNecessary(const MotifBuilder& m, const SDSignature & ms) const;
 
 	SDSignature* getSignature();
 	const SDSignature* getSignature() const;
