@@ -15,6 +15,12 @@
     <Filter Include="Strategies\Source">
       <UniqueIdentifier>{72e1f70d-7819-41de-b646-442980977487}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataHolder">
+      <UniqueIdentifier>{6d9dca73-1090-46fd-ad13-91387f14d3ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataHolder\Source">
+      <UniqueIdentifier>{79092dea-5f5d-488c-87c2-5f6acbe358b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -69,10 +75,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataHolder.h">
-      <Filter>Header Files</Filter>
+      <Filter>DataHolder</Filter>
     </ClInclude>
     <ClInclude Include="Subject.h">
-      <Filter>Header Files</Filter>
+      <Filter>DataHolder</Filter>
+    </ClInclude>
+    <ClInclude Include="SDSignature.h">
+      <Filter>DataHolder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -143,10 +152,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DataHolder.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>DataHolder\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SDSignature.cpp">
+      <Filter>DataHolder\Source</Filter>
     </ClCompile>
     <ClCompile Include="Subject.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>DataHolder\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

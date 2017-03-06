@@ -3,11 +3,13 @@
 #include "../common/Motif.h"
 #include <vector>
 #include <functional>
+
+struct SDSignature;
+
 class Subject
 {
 	int th;
 	std::vector<Graph> gs;
-	struct SDSignature;
 	SDSignature* psign;
 public:
 	Subject();
@@ -22,28 +24,35 @@ public:
 
 	size_t size() const;
 	bool empty() const;
-	int nNode() const;
+	int getnNode() const;
 
 	std::vector<Graph>& get();
 	const std::vector<Graph>& get() const;
 	Graph& get(const int idx);
 	const Graph& get(const int idx) const;
 
-	void initSignature();
-
 	void setTheta(const double theta);
 
-	bool contain(const Edge& e) const;
-	bool contain(const Motif& m) const;
+	bool contain_normal(const Edge& e) const;
+	bool contain_normal(const Motif& m) const;
+	bool contain_sd(const Edge& e) const;
+	bool contain_sd(const Motif& m, const SDSignature& ms) const;
 
+	void initSignature();
+	bool checkSDNecessary(const Motif& m, const SDSignature & ms) const;
+
+	SDSignature* getSignature();
+	const SDSignature* getSignature() const;
+	void setSignature(const SDSignature& sign);
+	void setSignature(SDSignature&& sign);
+
+	/* Helpers */
 private:
-	std::function<bool(const Edge&)> fCE;
-	std::function<bool(const Motif&)> fCM;
+	int nNodeQuick() const;
 
-	bool _contain_e_normal(const Edge& e) const;
-	bool _contain_m_normal(const Motif& m) const;
+	/* Signature implemenation */
+private:
+	SDSignature* generateSignature();
 
-	bool _contain_e_sd(const Edge& e) const;
-	bool _contain_m_sd(const Motif& m) const;
 };
 

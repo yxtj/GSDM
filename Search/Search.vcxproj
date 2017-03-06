@@ -164,6 +164,7 @@
     <ClInclude Include="MType.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="RemoteTable.h" />
+    <ClInclude Include="SDSignature.h" />
     <ClInclude Include="Stat.h" />
     <ClInclude Include="StrategyBase.h" />
     <ClInclude Include="stdafx.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="LocalTables.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="RemoteTable.cpp" />
+    <ClCompile Include="SDSignature.cpp" />
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="Stat.cpp" />
     <ClCompile Include="StrategyBase.cpp" />

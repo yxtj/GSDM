@@ -83,7 +83,7 @@ std::vector<Motif> StrategyDUG::search(const Option & opt, DataHolder & dPos, Da
 		return std::vector<Motif>();
 
 	cout << "phase 1 (prepare uncertain graph):" << endl;
-	nNode = dPos.nNode();
+	nNode = dPos.getnNode();
 	vector<GraphProb> ugp = getUGfromCGs(dPos.get());
 	vector<GraphProb> ugn = getUGfromCGs(dNeg.get());
 	GraphProb ugall(nNode);
