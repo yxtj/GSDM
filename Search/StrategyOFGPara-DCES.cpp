@@ -14,8 +14,8 @@ void StrategyOFGPara::initialCE_para()
 	pair<int, int> cef = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*id));
 	pair<int, int> cel = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*(id + 1)));
 
-	double factor = 1.0 / pgp->size();
-	int th = static_cast<int>(ceil(minSup*pgp->size()));
+	double factor = 1.0 / pdp->size();
+	int th = static_cast<int>(ceil(minSup*pdp->size()));
 	th = max(th, 1); // in case of minSup=0
 	vector<tuple<Edge, double, int>> ceLocal;
 	for(int i = cef.first; i <= cel.first; ++i) {
@@ -24,7 +24,7 @@ void StrategyOFGPara::initialCE_para()
 		while(j < endj) {
 			++st.nEdgeChecked;
 			++st.nFreqPos;
-			int t = countEdgeXSub(i, j, *pgp);
+			int t = pdp->count(Edge{ i,j });
 			if(t >= th) {
 				auto f = t*factor;
 				ceLocal.emplace_back(Edge(i, j), f, 0);

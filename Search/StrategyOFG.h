@@ -31,9 +31,10 @@ protected:
 	int nNode;
 //	int nMinSup;
 	std::vector<double> topKScores;
-	using subject_t = std::vector<Graph>;
-	using dataset_t = std::vector<subject_t>;
-	const std::vector<std::vector<Graph>>* pgp, *pgn;
+//	using subject_t = std::vector<Graph>;
+//	using dataset_t = std::vector<subject_t>;
+	//const std::vector<std::vector<Graph>>* pgp, *pgn;
+	DataHolder* pdp, *pdn;
 
 	// statistics
 	mutable unsigned long long stNumMotifExplored;
@@ -48,22 +49,22 @@ protected:
 	std::function<double(double, double)> objFun;
 
 	// shortest distance signature
-	struct Signature {
-		std::vector<std::vector<int>> sd;
-		Signature(int n) : sd(n, std::vector<int>(n, 2 * n)) {
-			//for(int i = 0; i < n; ++i)
-			//	sd[i][i] = 0;
-		}
-		std::vector<std::vector<int>>::reference operator[](const int idx) { return sd[idx]; }
-		std::vector<std::vector<int>>::const_reference operator[](const int idx) const { return sd[idx]; }
-	};
-	std::vector<Signature> sigPos, sigNeg;
+	//struct Signature {
+	//	std::vector<std::vector<int>> sd;
+	//	Signature(int n) : sd(n, std::vector<int>(n, 2 * n)) {
+	//		//for(int i = 0; i < n; ++i)
+	//		//	sd[i][i] = 0;
+	//	}
+	//	std::vector<std::vector<int>>::reference operator[](const int idx) { return sd[idx]; }
+	//	std::vector<std::vector<int>>::const_reference operator[](const int idx) const { return sd[idx]; }
+	//};
+	//std::vector<Signature> sigPos, sigNeg;
 
-	struct MotifSign {
-		Signature sd;
-		std::vector<std::pair<int, int>> marker; // the modified edges
-		MotifSign(int n) :sd(n) {}
-	};
+	//struct MotifSign {
+	//	Signature sd;
+	//	std::vector<std::pair<int, int>> marker; // the modified edges
+	//	MotifSign(int n) :sd(n) {}
+	//};
 
 public:
 	static const std::string name;
@@ -88,7 +89,7 @@ protected:
 
 	/* Basic Utility/Functions */
 protected:
-	void initParams(const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
+	void initParams(DataHolder& dPos, DataHolder& dNeg);
 	void initStatistics();
 	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
 	void parseLOG(const std::ssub_match& param, const bool flag);
@@ -135,7 +136,7 @@ protected:
 	void setDCESmaintainOrder(bool inorder);
 	std::vector<Edge> initialCandidateEdges();
 	std::vector<std::pair<Edge, double>> getExistedEdges(
-		const std::vector<std::vector<Graph>>& subs) const;
+		const DataHolder& subs) const;
 
 	// remove unused edges (on longer connected). returns the number of removed edges
 	int maintainDCESConnected_inorder(std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& used);
@@ -160,6 +161,7 @@ protected:
 protected:
 	void setSignature();
 
+	/*
 	bool testMotifInSubSD(const MotifBuilder& m, const MotifSign& ms, const std::vector<Graph>& sub, const Signature& ss) const;
 	int countMotifXSubSD(const MotifBuilder& m, const MotifSign& ms,
 		const std::vector<std::vector<Graph>>& subs, const std::vector<Signature>& sigs) const;
@@ -171,6 +173,6 @@ protected:
 	//	void calMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
 	void calMotifSD(MotifSign& ms, const MotifBuilder& m);
 	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
-
+	*/
 };
 

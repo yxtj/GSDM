@@ -106,9 +106,6 @@
     <ClCompile Include="StrategyOFG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyOFG-SD.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyOFG-DCES.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
@@ -118,29 +115,11 @@
     <ClCompile Include="StrategyOFG-OFG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyOFGPara.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFGPara-handler.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
     <ClCompile Include="LocalTables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RemoteTable.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFGPara-DCES.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFGPara-GTK.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFGPara-mis.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFGPara-OFG.cpp">
-      <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="DistributedTopKMaintainer.cpp">
       <Filter>Source Files</Filter>

@@ -9,7 +9,7 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 {
 	cout << "Phase 1 (prepare edges)" << endl;
 	//vector<Edge> edges = initialCandidateEdges();
-	vector<pair<Edge, double>> edges = getExistedEdges(*pgp);
+	vector<pair<Edge, double>> edges = getExistedEdges(*pdp);
 	cout << "  # of edges: " << edges.size() << endl;
 	//	vector<pair<MotifBuilder, double>> last;
 	vector<MotifBuilder> last;
@@ -104,42 +104,19 @@ std::map<MotifBuilder, int> StrategyOFG::_edge1_bfs(
 
 std::pair<double, double> StrategyOFG::scoring(const MotifBuilder & mb, const double lowerBound)
 {
-	MotifSign ms(nNode);
 	// TODO: optimize with parent selection and marked SD checking
-	int cntPos;
-	if(flagUseSD) {
-		calMotifSD(ms, mb);
-		cntPos = countMotifXSubSD(mb, ms, *pgp, sigPos);
-		/*Motif m = mb.toMotif();
-		if(cntPos != countMotif(m, *pgp)) {
-		cout << "unmatch" << endl << "motif:\n";
-		for(auto& e : mb.edges)
-		cout << "(" << e.s << "," << e.d << ") ";
-		cout << "\nNo SD:\n";
-		for(size_t i = 0; i < pgp->size(); ++i)
-		cout << i << ":" << testMotif(m, pgp->at(i)) << ", ";
-		cout << "\nSD:\n";
-		for(size_t i = 0; i < pgp->size(); ++i)
-		cout << i << ":" << testMotifInSubSD(m, ms, pgp->at(i), sigPos[i]) << ", ";
-		}*/
-	} else {
-		cntPos = countMotifXSub(mb, *pgp);
-	}
+	int cntPos = pdp->count(mb);
 	++stNumFreqPos;
-	double freqPos = static_cast<double>(cntPos) / pgp->size();
+	double freqPos = static_cast<double>(cntPos) / pdp->size();
 	double scoreUB = freqPos;
 	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
 	if(scoreUB <= lowerBound)
 		return make_pair(numeric_limits<double>::lowest(), numeric_limits<double>::lowest());
 	// calculate the how score
-	int cntNeg;
-	if(flagUseSD)
-		cntNeg = countMotifXSubSD(mb, ms, *pgn, sigNeg);
-	else
-		cntNeg = countMotifXSub(mb, *pgn);
+	int cntNeg = pdn->count(mb);
 	++stNumFreqNeg;
-	double freqNeg = static_cast<double>(cntNeg) / pgn->size();
+	double freqNeg = static_cast<double>(cntNeg) / pdn->size();
 	return make_pair(scoreUB, objFun(freqPos, freqNeg));
 }
 

@@ -22,10 +22,10 @@ void StrategyOFG::setDCESmaintainOrder(bool inorder)
 std::vector<Edge> StrategyOFG::initialCandidateEdges()
 {
 	vector<Edge> res;
-	double th = max(minSup, 1.0 / pgp->size());
+	double th = max(minSup, 1.0 / pdp->size());
 	for(int s = 0; s < nNode; ++s) {
 		for(int d = s + 1; d < nNode; ++d) {
-			if(testEdgeXSub(s, d, *pgp, th))
+			if(pdp->contain({s,d},th))
 				res.emplace_back(s, d);
 		}
 	}
@@ -33,15 +33,15 @@ std::vector<Edge> StrategyOFG::initialCandidateEdges()
 }
 
 std::vector<std::pair<Edge, double>> StrategyOFG::getExistedEdges(
-	const std::vector<std::vector<Graph>>& subs) const
+	const DataHolder& dh) const
 {
 	std::vector<std::pair<Edge, double>> res;
-	double factor = 1.0 / subs.size();
-	int th = static_cast<int>(ceil(minSup*subs.size()));
+	double factor = 1.0 / dh.size();
+	int th = static_cast<int>(ceil(minSup*dh.size()));
 	th = max(th, 1); // in case of minSup=0
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = i+1; j < nNode; ++j) {
-			int t = countEdgeXSub(i, j, subs);
+			int t = dh.count({ i,j });
 			if(t >= th) {
 				auto f = t*factor;
 				res.emplace_back(Edge(i, j), f);

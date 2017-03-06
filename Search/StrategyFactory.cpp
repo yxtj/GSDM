@@ -33,7 +33,7 @@ void StrategyFactory::init()
 	// TODO: add new strategy here
 	reg<StrategyDUG>();
 	reg<StrategyOFG>();
-	reg<StrategyOFGPara>();
+//	reg<StrategyOFGPara>();
 }
 
 StrategyBase * StrategyFactory::generate(const std::string & name)

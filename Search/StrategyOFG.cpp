@@ -79,10 +79,15 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 std::vector<Motif> StrategyOFG::search(const Option & opt,
 	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
-	if(!checkInput(gPos, gNeg))
+	return std::vector<Motif>();
+}
+
+std::vector<Motif> StrategyOFG::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
+{
+	if(!checkInput(dPos, dNeg))
 		return std::vector<Motif>();
 	// initialization
-	initParams(gPos, gNeg);
+	initParams(dPos, dNeg);
 	initStatistics();
 
 	if(flagUseSD) {
@@ -103,16 +108,11 @@ std::vector<Motif> StrategyOFG::search(const Option & opt,
 	cout << "  Finished in " << ts << " seconds\n"
 		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
 		<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
-		<<" , on average: "<< (double)stNumGraphChecked/stNumSubjectChecked << " graph/subject\n"
+		<< " , on average: " << (double)stNumGraphChecked / stNumSubjectChecked << " graph/subject\n"
 		<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
 	cout.precision(oldPrec);
 	cout.setf(oldFlag);
 	return res;
-}
-
-std::vector<Motif> StrategyOFG::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
-{
-	return std::vector<Motif>();
 }
 
 bool StrategyOFG::setObjFun(const std::string & name)
@@ -151,14 +151,13 @@ double StrategyOFG::objFun_ratioP2N(const double freqPos, const double freqNeg)
 	return freqPos*freqPos / (freqPos + freqNeg);
 }
 
-void StrategyOFG::initParams(
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+void StrategyOFG::initParams(DataHolder& dPos, DataHolder& dNeg)
 {
-	pgp = &gPos;
-	pgn = &gNeg;
+	pdp = &dPos;
+	pdn = &dNeg;
 	//nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
 	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
-	nNode = gPos[0][0].nNode;
+	nNode = dPos.getnNode();
 }
 
 void StrategyOFG::initStatistics()
@@ -197,6 +196,13 @@ void StrategyOFG::parseLOG(const ssub_match & param, const bool flag)
 
 }
 
+void StrategyOFG::setSignature()
+{
+	pdp->initSignature();
+	pdn->initSignature();
+}
+
+/*
 bool StrategyOFG::testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const
 {
 	int th = static_cast<int>(ceil(graphs.size()*pSnap));
@@ -298,3 +304,4 @@ int StrategyOFG::countMotifXSub(const MotifBuilder & m, const std::vector<std::v
 	return cnt;
 
 }
+*/
