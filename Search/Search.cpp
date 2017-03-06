@@ -84,7 +84,9 @@ vector<vector<string>> loadFnList(const string& folder,
 		// sort the snapshot files
 		if(sfp.second.size() > limitSnp) {
 			//partial_sort(sfp.second.begin(), sfp.second.begin() + limitSnp, sfp.second.end());
-			sort(sfp.second.begin(), sfp.second.end());
+			sort(sfp.second.begin(), sfp.second.end(), [](SubjectInfo& l, SubjectInfo& r) {
+				return l.id < r.id ? true : l.id == r.id&&l.seqNum < r.seqNum;
+			});
 			sfp.second.erase(sfp.second.begin() + limitSnp, sfp.second.end());
 		}
 		vector<string> fns;
@@ -108,6 +110,7 @@ DataHolder loadData(const string& folder, const vector<vector<string>>& fnList)
 			}
 			sub.addGraph(loadGraph(fin));
 		}
+		res.addSubject(move(sub));
 	}
 	return res;
 }
