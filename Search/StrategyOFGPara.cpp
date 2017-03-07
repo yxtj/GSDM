@@ -93,13 +93,13 @@ void StrategyOFGPara::parseStat(const ssub_match & param, const bool flag)
 }
 
 std::vector<Motif> StrategyOFGPara::search(const Option & opt,
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+	DataHolder & dPos, DataHolder & dNeg)
 {
-	if(!checkInput(gPos, gNeg))
+	if(!checkInput(dPos, dNeg))
 		return std::vector<Motif>();
 	// step 0: initialization: parameters, message driver, network thread, message thread
 	net = NetworkThread::GetInstance();
-	initParams(gPos, gNeg); //should be put after the initialization of net
+	initParams(dPos, dNeg); //should be put after the initialization of net
 	initStatistics();
 	initHandlers(); // should be put after the initialization fo net
 	if(flagUseSD) {
@@ -185,15 +185,15 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	return res;
 }
 
-std::vector<Motif> StrategyOFGPara::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
+std::vector<Motif> StrategyOFGPara::search(const Option & opt,
+	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
 {
 	return std::vector<Motif>();
 }
 
-void StrategyOFGPara::initParams(
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+void StrategyOFGPara::initParams(DataHolder& dPos, DataHolder& dNeg)
 {
-	StrategyOFG::initParams(gPos, gNeg);
+	StrategyOFG::initParams(dPos, dNeg);
 	running_ = true;
 	globalBound = numeric_limits<decltype(globalBound)>::lowest();
 	holder = new TopKBoundedHolder<Motif, double>(k);

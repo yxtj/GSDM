@@ -73,8 +73,7 @@ public:
 
 	// Steps
 private:
-	void initParams(
-		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
+	void initParams(DataHolder& dPos, DataHolder& dNeg);
 	void initLRTables();
 	void initHandlers();
 

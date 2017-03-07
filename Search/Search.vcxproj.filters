@@ -139,6 +139,24 @@
     <ClCompile Include="Subject.cpp">
       <Filter>DataHolder\Source</Filter>
     </ClCompile>
+    <ClCompile Include="StrategyOFGPara.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-DCES.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-GTK.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-handler.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-mis.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-OFG.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />
