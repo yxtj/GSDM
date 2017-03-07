@@ -5,7 +5,9 @@
 class DataHolder
 {
 	std::vector<Subject> ss;
-
+	mutable unsigned long long nSubjectChecked;
+	mutable unsigned long long nEdgeChecked;
+	mutable unsigned long long nMotifChecked;
 public:
 	DataHolder();
 	~DataHolder();
@@ -27,6 +29,10 @@ public:
 	bool contain(const MotifBuilder& m, const double minPortion) const;
 	int count(const Edge& e) const;
 	int count(const MotifBuilder& m) const;
+
+	unsigned long long getnSubjectChecked() const;
+	unsigned long long getnEdgeChecked() const;
+	unsigned long long getnMotifChecked() const;
 
 	void initSignature();
 	void initSignature(const int from, const int to);

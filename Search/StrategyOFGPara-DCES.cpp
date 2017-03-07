@@ -22,8 +22,6 @@ void StrategyOFGPara::initialCE_para()
 		int j = (i == cef.first ? cef.second : i + 1);
 		int endj = (i == cel.first ? cel.second : nNode);
 		while(j < endj) {
-			++st.nEdgeChecked;
-			++st.nFreqPos;
 			int t = pdp->count(Edge{ i,j });
 			if(t >= th) {
 				auto f = t*factor;

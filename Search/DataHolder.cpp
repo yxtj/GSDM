@@ -5,6 +5,7 @@
 using namespace std;
 
 DataHolder::DataHolder()
+	: nSubjectChecked(0), nEdgeChecked(0), nMotifChecked(0)
 {
 	bindCheckFunNormal();
 }
@@ -85,6 +86,21 @@ int DataHolder::count(const MotifBuilder & m) const
 	return (this->*fCountM)(m);
 }
 
+unsigned long long DataHolder::getnSubjectChecked() const
+{
+	return nSubjectChecked;
+}
+
+unsigned long long DataHolder::getnEdgeChecked() const
+{
+	return nEdgeChecked;
+}
+
+unsigned long long DataHolder::getnMotifChecked() const
+{
+	return nMotifChecked;
+}
+
 void DataHolder::initSignature()
 {
 	for(auto& s : ss)
@@ -141,10 +157,11 @@ void DataHolder::bindCheckFunSD()
 
 bool DataHolder::_contain_e_normal(const Edge & e, const double minPortion) const
 {
+	++nEdgeChecked;
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
 	// return true if #occurence >= th
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_normal(e)) {
 			if(--th <= 0)
 				return true;
@@ -155,10 +172,11 @@ bool DataHolder::_contain_e_normal(const Edge & e, const double minPortion) cons
 
 bool DataHolder::_contain_m_normal(const MotifBuilder & m, const double minPortion) const
 {
+	++nMotifChecked;
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
 	// return true if #occurence >= th
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_normal(m)) {
 			if(--th <= 0)
 				return true;
@@ -169,9 +187,10 @@ bool DataHolder::_contain_m_normal(const MotifBuilder & m, const double minPorti
 
 int DataHolder::_count_e_normal(const Edge & e) const
 {
+	++nEdgeChecked;
 	int cnt = 0;
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_normal(e)) {
 			++cnt;
 		}
@@ -181,9 +200,10 @@ int DataHolder::_count_e_normal(const Edge & e) const
 
 int DataHolder::_count_m_normal(const MotifBuilder & m) const
 {
+	++nMotifChecked;
 	int cnt = 0;
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_normal(m)) {
 			++cnt;
 		}
@@ -193,9 +213,10 @@ int DataHolder::_count_m_normal(const MotifBuilder & m) const
 
 bool DataHolder::_contain_e_sd(const Edge & e, const double minPortion) const
 {
+	++nEdgeChecked;
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_sd(e)) {
 			if(--th <= 0)
 				return true;
@@ -206,11 +227,12 @@ bool DataHolder::_contain_e_sd(const Edge & e, const double minPortion) const
 
 bool DataHolder::_contain_m_sd(const MotifBuilder & m, const double minPortion) const
 {
+	++nMotifChecked;
 	SDSignature ms(m, getnNode());
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
 	// return true if #occurence >= th
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_sd(m, ms)) {
 			if(--th <= 0)
 				return true;
@@ -221,9 +243,10 @@ bool DataHolder::_contain_m_sd(const MotifBuilder & m, const double minPortion) 
 
 int DataHolder::_count_e_sd(const Edge & e) const
 {
+	++nEdgeChecked;
 	int cnt = 0;
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_sd(e)) {
 			++cnt;
 		}
@@ -233,10 +256,11 @@ int DataHolder::_count_e_sd(const Edge & e) const
 
 int DataHolder::_count_m_sd(const MotifBuilder & m) const
 {
+	++nMotifChecked;
 	SDSignature ms(m, getnNode());
 	int cnt = 0;
 	for(auto& sub : ss) {
-		//++stNumSubjectChecked;
+		++nSubjectChecked;
 		if(sub.contain_sd(m, ms)) {
 			++cnt;
 		}

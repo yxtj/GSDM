@@ -4,6 +4,8 @@
 
 using namespace std;
 
+unsigned long long Subject::nGraphChecked = 0;
+
 Subject::Subject()
 	: psign(nullptr)
 {
@@ -100,7 +102,7 @@ bool Subject::contain_normal(const Edge & e) const
 {
 	int req = th;
 	for(auto& g : gs) {
-		//++stNumGraphChecked;
+		++nGraphChecked;
 		if(g.testEdge(e))
 			if(--req <= 0)
 				return true;
@@ -112,7 +114,7 @@ bool Subject::contain_normal(const MotifBuilder & m) const
 {
 	int req = th;
 	for(auto& g : gs) {
-		//++stNumGraphChecked;
+		++nGraphChecked;
 		if(g.testMotif(m))
 			if(--req <= 0)
 				return true;
@@ -130,6 +132,11 @@ bool Subject::contain_sd(const MotifBuilder & m, const SDSignature & ms) const
 	if(!checkSDNecessary(m, ms))
 		return false;
 	return contain_normal(m);
+}
+
+unsigned long long Subject::getnGraphChecked()
+{
+	return nGraphChecked;
 }
 
 SDSignature* Subject::generateSignature()

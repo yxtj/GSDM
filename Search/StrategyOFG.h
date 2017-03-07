@@ -39,10 +39,6 @@ protected:
 	// statistics
 	mutable unsigned long long stNumMotifExplored;
 	mutable unsigned long long stNumMotifGenerated;
-	mutable unsigned long long stNumGraphChecked;
-	mutable unsigned long long stNumSubjectChecked;
-	mutable unsigned long long stNumFreqPos;
-	mutable unsigned long long stNumFreqNeg;
 
 	using objFun_t = double(StrategyOFG::*)(double, double);
 	//objFun_t objFun;

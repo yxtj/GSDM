@@ -99,11 +99,21 @@ std::vector<Motif> StrategyOFG::search(const Option & opt, DataHolder & dPos, Da
 
 	auto oldFlag = cout.setf(ios::fixed);
 	auto oldPrec = cout.precision(2);
-	cout << "  Finished in " << ts << " seconds\n"
-		<< "    motif explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated << "\n"
-		<< "    subject counted: " << stNumSubjectChecked << " , graph counted: " << stNumGraphChecked
-		<< " , on average: " << (double)stNumGraphChecked / stNumSubjectChecked << " graph/subject\n"
-		<< "    frequency calculated on positive: " << stNumFreqPos << " , on negative: " << stNumFreqNeg << endl;
+	auto stNumFreqPos = dPos.getnMotifChecked();
+	auto stNumFreqNeg = dNeg.getnMotifChecked();
+	auto stNumEdgeChecked = dPos.getnEdgeChecked() + dNeg.getnEdgeChecked();
+	auto stNumSubjectChecked = dPos.getnSubjectChecked() + dNeg.getnSubjectChecked();
+	auto stNumGraphChecked = Subject::getnGraphChecked();
+	cout << "  Finished in " << ts << " seconds\n";
+	cout << "  Motifs: explored " << stNumMotifExplored << " , generated " << stNumMotifGenerated
+		<< " , ratio: " << (double)stNumMotifExplored / stNumMotifGenerated << "\n";
+	cout << "  Freqencies: on positive " << stNumFreqPos << " , on negative " << stNumFreqNeg
+		<< " , ratio: " << (double)stNumFreqNeg / stNumFreqPos << "\n";
+	cout << "  Subjects: " << stNumSubjectChecked << " , Graphs: " << stNumGraphChecked << "\n";
+	cout << "  G-ratio: " << (double)stNumGraphChecked / stNumSubjectChecked << " graph/subject"
+		<< " , F-ratio: " << (double)stNumSubjectChecked / (stNumFreqPos + stNumFreqNeg) << " subject/frequency"
+		<< " , M-ratio: " << (double)stNumSubjectChecked / (stNumMotifExplored + stNumEdgeChecked) << " subject/motif\n";
+
 	cout.precision(oldPrec);
 	cout.setf(oldFlag);
 	return res;
@@ -160,10 +170,6 @@ void StrategyOFG::initStatistics()
 {
 	stNumMotifExplored = 0;
 	stNumMotifGenerated = 0;
-	stNumGraphChecked = 0;
-	stNumSubjectChecked = 0;
-	stNumFreqPos = 0;
-	stNumFreqNeg = 0;
 }
 
 void StrategyOFG::parseDCES(const ssub_match & option, const ssub_match & minsup, const bool flag)

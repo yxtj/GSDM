@@ -11,6 +11,8 @@ class Subject
 	int th;
 	std::vector<Graph> gs;
 	SDSignature* psign;
+	
+	static unsigned long long nGraphChecked;
 public:
 	Subject();
 	~Subject();
@@ -37,6 +39,8 @@ public:
 	bool contain_normal(const MotifBuilder& m) const;
 	bool contain_sd(const Edge& e) const;
 	bool contain_sd(const MotifBuilder& m, const SDSignature& ms) const;
+
+	static unsigned long long getnGraphChecked();
 
 	void initSignature();
 	bool checkSDNecessary(const MotifBuilder& m, const SDSignature & ms) const;

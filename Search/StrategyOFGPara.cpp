@@ -159,14 +159,17 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Gathering Statistics..." << endl;
 	}
-	st.timeTotal = timer.elapseMS();
-	// TODO: change scan functions to use Stat
-	st.nGraphChecked += stNumGraphChecked;
-	st.nSubjectChecked += stNumSubjectChecked;
-	st.nFreqPos += stNumFreqPos;
-	st.nFreqNeg += stNumFreqNeg;
-	st.netByteSend += net->stat_send_byte;
-	st.netByteRecv += net->stat_recv_byte;
+	{
+		lock_guard<mutex> lg(mst);
+		st.timeTotal += timer.elapseMS();
+		st.nGraphChecked += Subject::getnGraphChecked();
+		st.nSubjectChecked += dPos.getnSubjectChecked() + dNeg.getnSubjectChecked();
+		st.nEdgeChecked += dPos.getnEdgeChecked() + dNeg.getnEdgeChecked();
+		st.nFreqPos += dPos.getnMotifChecked();
+		st.nFreqNeg += dNeg.getnMotifChecked();
+		st.netByteSend += net->stat_send_byte;
+		st.netByteRecv += net->stat_recv_byte;
+	}
 
 	gatherStatistics();
 	auto ts = timer.elapseS();
