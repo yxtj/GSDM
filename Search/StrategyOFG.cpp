@@ -153,6 +153,8 @@ double StrategyOFG::objFun_ratioP2N(const double freqPos, const double freqNeg)
 
 void StrategyOFG::initParams(DataHolder& dPos, DataHolder& dNeg)
 {
+	dPos.setTheta(pSnap);
+	dNeg.setTheta(pSnap);
 	pdp = &dPos;
 	pdn = &dNeg;
 	//nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);

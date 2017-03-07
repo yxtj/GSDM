@@ -87,6 +87,7 @@ vector<vector<string>> loadFnList(const string& folder,
 			sort(sfp.second.begin(), sfp.second.end(), [](SubjectInfo& l, SubjectInfo& r) {
 				return l.id < r.id ? true : l.id == r.id&&l.seqNum < r.seqNum;
 			});
+			//sort(sfp.second.begin(), sfp.second.end());
 			sfp.second.erase(sfp.second.begin() + limitSnp, sfp.second.end());
 		}
 		vector<string> fns;
