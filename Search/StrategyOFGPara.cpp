@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "StrategyOFGPara.h"
 #include "Option.h"
+#include "MType.h"
+#include "SDSignature.h"
 #include "../util/Timer.h"
-#include"MType.h"
 #include <regex>
 
 using namespace std;
@@ -126,12 +127,6 @@ std::vector<Motif> StrategyOFGPara::search(
 	net = NetworkThread::GetInstance();
 	initParams(dPos, dNeg); //should be put after the initialization of net
 	initHandlers(); // should be put after the initialization fo net
-	if(flagUseSD) {
-		cout << logHeadID("LOG") + "Generating subject signatures..." << endl;
-		Timer timer;
-		setSignature();
-		cout << logHeadID("LOG") + "  Signatures generated in " + to_string(timer.elapseS()) + " s" << endl;
-	}
 	running_ = true;
 	thread tRecvMsg(bind(&StrategyOFGPara::messageReceiver, this));
 	int id = net->id();
@@ -142,7 +137,15 @@ std::vector<Motif> StrategyOFGPara::search(
 	if(id == MASTER_ID)
 		cout << logHead("LOG") + "All workers started." << endl;
 
-	// step 2: initial candidate edge set
+	// step 2: generated signature (if required) and initial candidate edge set
+	if(flagUseSD) {
+		Timer timer;
+		if(id == MASTER_ID)
+			cout << logHead("LOG") + "Generating subject signatures..." << endl;
+		initialSignature_para();
+		//if(id == MASTER_ID)
+			cout << logHead("LOG") + "  Signatures generated in " + to_string(timer.elapseS()) + " s" << endl;
+	}
 	timer.restart();
 	initialCE_para(dPos);
 	if(id == MASTER_ID) {
@@ -230,12 +233,6 @@ void StrategyOFGPara::initParams(DataHolder& dPos, DataHolder& dNeg)
 	globalTopKScores.init(k);
 }
 
-void StrategyOFGPara::setSignature()
-{
-	pdp->initSignature();
-	pdn->initSignature();
-}
-
 void StrategyOFGPara::initLRTables()
 {
 	ltable.init(&StrategyOFGPara::getNParents, globalBound);
@@ -268,6 +265,79 @@ void StrategyOFGPara::registerAllWorkers()
 	}
 }
 
+void StrategyOFGPara::initialSignature_para()
+{
+	initialSignParaOne(*pdp, 1);
+	initialSignParaOne(*pdn, 0);
+	Timer t;
+	suSGInit.wait();
+	st.timeWait += t.elapseMS();
+}
+
+void StrategyOFGPara::initialSignParaOne(DataHolder & dh, const int dtype)
+{
+	int size = net->size();
+	int id = net->id();
+	int n = dh.size();
+	int f = n*id / size, l = n*(id + 1) / size;
+	dh.initSignature(f, l);
+	rph.input(MType::SGInit, id);
+	if(size > 1)
+		net->broadcast(MType::SGInit, signSerialize(dh, dtype, f, l));
+}
+
+bool StrategyOFGPara::signRecv(const std::string & msg)
+{
+	int dtype, f, l;
+	vector<SDSignature> sg;
+	tie(dtype, f, l, sg) = signDeserialize(msg);
+	if(l - f == sg.size()) {
+		for(int i = f; i < l; ++i)
+			signMerge(dtype, i, move(sg[i - f]));
+		return true;
+	}
+	return false;
+}
+
+std::string StrategyOFGPara::signSerialize(DataHolder & dh, const int dtype, const int f, const int l)
+{
+	string buffer;
+	buffer.resize(3 * sizeof(int32_t) + (l - f)*nNode*nNode * sizeof(int32_t));
+	char* p = const_cast<char*>(buffer.data());
+	int32_t* pi = reinterpret_cast<int32_t*>(p);
+	*pi++ = dtype;
+	*pi++ = f;
+	*pi++ = l;
+	p = reinterpret_cast<char*>(pi);
+	for(int i = f; i < l; ++i) {
+		SDSignature* ps = dh.getSignature(i);
+		p = serialize<SDSignature>(p, *ps);
+	}
+	return buffer;
+}
+
+std::tuple<int, int, int, std::vector<SDSignature>> StrategyOFGPara::signDeserialize(const std::string & msg)
+{
+	const int32_t* pi = reinterpret_cast<const int32_t*>(msg.data());
+	int dtype = *pi++;
+	int f = *pi++;
+	int l = *pi++;
+	const char* p = reinterpret_cast<const char*>(pi);
+	vector<SDSignature> sg;
+	sg.reserve(l - f);
+	for(int i = f; i < l; ++i) {
+		auto sp = deserialize<SDSignature>(p);
+		p = sp.second;
+		sg.push_back(move(sp.first));
+	}
+	return make_tuple(dtype, f, l, move(sg));
+}
+
+void StrategyOFGPara::signMerge(const int dtype, const int idx, SDSignature && sd)
+{
+	getDataHolder(dtype)->setSignature(idx, move(sd));
+}
+
 void StrategyOFGPara::messageReceiver()
 {
 	string data;
@@ -284,6 +354,15 @@ void StrategyOFGPara::messageReceiver()
 			this_thread::sleep_for(chrono::milliseconds(e));
 		}
 	}
+}
+
+DataHolder * StrategyOFGPara::getDataHolder(const int dtype)
+{
+	return dtype == 1 ? pdp : pdn;
+	if(dtype == 1)
+		return pdp;
+	else
+		return pdn;
 }
 
 int StrategyOFGPara::getMotifOwner(const Motif & m)

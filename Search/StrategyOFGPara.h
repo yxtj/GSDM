@@ -99,11 +99,11 @@ private:
 	SyncUnit suReg, suStart;
 	void registerAllWorkers();
 
+	SyncUnit suSGInit;
+	void initialSignature_para();
+
 	SyncUnit suCEinit;
 	void initialCE_para(const DataHolder& dPos);
-
-	SyncUnit suSignInit;
-	void setSignature();
 
 	SyncUnit suSearchEnd;
 	void work_para();
@@ -126,8 +126,16 @@ private:
 	void parseLOG(const std::ssub_match & param, const bool flag);
 	void parseStat(const std::ssub_match& m, const bool flag);
 
-	std::pair<int, int> num2Edge(const int idx);
+	DataHolder* getDataHolder(const int dtype); // 1->pos, 0->neg
 	int getMotifOwner(const Motif& m);
+
+	void initialSignParaOne(DataHolder& dh, const int dtype);
+	bool signRecv(const std::string& msg);
+	std::string signSerialize(DataHolder& dh, const int dtype, const int f, const int l);
+	std::tuple<int, int, int, std::vector<SDSignature>> signDeserialize(const std::string& msg);
+	void signMerge(const int dtype, const int idx, SDSignature&& sd);
+
+	std::pair<int, int> num2Edge(const int idx);
 
 	bool explore(const Motif& m);
 	std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
@@ -183,7 +191,6 @@ private:
 	void topKCoordinateFinish();
 	void topKMerge(const std::vector<double>& recv, const int source);
 
-
 	void resultSend();
 	void resultReceive();
 	void resultMerge(std::vector<std::pair<Motif, double>>& recv);
@@ -208,6 +215,8 @@ public:
 	// callbacks:
 	void cbRegisterWorker(const std::string& d, const RPCInfo& info);
 	void cbStart(const std::string& d, const RPCInfo& info);
+
+	void cbSGInit(const std::string& d, const RPCInfo& info);
 
 	void cbCEInit(const std::string& d, const RPCInfo& info);
 	void cbCERemove(const std::string& d, const RPCInfo& info);

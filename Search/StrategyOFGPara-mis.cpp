@@ -69,12 +69,12 @@ void StrategyOFGPara::gatherStatistics()
 
 void StrategyOFGPara::statSend()
 {
-	net->send(MASTER_ID, MType::SGather, st);
+	net->send(MASTER_ID, MType::STGather, st);
 }
 
 void StrategyOFGPara::statReceive()
 {
-	rph.input(MType::SGather, net->id());
+	rph.input(MType::STGather, net->id());
 	{
 		Timer t;
 		suStat.wait();

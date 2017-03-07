@@ -26,6 +26,11 @@ void StrategyOFGPara::initHandlers()
 	rph.addType(MType::CReady, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&SyncUnit::notify, &suStart));
 
+	// signature initialization
+	regDSPProcess(MType::SGInit, &StrategyOFGPara::cbSGInit);
+	rph.addType(MType::SGInit, ReplyHandler::condFactory(ReplyHandler::GENERAL, vector<int>(size, 2)),
+		bind(&SyncUnit::notify, &suSGInit));
+
 	// candidate edge inititalization
 	regDSPProcess(MType::CEInit, &StrategyOFGPara::cbCEInit);
 	rph.addType(MType::CEInit, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
@@ -59,8 +64,8 @@ void StrategyOFGPara::initHandlers()
 		bind(&SyncUnit::notify, &suTKGather));
 
 	// statistics gathering
-	regDSPProcess(MType::SGather, &StrategyOFGPara::cbGatherStat);
-	rph.addType(MType::SGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
+	regDSPProcess(MType::STGather, &StrategyOFGPara::cbGatherStat);
+	rph.addType(MType::STGather, ReplyHandler::condFactory(ReplyHandler::EACH_ONE, size),
 		bind(&SyncUnit::notify, &suStat));
 }
 
@@ -72,6 +77,16 @@ void StrategyOFGPara::cbRegisterWorker(const std::string & d, const RPCInfo & in
 void StrategyOFGPara::cbStart(const std::string & d, const RPCInfo & info)
 {
 	rph.input(info.tag, info.source);
+}
+
+void StrategyOFGPara::cbSGInit(const std::string & d, const RPCInfo & info)
+{
+	if(signRecv(d)) {
+		rph.input(MType::SGInit, info.source);
+	} else {
+		throw runtime_error("Distributed signature initializing failed on message from "
+			+ to_string(info.source) + " to" + to_string(info.dest));
+	}
 }
 
 void StrategyOFGPara::cbCEInit(const std::string & d, const RPCInfo & info)
@@ -162,6 +177,6 @@ void StrategyOFGPara::cbGatherStat(const std::string & d, const RPCInfo & info)
 {
 	Stat recv = deserialize<Stat>(d);
 	statMerge(info.source, recv);
-	rph.input(MType::SGather, info.source);
+	rph.input(MType::STGather, info.source);
 }
 
