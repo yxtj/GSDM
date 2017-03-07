@@ -162,7 +162,8 @@ int StrategyOFG::quickEstimiateNumberOfParents(const Motif & m)
 		++cont[e.s];
 		++cont[e.d];
 	}
-	return count_if(cont.begin(), cont.end(), [](const pair<const int, int>& p) {return p.second == 1; });
+	return count_if(cont.begin(), cont.end(),
+		[](const pair<const int, int>& p) {return p.second == 1; });
 
 }
 

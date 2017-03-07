@@ -123,6 +123,22 @@ bool StrategyOFGPara::explore(const Motif & m)
 	return used;
 }
 
+std::pair<double, double> StrategyOFGPara::scoring(const MotifBuilder & mb, const double lowerBound)
+{
+	// TODO: optimize with parent selection and marked SD checking
+	int cntPos = pdp->count(mb);
+	double freqPos = static_cast<double>(cntPos) / pdp->size();
+	double scoreUB = freqPos;
+	// freqPos is the upperbound of differential & ratio based objective function
+	//if(freqPos < minSup || scoreUB <= lowerBound)
+	if(scoreUB <= lowerBound)
+		return make_pair(numeric_limits<double>::lowest(), numeric_limits<double>::lowest());
+	// calculate the how score
+	int cntNeg = pdn->count(mb);
+	double freqNeg = static_cast<double>(cntNeg) / pdn->size();
+	return make_pair(scoreUB, objFun(freqPos, freqNeg));
+}
+
 std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
 	const Motif & m, const double ub, const bool mark)
 {

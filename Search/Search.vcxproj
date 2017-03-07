@@ -162,6 +162,7 @@
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="LocalTables.h" />
     <ClInclude Include="MType.h" />
+    <ClInclude Include="ObjFunction.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="RemoteTable.h" />
     <ClInclude Include="SDSignature.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="DistributedTopKMaintainer.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="LocalTables.cpp" />
+    <ClCompile Include="ObjFunction.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="RemoteTable.cpp" />
     <ClCompile Include="SDSignature.cpp" />

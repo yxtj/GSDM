@@ -1,6 +1,7 @@
 #pragma once
 #include "StrategyBase.h"
 #include "TopKHolder.hpp"
+#include "ObjFunction.h"
 #include <vector>
 #include <map>
 #include <functional>
@@ -12,12 +13,10 @@ class StrategyOFG :
 protected:
 	// input options:
 	size_t k; // number of result
-//	int smin, smax; // minimum/maximum motif size
-	double minSup; // minimum show up probability among postive subjects
 	double pSnap; // minimum show up probability among a subject's all snapshots
-	std::string objFunName; // the name for the objective function
-	double alpha; // penalty for negative frequency
-	bool flagDistributed;
+	double minSup; // minimum show up probability among postive subjects
+	ObjFunction objFun;
+	//bool flagDistributed;
 
 	bool flagUseSD; // whether to use the shortest distance optimization
 	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
@@ -40,10 +39,6 @@ protected:
 	mutable unsigned long long stNumMotifExplored;
 	mutable unsigned long long stNumMotifGenerated;
 
-	using objFun_t = double(StrategyOFG::*)(double, double);
-	//objFun_t objFun;
-	std::function<double(double, double)> objFun;
-
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -55,18 +50,11 @@ public:
 	virtual std::vector<Motif> search(const Option& opt,
 		DataHolder& dPos, DataHolder& dNeg);
 
-	/* Objective Functions: */
-protected:
-	bool setObjFun(const std::string& name);
-
-	double objFun_diffP2N(const double freqPos, const double freqNeg);
-	double objFun_marginP2N(const double freqPos, const double freqNeg);
-	double objFun_ratioP2N(const double freqPos, const double freqNeg);
-
 	/* Basic Utility/Functions */
 protected:
 	void initParams(DataHolder& dPos, DataHolder& dNeg);
 	void initStatistics();
+	void parseObj(const std::string& name, const std::ssub_match& alpha);
 	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
 	void parseLOG(const std::ssub_match& param, const bool flag);
 

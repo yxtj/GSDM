@@ -21,6 +21,12 @@
     <Filter Include="DataHolder\Source">
       <UniqueIdentifier>{79092dea-5f5d-488c-87c2-5f6acbe358b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Distributed">
+      <UniqueIdentifier>{b48a8678-1693-4c68-8802-3fc1385e4c50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Distributed\Source">
+      <UniqueIdentifier>{0dd9a219-3783-4d51-abd9-dce49ae85e4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -59,15 +65,6 @@
     <ClInclude Include="MType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LocalTables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RemoteTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DistributedTopKMaintainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Stat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -82,6 +79,18 @@
     </ClInclude>
     <ClInclude Include="SDSignature.h">
       <Filter>DataHolder</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalTables.h">
+      <Filter>Distributed</Filter>
+    </ClInclude>
+    <ClInclude Include="DistributedTopKMaintainer.h">
+      <Filter>Distributed</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteTable.h">
+      <Filter>Distributed</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjFunction.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -115,15 +124,6 @@
     <ClCompile Include="StrategyOFG-OFG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="LocalTables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RemoteTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DistributedTopKMaintainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Stat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -156,6 +156,18 @@
     </ClCompile>
     <ClCompile Include="StrategyOFGPara-OFG.cpp">
       <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DistributedTopKMaintainer.cpp">
+      <Filter>Distributed\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalTables.cpp">
+      <Filter>Distributed\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteTable.cpp">
+      <Filter>Distributed\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjFunction.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

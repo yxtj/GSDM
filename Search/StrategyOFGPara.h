@@ -1,5 +1,6 @@
 #pragma once
-#include "StrategyOFG.h"
+#include "StrategyBase.h"
+#include "ObjFunction.h"
 #include "TopKBoundedHolder.hpp"
 #include "LocalTables.h"
 #include "RemoteTable.h"
@@ -10,10 +11,39 @@
 #include "../msgdriver/MsgDriver.h"
 #include "../msgdriver/tools/ReplyHandler.h"
 #include "../msgdriver/tools/SyncUnit.h"
+#include <regex>
 
 class StrategyOFGPara :
-	public StrategyOFG
+	public StrategyBase
 {
+	size_t k; // number of result
+	double pSnap; // minimum show up probability among a subject's all snapshots
+	double minSup; // minimum show up probability among postive subjects
+	ObjFunction objFun;
+	//bool flagDistributed;
+
+	bool flagUseSD; // whether to use the shortest distance optimization
+	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
+	bool flagDCESConnected; // whether to use the dynamic candiate edge set (connect with valid motif in last layer)
+	bool flagDCESBound; // whether to use the dynamic candiate edge set (upper bound condition)
+	bool flagOutputScore; // whether to output the score of the top-k result
+	std::string pathOutputScore; // the path of the score file
+	bool flagStatDump;
+	std::string pathStatDump;
+
+private:
+	int nNode;
+	Timer timer;
+
+	DataHolder *pdp, *pdn;
+
+	// Statistics:
+	mutable Stat st;
+	std::mutex mst;
+	std::vector<Stat> statBuff; // only used for StatDump on master
+
+	/* Distribution required */
+private:
 	NetworkThread* net;
 	MsgDriver driver;
 	bool running_;
@@ -48,26 +78,17 @@ private:
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
 
-private:
-	Timer timer;
-
-	bool flagStatDump;
-	std::string pathStatDump;
-	std::mutex mst;
-	mutable Stat st;
-	std::vector<Stat> statBuff; // only used for StatDump on master
 public:
 	static const std::string name;
 	static const std::string usage;
-	static const std::string usageDesc, usageParam;
 
 	StrategyOFGPara() = default;
 
 	virtual bool parse(const std::vector<std::string>& param);
 
 	// initialize and search
-	virtual std::vector<Motif> search(const Option& opt,
-		DataHolder& dPos, DataHolder& dNeg);
+	virtual std::vector<Motif> search(
+		const Option& opt, DataHolder& dPos, DataHolder& dNeg);
 
 	// Steps
 private:
@@ -79,7 +100,10 @@ private:
 	void registerAllWorkers();
 
 	SyncUnit suCEinit;
-	void initialCE_para();
+	void initialCE_para(const DataHolder& dPos);
+
+	SyncUnit suSignInit;
+	void setSignature();
 
 	SyncUnit suSearchEnd;
 	void work_para();
@@ -97,14 +121,19 @@ private:
 	
 /* helpers */
 private:
+	void parseObj(const std::string& name, const std::ssub_match& alpha);
+	void parseDCES(const std::ssub_match & option, const std::ssub_match & minsup, const bool flag);
+	void parseLOG(const std::ssub_match & param, const bool flag);
 	void parseStat(const std::ssub_match& m, const bool flag);
 
 	std::pair<int, int> num2Edge(const int idx);
 	int getMotifOwner(const Motif& m);
 
 	bool explore(const Motif& m);
+	std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
 	// return new motifs and their upper-bounds ( min(ub, new-edge.ub) )
 	std::vector<std::pair<Motif, double>> expand(const Motif& m, const double ub, const bool used);
+	static int quickEstimiateNumberOfParents(const Motif & m);
 //	static int getNParents(const MotifBuilder& m);
 	static int getNParents(const Motif& m);
 

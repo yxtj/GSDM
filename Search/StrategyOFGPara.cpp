@@ -8,16 +8,12 @@
 using namespace std;
 
 const std::string StrategyOFGPara::name("ofg-para");
-const std::string StrategyOFGPara::usageDesc(
+const std::string StrategyOFGPara::usage(
 	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyOFGPara::name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [npar] [log] [stat]"
-);
-const std::string StrategyOFGPara::usageParam(
+	"Usage: " + StrategyOFGPara::name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [npar] [log] [stat]\n"
 	"  <k>: [integer] return top-k result\n"
-	//	"  <minSup>: [double] the minimum show up probability of a motif among positive subjects\n"
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
-	"  <obj-fun>: [string] name for the objective function (supprot: diff, margin, ratio)\n"
-	"  <alpha>: [double] the penalty factor for the negative frequency\n"
+	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::usage + ")\n"
 	//"  <dist>: optional [dist/dist-no], default disabled, run in distributed manner\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
@@ -28,19 +24,18 @@ const std::string StrategyOFGPara::usageParam(
 	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path\n"
 	"  [stat]: optional [stat:<path>/stat-no], default disabled, dump the statistics of all workers to a file"
 );
-const std::string StrategyOFGPara::usage = StrategyOFGPara::usageDesc + "\n" + StrategyOFGPara::usageParam;
 
 bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 {
 	try {
-		checkParam(param, 4, 9, name);
+		checkParam(param, 3, 9, name);
 		k = stoi(param[1]);
 		pSnap = stod(param[2]);
-		if(!setObjFun(param[3]))
-			throw invalid_argument("Unsupported objective function for Strategy " + name + " : " + param[3]);
-		// TODO: change to use a separated functio to parse the parameters for certain objective function
-		if(objFunID == 1)
-			alpha = stod(param[4]);
+		smatch m;
+		regex reg_obj("(\\w+)(:\\d?\\.?\\d+)?");
+		if(regex_match(param[3], m, reg_obj)) {
+			parseObj(m[1].str(), m[2]);
+		}
 		flagUseSD = true;
 		flagNetworkPrune = true;
 		flagDCESConnected = true;
@@ -53,8 +48,7 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 		regex reg_dces("dces(-[cb])?(-no)?(:0\\.\\d+)?");
 		regex reg_log("log(:.+)?(-no)?");
 		regex reg_stat("stat(:.+)?(-no)?");
-		for(size_t i = 5; i < param.size(); ++i) {
-			smatch m;
+		for(size_t i = 4; i < param.size(); ++i) {
 			if(regex_match(param[i], m, reg_sd)) {
 				bool flag = !m[1].matched;
 				flagUseSD = flag;
@@ -74,13 +68,44 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
 			}
 		}
-		// TODO: consider whether to put in an option
-		setDCESmaintainOrder(false);
 	} catch(exception& e) {
+		cerr << "Cannot finish parse parameters for strategy: " << name << "\n";
 		cerr << e.what() << endl;
 		return false;
 	}
 	return true;
+}
+
+void StrategyOFGPara::parseObj(const std::string & name, const ssub_match & alpha)
+{
+	objFun.setFunc(name);
+	if(alpha.matched)
+		objFun.setAlpha(stod(alpha.str().substr(1)));
+}
+
+void StrategyOFGPara::parseDCES(const ssub_match & option, const ssub_match & minsup, const bool flag)
+{
+	if(!option.matched) {
+		flagDCESConnected = flagDCESBound = flag;
+	} else {
+		string opt = option.str();
+		if(opt.find("c") != string::npos) {
+			flagDCESConnected = flag;
+		} else { //if(opt.find("b") != string::npos)
+			flagDCESBound = flag;
+		}
+	}
+	if(minsup.matched) {
+		minSup = stod(minsup.str().substr(1));
+	}
+}
+
+void StrategyOFGPara::parseLOG(const ssub_match & param, const bool flag)
+{
+	flagOutputScore = flag;
+	if(flag) {
+		pathOutputScore = param.str().substr(1);
+	}
 }
 
 void StrategyOFGPara::parseStat(const ssub_match & param, const bool flag)
@@ -92,15 +117,14 @@ void StrategyOFGPara::parseStat(const ssub_match & param, const bool flag)
 
 }
 
-std::vector<Motif> StrategyOFGPara::search(const Option & opt,
-	DataHolder & dPos, DataHolder & dNeg)
+std::vector<Motif> StrategyOFGPara::search(
+	const Option & opt, DataHolder & dPos, DataHolder & dNeg)
 {
 	if(!checkInput(dPos, dNeg))
 		return std::vector<Motif>();
 	// step 0: initialization: parameters, message driver, network thread, message thread
 	net = NetworkThread::GetInstance();
 	initParams(dPos, dNeg); //should be put after the initialization of net
-	initStatistics();
 	initHandlers(); // should be put after the initialization fo net
 	if(flagUseSD) {
 		cout << logHeadID("LOG") + "Generating subject signatures..." << endl;
@@ -120,7 +144,7 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 
 	// step 2: initial candidate edge set
 	timer.restart();
-	initialCE_para();
+	initialCE_para(dPos);
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Candidate edges initialized: " + to_string(edges.size()) + " in all." << endl;
 		/*stream fout("../data_adhd/try/edge1.txt");
@@ -190,7 +214,12 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 
 void StrategyOFGPara::initParams(DataHolder& dPos, DataHolder& dNeg)
 {
-	StrategyOFG::initParams(dPos, dNeg);
+	dPos.setTheta(pSnap);
+	dNeg.setTheta(pSnap);
+	nNode = dPos.getnNode();
+	pdp = &dPos;
+	pdn = &dNeg;
+
 	running_ = true;
 	globalBound = numeric_limits<decltype(globalBound)>::lowest();
 	holder = new TopKBoundedHolder<Motif, double>(k);
@@ -199,6 +228,12 @@ void StrategyOFGPara::initParams(DataHolder& dPos, DataHolder& dNeg)
 	finishedAtLevel.resize(net->size(), 0);
 	lastFinishLevel = &finishedAtLevel[net->id()];
 	globalTopKScores.init(k);
+}
+
+void StrategyOFGPara::setSignature()
+{
+	pdp->initSignature();
+	pdn->initSignature();
 }
 
 void StrategyOFGPara::initLRTables()
@@ -254,6 +289,17 @@ void StrategyOFGPara::messageReceiver()
 int StrategyOFGPara::getMotifOwner(const Motif & m)
 {
 	return hash<Motif>()(m) % net->size();
+}
+
+int StrategyOFGPara::quickEstimiateNumberOfParents(const Motif & m)
+{
+	unordered_map<int, int> cont;
+	for(auto&e : m.edges) {
+		++cont[e.s];
+		++cont[e.d];
+	}
+	return count_if(cont.begin(), cont.end(),
+		[](const pair<const int, int>& p) {return p.second == 1; });
 }
 
 /*
