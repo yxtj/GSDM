@@ -69,14 +69,6 @@ bool StrategyDUG::parseSMethod()
 	return true;
 }
 
-
-std::vector<Motif> StrategyDUG::search(const Option & opt,
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
-{
-	vector<Motif> res;
-	return res;
-}
-
 std::vector<Motif> StrategyDUG::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
 {
 	if(!checkInput(dPos, dNeg))

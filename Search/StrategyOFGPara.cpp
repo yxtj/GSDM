@@ -185,12 +185,6 @@ std::vector<Motif> StrategyOFGPara::search(const Option & opt,
 	return res;
 }
 
-std::vector<Motif> StrategyOFGPara::search(const Option & opt,
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
-{
-	return std::vector<Motif>();
-}
-
 void StrategyOFGPara::initParams(DataHolder& dPos, DataHolder& dNeg)
 {
 	StrategyOFG::initParams(dPos, dNeg);

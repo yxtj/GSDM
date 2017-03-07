@@ -76,12 +76,6 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-std::vector<Motif> StrategyOFG::search(const Option & opt,
-	const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
-{
-	return std::vector<Motif>();
-}
-
 std::vector<Motif> StrategyOFG::search(const Option & opt, DataHolder & dPos, DataHolder & dNeg)
 {
 	if(!checkInput(dPos, dNeg))

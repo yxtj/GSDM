@@ -48,24 +48,6 @@ protected:
 	//objFun_t objFun;
 	std::function<double(double, double)> objFun;
 
-	// shortest distance signature
-	//struct Signature {
-	//	std::vector<std::vector<int>> sd;
-	//	Signature(int n) : sd(n, std::vector<int>(n, 2 * n)) {
-	//		//for(int i = 0; i < n; ++i)
-	//		//	sd[i][i] = 0;
-	//	}
-	//	std::vector<std::vector<int>>::reference operator[](const int idx) { return sd[idx]; }
-	//	std::vector<std::vector<int>>::const_reference operator[](const int idx) const { return sd[idx]; }
-	//};
-	//std::vector<Signature> sigPos, sigNeg;
-
-	//struct MotifSign {
-	//	Signature sd;
-	//	std::vector<std::pair<int, int>> marker; // the modified edges
-	//	MotifSign(int n) :sd(n) {}
-	//};
-
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -74,8 +56,6 @@ public:
 
 	virtual bool parse(const std::vector<std::string>& param);
 
-	virtual std::vector<Motif> search(const Option& opt,
-		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
 	virtual std::vector<Motif> search(const Option& opt,
 		DataHolder& dPos, DataHolder& dNeg);
 
@@ -93,19 +73,6 @@ protected:
 	void initStatistics();
 	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
 	void parseLOG(const std::ssub_match& param, const bool flag);
-
-	bool testEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const;
-	int countEdgeInSub(const int s, const int d, const std::vector<Graph>& graphs) const;
-
-	bool testEdgeXSub(const int s, const int d, const std::vector<std::vector<Graph>>& subs, const double minPortion) const;
-	int countEdgeXSub(const int s, const int d, const std::vector<std::vector<Graph>>& subs) const;
-
-	bool testMotifInSub(const MotifBuilder& m, const std::vector<Graph>& graphs) const;
-	int countMotifInSub(const MotifBuilder& m, const std::vector<Graph>& graphs) const;
-
-	bool testMotifXSub(const MotifBuilder& m, const std::vector<std::vector<Graph>>& subs, const double minPortion) const;
-	int countMotifXSub(const MotifBuilder& m, const std::vector<std::vector<Graph>>& subs) const;
-
 
 	/* Objective Function Guided Search */
 protected:
@@ -160,19 +127,5 @@ protected:
 	/* Subject Signature */
 protected:
 	void setSignature();
-
-	/*
-	bool testMotifInSubSD(const MotifBuilder& m, const MotifSign& ms, const std::vector<Graph>& sub, const Signature& ss) const;
-	int countMotifXSubSD(const MotifBuilder& m, const MotifSign& ms,
-		const std::vector<std::vector<Graph>>& subs, const std::vector<Signature>& sigs) const;
-
-	Signature genSignture(const std::vector<Graph>& gs, const double theta);
-	std::vector<std::vector<int>> calA2AShortestDistance(const Graph& g); // all source-destination pairs
-
-	void updateMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
-	//	void calMotifSD(MotifSign& ms, const MotifBuilder& mOld, int s, int d);
-	void calMotifSD(MotifSign& ms, const MotifBuilder& m);
-	bool checkSPNecessary(const MotifBuilder& m, const MotifSign& ms, const Signature& ss) const;
-	*/
 };
 
