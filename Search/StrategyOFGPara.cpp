@@ -9,7 +9,7 @@ using namespace std;
 
 const std::string StrategyOFGPara::name("ofg-para");
 const std::string StrategyOFGPara::usageDesc(
-	"Select the common frequent motifs as result.\n"
+	"Select the discriminative motifs as result.\n"
 	"Usage: " + StrategyOFGPara::name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [npar] [log] [stat]"
 );
 const std::string StrategyOFGPara::usageParam(
