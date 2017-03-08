@@ -30,7 +30,7 @@ bool StrategyOFG::parse(const std::vector<std::string>& param)
 		k = stoi(param[1]);
 		pSnap = stod(param[2]);
 		smatch m;
-		regex reg_obj("(\\w+)(:\\d?\\.?\\d+)?");
+		regex reg_obj("(\\w+)(:\\d?\\.?\\d*)?");
 		if(regex_match(param[3], m, reg_obj)) {
 			parseObj(m[1].str(), m[2]);
 		}
