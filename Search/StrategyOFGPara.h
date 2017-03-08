@@ -16,6 +16,7 @@
 class StrategyOFGPara :
 	public StrategyBase
 {
+protected:
 	size_t k; // number of result
 	double pSnap; // minimum show up probability among a subject's all snapshots
 	double minSup; // minimum show up probability among postive subjects
@@ -31,7 +32,7 @@ class StrategyOFGPara :
 	bool flagStatDump;
 	std::string pathStatDump;
 
-private:
+protected:
 	int nNode;
 	Timer timer;
 
@@ -43,7 +44,7 @@ private:
 	std::vector<Stat> statBuff; // only used for StatDump on master
 
 	/* Distribution required */
-private:
+protected:
 	NetworkThread* net;
 	MsgDriver driver;
 	bool running_;
@@ -56,7 +57,7 @@ private:
 	int INTERVAL_COORDINATE_TOP_K = 5*1000; //in millisecond
 	int BATCH_SIZE_ACTIVE = 100; // num. of active motifs explored at each step
 	int INTERVAL_STATE_REPORT = 10; // in seconds
-private:
+protected:
 	// candidate edge set
 	std::mutex mce;
 	std::vector<std::tuple<Edge, double, int>> edges; // <Edge, freq, last-used-level>
@@ -120,7 +121,7 @@ private:
 	void regDSPDefault(callback_t fp);
 	
 /* helpers */
-private:
+protected:
 	void parseObj(const std::string& name, const std::ssub_match& alpha);
 	void parseDCES(const std::ssub_match & option, const std::ssub_match & minsup, const bool flag);
 	void parseLOG(const std::ssub_match & param, const bool flag);
@@ -137,8 +138,8 @@ private:
 
 	std::pair<int, int> num2Edge(const int idx);
 
-	bool explore(const Motif& m);
-	std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
+	virtual bool explore(const Motif& m);
+	virtual std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
 	// return new motifs and their upper-bounds ( min(ub, new-edge.ub) )
 	std::vector<std::pair<Motif, double>> expand(const Motif& m, const double ub, const bool used);
 	static int quickEstimiateNumberOfParents(const Motif & m);
@@ -236,7 +237,7 @@ public:
 	void cbGatherStat(const std::string& d, const RPCInfo& info);
 
 /* log related: */
-private:
+protected:
 	std::string logHead(const std::string& head) const;
 	std::string logHeadID(const std::string& head) const;
 	void reportState() const;

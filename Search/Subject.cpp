@@ -122,6 +122,24 @@ bool Subject::contain_normal(const MotifBuilder & m) const
 	return false;
 }
 
+bool Subject::containByPeriod_normal(const MotifBuilder & m) const
+{
+	int n = gs.size();
+	for(int i = 0; i < th; ++i) {
+		int f = n*i / th, l = n*(i + 1) / th;
+		if(f == l)
+			continue;
+		while(f != l) {
+			if(gs[f].testMotif(m))
+				break;
+			++f;
+		}
+		if(f == l)
+			return false;
+	}
+	return true;
+}
+
 bool Subject::contain_sd(const Edge & e) const
 {
 	return (*psign)[e.s][e.d] <= 1;
@@ -132,6 +150,13 @@ bool Subject::contain_sd(const MotifBuilder & m, const SDSignature & ms) const
 	if(!checkSDNecessary(m, ms))
 		return false;
 	return contain_normal(m);
+}
+
+bool Subject::containByPeriod_sd(const MotifBuilder & m, const SDSignature & ms) const
+{
+	if(!checkSDNecessary(m, ms))
+		return false;
+	return containByPeriod_normal(m);
 }
 
 unsigned long long Subject::getnGraphChecked()

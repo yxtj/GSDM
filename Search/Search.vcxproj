@@ -173,6 +173,7 @@
     <ClInclude Include="StrategyFactory.h" />
     <ClInclude Include="StrategyOFG.h" />
     <ClInclude Include="StrategyOFGPara.h" />
+    <ClInclude Include="StrategyPeriodic.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="TopKBoundedHolder.hpp" />
     <ClInclude Include="TopKHolder.hpp" />
@@ -207,6 +208,7 @@
     <ClCompile Include="StrategyOFGPara-mis.cpp" />
     <ClCompile Include="StrategyOFGPara-OFG.cpp" />
     <ClCompile Include="StrategyOFGPara.cpp" />
+    <ClCompile Include="StrategyPeriodic.cpp" />
     <ClCompile Include="Subject.cpp" />
   </ItemGroup>
   <ItemGroup>

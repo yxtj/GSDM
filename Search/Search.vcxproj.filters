@@ -92,6 +92,9 @@
     <ClInclude Include="ObjFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StrategyPeriodic.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -168,6 +171,9 @@
     </ClCompile>
     <ClCompile Include="ObjFunction.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyPeriodic.cpp">
+      <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

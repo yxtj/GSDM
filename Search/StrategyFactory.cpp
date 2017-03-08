@@ -6,6 +6,7 @@
 #include "StrategyDUG.h"
 #include "StrategyOFG.h"
 #include "StrategyOFGPara.h"
+#include "StrategyPeriodic.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void StrategyFactory::init()
 	reg<StrategyDUG>();
 	reg<StrategyOFG>();
 	reg<StrategyOFGPara>();
+	reg<StrategyPeriodic>();
 }
 
 StrategyBase * StrategyFactory::generate(const std::string & name)

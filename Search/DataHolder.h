@@ -29,6 +29,7 @@ public:
 	bool contain(const MotifBuilder& m, const double minPortion) const;
 	int count(const Edge& e) const;
 	int count(const MotifBuilder& m) const;
+	int countByPeriod(const MotifBuilder& m) const;
 
 	unsigned long long getnSubjectChecked() const;
 	unsigned long long getnEdgeChecked() const;
@@ -51,6 +52,7 @@ private:
 	pfConM_t fConM;
 	pfCountE_t fCountE;
 	pfCountM_t fCountM;
+	pfCountM_t fCountByPM;
 
 	void bindCheckFunNormal();
 	void bindCheckFunSD();
@@ -59,11 +61,12 @@ private:
 	bool _contain_m_normal(const MotifBuilder& m, const double minPortion) const;
 	int _count_e_normal(const Edge& e) const;
 	int _count_m_normal(const MotifBuilder& m) const;
+	int _countByPeriod_m_normal(const MotifBuilder& m) const;
 
 	bool _contain_e_sd(const Edge& e, const double minPortion) const;
 	bool _contain_m_sd(const MotifBuilder& m, const double minPortion) const;
 	int _count_e_sd(const Edge& e) const;
 	int _count_m_sd(const MotifBuilder& m) const;
-
+	int _countByPeriod_m_sd(const MotifBuilder& m) const;
 };
 

@@ -86,6 +86,11 @@ int DataHolder::count(const MotifBuilder & m) const
 	return (this->*fCountM)(m);
 }
 
+int DataHolder::countByPeriod(const MotifBuilder & m) const
+{
+	return (this->*fCountByPM)(m);
+}
+
 unsigned long long DataHolder::getnSubjectChecked() const
 {
 	return nSubjectChecked;
@@ -144,6 +149,7 @@ void DataHolder::bindCheckFunNormal()
 
 	fCountE = &DataHolder::_count_e_normal;
 	fCountM = &DataHolder::_count_m_normal;
+	fCountByPM = &DataHolder::_countByPeriod_m_normal;
 }
 
 void DataHolder::bindCheckFunSD()
@@ -153,6 +159,7 @@ void DataHolder::bindCheckFunSD()
 
 	fCountE = &DataHolder::_count_e_sd;
 	fCountM = &DataHolder::_count_m_sd;
+	fCountByPM = &DataHolder::_countByPeriod_m_sd;
 }
 
 bool DataHolder::_contain_e_normal(const Edge & e, const double minPortion) const
@@ -211,6 +218,19 @@ int DataHolder::_count_m_normal(const MotifBuilder & m) const
 	return cnt;
 }
 
+int DataHolder::_countByPeriod_m_normal(const MotifBuilder & m) const
+{
+	++nMotifChecked;
+	int cnt = 0;
+	for(auto& sub : ss) {
+		++nSubjectChecked;
+		if(sub.containByPeriod_normal(m)) {
+			++cnt;
+		}
+	}
+	return cnt;
+}
+
 bool DataHolder::_contain_e_sd(const Edge & e, const double minPortion) const
 {
 	++nEdgeChecked;
@@ -262,6 +282,20 @@ int DataHolder::_count_m_sd(const MotifBuilder & m) const
 	for(auto& sub : ss) {
 		++nSubjectChecked;
 		if(sub.contain_sd(m, ms)) {
+			++cnt;
+		}
+	}
+	return cnt;
+}
+
+int DataHolder::_countByPeriod_m_sd(const MotifBuilder & m) const
+{
+	++nMotifChecked;
+	SDSignature ms(m, getnNode());
+	int cnt = 0;
+	for(auto& sub : ss) {
+		++nSubjectChecked;
+		if(sub.containByPeriod_sd(m, ms)) {
 			++cnt;
 		}
 	}
