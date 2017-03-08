@@ -10,8 +10,8 @@ using namespace std;
 
 const std::string StrategyOFGPara::name("ofg-para");
 const std::string StrategyOFGPara::usage(
-	"Select the common frequent motifs as result.\n"
-	"Usage: " + StrategyOFGPara::name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [npar] [log] [stat]\n"
+	"Select the discriminative motifs as result.\n"
+	"Usage: " + name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [npar] [log] [stat]\n"
 	"  <k>: [integer] return top-k result\n"
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
 	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::usage + ")\n"
