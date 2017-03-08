@@ -70,7 +70,7 @@ vector<vector<string>> loadFnList(const string& folder,
 	}
 	if(nSkip > 0) {
 		auto it = id2fn.begin();
-		advance(id2fn.begin(), nSkip);
+		advance(it, nSkip);
 		id2fn.erase(id2fn.begin(), it);
 	}
 
