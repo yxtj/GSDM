@@ -56,6 +56,7 @@ void StrategyOFGPara::gatherStatistics()
 	if(flagStatDump && net->id() == MASTER_ID) {
 		lock_guard<mutex> lg(mst);
 		if(statBuff.size() < static_cast<size_t>(net->size())) {
+			statLocalCollect();
 			statBuff.resize(net->size());
 			statBuff[MASTER_ID] = st;
 		}
@@ -63,6 +64,7 @@ void StrategyOFGPara::gatherStatistics()
 	if(net->id() == MASTER_ID) {
 		statReceive();
 	} else {
+		statLocalCollect();
 		statSend();
 	}
 }
@@ -83,15 +85,28 @@ void StrategyOFGPara::statReceive()
 	st.average(net->size());
 }
 
+void StrategyOFGPara::statLocalCollect()
+{
+	st.timeTotal += timer.elapseMS();
+	st.nGraphChecked += Subject::getnGraphChecked();
+	st.nSubjectChecked += pdp->getnSubjectChecked() + pdn->getnSubjectChecked();
+	st.nEdgeChecked += pdp->getnEdgeChecked() + pdn->getnEdgeChecked();
+	st.nFreqPos += pdp->getnMotifChecked();
+	st.nFreqNeg += pdn->getnMotifChecked();
+	st.netByteSend += net->stat_send_byte;
+	st.netByteRecv += net->stat_recv_byte;
+}
+
 void StrategyOFGPara::statMerge(const int source, Stat& recv)
 {
 	if(flagStatDump) {
 		lock_guard<mutex> lg(mst);
 		if(statBuff.size() < static_cast<size_t>(net->size())) {
+			statLocalCollect();
 			statBuff.resize(net->size());
 			statBuff[MASTER_ID] = st;
 		}
-		statBuff[source] = move(recv);
+		statBuff[source] = recv;
 	}
 	st.merge(recv);
 }

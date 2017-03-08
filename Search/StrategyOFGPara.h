@@ -198,6 +198,7 @@ protected:
 
 	void statSend();
 	void statReceive();
+	void statLocalCollect();
 	void statMerge(const int source, Stat& recv);
 	static void statFormatOutput(std::ostream& os, const Stat& st);
 	void statDump();

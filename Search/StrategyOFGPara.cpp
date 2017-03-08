@@ -186,17 +186,6 @@ std::vector<Motif> StrategyOFGPara::search(
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Gathering Statistics..." << endl;
 	}
-	{
-		lock_guard<mutex> lg(mst);
-		st.timeTotal += timer.elapseMS();
-		st.nGraphChecked += Subject::getnGraphChecked();
-		st.nSubjectChecked += dPos.getnSubjectChecked() + dNeg.getnSubjectChecked();
-		st.nEdgeChecked += dPos.getnEdgeChecked() + dNeg.getnEdgeChecked();
-		st.nFreqPos += dPos.getnMotifChecked();
-		st.nFreqNeg += dNeg.getnMotifChecked();
-		st.netByteSend += net->stat_send_byte;
-		st.netByteRecv += net->stat_recv_byte;
-	}
 
 	gatherStatistics();
 	auto ts = timer.elapseS();
