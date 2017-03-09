@@ -122,6 +122,13 @@ bool Subject::contain_normal(const MotifBuilder & m) const
 	return false;
 }
 
+bool Subject::containByPeriod_normal(const Edge& e) const
+{
+	MotifBuilder m;
+	m.addEdge(e.s, e.d);
+	return containByPeriod_normal(m);
+}
+
 bool Subject::containByPeriod_normal(const MotifBuilder & m) const
 {
 	int n = gs.size();
@@ -150,6 +157,16 @@ bool Subject::contain_sd(const MotifBuilder & m, const SDSignature & ms) const
 	if(!checkSDNecessary(m, ms))
 		return false;
 	return contain_normal(m);
+}
+
+bool Subject::containByPeriod_sd(const Edge & e) const
+{
+	if(contain_sd(e)) {
+		MotifBuilder m;
+		m.addEdge(e.s, e.d);
+		return containByPeriod_normal(m);
+	}
+	return false;
 }
 
 bool Subject::containByPeriod_sd(const MotifBuilder & m, const SDSignature & ms) const

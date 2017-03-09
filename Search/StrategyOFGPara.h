@@ -122,22 +122,28 @@ private:
 	
 /* helpers */
 protected:
+	// parse
 	void parseObj(const std::string& name, const std::ssub_match& alpha);
 	void parseDCES(const std::ssub_match & option, const std::ssub_match & minsup, const bool flag);
 	void parseLOG(const std::ssub_match & param, const bool flag);
 	void parseStat(const std::ssub_match& m, const bool flag);
 
+	// common
 	DataHolder* getDataHolder(const int dtype); // 1->pos, 0->neg
 	int getMotifOwner(const Motif& m);
 
+	// signature
 	void initialSignParaOne(DataHolder& dh, const int dtype);
 	bool signRecv(const std::string& msg);
 	std::string signSerialize(DataHolder& dh, const int dtype, const int f, const int l);
 	std::tuple<int, int, int, std::vector<SDSignature>> signDeserialize(const std::string& msg);
 	void signMerge(const int dtype, const int idx, SDSignature&& sd);
 
+	// candidate edge
 	std::pair<int, int> num2Edge(const int idx);
+	virtual std::vector<std::tuple<Edge, double, int>> prepareLocalCE(const int size, const int id);
 
+	// search-core
 	virtual bool explore(const Motif& m);
 	virtual std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
 	// return new motifs and their upper-bounds ( min(ub, new-edge.ub) )
@@ -146,6 +152,7 @@ protected:
 //	static int getNParents(const MotifBuilder& m);
 	static int getNParents(const Motif& m);
 
+	// search-util
 	void assignBeginningMotifs();
 
 	void generalUpdateCandidateMotif(const Motif& m, const double ub); //local + buffer for net
@@ -186,12 +193,14 @@ protected:
 			=> maintains a correct out-date global top-k
 		3, [main on master] Broadcast current updated global k-th score
 	*/
+
 	// start a global top-k coordinate process
 	void topKCoordinate();
 	// a callback to finish a global top-k coordinate process
 	void topKCoordinateFinish();
 	void topKMerge(const std::vector<double>& recv, const int source);
 
+private:
 	void resultSend();
 	void resultReceive();
 	void resultMerge(std::vector<std::pair<Motif, double>>& recv);

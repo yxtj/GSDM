@@ -43,3 +43,29 @@ std::pair<double, double> StrategyPeriodic::scoring(
 	double freqNeg = static_cast<double>(cntNeg) / pdn->size();
 	return make_pair(scoreUB, objFun(freqPos, freqNeg));
 }
+
+std::vector<std::tuple<Edge, double, int>> StrategyPeriodic::prepareLocalCE(const int size, const int id)
+{
+	// split the edge space evenly
+	int nEdgeInAll = nNode*(nNode - 1) / 2;
+	pair<int, int> cef = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*id));
+	pair<int, int> cel = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*(id + 1)));
+
+	double factor = 1.0 / pdp->size();
+	int th = static_cast<int>(ceil(minSup*pdp->size()));
+	th = max(th, 1); // in case of minSup=0
+	vector<tuple<Edge, double, int>> ceLocal;
+	for(int i = cef.first; i <= cel.first; ++i) {
+		int j = (i == cef.first ? cef.second : i + 1);
+		int endj = (i == cel.first ? cel.second : nNode);
+		while(j < endj) {
+			int t = pdp->countByPeriod(Edge{ i,j });
+			if(t >= th) {
+				auto f = t*factor;
+				ceLocal.emplace_back(Edge(i, j), f, 0);
+			}
+			++j;
+		}
+	}
+	return ceLocal;
+}

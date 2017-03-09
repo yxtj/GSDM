@@ -37,9 +37,12 @@ public:
 
 	bool contain_normal(const Edge& e) const;
 	bool contain_normal(const MotifBuilder& m) const;
+	bool containByPeriod_normal(const Edge& e) const;
 	bool containByPeriod_normal(const MotifBuilder& m) const;
+
 	bool contain_sd(const Edge& e) const;
 	bool contain_sd(const MotifBuilder& m, const SDSignature& ms) const;
+	bool containByPeriod_sd(const Edge& e) const;
 	bool containByPeriod_sd(const MotifBuilder& m, const SDSignature& ms) const;
 
 	static unsigned long long getnGraphChecked();

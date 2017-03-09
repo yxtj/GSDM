@@ -86,6 +86,11 @@ int DataHolder::count(const MotifBuilder & m) const
 	return (this->*fCountM)(m);
 }
 
+int DataHolder::countByPeriod(const Edge & e) const
+{
+	return (this->*fCountByPE)(e);
+}
+
 int DataHolder::countByPeriod(const MotifBuilder & m) const
 {
 	return (this->*fCountByPM)(m);
@@ -149,6 +154,8 @@ void DataHolder::bindCheckFunNormal()
 
 	fCountE = &DataHolder::_count_e_normal;
 	fCountM = &DataHolder::_count_m_normal;
+
+	fCountByPE = &DataHolder::_countByPeriod_e_normal;
 	fCountByPM = &DataHolder::_countByPeriod_m_normal;
 }
 
@@ -159,6 +166,8 @@ void DataHolder::bindCheckFunSD()
 
 	fCountE = &DataHolder::_count_e_sd;
 	fCountM = &DataHolder::_count_m_sd;
+
+	fCountByPE = &DataHolder::_countByPeriod_e_sd;
 	fCountByPM = &DataHolder::_countByPeriod_m_sd;
 }
 
@@ -212,6 +221,19 @@ int DataHolder::_count_m_normal(const MotifBuilder & m) const
 	for(auto& sub : ss) {
 		++nSubjectChecked;
 		if(sub.contain_normal(m)) {
+			++cnt;
+		}
+	}
+	return cnt;
+}
+
+int DataHolder::_countByPeriod_e_normal(const Edge & e) const
+{
+	++nEdgeChecked;
+	int cnt = 0;
+	for(auto& sub : ss) {
+		++nSubjectChecked;
+		if(sub.containByPeriod_normal(e)) {
 			++cnt;
 		}
 	}
@@ -282,6 +304,19 @@ int DataHolder::_count_m_sd(const MotifBuilder & m) const
 	for(auto& sub : ss) {
 		++nSubjectChecked;
 		if(sub.contain_sd(m, ms)) {
+			++cnt;
+		}
+	}
+	return cnt;
+}
+
+int DataHolder::_countByPeriod_e_sd(const Edge & e) const
+{
+	++nEdgeChecked;
+	int cnt = 0;
+	for(auto& sub : ss) {
+		++nSubjectChecked;
+		if(sub.containByPeriod_sd(e)) {
 			++cnt;
 		}
 	}
