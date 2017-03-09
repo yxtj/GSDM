@@ -76,9 +76,6 @@ directories:
 	@mkdir -p $(RELDIR)
 	@mkdir -p ../$(RELDIR)
 
-stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) -c stdafx.cpp -o stdafx.h.gch
-	
 clean:
 	rm -rf $(DBGDIR)
 	rm -rf $(RELDIR)

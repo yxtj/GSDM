@@ -32,7 +32,7 @@ RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
 RELLIBDIR = $(LIBDIR) -L../$(RELDIR)
-DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
+RELLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -42,14 +42,14 @@ DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 all: release
 
 #Debug:
-debug: ../$(DEGEXE)
+debug: ../$(DBGEXE)
 
-../$(DEGEXE): $(DBGEXE)
+../$(DBGEXE): $(DBGEXE)
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	cd ../common; make debug
+	$(MAKE) -C ../common debug
 	ar rcs $@ $^ $(DBGLIBS)
 
 $(DBGDIR)/%.o: %.cpp
@@ -63,12 +63,11 @@ $(DBGDIR)/%.o: %.cpp
 release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELEXE)
-	cd ../common; make release
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	cd ../common; make release
+	$(MAKE) -C ../common release
 	ar rcs $@ $^ $(RELLIBS)
 
 $(RELDIR)/%.o: %.cpp

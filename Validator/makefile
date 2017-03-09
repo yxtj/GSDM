@@ -10,7 +10,9 @@ EXE = Validator
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil
+MYLIB = -lcommon -lutil
+MYLIBDIR = $(MYLIB:-l%=../%)
+LIBS = $(MYLIB)
 ifeq ($(OS),Windows_NT)
   LIBS += -lboost-program-options -lboost-filesystem -lboost-system
 else
@@ -52,8 +54,9 @@ debug: ../$(DEGEXE)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS)
-	cd ../common; make debug
-	cd ../util; make debug
+	for dir in $(MYLIBDIR); do \
+		$(MAKE) -C $$dir debug; \
+	done
 	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
@@ -71,8 +74,9 @@ release: ../$(RELEXE)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS)
-	cd ../common; make release
-	cd ../util; make release
+	for dir in $(MYLIBDIR); do \
+		$(MAKE) -C $$dir release; \
+	done
 	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
