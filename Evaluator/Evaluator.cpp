@@ -16,7 +16,8 @@ using namespace std;
 
 
 // row: motif, column: subject
-vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vector<Motif>& ms, const Option& opt)
+vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs,
+	const vector<Motif>& ms, const Option& opt)
 {
 	vector<vector<bool>> res;
 	res.reserve(ms.size());
@@ -33,11 +34,12 @@ vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vec
 }
 
 // row: motif, column: subject
-vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vector<MTesterGroup>& mts)
+vector<vector<bool>> getContainingTable(
+	const vector<SubjectData>& gs, const vector<MTesterGroup>& mts)
 {
 	vector<vector<bool>> res;
 	res.reserve(mts.size());
-	for(auto m : mts) {
+	for(auto& m : mts) {
 		vector<bool> t(gs.size());
 		for(size_t i = 0; i < gs.size(); ++i)
 			t[i] = m.testSubject(gs[i]);
@@ -46,7 +48,8 @@ vector<vector<bool>> getContainingTable(const vector<SubjectData>& gs, const vec
 	return res;
 }
 
-vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs, const vector<vector<bool>>& tbl, const Option& opt)
+vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs,
+	const vector<vector<bool>>& tbl, const Option& opt)
 {
 	// tbl: row-motif, column-subject
 	vector<ConfusionMatrix> res(tbl.size());
@@ -72,19 +75,20 @@ vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs, const vect
 	return res;
 }
 
-MTesterGroup transGIndex2GTester(const vector<int>& idx, const vector<MTesterSingle>& ms, const Option& opt)
+MTesterGroup transGIndex2GTester(const vector<int>& idx,
+	const vector<MTesterSingle>& ms, const Option& opt)
 {
-	MTesterGroup res(opt.testMethodGroup);
-	res.setParam4Single(opt.testMethodSingle);
 	vector<MTesterSingle> m;
 	for(int i : idx)
 		m.push_back(ms[i]);
+	MTesterGroup res(opt.testMethodGroup);
+	//res.setParam4Single(opt.testMethodSingle);
 	res.set(move(m));
 	return res;
 }
 
-
-vector<MTesterGroup> transGIndex2GTester(const vector< vector<int> >& idx, const vector<MTesterSingle>& ms, const Option& opt)
+vector<MTesterGroup> transGIndex2GTester(const vector< vector<int> >& idx,
+	const vector<MTesterSingle>& ms, const Option& opt)
 {
 	vector<MTesterGroup> res;
 	for(auto& line : idx) {

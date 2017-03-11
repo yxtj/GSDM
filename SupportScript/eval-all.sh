@@ -1,10 +1,10 @@
 #THRESHOLD="0.2 0.3"
 
 if [ $# -lt 5 ] ; then
-	echo "Usage: <motif root> <graph folder> <graph type pos> <graph type neg> <output folder> [group size=1] [m-group method=any]"
+	echo "Usage: <motif root> <graph folder> <graph type pos> <graph type neg> <output folder> [group generation=none] [m-group method=any] [n motifs=-1]"
 	echo "	<motif root>: next layer is threshold, then explore all in next layer. like <motif root>/0.3/25-0.5-0.5"
 	echo "	<graph type>: USE \" and space to express multiple types. like \"0 1\""
-	echo "The input structure should be <motif root>/<threshold>/<parameter folder>/res-0.txt"
+	echo "The input structure should be <motif root>/<threshold>/<folder for parameters>/res-0.txt"
 	exit
 fi
 
@@ -14,12 +14,17 @@ GRAPH_TYPE_POS=$3
 GRAPH_TYPE_NEG=$4
 OUT_FOLDER=$5
 GROUP_SIZE=1
+GROUP_GENERATE="none"
 if [ $# -ge 6 ] ; then
-	GROUP_SIZE=$6
+	GROUP_GENERATE=$6
 fi
-GROUP_METHOD=any
+GROUP_METHOD="any"
 if [ $# -ge 7 ]; then
 	GROUP_METHOD=$7
+fi
+NUM_MOTIF=-1
+if [ $# -ge 8 ]; then
+	NUM_MOTIF=$8
 fi
 
 for th in $(ls $MOTIF_ROOT); do
@@ -37,7 +42,7 @@ for th in $(ls $MOTIF_ROOT); do
 		OLIST="$OLIST $OUT_FOLDER/tst-$th-$fn.txt"
 	done
 		 ./Evaluator --graphPath $GRAPH_FOLDER --graphTypePos $GRAPH_TYPE_POS --graphTypeNeg $GRAPH_TYPE_NEG \
---motifPath $MLIST --testMethodSingle freq $th --testMethodGroup $GROUP_METHOD --testGroupSize $GROUP_SIZE \
---outputFile $OLIST
+--nMotif $NUM_MOTIF --testMethodSingle freq $th --testMethodGroup $GROUP_METHOD --testGenerateGroup $GROUP_GENERATE \
+--motifPath $MLIST --outputFile $OLIST
 #	done
 done

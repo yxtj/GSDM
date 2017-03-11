@@ -4,12 +4,12 @@
 
 using namespace std;
 
-const std::string GroupGenerator::name("grpGen");
+const std::string GroupGenerator::name("groupGen");
 const std::string GroupGenerator::usage(
 	"Method used to generate groups.Parameters:\n"
-	"  none/no/trivial/single/<empty>: not use group"
+	"  none/no/trivial/single/<empty>: not use group\n"
 	"  comb <k>: combinations of all the motifs.\n"
-	"  topk <k>: enumeration of top-1, top-2, ..., until the number given by testGroupSize."
+	"  topk <k>: enumeration of top-1, top-2, ... , top-<k>."
 );
 
 
@@ -50,8 +50,8 @@ bool GroupGenerator::trivial() const
 std::vector<std::vector<int>> GroupGenerator::gen_single(const int n)
 {
 	std::vector<std::vector<int>> res(n);
-	for(int i = 1; i <= n; ++i) {
-		res[i].push_back(i - 1);
+	for(int i = 0; i < n; ++i) {
+		res[i].push_back(i);
 	}
 	return res;
 }
@@ -88,7 +88,7 @@ std::vector<std::vector<int>> GroupGenerator::gen_topk(const int n)
 	std::vector<std::vector<int>> res;
 	res.reserve(end);
 	vector<int> temp;
-	for(int i = 1; i <= end; ++i) {
+	for(int i = 0; i < end; ++i) {
 		temp.push_back(i);
 		res.push_back(temp);
 	}
