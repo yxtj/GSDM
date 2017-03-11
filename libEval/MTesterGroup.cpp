@@ -20,7 +20,23 @@ MTesterGroup::MTesterGroup(const std::vector<std::string>& params)
 		throw invalid_argument("Cannot parse the parameters of " + name);
 }
 
-MTesterGroup::MTesterGroup(const std::vector<std::string>& params, const std::vector<std::string>& singleTesterParam)
+void MTesterGroup::set(const std::vector<Motif>& ms)
+{
+	if(!hasSet()) {
+		throw runtime_error("The single-motif-tester parameter is not set for Group Tester,"
+			" but set(vector<Motif>) is called.");
+	}
+	mts.clear();
+	for(auto& m : ms) {
+		MTesterSingle mt(param4Single);
+		mt.set(m);
+		mts.push_back(move(mt));
+	}
+	setnmr();
+}
+
+MTesterGroup::MTesterGroup(const std::vector<std::string>& params,
+	const std::vector<std::string>& singleTesterParam)
 {
 	int nParam = params.size();
 	checkNumParam(nParam, 1);
@@ -30,38 +46,16 @@ MTesterGroup::MTesterGroup(const std::vector<std::string>& params, const std::ve
 	setParam4Single(singleTesterParam);
 }
 
-void MTesterGroup::set(const std::vector<Motif>& ms)
-{
-	if(!hasSet()) {
-		throw invalid_argument("No motif inputted for a group tester.");
-	}
-	if(ms.empty()) {
-		throw invalid_argument("No motif inputted for a group tester.");
-	}
-	mts.reserve(ms.size());
-	for(auto& m : ms) {
-		mts.emplace_back(param4Single);
-		mts.back().set(m);
-	}
-	setnmr();
-}
-
-void MTesterGroup::set(const std::vector<MTesterSingle>& mts, const std::vector<std::string>& singleTesterParam)
+void MTesterGroup::set(const std::vector<MTesterSingle>& mts)
 {
 	this->mts = mts;
 	setnmr();
-	if(!singleTesterParam.empty()) {
-		setParam4Single(singleTesterParam);
-	}
 }
 
-void MTesterGroup::set(std::vector<MTesterSingle>&& mts, const std::vector<std::string>& singleTesterParam)
+void MTesterGroup::set(std::vector<MTesterSingle>&& mts)
 {
 	this->mts = move(mts);
 	setnmr();
-	if(!singleTesterParam.empty()) {
-		setParam4Single(singleTesterParam);
-	}
 }
 
 void MTesterGroup::setParam4Single(const std::vector<std::string>& singleTesterParam)

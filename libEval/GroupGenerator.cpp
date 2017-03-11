@@ -4,12 +4,12 @@
 
 using namespace std;
 
-const std::string GroupGenerator::name("grpGen");
+const std::string GroupGenerator::name("groupGen");
 const std::string GroupGenerator::usage(
 	"Method used to generate groups.Parameters:\n"
-	"  none/no/trivial/single/<empty>: not use group"
+	"  none/no/trivial/single/<empty>: not use group\n"
 	"  comb <k>: combinations of all the motifs.\n"
-	"  topk <k>: enumeration of top-1, top-2, ..., until the number given by testGroupSize."
+	"  topk <k>: enumeration of top-1, top-2, ... , top-<k>."
 );
 
 

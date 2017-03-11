@@ -23,8 +23,8 @@ public:
 	virtual void set(const std::vector<Motif>& ms);
 	void setParam4Single(const std::vector<std::string>& singleTesterParam);
 
-	void set(const std::vector<MTesterSingle>& mts, const std::vector<std::string>& singleTesterParam = {});
-	void set(std::vector<MTesterSingle>&& mts, const std::vector<std::string>& singleTesterParam = {});
+	void set(const std::vector<MTesterSingle>& mts);
+	void set(std::vector<MTesterSingle>&& mts);
 
 	virtual bool testSubject(const SubjectData& sub) const;
 

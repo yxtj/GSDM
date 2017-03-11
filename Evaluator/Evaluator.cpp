@@ -72,19 +72,20 @@ vector<ConfusionMatrix> transTable2Smy(const vector<SubjectData>& gs, const vect
 	return res;
 }
 
-MTesterGroup transGIndex2GTester(const vector<int>& idx, const vector<MTesterSingle>& ms, const Option& opt)
+MTesterGroup transGIndex2GTester(const vector<int>& idx,
+	const vector<MTesterSingle>& ms, const Option& opt)
 {
-	MTesterGroup res(opt.testMethodGroup);
-	res.setParam4Single(opt.testMethodSingle);
 	vector<MTesterSingle> m;
 	for(int i : idx)
 		m.push_back(ms[i]);
+	MTesterGroup res(opt.testMethodGroup);
+	//res.setParam4Single(opt.testMethodSingle);
 	res.set(move(m));
 	return res;
 }
 
-
-vector<MTesterGroup> transGIndex2GTester(const vector< vector<int> >& idx, const vector<MTesterSingle>& ms, const Option& opt)
+vector<MTesterGroup> transGIndex2GTester(const vector< vector<int> >& idx,
+	const vector<MTesterSingle>& ms, const Option& opt)
 {
 	vector<MTesterGroup> res;
 	for(auto& line : idx) {
