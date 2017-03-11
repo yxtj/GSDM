@@ -50,8 +50,8 @@ bool GroupGenerator::trivial() const
 std::vector<std::vector<int>> GroupGenerator::gen_single(const int n)
 {
 	std::vector<std::vector<int>> res(n);
-	for(int i = 1; i <= n; ++i) {
-		res[i].push_back(i - 1);
+	for(int i = 0; i < n; ++i) {
+		res[i].push_back(i);
 	}
 	return res;
 }
@@ -88,7 +88,7 @@ std::vector<std::vector<int>> GroupGenerator::gen_topk(const int n)
 	std::vector<std::vector<int>> res;
 	res.reserve(end);
 	vector<int> temp;
-	for(int i = 1; i <= end; ++i) {
+	for(int i = 0; i < end; ++i) {
 		temp.push_back(i);
 		res.push_back(temp);
 	}
