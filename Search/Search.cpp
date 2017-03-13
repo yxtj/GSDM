@@ -8,7 +8,7 @@
 #include "../net/NetworkThread.h"
 #include "Option.h"
 #include "StrategyFactory.h"
-#include "DataHolder.h"
+#include "../holder/DataHolder.h"
 
 using namespace std;
 

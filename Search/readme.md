@@ -1,24 +1,23 @@
 
 - Description
 
+	run `Search --help` for detailed description.
+
 - Extention
 
-	- new searching strategy
-
-	- new search method
+	- new searching strategy from class StrategyBase
+	- register it in StrategyFactory.cpp
 
 - Parameters:
 
-	- test
+	run `Search --help` for detailed description.
+
+	- example 
 
 	```
-		--n=50 --npi=10 --nni=10 --ns=10 --method freq 2 2 0.3 --strategy candidatePN 20 0.7
+	# ADHD200
+	--prefix=../data_adhd --prefix-graph=data/graph --all-data --shared-input --typePos 1 2 3 --typeNeg 0 --n=115 --npi=10 --nni=10 --ns=10 --strategy ofg-para 10 0.7 diff:1 sd-no net dces log:../data_adhd/try/score.txt --out=try/result
+	# ABIDE
+	--prefix=../data_abide --prefix-graph=data/graph --all-data --shared-input --typePos 1 --typeNeg 2 --n=115 --npi=10 --nni=10 --ns=10 --strategy ofg-para 10 0.7 diff:1 sd net dces log:../data_adhd/try/score.txt --out=try/result
 	```
 
-	- adhd200
-
-	```
-		--prefix=../data_adhd/ --n=115 --npi=50 --nni=50 --ns=0 --method freq 1 10 0.3 --strategy candidatePN 20 0.3
-		--prefix=../data_adhd --prefix-graph=graph-0.8 --n=115 --npi=20 --nni=20 --ns=0 --method freq 1 4 0.3 --strategy candidatePN 50 0.6 0.3 0.5 --blacklist 50 72 288 --out=test/
-		--prefix=../data_adhd --prefix-graph=graph-0.8 --n=115 --npi=20 --nni=20 --ns=0 --method freq 1 4 0.3 --strategy DUG 50 conf exp 0.3 1 4 --blacklist 50 72 288 --out=test/
-	```

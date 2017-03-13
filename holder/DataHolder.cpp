@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "DataHolder.h"
 #include "SDSignature.h"
 

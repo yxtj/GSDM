@@ -6,6 +6,7 @@
 #include "RemoteTable.h"
 #include "DistributedTopKMaintainer.h"
 #include "Stat.h"
+#include "../holder/SDSignature.h"
 #include "../util/Timer.h"
 #include "../net/NetworkThread.h"
 #include "../msgdriver/MsgDriver.h"

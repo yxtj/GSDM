@@ -92,6 +92,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,6 +108,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +127,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +147,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,7 +160,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BoundHolder.hpp" />
-    <ClInclude Include="DataHolder.h" />
     <ClInclude Include="DistributedTopKMaintainer.h" />
     <ClInclude Include="FactoryProductTemplate.h" />
     <ClInclude Include="FactoryTemplate.h" />
@@ -165,7 +168,6 @@
     <ClInclude Include="ObjFunction.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="RemoteTable.h" />
-    <ClInclude Include="SDSignature.h" />
     <ClInclude Include="Stat.h" />
     <ClInclude Include="StrategyBase.h" />
     <ClInclude Include="stdafx.h" />
@@ -174,19 +176,16 @@
     <ClInclude Include="StrategyOFG.h" />
     <ClInclude Include="StrategyOFGPara.h" />
     <ClInclude Include="StrategyPeriodic.h" />
-    <ClInclude Include="Subject.h" />
     <ClInclude Include="TopKBoundedHolder.hpp" />
     <ClInclude Include="TopKHolder.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DataHolder.cpp" />
     <ClCompile Include="DistributedTopKMaintainer.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="LocalTables.cpp" />
     <ClCompile Include="ObjFunction.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="RemoteTable.cpp" />
-    <ClCompile Include="SDSignature.cpp" />
     <ClCompile Include="Search.cpp" />
     <ClCompile Include="Stat.cpp" />
     <ClCompile Include="StrategyBase.cpp" />
@@ -209,7 +208,6 @@
     <ClCompile Include="StrategyOFGPara-OFG.cpp" />
     <ClCompile Include="StrategyOFGPara.cpp" />
     <ClCompile Include="StrategyPeriodic.cpp" />
-    <ClCompile Include="Subject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
@@ -218,6 +216,9 @@
   <ItemGroup>
     <ProjectReference Include="..\common\common.vcxproj">
       <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\holder\holder.vcxproj">
+      <Project>{9b4b639d-ed4e-431b-ab02-4724f6793119}</Project>
     </ProjectReference>
     <ProjectReference Include="..\msgdriver\msgdriver.vcxproj">
       <Project>{44a08e02-7f8a-4a45-b0c7-7138c2111440}</Project>

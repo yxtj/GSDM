@@ -1,6 +1,6 @@
-#include "stdafx.h"
 #include "Subject.h"
 #include "SDSignature.h"
+#include <algorithm>
 
 using namespace std;
 
