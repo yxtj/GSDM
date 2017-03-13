@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "ObjFunction.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -12,8 +12,14 @@ const std::string ObjFunction::usage{
 };
 
 ObjFunction::ObjFunction()
-	:totalPos(0), totalNeg(0), alpha(1.0), OFID(OFType::NONE), pf(nullptr)
+	: totalPos(0), totalNeg(0), alpha(1.0), OFID(OFType::NONE), pf(nullptr)
 {
+}
+
+ObjFunction::ObjFunction(const std::string & name)
+	: totalPos(0), totalNeg(0), alpha(1.0), OFID(OFType::NONE), pf(nullptr)
+{
+	setFunc(name);
 }
 
 void ObjFunction::setFunc(OFType type)
@@ -38,11 +44,27 @@ void ObjFunction::setFunc(OFType type)
 
 void ObjFunction::setFunc(const std::string & name)
 {
-	auto it = names.find(name);
+	string temp(name);
+	transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+	auto it = names.find(temp);
 	if(it == names.end()) {
 		throw invalid_argument("Unsupported objective function: " + name);
 	}
 	setFunc(it->second);
+}
+
+ObjFunction::OFType ObjFunction::getFunc() const
+{
+	return OFID;
+}
+
+std::string ObjFunction::getFuncName() const
+{
+	for(auto& p : names) {
+		if(p.second == OFID)
+			return p.first;
+	}
+	return std::string();
 }
 
 void ObjFunction::setTotalPos(const int num)
@@ -54,9 +76,17 @@ void ObjFunction::setTotalNeg(const int num)
 {
 	totalNeg = num;
 }
+bool ObjFunction::needAlpha() const
+{
+	return OFID != OFType::NONE;
+}
 void ObjFunction::setAlpha(const double val)
 {
 	alpha = val;
+}
+double ObjFunction::getAlpha() const
+{
+	return alpha;
 }
 double ObjFunction::operator()(int cntPos, int cntNeg) const
 {

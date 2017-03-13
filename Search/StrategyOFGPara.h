@@ -1,11 +1,11 @@
 #pragma once
 #include "StrategyBase.h"
-#include "ObjFunction.h"
 #include "TopKBoundedHolder.hpp"
 #include "LocalTables.h"
 #include "RemoteTable.h"
 #include "DistributedTopKMaintainer.h"
 #include "Stat.h"
+#include "../objfunc/ObjFunction.h"
 #include "../holder/SDSignature.h"
 #include "../util/Timer.h"
 #include "../net/NetworkThread.h"

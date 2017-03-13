@@ -68,9 +68,6 @@
     <ClInclude Include="RemoteTable.h">
       <Filter>Distributed</Filter>
     </ClInclude>
-    <ClInclude Include="ObjFunction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyPeriodic.h">
       <Filter>Strategies</Filter>
     </ClInclude>
@@ -147,9 +144,6 @@
     </ClCompile>
     <ClCompile Include="RemoteTable.cpp">
       <Filter>Distributed\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjFunction.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyPeriodic.cpp">
       <Filter>Strategies\Source</Filter>

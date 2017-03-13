@@ -1,7 +1,7 @@
 #pragma once
 #include "StrategyBase.h"
 #include "TopKHolder.hpp"
-#include "ObjFunction.h"
+#include "../objfunc/ObjFunction.h"
 #include <vector>
 #include <map>
 #include <functional>

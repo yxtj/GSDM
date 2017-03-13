@@ -165,7 +165,6 @@
     <ClInclude Include="FactoryTemplate.h" />
     <ClInclude Include="LocalTables.h" />
     <ClInclude Include="MType.h" />
-    <ClInclude Include="ObjFunction.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="RemoteTable.h" />
     <ClInclude Include="Stat.h" />
@@ -183,7 +182,6 @@
     <ClCompile Include="DistributedTopKMaintainer.cpp" />
     <ClCompile Include="FactoryProductTemplate.cpp" />
     <ClCompile Include="LocalTables.cpp" />
-    <ClCompile Include="ObjFunction.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="RemoteTable.cpp" />
     <ClCompile Include="Search.cpp" />
@@ -225,6 +223,9 @@
     </ProjectReference>
     <ProjectReference Include="..\net\net.vcxproj">
       <Project>{1ee713d5-bbc5-4115-ad84-4a819e2652e1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\objfunc\objfunc.vcxproj">
+      <Project>{e38c7984-ae8b-4cdd-ab32-1a24b1b507b3}</Project>
     </ProjectReference>
     <ProjectReference Include="..\serialization\serialization.vcxproj">
       <Project>{e6dda110-62a6-4384-b1a1-3e73caf8e635}</Project>
