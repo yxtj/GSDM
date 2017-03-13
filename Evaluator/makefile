@@ -10,7 +10,7 @@ EXE = Evaluator
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-MYLIB = -lEval -lcommon -lutil
+MYLIB = -leval -lcommon -lutil
 LIBS = $(MYLIB)
 LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
@@ -57,14 +57,8 @@ $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
 	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
 
-../$(DBGDIR)/libEval.a:
-	$(MAKE) -C ../libEval debug
-
-#(DBGMYLIB)
-../$(DBGDIR)/libcommon.a:
-	$(MAKE) -C $(@:../Debug/lib%.a=../%) debug
-../$(DBGDIR)/libutil.a:
-	$(MAKE) -C $(@:../Debug/lib%.a=../%) debug
+$(DBGMYLIB)
+	$(MAKE) -C $(@:../$(DBGDIR)/lib%.a=../%) debug
 
 #
 # Release rules
@@ -83,13 +77,7 @@ $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
 	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
 
-../$(RELDIR)/libEval.a:
-	$(MAKE) -C $(@:../$(RELDIR)/lib%.a=../lib%) release
-
-#$(RELMYLIB):
-../$(RELDIR)/libcommon.a:
-	$(MAKE) -C $(@:../$(RELDIR)/lib%.a=../%) release
-../$(RELDIR)/libutil.a:
+$(RELMYLIB):
 	$(MAKE) -C $(@:../$(RELDIR)/lib%.a=../%) release
 
 #

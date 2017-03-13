@@ -21,8 +21,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CD7381DD-00FB-4845-9C75-25C27E863046}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>libEval</RootNamespace>
+    <RootNamespace>eval</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>eval</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

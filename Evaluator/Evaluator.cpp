@@ -5,11 +5,11 @@
 #include "Option.h"
 #include "../common/Motif.h"
 #include "../common/Graph.h"
-#include "../libEval/ConfusionMatrix.h"
-#include "../libEval/SubjectData.h"
-#include "../libEval/MTesterSingle.h"
-#include "../libEval/MTesterGroup.h"
-#include "../libEval/GroupGenerator.h"
+#include "../eval/ConfusionMatrix.h"
+#include "../eval/SubjectData.h"
+#include "../eval/MTesterSingle.h"
+#include "../eval/MTesterGroup.h"
+#include "../eval/GroupGenerator.h"
 #include "Evaluator-IO.h"
 
 using namespace std;

@@ -2,9 +2,9 @@
 #include "Option.h"
 #include <boost/program_options.hpp>
 #include "../util/Util.h"
-#include "../libEval/MTesterSingle.h"
-#include "../libEval/MTesterGroup.h"
-#include "../libEval/GroupGenerator.h"
+#include "../eval/MTesterSingle.h"
+#include "../eval/MTesterGroup.h"
+#include "../eval/GroupGenerator.h"
 
 using namespace std;
 

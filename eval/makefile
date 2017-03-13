@@ -6,7 +6,7 @@ MAKE := $(MAKE) --no-print-directory
 SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
-EXE = libEval.a
+EXE = libeval.a
 CXXFLAGS = -std=c++11
 INC = 
 export CXX CC CFLAGS CPPFLAGS OPROFILE

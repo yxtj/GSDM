@@ -168,7 +168,7 @@
     <ProjectReference Include="..\common\common.vcxproj">
       <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\libEval\libEval.vcxproj">
+    <ProjectReference Include="..\eval\eval.vcxproj">
       <Project>{cd7381dd-00fb-4845-9c75-25c27e863046}</Project>
     </ProjectReference>
     <ProjectReference Include="..\util\util.vcxproj">
