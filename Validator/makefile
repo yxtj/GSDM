@@ -10,7 +10,7 @@ EXE = Validator
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-MYLIB = -lcommon -lutil
+MYLIB = -lcommon -lutil -lobjfunc -lholder
 MYLIBDIR = $(MYLIB:-l%=../%)
 LIBS = $(MYLIB)
 ifeq ($(OS),Windows_NT)
