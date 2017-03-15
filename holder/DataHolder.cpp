@@ -1,5 +1,6 @@
 #include "DataHolder.h"
 #include "SDSignature.h"
+#include <cmath>
 
 using namespace std;
 
