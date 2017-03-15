@@ -35,6 +35,8 @@ public:
 
 	void setTheta(const double theta);
 
+	std::vector<bool> enumerate(const Motif& m) const;
+
 	bool contain_normal(const Edge& e, int req) const;
 	bool contain_normal(const MotifBuilder& m, int req) const;
 	bool containByPeriod_normal(const Edge& e, int step) const;

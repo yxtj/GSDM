@@ -140,6 +140,16 @@ bool Subject::containByPeriod_normal(const MotifBuilder & m, int step) const
 	return true;
 }
 
+std::vector<bool> Subject::enumerate(const Motif& m) const
+{
+	vector<bool> res;
+	res.reserve(gs.size());
+	for(auto& g : gs) {
+		res.push_back(g.testMotif(m));
+	}
+	return res;
+}
+
 bool Subject::contain_normal(const Edge & e) const
 {
 	return contain_normal(e, th);
