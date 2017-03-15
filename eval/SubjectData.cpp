@@ -7,3 +7,8 @@ SubjectData::SubjectData(const int type, const std::string & id)
 {
 }
 
+void SubjectData::initGP()
+{
+	gp.init(get());
+}
+

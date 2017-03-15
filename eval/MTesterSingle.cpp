@@ -7,6 +7,7 @@ using namespace std;
 const std::string MTesterSingle::name("single");
 const std::string MTesterSingle::usage("Test motif one by one. Parameters:\n"
 	"  freq <th>: motif shows up among no less than <th> percent of snapshots.\n"
+	"  perd <th>: motif shows up periodically on all pieces, each piece contains 1/<th> snapshots.\n"
 	"  prob <th>: the probability of motif (product of P(edge)) is no less than <th>. Assume edges are independent."
 );
 
@@ -31,14 +32,16 @@ MTesterSingle::MTesterSingle(const std::string & method, const double threshold)
 
 void MTesterSingle::set(const Motif & m)
 {
-	this->pm = &m;
+	this->m = m;
 	setMark();
 }
 
 bool MTesterSingle::testSubject(const SubjectData& sub) const
 {
 	if(type == Type::FREQ) {
-		return _testFreq(sub.snapshots);
+		return _testFreq(sub);
+	} else if(type == Type::PERD) {
+		return _testPeriod(sub);
 	} else if(type == Type::PROB) {
 		return _testProb(sub.gp);
 	}
@@ -48,8 +51,11 @@ bool MTesterSingle::testSubject(const SubjectData& sub) const
 
 bool MTesterSingle::parse(const std::string& method, const double threshold)
 {
-	if(method  == "freq") {
+	if(method == "freq") {
 		type = Type::FREQ;
+		thre = threshold;
+	} else if(method == "perd") {
+		type = Type::PERD;
 		thre = threshold;
 	} else if(method == "prob") {
 		type = Type::PROB;
@@ -60,27 +66,19 @@ bool MTesterSingle::parse(const std::string& method, const double threshold)
 	return true;
 }
 
-bool MTesterSingle::_testFreq(const std::vector<Graph>& gs) const
+bool MTesterSingle::_testFreq(const SubjectData& sub) const
 {
-	int cnt = 0;
-	int limit = static_cast<int>(ceil(gs.size()*thre));
-	for(auto& g : gs) {
-		if(g.testMotif(*pm)) {
-			if(++cnt >= limit)
-				return true;
-		}
-	}
-	return false;
+	int th = static_cast<int>(ceil(sub.size()*thre));
+	return sub.contain_normal(m, th);
+}
+
+bool MTesterSingle::_testPeriod(const SubjectData& sub) const
+{
+	int th = static_cast<int>(ceil(sub.size()*thre));
+	return sub.containByPeriod_normal(m, th);
 }
 
 bool MTesterSingle::_testProb(const GraphProb& gp) const
 {
-	return gp.probOfMotif(*pm) >= thre;
-	//double p = 1.0;
-	//for(const edge& e : pm->edges) {
-	//	p *= gp.matrix[e.s][e.d];
-	//	if(p < threshold)
-	//				break;
-	//}
-	//return p >= thre;
+	return gp.probOfMotif(m) >= thre;
 }

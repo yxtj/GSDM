@@ -152,6 +152,11 @@
     <ClCompile Include="MTesterGroup.cpp" />
     <ClCompile Include="MTesterSingle.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\holder\holder.vcxproj">
+      <Project>{9b4b639d-ed4e-431b-ab02-4724f6793119}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

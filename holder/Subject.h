@@ -35,6 +35,11 @@ public:
 
 	void setTheta(const double theta);
 
+	bool contain_normal(const Edge& e, int req) const;
+	bool contain_normal(const MotifBuilder& m, int req) const;
+	bool containByPeriod_normal(const Edge& e, int step) const;
+	bool containByPeriod_normal(const MotifBuilder& m, int step) const;
+
 	bool contain_normal(const Edge& e) const;
 	bool contain_normal(const MotifBuilder& m) const;
 	bool containByPeriod_normal(const Edge& e) const;

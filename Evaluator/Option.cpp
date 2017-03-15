@@ -38,12 +38,13 @@ Option::Option()
 			"The type(s) of negative subjects.")
 
 		("testMethodSingle", value<vector<string>>(&testMethodSingle)->multitoken(), MTesterSingle::usage.c_str())
+		("periodic", value<bool>(&periodic)->default_value(0), "only check the periodic occurrence")
 		("testGenerateGroup", value<vector<string>>(&groupGenerateMethod)->multitoken()->default_value({},""),
 			GroupGenerator::usage.c_str())
 		("testMethodGroup", value<vector<string>>(&testMethodGroup)->multitoken()->default_value({"all"}, "all"),
 			("Valid only if testGroupSize is greater or equal to 2. "+MTesterGroup::usage).c_str())
 
-		("outMG", value<bool>(&flgOutMotifGroup)->default_value(false), "Output the motif IDs of each motif group.")
+		("outGroup", value<bool>(&flgOutMotifGroup)->default_value(false), "Output the motif IDs of each motif group.")
 		("outTable", value<bool>(&flgOutTable)->default_value(false), 
 			"Output a binary table of subject-motif containing and a list about the types of all subjects.")
 		("outSummary", value<bool>(&flgOutSmy)->default_value(true), 

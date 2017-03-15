@@ -3,10 +3,10 @@
 class MTesterSingle :
 	public MTesterBase
 {
-	enum class Type { FREQ, PROB };
+	enum class Type { FREQ, PERD, PROB };
 	Type type;
 	double thre;
-	const Motif* pm;
+	Motif m;
 public:
 	static const std::string name;
 	static const std::string usage;
@@ -23,7 +23,8 @@ public:
 private:
 	bool parse(const std::string& method, const double threshold);
 
-	bool _testFreq(const std::vector<Graph>& gs) const;
+	bool _testFreq(const SubjectData& gs) const;
+	bool _testPeriod(const SubjectData& gs) const;
 	bool _testProb(const GraphProb& gp) const;
 };
 

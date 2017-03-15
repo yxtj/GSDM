@@ -93,14 +93,8 @@ void Subject::setTheta(const double theta)
 	th = static_cast<int>(ceil(gs.size()*theta));
 }
 
-int Subject::nNodeQuick() const
+bool Subject::contain_normal(const Edge & e, int req) const
 {
-	return gs.front().nNode;
-}
-
-bool Subject::contain_normal(const Edge & e) const
-{
-	int req = th;
 	for(auto& g : gs) {
 		++nGraphChecked;
 		if(g.testEdge(e))
@@ -110,9 +104,8 @@ bool Subject::contain_normal(const Edge & e) const
 	return false;
 }
 
-bool Subject::contain_normal(const MotifBuilder & m) const
+bool Subject::contain_normal(const MotifBuilder & m, int req) const
 {
-	int req = th;
 	for(auto& g : gs) {
 		++nGraphChecked;
 		if(g.testMotif(m))
@@ -122,18 +115,18 @@ bool Subject::contain_normal(const MotifBuilder & m) const
 	return false;
 }
 
-bool Subject::containByPeriod_normal(const Edge& e) const
+bool Subject::containByPeriod_normal(const Edge & e, int step) const
 {
 	MotifBuilder m;
 	m.addEdge(e.s, e.d);
-	return containByPeriod_normal(m);
+	return containByPeriod_normal(m, step);
 }
 
-bool Subject::containByPeriod_normal(const MotifBuilder & m) const
+bool Subject::containByPeriod_normal(const MotifBuilder & m, int step) const
 {
 	int n = gs.size();
-	for(int i = 0; i < th; ++i) {
-		int f = n*i / th, l = n*(i + 1) / th;
+	for(int i = 0; i < step; ++i) {
+		int f = n*i / step, l = n*(i + 1) / step;
 		if(f == l)
 			continue;
 		while(f != l) {
@@ -145,6 +138,26 @@ bool Subject::containByPeriod_normal(const MotifBuilder & m) const
 			return false;
 	}
 	return true;
+}
+
+bool Subject::contain_normal(const Edge & e) const
+{
+	return contain_normal(e, th);
+}
+
+bool Subject::contain_normal(const MotifBuilder & m) const
+{
+	return contain_normal(m, th);
+}
+
+bool Subject::containByPeriod_normal(const Edge& e) const
+{
+	return containByPeriod_normal(e, th);
+}
+
+bool Subject::containByPeriod_normal(const MotifBuilder & m) const
+{
+	return containByPeriod_normal(m, th);
 }
 
 bool Subject::contain_sd(const Edge & e) const
@@ -179,6 +192,11 @@ bool Subject::containByPeriod_sd(const MotifBuilder & m, const SDSignature & ms)
 unsigned long long Subject::getnGraphChecked()
 {
 	return nGraphChecked;
+}
+
+int Subject::nNodeQuick() const
+{
+	return gs.front().nNode;
 }
 
 SDSignature* Subject::generateSignature()

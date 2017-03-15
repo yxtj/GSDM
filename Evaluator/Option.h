@@ -12,6 +12,7 @@ public:
 	int nGraph;
 	int nMotif; // number of subject need to be loaded from the dataset
 	int nSkipGraph, nSkipMotif; // skip some of the first items(graph,motif), to efficiently restart after failure
+	bool periodic; // whether to focus on the periodic occurrence
 
 	// path for input/output data folder:
 	std::vector<std::string> motifPath;
