@@ -6,7 +6,7 @@ MAKE := $(MAKE) --no-print-directory
 SRCS = $(shell ls *.cpp)
 HDRS = $(SRCS:.cpp=.h) 
 OBJS = $(SRCS:.cpp=.o) 
-EXE = Evaluator
+EXE = MotifAnalyzer
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
