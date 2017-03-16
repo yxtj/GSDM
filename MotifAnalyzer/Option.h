@@ -20,6 +20,7 @@ public:
 	std::vector<int> typePos, typeNeg, typeAll; // typeAll is automatically generated
 
 	bool flgSortSubByType;
+	bool flgOutSub;
 	std::string pathOutput;
 
 public:

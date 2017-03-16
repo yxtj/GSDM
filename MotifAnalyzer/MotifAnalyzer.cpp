@@ -27,7 +27,7 @@ vector<vector<SubjectInfo>> loadSubList(const string& folder,
 		cerr << "cannot open graph folder: " << folder << endl;
 		throw invalid_argument("cannot open graph folder: " + folder);
 	}
-	size_t limitSub = nSub >= 0 ? nSub : numeric_limits<size_t>::max();
+	size_t limitSub = nSub > 0 ? nSub : numeric_limits<size_t>::max();
 	size_t limitSnp = nSnap > 0 ? nSnap : numeric_limits<size_t>::max();
 	unordered_set<int> validType(types.begin(), types.end());
 
@@ -186,6 +186,7 @@ int main(int argc, char* argv[])
 			<< "  # motifs: " << opt.nMotif << "\n"
 			<< "  Motif file name pattern: " << opt.motifPattern << "\n"
 			<< "Output folder: " << opt.pathOutput << "\n"
+			<< "  output subject summary: " << opt.flgOutSub << "\n"
 			<< endl;
 	}
 
@@ -229,7 +230,7 @@ int main(int argc, char* argv[])
 		boost::filesystem::path p(opt.pathOutput);
 		boost::filesystem::create_directories(p.parent_path());
 	}
-	{
+	if(opt.flgOutSub) {
 		cout << "  Outputing subject info...." << endl;
 		ofstream fout(opt.pathOutput + "sub.txt");
 		for(auto& sub : subjects) {

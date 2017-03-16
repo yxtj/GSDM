@@ -26,8 +26,8 @@ Option::Option()
 			"(non-positive means load all).")
 		("nMotif", value<int>(&nMotif)->default_value(0), "[integer] # of motif to load, "
 			"(non-positive means load all).")
-		("motifPath", value<string>(&pathMotif), "The folder for motifs (input)\n")
-		("motifPattern", value<string>(&motifPattern)->default_value(string("res-.*\\.txt")), 
+		("motifPath", value<string>(&pathMotif), "The folder for motifs (input)")
+		("motifPattern", value<string>(&motifPattern)->default_value(string("res-.*\\.txt")),
 			"The file name pattern for the motif files, in ECMAScript regular expressions syntax. "
 			"USE \"\" to contain the regular expression for special characters of the shell, like *")
 		("graphPath", value<string>(&pathGraph), "The folder for graph data (input).")
@@ -36,7 +36,8 @@ Option::Option()
 		("typeNeg", value<vector<int>>(&typeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
 			"The type(s) of negative subjects.")
 		("sortSubByType", value<bool>(&flgSortSubByType)->default_value(1), "[flag] sort the subjects by type")
-		("outputPath", value<string>(&pathOutput), "The file for outputting the result (output).\n")
+		("outputSubject", value<bool>(&flgOutSub)->default_value(1), "[flag] output a summary file for subjects")
+		("outputPath", value<string>(&pathOutput), "The file for outputting the result (output).")
 		;
 }
 
