@@ -67,9 +67,10 @@ int main(int argc, char* argv[])
 				<< "  Cutting method: " << opt.cutp.method << "\n"
 				<< "    Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
 				<< "    Cutting method parameter - nTotal: " << opt.cutp.nTotal << "\n"
-				<< "    Cutting method parameter - nStep: " << opt.cutp.nStep << "\n";
+				<< "    Cutting method parameter - nStep: " << opt.cutp.nStep << "\n"
+				<< "  Correlation method: " << opt.corrMethod << "\n";
 		} else {
-			cout << "  Skipped\n";
+			cout << "  Skipped.\n";
 		}
 		cout << "Graph generation (CORR->GRAPH):\n"
 			<< "  Correlation threshold: " << opt.graphParam << "\n"
@@ -112,7 +113,7 @@ int main(int argc, char* argv[])
 			}
 			writeCorr(fout, p.second);
 			if(++cnt % 100 == 0)
-				cout << "  # of  outputted " << cnt << endl;
+				cout << "  # of outputted " << cnt << endl;
 		}
 		cout << "  # of outputted " << cnt << endl;
 	}

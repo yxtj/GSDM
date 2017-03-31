@@ -28,11 +28,11 @@ Option::Option()
 		("corrPath", value<string>(&corrPath), "The folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output).")
 		("graphPath", value<string>(&graphPath), "The folder for graph data (output).")
-		(TCCutterParam::name.c_str(), value<vector<string>>(&_cutp_str)->multitoken()->default_value(vector<string>{},""),
-			TCCutterParam::usage.c_str())
 		("tc-qc", value<string>(&tcQualityControl)->default_value(string("all")), 
 			"How to use the Quality Control fields to filter the subjects,\n"
 			"supports: none (not use), any (fulfill any QC), all (fulfill all QC).")
+		(TCCutterParam::name.c_str(), value<vector<string>>(&_cutp_str)->multitoken()->default_value(vector<string>{},""),
+			TCCutterParam::usage.c_str())
 		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")),
 			"The method for calculating correlation between ROI,\n"
 			"supports: pearson, spearman, mutialinfo.")

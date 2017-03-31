@@ -7,7 +7,7 @@ using namespace std;
 const std::string TCCutterParam::name("cut-method");
 const std::string TCCutterParam::usage(
 	"The time course cutting method, should be one of the following:\n"
-		"  whole, use the whole period "
+		"  whole, use the whole period\n"
 		"  each <size of each>, fix # of points of each piece\n"
 		"  total <# of total>, fix the total # of pieces\n"
 		"  slide <size of window> <size of step>, use slide-window method"
