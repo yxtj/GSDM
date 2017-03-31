@@ -154,7 +154,6 @@
     <ClInclude Include="CheckerAny.h" />
     <ClInclude Include="CheckerFactory.h" />
     <ClInclude Include="CheckerNone.h" />
-    <ClInclude Include="ComplexParamBase.h" />
     <ClInclude Include="Corr2Graph.h" />
     <ClInclude Include="LoaderABIDE.h" />
     <ClInclude Include="LoaderABIDE2.h" />
@@ -177,7 +176,6 @@
     <ClCompile Include="CheckerAny.cpp" />
     <ClCompile Include="CheckerFactory.cpp" />
     <ClCompile Include="CheckerNone.cpp" />
-    <ClCompile Include="ComplexParamBase.cpp" />
     <ClCompile Include="LoaderABIDE.cpp" />
     <ClCompile Include="LoaderABIDE2.cpp" />
     <ClCompile Include="LoaderADNI.cpp" />

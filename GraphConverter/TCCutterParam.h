@@ -1,11 +1,8 @@
 #pragma once
-#include "ComplexParamBase.h"
+#include <vector>
 #include <string>
 
-class Option;
-
 struct TCCutterParam
-	:public ComplexParamBase
 {
 	std::string method;
 	// M-each use: nEach
@@ -15,12 +12,14 @@ struct TCCutterParam
 	int nTotal = -1;
 	int nStep = -1;
 public:
-	void reg(Option& opt);
-	virtual bool parse();
+	static const std::string name;
+	static const std::string usage;
+
+	virtual bool parse(const std::vector<std::string>& params);
 private:
-	bool parseEach();
-	bool parseTotal();
-	bool parseSlide();
-	void numberCheck(int required) noexcept(false);
+	bool parseEach(const std::vector<std::string>& params);
+	bool parseTotal(const std::vector<std::string>& params);
+	bool parseSlide(const std::vector<std::string>& params);
+	void numberCheck(int required, int given);
 };
 
