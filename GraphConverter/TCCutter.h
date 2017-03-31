@@ -23,6 +23,7 @@ private:
 	void movePointer();
 
 	// functions of initializing step and size;
+	void initWhole();
 	void initTotal(const int nTotal);
 	void initEach(const int nEach);
 	void initSlideWindow(const int winSize, const int step);

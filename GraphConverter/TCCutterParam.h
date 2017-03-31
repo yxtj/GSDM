@@ -17,6 +17,7 @@ public:
 
 	virtual bool parse(const std::vector<std::string>& params);
 private:
+	bool parseWhole(const std::vector<std::string>& params);
 	bool parseEach(const std::vector<std::string>& params);
 	bool parseTotal(const std::vector<std::string>& params);
 	bool parseSlide(const std::vector<std::string>& params);

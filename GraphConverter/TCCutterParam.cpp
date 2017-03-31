@@ -7,6 +7,7 @@ using namespace std;
 const std::string TCCutterParam::name("cut-method");
 const std::string TCCutterParam::usage(
 	"The time course cutting method, should be one of the following:\n"
+		"  whole, use the whole period "
 		"  each <size of each>, fix # of points of each piece\n"
 		"  total <# of total>, fix the total # of pieces\n"
 		"  slide <size of window> <size of step>, use slide-window method"
@@ -18,7 +19,9 @@ bool TCCutterParam::parse(const std::vector<std::string>& params)
 		return true;
 	method = params[0];
 	bool res = false;
-	if(method == "each") {
+	if(method == "whole") {
+		res = parseWhole(params);
+	} else if(method == "each") {
 		res = parseEach(params);
 	} else if(method == "total") {
 		res = parseTotal(params);
@@ -28,6 +31,12 @@ bool TCCutterParam::parse(const std::vector<std::string>& params)
 		throw invalid_argument("unknown parameter for cut-method: " + params[0]);
 	}
 	return res;
+}
+
+bool TCCutterParam::parseWhole(const std::vector<std::string>& params)
+{
+	numberCheck(0, params.size());
+	return true;
 }
 
 bool TCCutterParam::parseEach(const std::vector<std::string>& params)

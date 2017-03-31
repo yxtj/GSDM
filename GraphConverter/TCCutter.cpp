@@ -7,7 +7,9 @@ using namespace std;
 TCCutter::TCCutter(tc_t & data, const TCCutterParam& parm)
 	: data(data)
 {
-	if("total" == parm.method)
+	if("whole" == parm.method)
+		initWhole();
+	else if("total" == parm.method)
 		initTotal(parm.nTotal);
 	else if("each" == parm.method)
 		initEach(parm.nEach);
@@ -48,6 +50,14 @@ tc_t TCCutter::cut()
 void TCCutter::movePointer()
 {
 	pos += step;
+}
+
+void TCCutter::initWhole()
+{
+	pos = 0;
+	step = data.size();
+	size = data.size();
+	reuse = false;
 }
 
 void TCCutter::initTotal(const int nTotal)
