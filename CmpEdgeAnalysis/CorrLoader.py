@@ -1,5 +1,5 @@
 import DataLoader as dl
-
+import numpy as np
 
 class CorrLoader:
     def __init__(self, path):
@@ -20,12 +20,21 @@ class CorrLoader:
             if len(t)!=0:
                 res.append(t)
         f.close()
-        return res
+        return np.array(res)
 
-    def load(self, types):
+    def loadWhole(self, types):
         l=dl.getFileNames(self.path, types)
         res=[]
         for fn in l:
             t=self.loadOne(fn)
+            res.append(t)
+        return res
+
+    def loadDynamic(self, types):
+        l = dl.getFileNames(self.path, types)
+        l = dl.sortUpWithSubject(l)
+        res = []
+        for sub in l:
+            t = sum(self.loadOne(fn) for fn in sub) / len(sub)
             res.append(t)
         return res
