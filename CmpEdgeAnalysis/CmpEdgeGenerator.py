@@ -2,13 +2,12 @@ import sys, os, re
 import CorrLoader as cl
 import DataLoader as dl
 import numpy as np
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
-
+import scipy.stats
 
 # plot some single edge sample
-def drawCorrDistri(dis, i, j):
-    plt.hist(dis, 2 * 10, [-1, 1], weights=np.zeros_like(dis) + 1. / len(dis))
+def drawCorrDistri(dis, i, j, n = 40):
+    plt.hist(dis, n, [-1, 1], weights=np.zeros_like(dis) + 1. / len(dis))
     plt.xlabel('Correlation')
     plt.ylabel('Frequency')
     plt.xlim([-1, 1])
@@ -44,6 +43,59 @@ def getStatOfRef(corr):
     return (m, s)
 
 
+def getMLEToNormal_one(data, m, s):
+    if s == 0:
+        return 0.0
+    l = len(data)
+    scale = 1./l
+    d = sorted(data)
+    tc = scipy.stats.norm.cdf(d, m, s)
+    err = sum((tc[k] - (k+1)*scale)**2 for k in range(l))
+    return err
+
+
+def getMLEToNormal(corr, m, s):
+    (size_i, size_j, l) = corr.shape
+    err = np.zeros([size_i, size_j])
+    scale = 1./l
+    for i in range(size_i):
+        for j in range(size_j):
+            if i == j:
+                continue
+            d = sorted(corr[i][j])
+            tc = scipy.stats.norm.cdf(d, m[i][j], s[i][j])
+            err[i][j] = sum((tc[k] - (k+1)*scale)**2 for k in range(l))
+    return err
+
+
+def drawRefCorrInfo(m, s, mle):
+    fig = plt.figure()
+
+    plt.subplot(2, 2, 1)
+    plt.imshow(m, 'RdBu', clim=(-1, 1))
+    plt.colorbar()
+    plt.title('mean')
+
+    plt.subplot(2, 2, 2)
+    plt.hist(m.reshape(m.size), 200, [-1, 1], weights=np.zeros(m.size) + 1./m.size)
+    plt.grid(True)
+    plt.title('distr. of mean')
+
+    plt.subplot(2, 2, 3)
+    plt.imshow(s, 'Blues')
+
+    plt.colorbar()
+    plt.title('std. var.')
+
+    plt.subplot(2, 2, 4)
+    plt.imshow(mle, 'Blues')
+    plt.colorbar()
+    plt.title('MLE to norm. dis.')
+
+    plt.tight_layout()
+    #plt.show()
+
+
 def generateCmpGraph(corr, factor, m, s):
     # only support static & dyanmic method
     c = corr - m
@@ -65,10 +117,13 @@ def writeCmpGraph(fn, g):
     fout.close()
 
 
-def main(pathCon, pathPat, pathOutput, typeCon, typePat, factor, refMethod):
+def main(pathCon, pathPat, pathOut, typeCon, typePat, factor, refMethod):
     # load reference data
     refCorr = loadConRef(pathCon, typeCon, refMethod)
     (m, s) = getStatOfRef(refCorr)
+    mle = getMLEToNormal(refCorr, m, s)
+    drawRefCorrInfo(m, s, mle)
+    plt.savefig(pathOut+'/figure/ref-'+refMethod+'.eps')
     # plot
     # i=1;j=2;
     # drawCorrDistri(refCorr[i][j], i, j)
@@ -79,7 +134,7 @@ def main(pathCon, pathPat, pathOutput, typeCon, typePat, factor, refMethod):
     for fn in l:
         c = cLoader.loadOne(fn)
         c = generateCmpGraph(c, factor, m, s)
-        writeCmpGraph(pathOutput + '/' + fn, c)
+        writeCmpGraph(pathOut + '/' + fn, c)
 
 
 if __name__ == '__main__':
@@ -92,12 +147,14 @@ if __name__ == '__main__':
               '  [factor]: (=3) the significance factor for comparison.'
               '  [refMethod]: (=static) the metohd of merging reference data, support:\n'
               '    static: merge everything equally. Fit case: one correlation using whole scan period\n'
-              '    dynamic: snapshots of the same subject are equally, subjects are equally. Fit case: multiple snapshots on each subject\n'
+              '    dynamic: snapshots of the same subject are equally, subjects are equally.'
+              ' Fit case: multiple snapshots on each subject\n'
               '    periodic: generate a periodic reference. Not supported yet\n'
               )
         exit(0)
     # pathCon = '../data_abide/data-all/whole'
     # pathPat = '../data_abide/data/p-s20-10/corr'
+    # pathOut = '../data_abide/data/cmp/p-s20-10'
     # typeCon = 2
     # typePat = 1
     pathCon = sys.argv[1]
