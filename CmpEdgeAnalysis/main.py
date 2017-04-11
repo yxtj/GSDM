@@ -1,0 +1,272 @@
+from prepare import *
+# runfile('prepare.py')
+
+(fcc, fcp) = reloadFC()
+(dfcc, dfcp) = reloadDFC()
+
+nNode = len(dfcc[0][0])
+nSub = (len(dfcc), len(dfcp))
+nSnap = ([len(sub) for sub in dfcc], [len(sub) for sub in dfcp])
+
+mc, sc = np.mean(fcc, 0), np.std(fcc, 0)
+mp, sp = np.mean(fcp, 0), np.std(fcp, 0)
+mac, sac, mgc, sgc = anl.getStatOfAll(dfcc)
+map, sap, mgp, sgp = anl.getStatOfAll(dfcp)
+
+
+# analysis
+
+# ------
+# edge difference using all subjects' all snapshots
+## correlation distribution
+i=41;j=43
+ec = anl.pickEdgeOfAll(dfcc, i, j)
+ep = anl.pickEdgeOfAll(dfcp, i, j)
+dsp.drawDistriNormCP(ec, ep, 100)
+
+nRow = 3; nCol = 3
+r = [(np.random.randint(nNode), np.random.randint(nNode)) for k in range(nRow*nCol)]
+for k in range(nRow*nCol):
+    plt.subplot(nRow, nCol, k+1)
+    i, j = r[k]
+    dsp.drawDistriNormCP(anl.pickEdgeOfAll(dfcc,i,j), anl.pickEdgeOfAll(dfcp,i,j), 25)
+    #dsp.drawDistriNormCP(fcc[:, i, j], fcp[:, i, j], 25)
+    plt.title('Edge: '+str(i)+'-'+str(j))
+plt.tight_layout()
+plt.show()
+# findings: trivial edge->gaussian around 0, discriminative edge->not gaussian, peak near 1
+
+## correlation variance distribution
+plt.figure(figsize=[6.4, 2.4])
+dsp.drawDistriNormCP(sc.ravel(), sp.ravel(), 300, True)
+plt.xlabel('std.');plt.xlim([0, 0.5]);
+plt.grid(True);
+plt.tight_layout();
+plt.show()
+
+plt.figure(figsize=[6.4, 2.4])
+dsp.drawDistriNormCP(sgc.ravel(), sgp.ravel(), 300, True)
+plt.xlabel('std.');plt.xlim([0.15, 0.45]);
+plt.grid(True);
+plt.tight_layout();
+plt.show()
+
+
+# ------
+# relative difference about the mean value
+def showMeanDifference(mp, mc, th: float=None, xlabel: str=None, ylabel: str=None, title: str=None):
+    dm2 = (mp - mc)/mc
+    if th is not None and th > 0:
+        dm2[np.abs(mc) < th] = 0
+        dm2 = dm2.reshape(dm2.size)
+        dm2 = np.delete(dm2, np.argwhere(dm2 == 0))
+    else:
+        dm2 = dm2.reshape(dm2.size)
+    rng = np.percentile(dm2, [1, 99]) # use 1-percentile, 99-percentile
+    bound = np.max(np.abs(rng))
+    plt.hist(dm2, 100, [-bound, bound]);
+    plt.grid(True)
+    if xlabel is not None:
+        plt.xlabel(xlabel)
+    if ylabel is not None:
+        plt.ylabel(ylabel)
+    if title is not None:
+        plt.title(title)
+
+showMeanDifference(mp, mc, None, 'relative mean difference to controls', '# of edges',
+                   'distribution of mean difference over edges')
+plt.show()
+
+
+title = 'distr. of corr. difference over edges'
+# vertical
+plt.subplot(3, 1, 1)
+showMeanDifference(mp, mc, None, None, '# of edges', title)
+plt.subplot(3, 1, 2)
+showMeanDifference(mp, mc, 0.1, None, '# of edges', title + ' (Org>0.1)')
+plt.subplot(3, 1, 3)
+showMeanDifference(mp, mc, 0.2, 'relative mean difference to controls', '# of edges', title + ' (Org>0.2)')
+plt.tight_layout()
+plt.show()
+
+# horizontal
+plt.figure(figsize=[9,2])
+plt.subplot(1, 3, 1)
+showMeanDifference(mp, mc, None, None, '# of edges','No prune')
+plt.subplot(1, 3, 2)
+showMeanDifference(mp, mc, 0.1, 'relative mean difference', None, 'Org>0.1')
+plt.subplot(1, 3, 3)
+showMeanDifference(mp, mc, 0.2, None, None, 'Org>0.2')
+plt.tight_layout()
+plt.show()
+
+# ------
+# find the edges with large mean-value difference
+
+def getNumChangedEdge(dml, th):
+    dml.sort()
+    idx = anl.pickTailIndex(dml, [-th, th])
+    cnt = (max(0, idx[0] - 0), max(0, dml.size-idx[1]))
+    return cnt
+
+pruneTh = 0.1
+dm = (mp - mc) / mc
+dml = anl.removeCond(dm, np.abs(mc) <= pruneTh)
+
+th = 0.2
+cnt = getNumChangedEdge(dml, th)
+print('# of edges with difference>='+str(th*100)+'%: weakened:',cnt[0],'enhanced',cnt[1])
+
+def showNumChangedEdges(dml, thRng, ylog=False, legend=False, xlabel=True, ylabel=True):
+    cntList = []
+    for th in thRng:
+        cntList.append(getNumChangedEdge(dml, th))
+    data = np.array(cntList)
+    plt.plot(thRng, data[:,0], '-o', thRng, data[:,1], '-x')
+    if ylog:
+        plt.yscale('log')
+    if legend:
+        plt.legend(['Weakened', 'Enhanced'])
+    plt.grid(True)
+    if xlabel:
+        plt.xlabel('threshold')
+    if ylabel:
+        plt.ylabel('# of edges')
+
+
+plt.figure(figsize=[9.6, 3.2])
+plt.subplot(1, 3, 1)
+showNumChangedEdges(anl.removeCond(dm, np.abs(mc) <= 0.1), np.arange(3, 16)*0.02, True, True)
+plt.title('Org>0.1')
+plt.subplot(1, 3, 2)
+showNumChangedEdges(anl.removeCond(dm, np.abs(mc) <= 0.2), np.arange(3, 16)*0.02, True, True)
+plt.title('Org>0.2')
+plt.subplot(1, 3, 3)
+showNumChangedEdges(anl.removeCond(dm, np.abs(mc) <= 0.3), np.arange(3, 16)*0.02, True, True)
+plt.title('Org>0.3')
+plt.tight_layout()
+plt.show()
+
+pruneTh = 0.1
+th = 0.3
+elistc, elistp = anl.pickTopEdges(anl.setCond(dm, np.abs(mc) <= pruneTh), [-th, th])
+
+# ------
+# relative difference about the standard derivation
+def showStdDifference(sp, sc, th: float=None, xlabel: str=None, ylabel: str=None, title: str=None):
+    nNode = sp.shape[0]
+    ds = (sp - sc)/sc
+    for i in range(nNode):
+        ds[i, i] = 0
+    dsl = ds.ravel()
+    if th is not None and th > 0:
+        scr = sc.ravel()
+        dsl = np.delete(dsl, np.argwhere(np.logical_or(scr == 0, scr > th)))
+    rng = np.percentile(dsl, [1, 99]) # use 1-percentile, 99-percentile
+    bound = np.max(np.abs(rng))
+    plt.hist(dsl, 100, [-bound, bound]);
+    plt.grid(True)
+    if xlabel is not None:
+        plt.xlabel(xlabel)
+    if ylabel is not None:
+        plt.ylabel(ylabel)
+    if title is not None:
+        plt.title(title)
+
+
+showStdDifference(sp, sc, None, 'relative std. difference', '# of edges', 'No prune')
+
+# horizontal
+# FC
+plt.figure(figsize=[9,2])
+plt.subplot(1, 3, 1)
+showStdDifference(sp, sc, None, None, '# of edges','No prune')
+plt.subplot(1, 3, 2)
+showStdDifference(sp, sc, 0.21, 'relative std. difference', None, 'Org<0.21')
+plt.subplot(1, 3, 3)
+showStdDifference(sp, sc, 0.18, None, None, 'Org<0.18')
+plt.tight_layout()
+plt.show()
+
+# DFC
+plt.figure(figsize=[9,2])
+plt.subplot(1, 3, 1)
+showStdDifference(sgp, sgc, None, None, '# of edges','No prune')
+plt.subplot(1, 3, 2)
+showStdDifference(sgp, sgc, 0.35, 'relative std. difference', None, 'Org<0.35')
+plt.subplot(1, 3, 3)
+showStdDifference(sgp, sgc, 0.30, None, None, 'Org<0.30')
+plt.tight_layout()
+plt.show()
+
+
+# ------
+# information on each subject
+
+smc, ssc = np.mean(sac, 0), np.std(sac, 0)
+smp, ssp = np.mean(sap, 0), np.std(sap, 0)
+
+plt.figure(figsize=[6.4, 2.4])
+plt.subplot(1, 2, 1)
+plt.imshow((smp-smc)/smc); plt.colorbar()
+plt.xlabel('relative difference (mean)')
+plt.subplot(1, 2, 2)
+sl = ((ssp-ssc)/smc).ravel()
+plt.hist(sl, 100, [-0.15, 0.15]); plt.grid(True)
+plt.ylabel('# of edges'); plt.xlabel('relative difference (std.)')
+plt.tight_layout()
+plt.show()
+
+
+# ------
+# dynamic of individual edge
+
+r = [np.random.randint(nSub[0]) for i in range(16)]
+
+i = 41; j = 43;
+dsp.drawEdgeGrid(dfcc, r, i, j); plt.show()
+
+
+# ------
+
+
+msea = np.zeros([nSub[0], nNode, nNode])
+for k in range(nSub[0]):
+    print(k)
+    msea[k] = anl.getMSEToNormal(dfcc[k], mac[k], sac[k])
+
+mseg = np.zeros([nNode, nNode])
+for ii in range(nNode):
+    for jj in range(nNode):
+        temp = anl.pickEdgeOfAll(dfcc, ii, jj)
+        mseg[ii][jj] = anl.getMSEToNormal_one(temp, mgc[ii][jj], sgc[ii][jj])
+
+with open(DATAPREFIX+'/analysis/mse-p.pickle','wb') as f:
+    pickle.dump([msea, mseg], f)
+
+with open(DATAPREFIX + '/analysis/mse-p.pickle', 'rb') as f:
+    msea, mseg = pickle.load(f)
+
+
+plt.subplot(3, 3, 1)
+plt.imshow(mseg); plt.colorbar(); plt.title('MSE on snapshots')
+# plt.show()
+
+for k in range(2, 10):
+    plt.subplot(3, 3, k)
+    k = np.random.randint(nSub[0])
+    plt.imshow(msea[k]); plt.colorbar(); plt.title('MSE on sub-'+str(k))
+plt.tight_layout()
+plt.show()
+
+# fitness to gaussian (each subject)
+r = [np.random.randint(nSub[0]) for i in range(9)]
+for k in range(9):
+    plt.subplot(3, 3, k + 1);
+    dsp.drawDistriNorm(dfcc[r[k]][:, i, j], 20, mgc[i, j], sgc[i, j])
+plt.show()
+# Result: not very similar (too little samples on each subject)
+
+# fitness to gaussian (each subject)
+
+
