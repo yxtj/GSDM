@@ -39,41 +39,23 @@ plt.show()
 ## correlation variance distribution
 plt.figure(figsize=[6.4, 2.4])
 dsp.drawDistriNormCP(sc.ravel(), sp.ravel(), 300, True)
-plt.xlabel('std.');plt.xlim([0, 0.5]);
-plt.grid(True);
-plt.tight_layout();
+plt.xlabel('std.'); plt.xlim([0, 0.5])
+plt.grid(True)
+plt.tight_layout()
 plt.show()
 
 plt.figure(figsize=[6.4, 2.4])
 dsp.drawDistriNormCP(sgc.ravel(), sgp.ravel(), 300, True)
-plt.xlabel('std.');plt.xlim([0.15, 0.45]);
-plt.grid(True);
-plt.tight_layout();
+plt.xlabel('std.'); plt.xlim([0.15, 0.45])
+plt.grid(True)
+plt.tight_layout()
 plt.show()
 
 
 # ------
 # relative difference about the mean value
-def showMeanDifference(mp, mc, th: float=None, xlabel: str=None, ylabel: str=None, title: str=None):
-    dm2 = (mp - mc)/mc
-    if th is not None and th > 0:
-        dm2[np.abs(mc) < th] = 0
-        dm2 = dm2.reshape(dm2.size)
-        dm2 = np.delete(dm2, np.argwhere(dm2 == 0))
-    else:
-        dm2 = dm2.reshape(dm2.size)
-    rng = np.percentile(dm2, [1, 99]) # use 1-percentile, 99-percentile
-    bound = np.max(np.abs(rng))
-    plt.hist(dm2, 100, [-bound, bound]);
-    plt.grid(True)
-    if xlabel is not None:
-        plt.xlabel(xlabel)
-    if ylabel is not None:
-        plt.ylabel(ylabel)
-    if title is not None:
-        plt.title(title)
 
-showMeanDifference(mp, mc, None, 'relative mean difference to controls', '# of edges',
+dsp.showMeanDifference(mp, mc, None, 'relative mean difference to controls', '# of edges',
                    'distribution of mean difference over edges')
 plt.show()
 
@@ -81,22 +63,22 @@ plt.show()
 title = 'distr. of corr. difference over edges'
 # vertical
 plt.subplot(3, 1, 1)
-showMeanDifference(mp, mc, None, None, '# of edges', title)
+dsp.showMeanDifference(mp, mc, None, None, '# of edges', title)
 plt.subplot(3, 1, 2)
-showMeanDifference(mp, mc, 0.1, None, '# of edges', title + ' (Org>0.1)')
+dsp.showMeanDifference(mp, mc, 0.1, None, '# of edges', title + ' (Org>0.1)')
 plt.subplot(3, 1, 3)
-showMeanDifference(mp, mc, 0.2, 'relative mean difference to controls', '# of edges', title + ' (Org>0.2)')
+dsp.showMeanDifference(mp, mc, 0.2, 'relative mean difference to controls', '# of edges', title + ' (Org>0.2)')
 plt.tight_layout()
 plt.show()
 
 # horizontal
-plt.figure(figsize=[9,2])
+plt.figure(figsize=[9, 2])
 plt.subplot(1, 3, 1)
-showMeanDifference(mp, mc, None, None, '# of edges','No prune')
+dsp.showMeanDifference(mp, mc, None, None, '# of edges','No prune')
 plt.subplot(1, 3, 2)
-showMeanDifference(mp, mc, 0.1, 'relative mean difference', None, 'Org>0.1')
+dsp.showMeanDifference(mp, mc, 0.1, 'relative mean difference', None, 'Org>0.1')
 plt.subplot(1, 3, 3)
-showMeanDifference(mp, mc, 0.2, None, None, 'Org>0.2')
+dsp.showMeanDifference(mp, mc, 0.2, None, None, 'Org>0.2')
 plt.tight_layout()
 plt.show()
 
@@ -133,7 +115,6 @@ def showNumChangedEdges(dml, thRng, ylog=False, legend=False, xlabel=True, ylabe
     if ylabel:
         plt.ylabel('# of edges')
 
-
 plt.figure(figsize=[9.6, 3.2])
 plt.subplot(1, 3, 1)
 showNumChangedEdges(anl.removeCond(dm, np.abs(mc) <= 0.1), np.arange(3, 16)*0.02, True, True)
@@ -147,61 +128,41 @@ plt.title('Org>0.3')
 plt.tight_layout()
 plt.show()
 
-pruneTh = 0.1
-th = 0.3
-elistc, elistp = anl.pickTopEdges(anl.setCond(dm, np.abs(mc) <= pruneTh), [-th, th])
+pruneTh = 0.3
+th = 0.2
+elistw, eliste = anl.pickTopEdges(anl.setCond(dm, np.abs(mc) <= pruneTh), [-th, th])
 
 # ------
 # relative difference about the standard derivation
-def showStdDifference(sp, sc, th: float=None, xlabel: str=None, ylabel: str=None, title: str=None):
-    nNode = sp.shape[0]
-    ds = (sp - sc)/sc
-    for i in range(nNode):
-        ds[i, i] = 0
-    dsl = ds.ravel()
-    if th is not None and th > 0:
-        scr = sc.ravel()
-        dsl = np.delete(dsl, np.argwhere(np.logical_or(scr == 0, scr > th)))
-    rng = np.percentile(dsl, [1, 99]) # use 1-percentile, 99-percentile
-    bound = np.max(np.abs(rng))
-    plt.hist(dsl, 100, [-bound, bound]);
-    plt.grid(True)
-    if xlabel is not None:
-        plt.xlabel(xlabel)
-    if ylabel is not None:
-        plt.ylabel(ylabel)
-    if title is not None:
-        plt.title(title)
 
-
-showStdDifference(sp, sc, None, 'relative std. difference', '# of edges', 'No prune')
+dsp.showStdDifference(sp, sc, None, 'relative std. difference', '# of edges', 'No prune')
 
 # horizontal
 # FC
 plt.figure(figsize=[9,2])
 plt.subplot(1, 3, 1)
-showStdDifference(sp, sc, None, None, '# of edges','No prune')
+dsp.showStdDifference(sp, sc, None, None, '# of edges','No prune')
 plt.subplot(1, 3, 2)
-showStdDifference(sp, sc, 0.21, 'relative std. difference', None, 'Org<0.21')
+dsp.showStdDifference(sp, sc, 0.21, 'relative std. difference', None, 'Org<0.21')
 plt.subplot(1, 3, 3)
-showStdDifference(sp, sc, 0.18, None, None, 'Org<0.18')
+dsp.showStdDifference(sp, sc, 0.18, None, None, 'Org<0.18')
 plt.tight_layout()
 plt.show()
 
 # DFC
 plt.figure(figsize=[9,2])
 plt.subplot(1, 3, 1)
-showStdDifference(sgp, sgc, None, None, '# of edges','No prune')
+dsp.showStdDifference(sgp, sgc, None, None, '# of edges','No prune')
 plt.subplot(1, 3, 2)
-showStdDifference(sgp, sgc, 0.35, 'relative std. difference', None, 'Org<0.35')
+dsp.showStdDifference(sgp, sgc, 0.35, 'relative std. difference', None, 'Org<0.35')
 plt.subplot(1, 3, 3)
-showStdDifference(sgp, sgc, 0.30, None, None, 'Org<0.30')
+dsp.showStdDifference(sgp, sgc, 0.30, None, None, 'Org<0.30')
 plt.tight_layout()
 plt.show()
 
 
 # ------
-# information on each subject
+# information (variance) on each subject
 
 smc, ssc = np.mean(sac, 0), np.std(sac, 0)
 smp, ssp = np.mean(sap, 0), np.std(sap, 0)
@@ -221,10 +182,41 @@ plt.show()
 # ------
 # dynamic of individual edge
 
-r = [np.random.randint(nSub[0]) for i in range(16)]
+r = [np.random.randint(min(nSub)) for i in range(16)]
 
-i = 41; j = 43;
-dsp.drawEdgeGrid(dfcc, r, i, j); plt.show()
+i = 41; j = 43
+dsp.drawDynamicGrid(dfcc, r, i, j); plt.show()
+
+# use the discriminative edges: elistw, and eliste
+pruneTh = 0.3; th = 0.2
+elistw, eliste = anl.pickTopEdges(anl.setCond(dm, np.abs(mc) <= pruneTh), [-th, th])
+kw = 0; ke = 0
+i, j = elistw[kw]
+plt.figure(1)
+dsp.drawDynamicGrid(dfcc, r, i, j, False, True, True)
+plt.figure(2)
+dsp.drawDynamicGrid(dfcp, r, i, j, False, True, True)
+plt.show()
+
+# ------
+# co-appearance of edges
+
+r = [np.random.randint(min(nSub)) for k in range(9)]
+dsp.showCoDynamicGrid(dfcp, mgc, r, [eliste[0], elistw[0]], True, 3); plt.show()
+dsp.showCoDynamicGrid(dfcp, mgc, r, eliste[0:4:2] + elistw[0:4:2], nRow=3); plt.show()
+
+r = [np.random.randint(min(nSub)) for k in range(20)]
+dsp.showCoDynamicGrid(dfcp, mgc, r, [eliste[0], elistw[0], elistw[2]], True, 4); plt.show()
+
+k = 0
+i1, j1 = eliste[0]
+i2, j2 = elistw[0]
+
+coc = anl.getCoChange([dfcp[k][:,i1,j1], dfcp[k][:,i2,j2]], [mgc[i1,j1], mgc[i2,j2]])
+np.mean(abs(coc))
+
+cot = anl.getCoTrend([dfcp[k][:,i1,j1], dfcp[k][:,i2,j2]])
+np.mean(abs(cot))
 
 
 # ------
@@ -262,11 +254,9 @@ plt.show()
 # fitness to gaussian (each subject)
 r = [np.random.randint(nSub[0]) for i in range(9)]
 for k in range(9):
-    plt.subplot(3, 3, k + 1);
+    plt.subplot(3, 3, k + 1)
     dsp.drawDistriNorm(dfcc[r[k]][:, i, j], 20, mgc[i, j], sgc[i, j])
 plt.show()
 # Result: not very similar (too little samples on each subject)
 
 # fitness to gaussian (each subject)
-
-

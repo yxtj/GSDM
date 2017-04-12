@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import norm
-from collections import Iterable
+from typing import Union, List, Tuple
 
 
 def getStatOfRef(corr):
@@ -139,11 +139,45 @@ def pickTopEdges(mat: np.ndarray, thres=None, percentile=None, dir:str='B'):
     idx = np.argsort(l, None)
     ll = l[idx]
     rng = pickTailIndex(ll, thres, percentile, dir)
-    res = [[], []]
+    res = ([], [])
     for i in range(0, rng[0] + 1):
         res[0].append(mapIndexLinear2D(idx[i], nNode))
-    for i in range(rng[1], n):
+    for i in range(n - 1, rng[1], -1):
         res[1].append(mapIndexLinear2D(idx[i], nNode))
     return res
+
+
+def getCoChange(dynamics: Union[list, np.ndarray], refs: Union[list, np.ndarray],
+                shifts: Union[list, np.ndarray]=None) -> np.ndarray:
+    assert len(dynamics) == len(refs) and (shifts is None or len(shifts) == len(refs)), 'parameters do not match'
+    assert len(dynamics) >= 2 and len(dynamics[0]) != 0 and np.isscalar(refs[0])
+    n = len(dynamics)
+    m = len(dynamics[0])
+    cless = np.array(np.zeros(m) + 1, np.bool)
+    cgreat = np.array(np.zeros(m) + 1, np.bool)
+    for i in range(n):
+        cless = np.logical_and(cless, dynamics[i] < refs[i])
+        cgreat = np.logical_and(cgreat, dynamics[i] > refs[i])
+    co = np.zeros(m, int)
+    co[cless] = -1
+    co[cgreat] = 1
+    return co
+
+
+def getCoTrend(dynamics: Union[list, np.ndarray], shifts: Union[list, np.ndarray] = None) -> np.ndarray:
+    assert shifts is None or len(shifts) == len(dynamics), 'parameters do not match'
+    assert len(dynamics) >= 2 and len(dynamics[0]) != 0
+    n = len(dynamics)
+    m = len(dynamics[0])
+    cdown = np.array(np.zeros(m - 1) + 1, np.bool)
+    cup = np.array(np.zeros(m - 1) + 1, np.bool)
+    for i in range(n):
+        ref = dynamics[i][1:] - dynamics[i][:-1]
+        cdown = np.logical_and(cdown, ref < 0)
+        cup = np.logical_and(cup, ref > 0)
+    co = np.zeros(m - 1, int)
+    co[cdown] = -1
+    co[cup] = 1
+    return co
 
 
