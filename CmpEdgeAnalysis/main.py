@@ -136,6 +136,7 @@ elistw, eliste = anl.pickTopEdges(anl.setCond(dm, np.abs(mc) <= pruneTh), [-th, 
 # relative difference about the standard derivation
 
 dsp.showStdDifference(sp, sc, None, 'relative std. difference', '# of edges', 'No prune')
+plt.show()
 
 # horizontal
 # FC
@@ -202,20 +203,22 @@ plt.show()
 # co-appearance of edges
 
 r = [np.random.randint(min(nSub)) for k in range(9)]
-dsp.showCoDynamicGrid(dfcp, mgc, r, [eliste[0], elistw[0]], True, 3); plt.show()
+dsp.showCoDynamicGrid(dfcp, mgc, r, [eliste[0], elistw[0]], True, True, 3); plt.show()
 dsp.showCoDynamicGrid(dfcp, mgc, r, eliste[0:4:2] + elistw[0:4:2], nRow=3); plt.show()
 
 r = [np.random.randint(min(nSub)) for k in range(20)]
-dsp.showCoDynamicGrid(dfcp, mgc, r, [eliste[0], elistw[0], elistw[2]], True, 4); plt.show()
+dsp.showCoDynamicGrid(dfcp, mgc, r, [eliste[0], elistw[0], elistw[2]], True, True, 4); plt.show()
 
 k = 0
 i1, j1 = eliste[0]
 i2, j2 = elistw[0]
 
-coc = anl.getCoChange([dfcp[k][:,i1,j1], dfcp[k][:,i2,j2]], [mgc[i1,j1], mgc[i2,j2]])
+# coc = anl.getCoChangeDirect([dfcp[k][:,i1,j1], dfcp[k][:,i2,j2]], [mgc[i1,j1], mgc[i2,j2]])
+coc = anl.getCoChange(dfcp, mgc, [eliste[0], elistw[0]])
 np.mean(abs(coc))
 
-cot = anl.getCoTrend([dfcp[k][:,i1,j1], dfcp[k][:,i2,j2]])
+# cot = anl.getCoTrendDirect([dfcp[k][:,i1,j1], dfcp[k][:,i2,j2]])
+cot = anl.getCoTrend(dfcp, [eliste[0], eliste[0]])
 np.mean(abs(cot))
 
 

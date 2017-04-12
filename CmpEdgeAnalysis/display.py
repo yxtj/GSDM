@@ -150,7 +150,7 @@ def drawDistriNormCP(datac, datap, bins=50, showLegend = False):
     plt.ylabel('PDF')
 
 
-def showCoDynamicGrid(dfc, mgc, r, indexes, showCo=False, nRow:int=None):
+def showCoDynamicGrid(dfc, mgc, r, indexes, showCoCmp=False, showCoTrend=False, nRow:int=None):
     nr = len(r)
     if nRow is None or nRow <= 0:
         nRow = int(np.ceil(np.sqrt(nr)))
@@ -163,16 +163,28 @@ def showCoDynamicGrid(dfc, mgc, r, indexes, showCo=False, nRow:int=None):
         ref = []
         cl = np.array(np.zeros(n) + 1, np.bool)
         cg = np.array(np.zeros(n) + 1, np.bool)
+        cd = np.array(np.zeros(n - 1) + 1, np.bool)
+        cu = np.array(np.zeros(n - 1) + 1, np.bool)
         for idx in indexes:
             dynamics.append(dfc[id][:, idx[0], idx[1]])
             ref.append(mgc[idx[0], idx[1]])
-            cl = np.logical_and(cl, dynamics[-1] < ref[-1])
-            cg = np.logical_and(cg, dynamics[-1] > ref[-1])
+            if showCoCmp:
+                cl = np.logical_and(cl, dynamics[-1] < ref[-1])
+                cg = np.logical_and(cg, dynamics[-1] > ref[-1])
+            if showCoTrend:
+                temp = dynamics[-1][1:] - dynamics[-1][:-1]
+                cd = np.logical_and(cd, temp < 0)
+                cu = np.logical_and(cu, temp > 0)
         drawDynamic(dynamics, ref)
-        if showCo:
+        if showCoCmp:
             co = np.zeros(n)
             co[cl] = -1
             co[cg] = 1
-            plt.plot(co, 'ok')
+            plt.plot(co, 'ok', markerfacecolor='none')
+        if showCoTrend:
+            co = np.zeros(n - 1)
+            co[cd] = -1
+            co[cu] = 1
+            plt.plot(np.arange(1, n), co, 'xk')
     plt.tight_layout()
 

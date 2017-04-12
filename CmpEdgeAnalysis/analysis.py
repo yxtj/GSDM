@@ -147,7 +147,7 @@ def pickTopEdges(mat: np.ndarray, thres=None, percentile=None, dir:str='B'):
     return res
 
 
-def getCoChange(dynamics: Union[list, np.ndarray], refs: Union[list, np.ndarray],
+def getCoChangeDirect(dynamics: Union[list, np.ndarray], refs: Union[list, np.ndarray],
                 shifts: Union[list, np.ndarray]=None) -> np.ndarray:
     assert len(dynamics) == len(refs) and (shifts is None or len(shifts) == len(refs)), 'parameters do not match'
     assert len(dynamics) >= 2 and len(dynamics[0]) != 0 and np.isscalar(refs[0])
@@ -164,7 +164,20 @@ def getCoChange(dynamics: Union[list, np.ndarray], refs: Union[list, np.ndarray]
     return co
 
 
-def getCoTrend(dynamics: Union[list, np.ndarray], shifts: Union[list, np.ndarray] = None) -> np.ndarray:
+def getCoChange(dfc: np.ndarray, ref: np.ndarray, indexes: Union[list, np.ndarray],
+                shift: np.ndarray=None) -> np.ndarray:
+    assert dfc.ndim == 3 and dfc[0].shape == ref.shape and (shift is None or shift.shape == ref.shape)
+    assert len(indexes) >= 2 and isinstance(indexes[0], tuple or list or np.ndarray)
+    n, m = dfc.shape[0:1]
+    dm = []
+    rf = []
+    for i, j in indexes:
+        dm.append(dfc[:, i, j])
+        rf.append(ref[i, j])
+    return getCoChangeDirect(dm, rf, shift)
+
+
+def getCoTrendDirect(dynamics: Union[list, np.ndarray], shifts: Union[list, np.ndarray] = None) -> np.ndarray:
     assert shifts is None or len(shifts) == len(dynamics), 'parameters do not match'
     assert len(dynamics) >= 2 and len(dynamics[0]) != 0
     n = len(dynamics)
@@ -180,4 +193,13 @@ def getCoTrend(dynamics: Union[list, np.ndarray], shifts: Union[list, np.ndarray
     co[cup] = 1
     return co
 
+
+def getCoTrend(dfc: np.ndarray, indexes: Union[list, np.ndarray], shift: np.ndarray=None) -> np.ndarray:
+    assert dfc.ndim == 3 and (shift is None or shift.shape == dfc[0].shape)
+    assert len(indexes) >= 2 and isinstance(indexes[0], tuple or list or np.ndarray)
+    n, m = dfc.shape[0:1]
+    dm = []
+    for i, j in indexes:
+        dm.append(dfc[:, i, j])
+    return getCoTrendDirect(dm, shift)
 
