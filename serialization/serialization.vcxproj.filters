@@ -26,9 +26,6 @@
     <ClInclude Include="serialize_general.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="c_motif.h">
-      <Filter>Custom Types</Filter>
-    </ClInclude>
     <ClInclude Include="c_motif_ps.h">
       <Filter>Custom Types</Filter>
     </ClInclude>
@@ -37,8 +34,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c_motif.cpp">
-      <Filter>Custom Types</Filter>
-    </ClCompile>
+    <None Include="makefile" />
   </ItemGroup>
 </Project>

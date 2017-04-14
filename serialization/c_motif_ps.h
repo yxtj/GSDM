@@ -1,6 +1,6 @@
 #pragma once
 #include "serializer_basic.hpp"
-#include "c_motif.h"
+#include "../common/Util4IO.h"
 
 template <>
 struct _Serializer<Motif> {

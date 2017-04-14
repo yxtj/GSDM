@@ -19,10 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c_motif.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="c_motif.h" />
     <ClInclude Include="c_motif_ps.h" />
     <ClInclude Include="serialization.h" />
     <ClInclude Include="serializer_basic.hpp" />
@@ -31,9 +27,7 @@
     <ClInclude Include="tuple3_ps.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\common\common.vcxproj">
-      <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
-    </ProjectReference>
+    <None Include="makefile" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6DDA110-62A6-4384-B1A1-3E73CAF8E635}</ProjectGuid>

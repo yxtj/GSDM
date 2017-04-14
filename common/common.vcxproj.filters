@@ -59,4 +59,7 @@
   <ItemGroup>
     <Natvis Include="BasicTypes.natvis" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
 </Project>
