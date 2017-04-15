@@ -11,13 +11,8 @@ CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
 MYLIB = -lcommon -lutil -lobjfunc -lholder
-MYLIBDIR = $(MYLIB:-l%=../%)
 LIBS = $(MYLIB)
-ifeq ($(OS),Windows_NT)
-  LIBS += -lboost-program-options -lboost-filesystem -lboost-system
-else
-  LIBS += -lboost_program_options -lboost_filesystem -lboost_system
-endif
+LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -29,6 +24,7 @@ DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
 DBGLIBDIR = $(LIBDIR) -L../Debug
+DBGMYLIB = $(MYLIB:-l%=../$(DBGDIR)/lib%.a)
 
 #
 # Release build settings
@@ -38,6 +34,7 @@ RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
 RELLIBDIR = $(LIBDIR) -L../Release
+RELMYLIB = $(MYLIB:-l%=../$(RELDIR)/lib%.a)
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -53,16 +50,16 @@ debug: ../$(DEGEXE)
 	@mkdir -p ../$(DBGDIR)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
-$(DBGEXE): $(DBGOBJS)
-	for dir in $(MYLIBDIR); do \
-		$(MAKE) -C $$dir debug; \
-	done
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+$(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(DBGOBJS) $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
 	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
 
+$(DBGMYLIB):
+	$(MAKE) -C $(@:../$(DBGDIR)/lib%.a=../%) debug
+    
 #
 # Release rules
 #
@@ -73,15 +70,16 @@ release: ../$(RELEXE)
 	@mkdir -p ../$(RELDIR)
 	cp $(RELEXE) ../$(RELEXE)
 
-$(RELEXE): $(RELOBJS)
-	for dir in $(MYLIBDIR); do \
-		$(MAKE) -C $$dir release; \
-	done
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
-
+$(RELEXE): $(RELOBJS) $(RELMYLIB)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(RELOBJS) $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+    
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
 	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
+
+$(RELMYLIB):
+	$(MAKE) -C $(@:../$(RELDIR)/lib%.a=../%) release
+    
 
 #
 # common rules
