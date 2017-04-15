@@ -1,6 +1,7 @@
 #include "Subject.h"
 #include "SDSignature.h"
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 

@@ -33,6 +33,9 @@
     <ClInclude Include="SDSignature.h" />
     <ClInclude Include="Subject.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9B4B639D-ED4E-431B-AB02-4724F6793119}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

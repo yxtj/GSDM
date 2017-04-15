@@ -173,6 +173,9 @@
       <Project>{e6dda110-62a6-4384-b1a1-3e73caf8e635}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -7,9 +7,11 @@ const std::map<std::string, ObjFunction::OFType> ObjFunction::names{
 	{ "none", OFType::NONE }, { "diff", OFType::DIFF },
 	{ "margin", OFType::MARGIN}, { "ratio", OFType::RATIO }
 };
-const std::string ObjFunction::usage{
-	"Support: diff:<alpha>, margin:<alpha>, ratio:<alpha> . Default alpha=1."
-};
+
+std::string ObjFunction::getUsage()
+{
+	return "Support: diff:<alpha>, margin:<alpha>, ratio:<alpha> . Default alpha=1.";
+}
 
 ObjFunction::ObjFunction()
 	: totalPos(0), totalNeg(0), alpha(1.0), OFID(OFType::NONE), pf(nullptr)

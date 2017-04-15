@@ -12,7 +12,7 @@ const std::string StrategyOFG::usage(
 	"Usage: " + name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [log]\n"
 	"  <k>: [integer] return top-k result\n"
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
-	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::usage + ")\n"
+	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::getUsage() + ")\n"
 	//"  [dist]: optional [dist/dist-no], default disabled, run in distributed manner\n"
 	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
 	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"

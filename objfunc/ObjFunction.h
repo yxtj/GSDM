@@ -11,7 +11,7 @@ public:
 	};
 	// none, diff, margin, ratio
 	static const std::map<std::string, OFType> names;
-	static const std::string usage;
+	static std::string getUsage();
 private:
 	OFType OFID;
 
