@@ -45,7 +45,7 @@ debug: ../$(DEGEXE)
 	cp $(DBGEXE) ../$(DBGEXE)
 	
 $(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
-	ar rcs $@ $^
+	ar rcs $@ $(DBGOBJS)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -65,7 +65,7 @@ release: ../$(RELEXE)
 	cp $(RELEXE) ../$(RELEXE)
 
 $(RELEXE): $(RELOBJS) $(RELMYLIB)
-	ar rcs $@ $^
+	ar rcs $@ $(RELOBJS)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
