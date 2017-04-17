@@ -138,6 +138,8 @@ void Graph::readText(std::istream & is)
 		p = temp.find('\t');
 		int n = stoi(temp.substr(0, p));
 		plast = p + 1;
+		if(plast >= string::npos || temp[plast]==' ')
+			continue;
 		p = temp.find(' ', plast);
 		while(p != string::npos) {
 			int t = stoi(temp.substr(plast, p));
