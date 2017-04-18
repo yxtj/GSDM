@@ -2,6 +2,7 @@ import os, sys
 import DataLoader as dl
 import GraphLoader as gl
 from prepare import *
+import bisect
 
 
 def writeEdgeList(fn, elist):
@@ -32,25 +33,45 @@ def sortUpEdgeList(elist):
     return res
 
 
-def __removeEdgesUndir(g, elist):
+def bifind(key, elist):
+    i = bisect.bisect_left(elist, key)
+    return i != len(elist) and elist[i] == key
+
+
+def sortUpEdgeMap(elist):
     el = sortUpEdgeList(elist)
+    nNode = max(max(i, j) for (i, j) in el)
+    res = [[] for i in range(nNode + 1)]
+    for i, j in el:
+        res[i].append(j)
+    for l in res:
+        l.sort()
+    return res
+
+
+def mapfind(key, map):
+    i, j = key
+    return len(map) > i and bifind(j, map[i])
+
+# def __removeEdgesUndir(g, elist):
+def __removeEdgesUndir(g, emap):
     n = len(g)
     res = [[] for i in range(n)]
     for i in range(n):
         for x in g[i]:
-            if x > i and ((i, x) in el or (x, i) in el):
+            # if x > i and bifind((i, x), elist):
+            if i < x and mapfind((i, x), emap):
                 res[i].append(x)
                 res[x].append(i)
-    for i in range(n):
-        res[i] = list(np.unique(res[i]))
     return res
 
 
-# def removeEdges(g, elist, dir=False):
-#     if dir:
-#         return __removeEdgesDir(g, elist)
-#     else:
-#         return __removeEdgesUndir(g, elist)
+def removeEdges(g, elist, dir=False):
+    if dir:
+        # return __removeEdgesDir(g, elist)
+        return None
+    else:
+        return __removeEdgesUndir(g, elist)
 
 
 def writeGraph(fn, g):
@@ -86,19 +107,21 @@ def main(path: str, typePos: int, typeNeg: int, pruneTh: str, relativeTh: str, o
         writeEdgeList(path + '/edge-wk-' + suffix + '.txt', elistw)
         writeEdgeList(path + '/edge-en-' + suffix + '.txt', eliste)
 
-
     print('Generating pruned weakened edges...')
     l = dl.getFileNames(path + '/weakened/', typePos)
     gLoader = gl.GraphLoader(path + '/weakened/')
     if not os.path.exists(path + '/weakened-' + suffix):
         os.makedirs(path + '/weakened-' + suffix)
     cnt = 0
+    # el = sortUpEdgeList(elistw)
+    em = sortUpEdgeMap(elistw)
     for fn in l:
         g = gLoader.loadOne(fn)
-        g2 = __removeEdgesUndir(g, elistw)
+        # g2 = __removeEdgesUndir(g, el)
+        g2 = __removeEdgesUndir(g, em)
         writeGraph(path + '/weakened-' + suffix + '/' + fn, g2)
         cnt += 1
-        if cnt % 200 == 0:
+        if cnt % 400 == 0:
             print('  weakened processed', cnt)
 
     print('Generating pruned enhanced edges...')
@@ -107,13 +130,14 @@ def main(path: str, typePos: int, typeNeg: int, pruneTh: str, relativeTh: str, o
     if not os.path.exists(path + '/enhanced-' + suffix):
         os.makedirs(path + '/enhanced-' + suffix)
     cnt = 0
+    em = sortUpEdgeMap(eliste)
     for fn in l:
         g = gLoader.loadOne(fn)
-        g2 = __removeEdgesUndir(g, eliste)
+        g2 = __removeEdgesUndir(g, em)
         writeGraph(path + '/enhanced-' + suffix + '/' + fn, g2)
         cnt += 1
-        if cnt % 200 == 0:
-            print('  weakened processed', cnt)
+        if cnt % 400 == 0:
+            print('  enhanced processed', cnt)
 
     print('Finished.')
 
