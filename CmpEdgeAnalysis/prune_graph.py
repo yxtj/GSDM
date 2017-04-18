@@ -61,8 +61,11 @@ def writeGraph(fn, g):
         for i in range(n):
             f.write(str(i))
             f.write('\t')
-            f.write(' '.join(str(t) for t in g[i]))
-            f.write(' \n')
+            temp = ' '.join(str(t) for t in g[i])
+            f.write(temp)
+            if len(temp) != 0:
+                f.write(' ')
+            f.write('\n')
 
 
 def main(path: str, typePos: int, typeNeg: int, pruneTh: str, relativeTh: str, outEdge: bool):
@@ -119,7 +122,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 3:
         print('Prune the compared edges with the FC correlation\n'
               'Usage: <path> <type-pos> <type-neg> [min-mean] [min-rel-diff] [out-edge]\n'
-              '  <path>: the path to the edge folder;\n'
+              '  <path>: the path to the edge folder (should contains subfolders "enhanced" and "weakened");\n'
               '  <type-pos>: type(s) for the divisor, separated with "," for multiple types;\n'
               '  <type-neg>: type(s) for the dividend, separated with "," for multiple types;\n'
               '  <min-mean>: (=0.3) the minimum value for the absolute mean correlation;\n'
@@ -134,9 +137,9 @@ if __name__ == '__main__':
     relativeTh = sys.argv[5] if len(sys.argv) > 5 else '0.1'
     outEdge = False
     if len(sys.argv) > 6:
-        if sys.argv[6].lower() in {'1', 'true'}:
+        if sys.argv[6].lower() in {'1', 'true', 'yes'}:
             outEdge = True
-        elif sys.argv[6].lower() in {'0', 'false'}:
+        elif sys.argv[6].lower() in {'0', 'false', 'no'}:
             outEdge = False
         else:
             print('Warning: value of [out-edge] is illegal, assumed False.')
