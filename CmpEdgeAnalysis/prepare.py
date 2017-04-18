@@ -20,7 +20,7 @@ typePat = 1
 # data
 def initData(prefix, pathCon, type, method):
     corr = ceg.loadConRef(pathCon, type, method)
-    (m, s) = anl.getStatOfRef(corr)
+    (m, s) = anl.getStatOfFC(corr)
     mse = anl.getMSEToNormal(corr, m, s)
     with open(prefix + '/analysis/ref-' + method + '.pickle', 'wb') as f:
         pickle.dump([corr, m, s, mse], f)

@@ -10,8 +10,8 @@ nSnap = ([len(sub) for sub in dfcc], [len(sub) for sub in dfcp])
 
 mc, sc = np.mean(fcc, 0), np.std(fcc, 0)
 mp, sp = np.mean(fcp, 0), np.std(fcp, 0)
-mac, sac, mgc, sgc = anl.getStatOfAll(dfcc)
-map, sap, mgp, sgp = anl.getStatOfAll(dfcp)
+mac, sac, mgc, sgc = anl.getStatOfDFC(dfcc)
+map, sap, mgp, sgp = anl.getStatOfDFC(dfcp)
 
 
 # analysis
@@ -51,12 +51,52 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
+## relationship between mean and std
+mmin = np.floor(min(mc.min(), mp.min()) * 10) / 10  # floor to last 0.1
+smax = np.ceil(max(sc.max(), sp.max()) * 20) / 20  # ceil to next 0.05
+
+plt.subplot(2, 1, 1)
+plt.plot(mc.ravel(), sc.ravel(), '.');
+plt.xlabel('mean');
+plt.ylabel('std.')
+plt.subplot(2, 1, 2)
+plt.plot(mp.ravel(), sp.ravel(), '.');
+plt.xlabel('mean');
+plt.ylabel('std.')
+plt.tight_layout()
+plt.show()
+
+plt.subplot(2, 1, 1)
+dsp.drawMeanStdRelation(mc, sc, [mmin, 1], [0, smax], clog=True, title='Control')
+plt.subplot(2, 1, 2)
+dsp.drawMeanStdRelation(mp, sp, [mmin, 1], [0, smax], clog=True, title='Patient')
+plt.tight_layout()
+plt.show()
+
+# fit the mean-std relations curve
+idx = np.triu_indices(nNode, 1)
+x = mc[idx]
+y = sc[idx]
+
+fun1 = lambda t, alpha, sigma: np.exp(-(t / sigma) ** 2) * alpha  # 0-centralized
+fun2 = lambda t, alpha, mu, sigma: np.exp(-((t - mu) / sigma) ** 2) * alpha
+fun3 = lambda t, alpha, mu, sigma: np.exp(-((t - mu) / sigma) ** 2) * alpha / sigma
+
+fun = fun3
+import scipy.optimize
+
+par, pcov = scipy.optimize.curve_fit(fun, x, y)
+
+l = np.linspace(mmin, 1, 100)
+plt.plot(x, y, '.')
+plt.plot(l, fun(l, *par))
+plt.show()
 
 # ------
 # relative difference about the mean value
 
 dsp.showMeanDifference(mp, mc, None, 'relative mean difference to controls', '# of edges',
-                   'distribution of mean difference over edges')
+                       'distribution of mean difference over edges')
 plt.show()
 
 
@@ -84,6 +124,7 @@ plt.show()
 
 # ------
 # find the edges with large mean-value difference
+
 
 def getNumChangedEdge(dml, th):
     dml.sort()

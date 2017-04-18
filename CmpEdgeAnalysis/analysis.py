@@ -3,25 +3,27 @@ from scipy.stats import norm
 from typing import Union, List, Tuple
 
 
-def getStatOfRef(corr):
-    m = np.mean(corr, 0)
-    #s = np.std(corr, 0, ddof=1)
-    s = np.std(corr, 0)
+def getStatOfFC(fc: np.ndarray):
+    assert fc.ndim == 3 and fc.shape[1] == fc.shape[2]
+    m = np.mean(fc, 0)
+    # s = np.std(corr, 0, ddof=1)
+    s = np.std(fc, 0)
     return (m, s)
 
 
-def getStatOfAll(corra):
-    nSub = len(corra)
-    nNode = len(corra[0][0])
+def getStatOfDFC(dfc: List[np.ndarray]):
+    nSub = len(dfc)
+    assert nSub > 0 and dfc[0].ndim == 3
+    nNode = len(dfc[0][0])
     ma = np.zeros([nSub, nNode, nNode])
     sa = np.zeros([nSub, nNode, nNode])
     tm = np.zeros([nNode, nNode])
     ts = np.zeros([nNode, nNode])
     tn = 0
     for i in range(nSub):
-        n = len(corra[i])
-        t1 = np.sum(corra[i], 0)
-        t2 = np.var(corra[i], 0)
+        n = len(dfc[i])
+        t1 = np.sum(dfc[i], 0)
+        t2 = np.var(dfc[i], 0)
         ma[i] = t1 / n
         sa[i] = np.sqrt(t2)
         tm += t1
@@ -74,12 +76,12 @@ def getGlobalMSE(corra, m, s, i : int, j : int):
     return res
 
 
-def setCond(mat: np.ndarray, cond: np.ndarray=None, val=0):
-    if cond is not None and mat.shape == mat.shape:
-        m = mat.copy()
-        m[cond] = val
-        return m
-    return mat
+def setCond(mat: np.ndarray, cond: np.ndarray, val=0):
+    assert mat.shape == mat.shape, \
+        "the shape of the original matrix should be identical to the condition matrix's"
+    m = mat.copy()
+    m[cond] = val
+    return m
 
 
 def removeCond(mat: np.ndarray, cond: np.ndarray=None, val=0):
@@ -92,6 +94,35 @@ def removeCond(mat: np.ndarray, cond: np.ndarray=None, val=0):
 
 def mapIndexLinear2D(idx, n):
     return idx//n, idx%n
+
+
+def mapIndexTriangleU2D(idx, n, k=0):
+    x, y = 0, 0
+    rest = idx
+    for i in range(n - k, 0, -1):
+        if rest < i:
+            y = x + k + rest
+            rest = 0
+            break
+        else:
+            x += 1
+            rest -= i
+    return x, y
+
+
+def mapIndexTriangleD2D(idx, n, k=0):
+    x, y = k, 0
+    rest = idx
+    for i in range(1, n - k + 1):
+        if rest < i:
+            y = rest
+            rest = 0
+            break
+        else:
+            x += 1
+            rest -= i
+    return x, y
+
 
 # given a sorted l, threshold of actual value(s), percentile requirement(s) (in 0~100). boundary included
 # return index of the tail(s). value range: -1 ~ len(l). meaningful result: (0, res[0]] U [res[1], len(n))
@@ -134,6 +165,8 @@ def pickTopEdges(mat: np.ndarray, thres=None, percentile=None, dir:str='B'):
         raise ValueError('dir parameter should be one of {"B", "U", "L"}')
 
     nNode = mat.shape[0]
+    # idx = np.triu_indices_from(mat)
+    # l = mat[idx]
     l = mat.ravel()
     n = len(l)
     idx = np.argsort(l, None)

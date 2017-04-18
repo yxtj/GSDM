@@ -49,15 +49,15 @@ def getFileNames(path, types, nFile = None):
     if isinstance(nFile, int):
         l = l[:nFile]
     res = []
-    for fn in l[:nFile]:
+    for fn in l:
         m = SubjectInfo.fnReg.match(fn)
-        if m and int(m.group(1)) in types:
+        if m and m.group(1) in types:
             res.append(fn)
     return res
 
 
-def sortUpWithSubject(fnlist, maxnsub : int = None, nseq : Union[int, List[int], Tuple[int, int]] = None):
-    subLimit = maxnsub if isinstance(maxnsub, int) else len(fnlist)
+def sortUpWithSubject(fnlist, nsub: int = None, nseq: Union[int, List[int], Tuple[int, int]] = None):
+    subLimit = nsub if isinstance(nsub, int) else len(fnlist)
     seqMin = 0; seqMax = len(fnlist)
     if isinstance(nseq, int):
         seqMin = nseq
@@ -66,10 +66,10 @@ def sortUpWithSubject(fnlist, maxnsub : int = None, nseq : Union[int, List[int],
         if len(nseq) > 1:
             seqMax = nseq[1]
 
-    infoList = []
-    for fn in fnlist:
-        infoList.append(SubjectInfo(fn))
+    infoList = [SubjectInfo(fn) for fn in fnlist]
     sorted(infoList)
+    if len(infoList) == 0:
+        return []
     res = [[infoList[0].makeFileName()]]
     for p in range(1, len(infoList)):
         if infoList[p - 1].id == infoList[p].id:

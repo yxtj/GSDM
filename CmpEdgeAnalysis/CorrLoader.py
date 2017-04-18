@@ -1,9 +1,10 @@
 import DataLoader as dl
 import numpy as np
 
+
 class CorrLoader:
     def __init__(self, path):
-        self.path=path
+        self.path = path
 
     '''
     Return a matrix (2D-array).

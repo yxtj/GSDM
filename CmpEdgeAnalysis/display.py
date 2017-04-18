@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 from  scipy.stats import norm
 
 
@@ -45,6 +46,19 @@ def drawRefCorrInfo(m, s, mse, bins=50):
 
     plt.tight_layout()
     #plt.show()
+
+
+def drawMeanStdRelation(m, s, mrange, srange, xlabel=True, ylabel=True, clabel=True, clog=True, title: str = None):
+    plt.hist2d(m.ravel(), s.ravel(), 80, [mrange, srange], True, cmap='Blues', norm=LogNorm() if clog else None)
+    cb = plt.colorbar()
+    if clabel:
+        cb.set_label('density')
+    if xlabel:
+        plt.xlabel('mean')
+    if ylabel:
+        plt.ylabel('std.')
+    if title:
+        plt.title(title)
 
 
 def showMeanDifference(mp, mc, th: float=None, xlabel: str=None, ylabel: str=None, title: str=None):

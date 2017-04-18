@@ -16,10 +16,11 @@ class GraphLoader:
         data=data.split('\n')
         n = int(data[0])
         res = []
-        for line in data[1:]:
+        for line in data[1:n + 1]:
             t = []
-            for v in line.split(' ')[1:]:
-                t.append(int(v))
+            for v in line[line.find('\t') + 1:].split(' '):
+                if v:
+                    t.append(int(v))
             res.append(t)
         return res
 
