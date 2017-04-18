@@ -270,6 +270,8 @@ bool DataHolder::_contain_e_sd(const Edge & e, const double minPortion) const
 bool DataHolder::_contain_m_sd(const MotifBuilder & m, const double minPortion) const
 {
 	++nMotifChecked;
+	if(empty())
+		return 0;
 	SDSignature ms(m, getnNode());
 	int th = static_cast<int>(ceil(ss.size()*minPortion));
 	// return true if #occurence >= th
@@ -299,6 +301,8 @@ int DataHolder::_count_e_sd(const Edge & e) const
 int DataHolder::_count_m_sd(const MotifBuilder & m) const
 {
 	++nMotifChecked;
+	if(empty())
+		return 0;
 	SDSignature ms(m, getnNode());
 	int cnt = 0;
 	for(auto& sub : ss) {
@@ -326,6 +330,8 @@ int DataHolder::_countByPeriod_e_sd(const Edge & e) const
 int DataHolder::_countByPeriod_m_sd(const MotifBuilder & m) const
 {
 	++nMotifChecked;
+	if(empty())
+		return 0;
 	SDSignature ms(m, getnNode());
 	int cnt = 0;
 	for(auto& sub : ss) {
