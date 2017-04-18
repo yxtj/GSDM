@@ -44,7 +44,9 @@ class SubjectInfo:
 
 def getFileNames(path, types, nFile = None):
     if not isinstance(types, list):
-        types = [types]
+        types = [str(types)]
+    else:
+        types = [str(v) for v in types]
     l = os.listdir(path)
     if isinstance(nFile, int):
         l = l[:nFile]

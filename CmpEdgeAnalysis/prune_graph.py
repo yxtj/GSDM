@@ -55,7 +55,7 @@ def writeGraph(fn, g):
             f.write(' \n')
 
 
-def main(path: str, pruneTh: str, relativeTh: str):
+def main(path: str, typePos: int, typeNeg: int, pruneTh: str, relativeTh: str):
     suffix = pruneTh + '-' + relativeTh
     print('Suffix:', suffix)
 
@@ -70,37 +70,41 @@ def main(path: str, pruneTh: str, relativeTh: str):
     elistw, eliste = anl.pickTopEdges(anl.setCond(dm, np.abs(mc) <= pth), [-rth, rth])
 
     print('Generating pruned weakened edges...')
-    l = dl.getFileNames(path + '/weakened/', 1)
+    l = dl.getFileNames(path + '/weakened/', typePos)
     gLoader = gl.GraphLoader(path + '/weakened/')
     if not os.path.exists(path + '/weakened-' + suffix):
         os.makedirs(path + '/weakened-' + suffix)
     for fn in l:
         g = gLoader.loadOne(fn)
         g2 = __removeEdgesUndir(g, elistw)
-        writeGraph(path + '/weakened-pruned/' + fn, g2)
+        writeGraph(path + '/weakened-' + suffix + '/' + fn, g2)
 
     print('Generating pruned enhanced edges...')
-    l = dl.getFileNames(path + '/enhanced/', 1)
+    l = dl.getFileNames(path + '/enhanced/', typePos)
     gLoader = gl.GraphLoader(path + '/enhanced/')
     if not os.path.exists(path + '/enhanced-' + suffix):
         os.makedirs(path + '/enhanced-' + suffix)
     for fn in l:
         g = gLoader.loadOne(fn)
         g2 = __removeEdgesUndir(g, eliste)
-        writeGraph(path + '/enhanced-pruned/' + fn, g2)
+        writeGraph(path + '/enhanced-' + suffix + '/' + fn, g2)
 
     print('Finished.')
 
 
 if __name__ == '__main__':
-    if len(sys.argv) <= 1:
+    if len(sys.argv) < 3:
         print('Prune the compared edges with the FC correlation'
-              'Usage: <path> <min-mean> <min-rel-diff>'
-              '  <path>: the path to the edge folder.'
-              '  <min-mean>: (=0.3) the minimum value for the absolute mean correlation.'
+              'Usage: <path> <type-pos> <type-neg> <min-mean> <min-rel-diff>'
+              '  <path>: the path to the edge folder;'
+              '  <type-pos>: type(s) for the divisor, separated with "," for multiple types;'
+              '  <type-neg>: type(s) for the dividend, separated with "," for multiple types;'
+              '  <min-mean>: (=0.3) the minimum value for the absolute mean correlation;'
               '  <min-rel-diff>: (=0.1) the minimum absolute value for the relative difference on mean value.')
     # path = '../data_abide/data-all/dis-2/'
     path = sys.argv[1]
-    pruneTh = sys.argv[2] if len(sys.argv) > 2 else '0.3'
-    relativeTh = sys.argv[3] if len(sys.argv) > 3 else '0.1'
-    main(path, pruneTh, relativeTh)
+    typePos = sys.argv[2]
+    typeNeg = sys.argv[3]
+    pruneTh = sys.argv[4] if len(sys.argv) > 4 else '0.3'
+    relativeTh = sys.argv[5] if len(sys.argv) > 5 else '0.1'
+    main(path, typePos, typeNeg, pruneTh, relativeTh)
