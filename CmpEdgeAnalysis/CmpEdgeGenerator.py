@@ -72,8 +72,10 @@ def writeCmpGraph(fn, mat, val):
             fout.write(str(i))
             fout.write('\t')
             x = np.argwhere(mat[i] == val)
-            fout.write(' '.join(str(t[0]) for t in x))
-            fout.write(' \n')
+            fout.write(' '.join(str(t[0]) for t in x))  # x is a 2D array where the first D has only one element
+            if len(x) != 0:
+                fout.write(' ')
+            fout.write('\n')
 
 
 def writeCmpGraphMatrix(fn, g):
