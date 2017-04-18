@@ -74,33 +74,42 @@ def main(path: str, typePos: int, typeNeg: int, pruneTh: str, relativeTh: str):
     gLoader = gl.GraphLoader(path + '/weakened/')
     if not os.path.exists(path + '/weakened-' + suffix):
         os.makedirs(path + '/weakened-' + suffix)
+    cnt = 0
     for fn in l:
         g = gLoader.loadOne(fn)
         g2 = __removeEdgesUndir(g, elistw)
         writeGraph(path + '/weakened-' + suffix + '/' + fn, g2)
+        cnt += 1
+        if cnt % 200 == 0:
+            print('  weakened processed', cnt)
 
     print('Generating pruned enhanced edges...')
     l = dl.getFileNames(path + '/enhanced/', typePos)
     gLoader = gl.GraphLoader(path + '/enhanced/')
     if not os.path.exists(path + '/enhanced-' + suffix):
         os.makedirs(path + '/enhanced-' + suffix)
+    cnt = 0
     for fn in l:
         g = gLoader.loadOne(fn)
         g2 = __removeEdgesUndir(g, eliste)
         writeGraph(path + '/enhanced-' + suffix + '/' + fn, g2)
+        cnt += 1
+        if cnt % 200 == 0:
+            print('  weakened processed', cnt)
 
     print('Finished.')
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print('Prune the compared edges with the FC correlation'
-              'Usage: <path> <type-pos> <type-neg> <min-mean> <min-rel-diff>'
-              '  <path>: the path to the edge folder;'
-              '  <type-pos>: type(s) for the divisor, separated with "," for multiple types;'
-              '  <type-neg>: type(s) for the dividend, separated with "," for multiple types;'
-              '  <min-mean>: (=0.3) the minimum value for the absolute mean correlation;'
-              '  <min-rel-diff>: (=0.1) the minimum absolute value for the relative difference on mean value.')
+        print('Prune the compared edges with the FC correlation\n'
+              'Usage: <path> <type-pos> <type-neg> <min-mean> <min-rel-diff>\n'
+              '  <path>: the path to the edge folder;\n'
+              '  <type-pos>: type(s) for the divisor, separated with "," for multiple types;\n'
+              '  <type-neg>: type(s) for the dividend, separated with "," for multiple types;\n'
+              '  <min-mean>: (=0.3) the minimum value for the absolute mean correlation;\n'
+              '  <min-rel-diff>: (=0.1) the minimum absolute value for the relative difference on mean value.\n')
+        exit()
     # path = '../data_abide/data-all/dis-2/'
     path = sys.argv[1]
     typePos = sys.argv[2]
