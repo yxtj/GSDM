@@ -35,6 +35,9 @@
     <ClInclude Include="type_trais_dummy.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0BDCBB77-869D-461D-8A5D-1F25358455D3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

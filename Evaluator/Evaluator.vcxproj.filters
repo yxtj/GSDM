@@ -38,4 +38,7 @@
   <ItemGroup>
     <Text Include="readme.md" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
 </Project>

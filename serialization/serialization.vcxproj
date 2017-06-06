@@ -35,6 +35,9 @@
       <Project>{4580811a-e985-4bd0-920c-979a56f90960}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6DDA110-62A6-4384-B1A1-3E73CAF8E635}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

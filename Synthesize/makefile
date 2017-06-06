@@ -10,10 +10,7 @@ EXE = Synthesize
 CXXFLAGS = -std=c++11
 INC = 
 ifeq ($(OS),Windows_NT)
-  LIBS = -lboost-program-options -lboost-filesystem -lboost-system
-else
-  LIBS = -lboost_program_options -lboost_filesystem -lboost_system
-endif
+LIBS = -lboost_program_options -lboost_filesystem -lboost_system
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -43,12 +40,9 @@ all: release
 #Debug:
 debug: ../$(DEGEXE)
 
-../$(DEGEXE): $(DBGEXE)
+../$(DBGEXE): $(DBGOBJS)
 	@mkdir -p ../$(DBGDIR)
-	cp $(DBGEXE) ../$(DBGEXE)
-	
-$(DBGEXE): $(DBGOBJS)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(LIBS) -o $(DBGEXE) $^
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(LIBS) $^ -o $@
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -60,12 +54,9 @@ $(DBGDIR)/%.o: %.cpp
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELEXE)
+../$(RELEXE): $(RELOBJS)
 	@mkdir -p ../$(RELDIR)
-	cp $(RELEXE) ../$(RELEXE)
-
-$(RELEXE): $(RELOBJS)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(LIBS) -o $(RELEXE) $^
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(LIBS) $^ -o $@
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

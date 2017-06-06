@@ -11,11 +11,7 @@ CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
 LIBS = -lcommon -lutil
-ifeq ($(OS),Windows_NT)
-  LIBS += -lboost-program-options -lboost-filesystem -lboost-system
-else
-  LIBS += -lboost_program_options -lboost_filesystem -lboost_system
-endif
+LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -47,14 +43,11 @@ all: release
 #Debug:
 debug: ../$(DEGEXE)
 
-../$(DEGEXE): $(DBGEXE)
+../$(DBGEXE): $(DBGOBJS)
 	@mkdir -p ../$(DBGDIR)
-	cp $(DBGEXE) ../$(DBGEXE)
-	
-$(DBGEXE): $(DBGOBJS)
-	cd ../common; make debug
-	cd ../util; make debug
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	$(MAKE) -C ../common debug
+	$(MAKE) -C ../util debug
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $@
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -66,14 +59,11 @@ $(DBGDIR)/%.o: %.cpp
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELEXE)
+../$(RELEXE): $(RELOBJS)
 	@mkdir -p ../$(RELDIR)
-	cp $(RELEXE) ../$(RELEXE)
-
-$(RELEXE): $(RELOBJS)
-	cd ../common; make release
-	cd ../util; make release
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(MAKE) -C ../common release
+	$(MAKE) -C ../util release
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $@
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

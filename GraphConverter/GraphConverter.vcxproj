@@ -200,6 +200,7 @@
     <ClCompile Include="TCLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="makefile" />
     <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>

@@ -25,6 +25,9 @@
   <ItemGroup>
     <ClCompile Include="Task.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{27184A80-403F-4FDA-81DA-CED790F808A0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

@@ -42,11 +42,8 @@ all: release
 #Debug:
 debug: ../$(DEGEXE)
 
-../$(DEGEXE): $(DBGEXE)
+../$(DBGEXE): $(DBGOBJS)
 	@mkdir -p ../$(DBGDIR)
-	cp $(DBGEXE) ../$(DBGEXE)
-	
-$(DBGEXE): $(DBGOBJS)
 	ar rcs $@ $^
 
 $(DBGDIR)/%.o: %.cpp
@@ -60,11 +57,8 @@ $(DBGDIR)/%.o: %.cpp
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELEXE)
+../$(RELEXE): $(RELOBJS)
 	@mkdir -p ../$(RELDIR)
-	cp $(RELEXE) ../$(RELEXE)
-
-$(RELEXE): $(RELOBJS)
 	ar rcs $@ $^
 
 $(RELDIR)/%.o: %.cpp
