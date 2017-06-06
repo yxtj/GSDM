@@ -250,6 +250,12 @@ ModelManifest.xml
 *.so
 *.a
 
+# config files for PyCharm
+.idea
+
+# python temporary files
+__pycache__
+
 # data folder
 [dD]ata*/
 conf/
