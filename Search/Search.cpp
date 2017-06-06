@@ -10,7 +10,6 @@
 #include "../common/SubjectInfo.h"
 #include "../net/NetworkThread.h"
 #include "Option.h"
-#include "CandidateMethodFactory.h"
 #include "StrategyFactory.h"
 
 using namespace std;
@@ -150,65 +149,6 @@ void outputFoundMotifs(ostream& os, const vector<Motif>& res) {
 	}
 }
 
-
-double probOnGS(const vector<vector<Graph>>& gs, const Motif& m)
-{
-	double pp = 0.0;
-	for(auto& l : gs)
-		pp += CandidateMethod::probOfMotif(m, l);
-	pp /= gs.size();
-	return pp;
-}
-
-void printMotifProbDiff(const vector<vector<Graph>>& gPos, const vector<vector<Graph>>& gNeg,
-	const string& fnMotif, const string& fnOut)
-{
-	vector<Motif> motifs;
-	ifstream fin(fnMotif);
-	string line;
-	while(getline(fin,line)) {
-		size_t plast = line.find('\t') + 1;
-		int n = stoi(line.substr(plast, line.find('\t', plast) - plast));
-		Motif m;
-		plast = line.rfind('\t');
-		while(n--) {
-			plast = line.find('(', plast + 1) + 1;
-			size_t p = line.find(',', plast + 1);
-			int s = stoi(line.substr(plast, p - plast));
-			plast = p + 1;
-			p = line.find(')',plast+1);
-			int d = stoi(line.substr(plast, p - plast));
-			m.addEdge(s, d);
-			plast = p + 1;
-		}
-		motifs.push_back(move(m));
-	}
-	fin.close();
-
-	ofstream fout(fnOut);
-	for(size_t i = 0; i < motifs.size();++i) {
-		fout << i << "\t" << fixed << probOnGS(gPos, motifs[i])
-			<< "\t" << fixed << probOnGS(gNeg, motifs[i]) << "\n";
-	}
-	fout.close();
-}
-
-void test(const vector<vector<Graph>>& gPos, const vector<vector<Graph>>& gNeg)
-{
-	int n;
-	cin >> n;
-	Motif m;
-	for(int i = 0; i < n; ++i) {
-		int s, d;
-		cin >> s >> d;
-		m.addEdge(s, d);
-		double pp = probOnGS(gPos, m);
-		double pn = probOnGS(gNeg, m);
-		cout << "prob. pos=" << pp << "\t" << "prob. neg=" << pn << endl;
-	}
-	
-}
-
 template<typename T>
 ostream& operator<<(ostream& os, const vector<T>& param) {
 	for(auto& p : param)
@@ -220,7 +160,6 @@ int main(int argc, char* argv[])
 {
 	// part 1: initialize
 	StrategyFactory::init();
-	CandidateMethodFactory::init();
 	Option opt;
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
@@ -253,8 +192,7 @@ int main(int argc, char* argv[])
 			<< "Blacklist size: " << opt.blacklist.size() << "\n";
 		if(!opt.blacklist.empty())
 			cout << "  " << opt.blacklist << "\n";
-		cout << "Searching method pararmeters: " << opt.mtdParam << "\n"
-			<< "Strategy parameters: " << opt.stgParam << "\n"
+		cout << "Strategy parameters: " << opt.stgParam << "\n"
 			<< endl;
 	}
 

@@ -12,12 +12,6 @@
     <Filter Include="Strategies">
       <UniqueIdentifier>{109a830d-cd50-4292-ad0d-47df5e4044e9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Method">
-      <UniqueIdentifier>{31cab0ca-8939-4e44-a6e7-cf941d6a3980}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Method\Source">
-      <UniqueIdentifier>{951be530-4fcd-4483-bcf6-a3c63f421cf6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Strategies\Source">
       <UniqueIdentifier>{72e1f70d-7819-41de-b646-442980977487}</UniqueIdentifier>
     </Filter>
@@ -32,18 +26,6 @@
     <ClInclude Include="Option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CandidateMethod.h">
-      <Filter>Method</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateMethodFactory.h">
-      <Filter>Method</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateMthdFreq.h">
-      <Filter>Method</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategySample.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyFactory.h">
       <Filter>Strategies</Filter>
     </ClInclude>
@@ -56,16 +38,7 @@
     <ClInclude Include="StrategyBase.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="StrategyXor.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyDUG.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="CandidateMthdFreqUG.h">
-      <Filter>Method</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFuncFreq.h">
       <Filter>Strategies</Filter>
     </ClInclude>
     <ClInclude Include="TopKHolder.hpp">
@@ -73,18 +46,6 @@
     </ClInclude>
     <ClInclude Include="Network.h">
       <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFreqP.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFreqPmN.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFreqPmNPara.h">
-      <Filter>Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFuncFreqSD.h">
-      <Filter>Strategies</Filter>
     </ClInclude>
     <ClInclude Include="StrategyOFG.h">
       <Filter>Strategies</Filter>
@@ -127,68 +88,20 @@
     <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CandidateMethod.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMethodFactory.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMthdFreq.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMthdFreq-enum.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMthdFreq-node.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="CandidateMthdFreq-edge.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
     <ClCompile Include="FactoryProductTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyBase.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategySample.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyFactory.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyXor.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyDUG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="CandidateMthdFreqUG.cpp">
-      <Filter>Method\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFuncFreq.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
     <ClCompile Include="Network.cpp">
       <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFuncFreq-dis.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFreqP.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFreqPmN.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFreqPmNPara.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFuncFreqSD-SD.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyFuncFreqSD.cpp">
-      <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyOFG.cpp">
       <Filter>Strategies\Source</Filter>

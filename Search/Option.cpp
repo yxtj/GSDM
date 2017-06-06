@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Option.h"
 #include "StrategyFactory.h"
-#include "CandidateMethodFactory.h"
 #include "../util/Util.h"
 
 using namespace std;
@@ -34,12 +33,7 @@ Option::Option()
 			"The type(s) of negative individual")
 //		("smmin", value<int>(&sMotifMin)->default_value(2), "[integer] minimum size of a motif")
 //		("smmax", value<int>(&sMotifMax)->default_value(2), "[integer] maximum size of a motif")
-//		("pmi", value<double>(&pMotifInd)->default_value(0.3), "[double] the min prob. of treating "
-//			"a motif as existed on a individual (num over snapshot)")
-		(CandidateMethodFactory::optName.c_str(), value<vector<string>>(&mtdParam)->multitoken(), CandidateMethodFactory::getUsage().c_str())
 //		("topk", value<int>(&topK)->default_value(10), "number of returned results")
-//		("pmr", value<double>(&pMotifRef)->default_value(0.8), "[double] the min prob. of treating "
-//			"a motif as existed all on individual (num over individual)")
 		(StrategyFactory::optName.c_str(), value<vector<string>>(&stgParam)->multitoken(), StrategyFactory::getUsage().c_str())
 		;
 }
@@ -91,9 +85,6 @@ bool Option::parseInput(int argc, char * argv[])
 			if(stgParam.empty() || !StrategyFactory::isValid(stgParam[0])) {
 				throw invalid_argument("strategy is not given or not supported.");
 			}
-			if(mtdParam.empty() || !CandidateMethodFactory::isValid(mtdParam[0])) {
-				throw invalid_argument("method is not given or not supported.");
-			}
 
 		} while(false);
 
@@ -117,11 +108,6 @@ bool Option::parseInput(int argc, char * argv[])
 std::string Option::getStrategyName() const
 {
 	return stgParam[0];
-}
-
-std::string Option::getMethodName() const
-{
-	return mtdParam[0];
 }
 
 std::string& Option::sortUpPath(std::string & path)

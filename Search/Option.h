@@ -8,7 +8,6 @@ class Option
 	std::vector<std::function<bool()>> paramParser;
 public:
 	
-	std::vector<std::string> mtdParam;
 	std::vector<std::string> stgParam;
 
 	int nNode;//number of nodes;
@@ -34,7 +33,6 @@ public:
 	bool parseInput(int argc, char* argv[]);
 
 	std::string getStrategyName() const;
-	std::string getMethodName() const;
 private:
 	static std::string& sortUpPath(std::string & path);
 	std::string& processSubPath(std::string& path);
