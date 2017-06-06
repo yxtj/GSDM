@@ -6,6 +6,7 @@
 #include "StrategyDUG.h"
 #include "StrategyOFG.h"
 #include "StrategyOFGPara.h"
+#include "StrategyPeriodic.h"
 
 using namespace std;
 
@@ -21,14 +22,20 @@ template <>
 std::map<std::string, parent_t::createFun> parent_t::contGen{};
 template <>
 std::map<std::string, std::string> parent_t::contUsage{};
+std::map<std::string, std::string> StrategyFactory::contDesc{};
 
+void StrategyFactory::registerDesc(const std::string & name, const std::string & desc)
+{
+	contDesc[name] = desc;
+}
 
 void StrategyFactory::init()
 {
 	// TODO: add new strategy here
-	registerInOne<StrategyDUG>();
-	registerInOne<StrategyOFG>();
-	registerInOne<StrategyOFGPara>();
+	reg<StrategyDUG>();
+	reg<StrategyOFG>();
+	reg<StrategyOFGPara>();
+	reg<StrategyPeriodic>();
 }
 
 StrategyBase * StrategyFactory::generate(const std::string & name)

@@ -4,34 +4,13 @@
 
 using namespace std;
 
-void StrategyOFGPara::initialCE_para()
+void StrategyOFGPara::initialCE_para(const DataHolder& dPos)
 {
 	int size = net->size();
 	int id = net->id();
+
 	// split the edge space evenly and check them individually
-
-	int nEdgeInAll = nNode*(nNode - 1) / 2;
-	pair<int, int> cef = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*id));
-	pair<int, int> cel = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*(id + 1)));
-
-	double factor = 1.0 / pgp->size();
-	int th = static_cast<int>(ceil(minSup*pgp->size()));
-	th = max(th, 1); // in case of minSup=0
-	vector<tuple<Edge, double, int>> ceLocal;
-	for(int i = cef.first; i <= cel.first; ++i) {
-		int j = (i == cef.first ? cef.second : i + 1);
-		int endj = (i == cel.first ? cel.second : nNode);
-		while(j < endj) {
-			++st.nEdgeChecked;
-			++st.nFreqPos;
-			int t = countEdgeXSub(i, j, *pgp);
-			if(t >= th) {
-				auto f = t*factor;
-				ceLocal.emplace_back(Edge(i, j), f, 0);
-			}
-			++j;
-		}
-	}
+	vector<tuple<Edge, double, int>> ceLocal = prepareLocalCE(size, id);
 
 	// shared the candidate edges among all workers
 	rph.input(MType::CEInit, net->id());
@@ -43,6 +22,8 @@ void StrategyOFGPara::initialCE_para()
 		else
 			move(ceLocal.begin(), ceLocal.end(), back_inserter(edges));
 	}
+
+	// wait for the other workers to return edges, which is handled in cbCEInit()
 	{
 		Timer t;
 		suCEinit.wait();
@@ -74,6 +55,32 @@ std::pair<int, int> StrategyOFGPara::num2Edge(const int idx)
 	}
 	int j = idx - n + nNode;
 	return make_pair(i, j);
+}
+
+std::vector<std::tuple<Edge, double, int>> StrategyOFGPara::prepareLocalCE(const int size, const int id)
+{
+	// split the edge space evenly
+	int nEdgeInAll = nNode*(nNode - 1) / 2;
+	pair<int, int> cef = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*id));
+	pair<int, int> cel = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*(id + 1)));
+
+	double factor = 1.0 / pdp->size();
+	int th = static_cast<int>(ceil(minSup*pdp->size()));
+	th = max(th, 1); // in case of minSup=0
+	vector<tuple<Edge, double, int>> ceLocal;
+	for(int i = cef.first; i <= cel.first; ++i) {
+		int j = (i == cef.first ? cef.second : i + 1);
+		int endj = (i == cel.first ? cel.second : nNode);
+		while(j < endj) {
+			int t = pdp->count(Edge{ i,j });
+			if(t >= th) {
+				auto f = t*factor;
+				ceLocal.emplace_back(Edge(i, j), f, 0);
+			}
+			++j;
+		}
+	}
+	return ceLocal;
 }
 
 void StrategyOFGPara::edgeUsageSend(const int since)

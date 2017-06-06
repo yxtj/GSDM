@@ -5,11 +5,11 @@
 #include "Option.h"
 #include "../common/Motif.h"
 #include "../common/Graph.h"
-#include "../libEval/ConfusionMatrix.h"
-#include "../libEval/SubjectData.h"
-#include "../libEval/MTesterSingle.h"
-#include "../libEval/MTesterGroup.h"
-#include "../libEval/GroupGenerator.h"
+#include "../eval/ConfusionMatrix.h"
+#include "../eval/SubjectData.h"
+#include "../eval/MTesterSingle.h"
+#include "../eval/MTesterGroup.h"
+#include "../eval/GroupGenerator.h"
 #include "Evaluator-IO.h"
 
 using namespace std;
@@ -146,6 +146,10 @@ int main(int argc, char* argv[])
 		cerr << "load data failed!\n  " << e.what() << endl;
 		return 2;
 	}
+	if(!opt.testMethodSingle.empty() && opt.testMethodSingle[0] == "prob") {
+		for(auto& sub : gts)
+			sub.initGP();
+	}
 	
 	// evaluate for each motif-output folder pair
 	for(size_t i = 0; i < opt.motifPath.size(); ++i) {
@@ -162,8 +166,9 @@ int main(int argc, char* argv[])
 			vector<MTesterSingle> mtSingle;
 			mtSingle.reserve(ms.size());
 			for(auto& m : ms) {
-				mtSingle.emplace_back(opt.testMethodSingle);
-				mtSingle.back().set(m);
+				MTesterSingle temp(opt.testMethodSingle);
+				temp.set(m);
+				mtSingle.push_back(move(temp));
 			}
 			idx = gpGen.generate(ms.size());
 			mts = transGIndex2GTester(idx, mtSingle, opt);

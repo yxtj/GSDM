@@ -15,8 +15,14 @@
     <Filter Include="Strategies\Source">
       <UniqueIdentifier>{72e1f70d-7819-41de-b646-442980977487}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{95cedda2-5904-47b7-8acd-fc0c4c38fa13}</UniqueIdentifier>
+    <Filter Include="Distributed">
+      <UniqueIdentifier>{b48a8678-1693-4c68-8802-3fc1385e4c50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Distributed\Source">
+      <UniqueIdentifier>{0dd9a219-3783-4d51-abd9-dce49ae85e4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TopK">
+      <UniqueIdentifier>{4e6841d4-c6de-4393-9e56-5a53d0585f99}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,9 +31,6 @@
     </ClInclude>
     <ClInclude Include="Option.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StrategyFactory.h">
-      <Filter>Strategies</Filter>
     </ClInclude>
     <ClInclude Include="FactoryProductTemplate.h">
       <Filter>Header Files</Filter>
@@ -41,41 +44,41 @@
     <ClInclude Include="StrategyDUG.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="TopKHolder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Network.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="StrategyOFG.h">
       <Filter>Strategies</Filter>
     </ClInclude>
     <ClInclude Include="StrategyOFGPara.h">
       <Filter>Strategies</Filter>
     </ClInclude>
-    <ClInclude Include="TopKBoundedHolder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BoundHolder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MotifCommunicator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LocalTables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RemoteTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DistributedTopKMaintainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Stat.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalTables.h">
+      <Filter>Distributed</Filter>
+    </ClInclude>
+    <ClInclude Include="DistributedTopKMaintainer.h">
+      <Filter>Distributed</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteTable.h">
+      <Filter>Distributed</Filter>
+    </ClInclude>
+    <ClInclude Include="StrategyPeriodic.h">
+      <Filter>Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="TopKBoundedHolder.hpp">
+      <Filter>TopK</Filter>
+    </ClInclude>
+    <ClInclude Include="TopKHolder.hpp">
+      <Filter>TopK</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundHolder.hpp">
+      <Filter>TopK</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -94,19 +97,10 @@
     <ClCompile Include="StrategyBase.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="StrategyFactory.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyDUG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Network.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="StrategyOFG.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFG-SD.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyOFG-DCES.cpp">
@@ -118,25 +112,22 @@
     <ClCompile Include="StrategyOFG-OFG.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Stat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="StrategyOFGPara.cpp">
       <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="StrategyOFGPara-handler.cpp">
-      <Filter>Strategies\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="MotifCommunicator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LocalTables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RemoteTable.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrategyOFGPara-DCES.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyOFGPara-GTK.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyOFGPara-handler.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="StrategyOFGPara-mis.cpp">
@@ -146,10 +137,16 @@
       <Filter>Strategies\Source</Filter>
     </ClCompile>
     <ClCompile Include="DistributedTopKMaintainer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Distributed\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Stat.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="LocalTables.cpp">
+      <Filter>Distributed\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteTable.cpp">
+      <Filter>Distributed\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StrategyPeriodic.cpp">
+      <Filter>Strategies\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

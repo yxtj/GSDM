@@ -50,25 +50,32 @@ int main(int argc, char* argv[])
 		return 1;
 
 	ios::sync_with_stdio(false);
-	cout << "Time Course Path: " << opt.tcPath << "\n"
-		<< "  phenotypic file path: " << opt.phenoPath << "\n"
-		<< "  Correlation Path: " << opt.corrPath << "\n"
-		<< "  Graph Path: " << opt.graphPath << "\n"
-		<< "Input path: " << opt.getInputFolder().second << "\n"
-		<< "  Output to correlation: " << boolalpha << opt.isOutputFolder(Option::FileType::CORR) << "\n"
-		<< "  Output to graph: " << boolalpha << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
-		<< "Dataset name: " << opt.dataset << "\n"
-		<< "  Number of skipped itmes " << opt.nSkip << "\n"
-		<< "  Number of items " << opt.nSubject << "\n"
-		<< "Quality Control method: " << opt.tcQualityControl << "\n"
-		<< "Correlation method: " << opt.corrMethod << "\n"
-		<< "  Correlation threshold: " << opt.graphParam<< "\n"
-		<< endl;
-	cout << "Cutting method: " << opt.cutp.method << "\n" 
-		<< "  Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
-		<< "  Cutting method parameter - nTotal: " << opt.cutp.nTotal << "\n"
-		<< "  Cutting method parameter - nStep: " << opt.cutp.nStep << "\n"
-		<< endl;
+	if(opt.show) {
+		cout << "Time Course Path: " << opt.tcPath << "\n"
+			<< "  phenotypic file path: " << opt.phenoPath << "\n"
+			<< "  Correlation Path: " << opt.corrPath << "\n"
+			<< "  Graph Path: " << opt.graphPath << "\n"
+			<< "Input path: " << opt.getInputFolder().second << "\n"
+			<< "  Output to correlation: " << boolalpha << opt.isOutputFolder(Option::FileType::CORR) << "\n"
+			<< "  Output to graph: " << boolalpha << opt.isOutputFolder(Option::FileType::GRAPH) << "\n"
+			<< "Dataset name: " << opt.dataset << "\n"
+			<< "  Number of skipped itmes: " << opt.nSkip << "\n"
+			<< "  Number of items: " << opt.nSubject << "\n";
+		cout << "Correlation generation (TC->CORR):\n";
+		if(opt.getInputFolder().first == Option::FileType::TC) {
+			cout << "  Quality Control method: " << opt.tcQualityControl << "\n"
+				<< "  Cutting method: " << opt.cutp.method << "\n"
+				<< "    Cutting method parameter - nEach: " << opt.cutp.nEach << "\n"
+				<< "    Cutting method parameter - nTotal: " << opt.cutp.nTotal << "\n"
+				<< "    Cutting method parameter - nStep: " << opt.cutp.nStep << "\n"
+				<< "  Correlation method: " << opt.corrMethod << "\n";
+		} else {
+			cout << "  Skipped.\n";
+		}
+		cout << "Graph generation (CORR->GRAPH):\n"
+			<< "  Correlation threshold: " << opt.graphParam << "\n"
+			<< endl;
+	}
 	
 	cout << "Loading input data:" << endl;
 	multimap<SubjectInfo, corr_t> corr;
@@ -106,7 +113,7 @@ int main(int argc, char* argv[])
 			}
 			writeCorr(fout, p.second);
 			if(++cnt % 100 == 0)
-				cout << "  # of  outputted " << cnt << endl;
+				cout << "  # of outputted " << cnt << endl;
 		}
 		cout << "  # of outputted " << cnt << endl;
 	}

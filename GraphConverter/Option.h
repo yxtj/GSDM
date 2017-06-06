@@ -3,15 +3,17 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include <boost/program_options.hpp>
 
 class Option
 {
-	boost::program_options::options_description desc;
-	std::vector<std::function<bool()>> paramParser;
+	struct implDesc;
+	implDesc* pimpl;
+//	std::vector<std::function<bool()>> paramParser;
 public:
 	enum class CutType { NGRAPH, NSCAN, NONE };
 	enum class FileType { TC, CORR, GRAPH, NONE };
+
+	bool show; // print the initializing information
 
 	std::string dataset; // specific which dataset is going to be use
 	int nSkip; // skip some of the first items(subject/corr), to efficiently restart after failure
@@ -21,6 +23,7 @@ public:
 	std::string phenoPath, tcPath, corrPath, graphPath; // time course data, correlation data path, graph data 
 
 	std::string tcQualityControl; // how to filter the subjects with the Quality Control information (none, any, all)
+	std::vector<std::string> _cutp_str;
 	TCCutterParam cutp;
 
 	std::string corrMethod; // method of calculating correlation
@@ -29,8 +32,7 @@ public:
 
 public:
 	Option();
-	boost::program_options::options_description& getDesc();
-	void addParser(std::function<bool()>& fun);
+//	void addParser(std::function<bool()>& fun);
 
 	bool parseInput(int argc, char *argv[]);
 	std::string getCutMethod() const {

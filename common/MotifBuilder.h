@@ -7,7 +7,7 @@ class MotifBuilder {
 public:
 	std::unordered_map<int, int> nodes;
 	std::set<Edge> edges;
-	std::set<Edge>::iterator plEdge;
+//	std::set<Edge>::iterator plEdge;
 public:
 	MotifBuilder() = default;
 	MotifBuilder(const Motif& m);
@@ -20,7 +20,7 @@ public:
 
 	bool containNode(const int n) const;
 	bool containEdge(const int s, const int d) const;
-	const Edge& lastEdge() const;
+//	const Edge& lastEdge() const;
 
 	bool connected() const;
 

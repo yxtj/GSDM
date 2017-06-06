@@ -24,10 +24,9 @@ struct MType {
 	static constexpr int GLowerBound = 32;
 	static constexpr int GGatherLocalTopK = 33; // gather local top-k scores
 
-	// Top-k related
-//	static constexpr int TScoreGather = 50;
-//	static constexpr int TDistribute = 51;
+	// Signature
+	static constexpr int SGInit = 50;
 	
 	// Staticstics
-	static constexpr int SGather = 60;
+	static constexpr int STGather = 60;
 };

@@ -28,9 +28,6 @@
     <ClCompile Include="TCCutter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComplexParamBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LoaderABIDE.cpp">
       <Filter>TCLoader</Filter>
     </ClCompile>
@@ -88,9 +85,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TCCutter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ComplexParamBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TCCutterParam.h">

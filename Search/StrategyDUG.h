@@ -24,12 +24,12 @@ public:
 	virtual bool parse(const std::vector<std::string>& param);
 
 	virtual std::vector<Motif> search(const Option& opt,
-		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
+		DataHolder& dPos, DataHolder& dNeg);
 
 private:
 	bool parseDMethod();
 	bool parseSMethod();
-	std::vector<GraphProb> getUGfromCGs(const std::vector<std::vector<Graph>>& gs);
+	std::vector<GraphProb> getUGfromCGs(const std::vector<Subject>& gs);
 
 	double calMotifSupport(const MotifBuilder& m, const std::vector<GraphProb>& gs);
 

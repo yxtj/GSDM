@@ -8,10 +8,11 @@
 #include <fstream>
 #include <functional>
 #include "Option.h"
-#include "Scorer.h"
 #include "../common/Graph.h"
 #include "../common/Motif.h"
 #include "../common/SubjectInfo.h"
+#include "../holder/DataHolder.h"
+#include "../objfunc/ObjFunction.h"
 #include <boost/filesystem.hpp>
 
 using namespace std;
@@ -22,23 +23,8 @@ Graph loadGraph(istream& is) {
 	return res;
 }
 
-vector<vector<Graph> > loadData(const string& pre, const int n, const int m) {
-	vector<vector<Graph> > res;
-	res.reserve(n);
-	for(int i = 0; i < n; ++i) {
-		vector<Graph> temp;
-		temp.reserve(m);
-		for(int j = 0; j < m; ++j) {
-			ifstream fin(pre + to_string(i) + "-" + to_string(j) + ".txt");
-			temp.push_back(loadGraph(fin));
-		}
-		res.push_back(move(temp));
-	}
-	return res;
-}
-
-vector<vector<Graph> > loadData(
-	const string& folder, const vector<int>& types, const int nSub, const int nSnap, const int nSkip = 0)
+vector<vector<string>> loadFnList(const string& folder,
+	const vector<int>& types, const int nSub, const int nSnap, const int nSkip = 0)
 {
 	boost::filesystem::path root(folder);
 	if(!exists(root)) {
@@ -50,7 +36,7 @@ vector<vector<Graph> > loadData(
 	unordered_set<int> validType(types.begin(), types.end());
 
 	// sort up the file list (ensure the file order)
-	map<decltype(SubjectInfo::id), vector<string>> id2fn;
+	map<decltype(SubjectInfo::id), vector<SubjectInfo>> id2fn;
 	for(auto it = boost::filesystem::directory_iterator(root);
 		it != boost::filesystem::directory_iterator(); ++it)
 	{
@@ -60,38 +46,53 @@ vector<vector<Graph> > loadData(
 			// check type
 			if(validType.find(sub.type) == validType.end())
 				continue;
-			id2fn[sub.id].push_back(move(fn));
+			id2fn[sub.id].push_back(move(sub));
 		}
 	}
-	// load data
-	vector<vector<Graph> > res(min(limitSub, id2fn.size()));
-	int cntSub = 0;
-	size_t pres = 0;
+	if(nSkip > 0) {
+		auto it = id2fn.begin();
+		advance(it, nSkip);
+		id2fn.erase(id2fn.begin(), it);
+	}
+
+	vector<vector<string>> fnList;
+	fnList.reserve(min(limitSub, id2fn.size()));
+	size_t cntSub = 0;
 	for(auto& sfp : id2fn) {
-		if(++cntSub <= nSkip)
-			continue;
-		else if(pres >= limitSub)
+		if(cntSub++ >= limitSub)
 			break;
 		//		cout <<"rank: "<<rank<< " type: " << types[0] << " id: " << sfp.first << endl;
 		// sort the snapshot files
-		if(sfp.second.size() <= limitSnp) {
-			sort(sfp.second.begin(), sfp.second.end());
-		} else {
-			//auto it = sfp.second.begin() + limitSnp;
-			//partial_sort(sfp.second.begin(), it, sfp.second.end());
-			sort(sfp.second.begin(), sfp.second.end());
+		if(sfp.second.size() > limitSnp) {
+			//partial_sort(sfp.second.begin(), sfp.second.begin() + limitSnp, sfp.second.end());
+			sort(sfp.second.begin(), sfp.second.end(), [](SubjectInfo& l, SubjectInfo& r) {
+				return l.id < r.id ? true : l.id == r.id&&l.seqNum < r.seqNum;
+			});
+			//sort(sfp.second.begin(), sfp.second.end());
+			sfp.second.erase(sfp.second.begin() + limitSnp, sfp.second.end());
 		}
-		vector<Graph>& vec = res[pres++];
-		size_t cntSnp = 0;
-		for(auto& fn : sfp.second) {
-			if(++cntSnp > limitSnp)
-				break;
+		vector<string> fns;
+		fns.reserve(min(sfp.second.size(), limitSnp));
+		for(auto& sub : sfp.second)
+			fns.push_back(sub.genFilename());
+		fnList.push_back(move(fns));
+	}
+	return fnList;
+}
+
+DataHolder loadData(const string& folder, const vector<vector<string>>& fnList)
+{
+	DataHolder res;
+	for(auto& sfl : fnList) {
+		Subject sub;
+		for(auto& fn : sfl) {
 			ifstream fin(folder + fn);
 			if(!fin) {
 				cerr << "cannot open file: " << fn << endl;
 			}
-			vec.push_back(loadGraph(fin));
+			sub.addGraph(loadGraph(fin));
 		}
+		res.addSubject(move(sub));
 	}
 	return res;
 }
@@ -114,52 +115,6 @@ Motif parseMotif(const std::string& line) {
 	return m;
 }
 
-// method group 1
-bool existOnSub(const std::vector<Graph>& gs, const Motif& m, const double theta)
-{
-	int cnt = 0;
-	int limit = static_cast<int>(ceil(gs.size()*theta));
-	for(auto& g : gs) {
-		if(g.testMotif(m)) {
-			if(++cnt >= limit)
-				return true;
-		}
-	}
-	return false;
-}
-double probOnGS(const vector<vector<Graph>>& gs, const Motif& m, const double theta)
-{
-	int cnt = 0;
-	for(auto& l : gs)
-		if(existOnSub(l, m, theta))
-			++cnt;
-	return static_cast<double>(cnt) / gs.size();
-}
-
-// method group 2
-bool testMotifInSub(const MotifBuilder& m, const std::vector<Graph>& graphs, const double theta)
-{
-	int th = static_cast<int>(ceil(graphs.size()*theta));
-	// return true if #occurence >= th
-	for(auto& g : graphs) {
-		if(g.testMotif(m))
-			if(--th <= 0)
-				return true;
-	}
-	return false;
-}
-int countMotifXSub(const MotifBuilder & m, const std::vector<std::vector<Graph>>& subs, const double theta)
-{
-	int cnt = 0;
-	for(auto& sub : subs) {
-		if(testMotifInSub(m, sub, theta))
-			++cnt;
-	}
-	return cnt;
-
-}
-
-
 template<typename T>
 ostream& operator<<(ostream& os, const vector<T>& param) {
 	for(auto& p : param)
@@ -173,38 +128,52 @@ int main(int argc, char* argv[])
 	if(!opt.parseInput(argc, argv)) {
 		return 1;
 	}
-	cout << "Data folder prefix: " << opt.prefix << "\tGraph (sub-)folder: " << opt.graphFolder << "\n"
-		<< "Data parameters:\n"
-		<< "  # Nodes: " << opt.nNode << "\n"
-		<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
-		<< "  # Snapshots: " << opt.nSnapshot << "\n"
-		<< "  Type(s) of positive subject: " << opt.typePos << "\n"
-		<< "  Type(s) of negative subject: " << opt.typeNeg << "\n"
-		<< "  Data in shared folder: " << boolalpha << opt.graphFolderShared << "\n"
-		<< "Blacklist size: " << opt.blacklist.size() << "\n"
-		<< "Theta = " << opt.theta << "\n"
-		<< "Objective function: " << opt.funName << " , alpha " << opt.alpha
-		<< endl;
-
-	function<double(const double, const double)> objFun;
-	if(opt.funName == "diff") {
-		objFun = bind(&Scorer::diff, placeholders::_1, placeholders::_2, opt.alpha);
-	} else if(opt.funName == "ratio") {
-		objFun = Scorer::ratio;
+	if(opt.show) {
+		cout << "Data folder: " << opt.graphFolder << "\n"
+			<< "Data parameters:\n"
+			<< "  # Nodes: " << opt.nNode << "\n"
+			<< "  # Subject +/-: " << opt.nPosInd << " / " << opt.nNegInd << "\n"
+			<< "  # Snapshots: " << opt.nSnapshot << "\n"
+			<< "  Type(s) of positive subject: " << opt.typePos << "\n"
+			<< "  Type(s) of negative subject: " << opt.typeNeg << "\n"
+			<< "Theta = " << opt.theta << "\n"
+			<< "  Periodic check: " << opt.periodic << "\n"
+			<< "Objective function: " << opt.funName << " , alpha " << opt.alpha
+			<< endl;
 	}
+
+	ObjFunction objFun;
+	objFun.setFunc(opt.funName);
+	if(objFun.needAlpha())
+		objFun.setAlpha(opt.alpha);
 
 	int nPosSub = opt.nPosInd, nPosSkip = 0;
 	int nNegSub = opt.nNegInd, nNegSkip = 0;
 	cout << "Loading graphs on rank..." << endl;
-	vector<vector<Graph> > gPos = loadData(opt.graphFolder, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip);
-	cout << "  # positive subjects: " << gPos.size() << endl;
-	vector<vector<Graph> > gNeg = loadData(opt.graphFolder, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip);
-	cout << "  # negative subjects: " << gNeg.size() << endl;
+	DataHolder dPos = loadData(opt.graphFolder,
+		loadFnList(opt.graphFolder, opt.typePos, nPosSub, opt.nSnapshot, nPosSkip));
+	cout << "  # positive subjects: " << dPos.size() << endl;
+	DataHolder dNeg = loadData(opt.graphFolder, 
+		loadFnList(opt.graphFolder, opt.typeNeg, nNegSub, opt.nSnapshot, nNegSkip));
+	cout << "  # negative subjects: " << dNeg.size() << endl;
 
-	string line;
+	dPos.setTheta(opt.theta);
+	dNeg.setTheta(opt.theta);
+	function<double(const DataHolder&, const Motif& m)> probOnGS;
+	if(!opt.periodic) {
+		probOnGS = [](const DataHolder& dh, const Motif& m) {
+			return dh.count(m) / static_cast<double>(dh.size());
+		};
+	} else {
+		probOnGS = [](const DataHolder& dh, const Motif& m) {
+			return dh.countByPeriod(m) / static_cast<double>(dh.size());
+		};
+	}
+
 	cout << "Format:\n"
 		"XXX	nEdge	(a,b) (c,d) (...)\n"
 		"Waiting for input (one per line): "<< endl;
+	string line;
 	while(getline(cin, line)) {
 		if(line.empty())
 			continue;
@@ -215,14 +184,10 @@ int main(int argc, char* argv[])
 			cout << "cannot parse given motif." << endl;
 			continue;
 		}
-		double fPos = probOnGS(gPos, m, opt.theta);
-		double fNeg = probOnGS(gNeg, m, opt.theta);
+		double fPos = probOnGS(dPos, m);
+		double fNeg = probOnGS(dNeg, m);
 		double score = objFun(fPos, fNeg);
 		cout << "fPos=" << fPos << ", fNeg=" << fNeg << ", score=" << score << endl;
-//		fPos = countMotifXSub(m, gPos, opt.theta)/(double)gPos.size();
-//		fNeg = countMotifXSub(m, gNeg, opt.theta)/(double)gNeg.size();
-//		score = objFun(fPos, fNeg);
-//		cout<< "fPos=" << fPos << ", fNeg=" << fNeg << ", score=" << score << endl;
 	}
 	return 0;
 }

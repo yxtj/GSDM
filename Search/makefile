@@ -12,7 +12,8 @@ EXE = Search
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil -lnet -lserialization -lmsgdriver
+MYLIB= -lcommon -lutil -lobjfunc -lholder -lnet -lserialization -lmsgdriver
+LIBS = $(MYLIB)
 LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
@@ -24,7 +25,8 @@ DBGDIR = Debug
 DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
-DBGLIBDIR = $(LIBDIR) -L../Debug
+DBGLIBDIR = $(LIBDIR) -L../$(DBGDIR)
+DBGMYLIB = $(MYLIB:-l%=../$(DBGDIR)/lib%.a)
 
 #
 # Release build settings
@@ -34,6 +36,7 @@ RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
 RELLIBDIR = $(LIBDIR) -L../Release
+RELMYLIB = $(MYLIB:-l%=../$(RELDIR)/lib%.a)
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -45,18 +48,16 @@ all: release
 #Debug:
 debug: ../$(DEGEXE)
 	
-../$(DBGEXE): $(DBGOBJS)
+../$(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
 	@mkdir -p ../$(DBGDIR)
-	$(MAKE) -C ../common debug
-	$(MAKE) -C ../util debug
-	$(MAKE) -C ../net debug
-	$(MAKE) -C ../msgdriver debug
-	$(MAKE) -C ../serialization debug
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $@
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $(DBGOBJS) $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
-	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
+
+$(DBGMYLIB):
+	$(MAKE) -C $(@:../$(DBGDIR)/lib%.a=../%) debug
 
 #
 # Release rules
@@ -64,18 +65,16 @@ $(DBGDIR)/%.o: %.cpp
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELOBJS)
+../$(RELEXE): $(RELOBJS) $(RELMYLIB)
 	@mkdir -p ../$(RELDIR)
-	$(MAKE) -C ../common release
-	$(MAKE) -C ../util release
-	$(MAKE) -C ../net release
-	$(MAKE) -C ../msgdriver release
-	$(MAKE) -C ../serialization release
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $@
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $(RELOBJS) $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
-	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(MPI_COMPILE_FLAGS) $(INC) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
+
+$(RELMYLIB):
+	$(MAKE) -C $(@:../$(RELDIR)/lib%.a=../%) release
 
 #
 # common rules

@@ -10,7 +10,8 @@ EXE = GraphConverter
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon -lutil
+MYLIB = -lcommon -lutil
+LIBS = $(MYLIB)
 LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
@@ -22,7 +23,8 @@ DBGDIR = Debug
 DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
-DBGLIBDIR = $(LIBDIR) -L../Debug
+DBGLIBDIR = $(LIBDIR) -L../$(DBGDIR)
+DBGMYLIB = $(MYLIB:-l%=../$(DBGDIR)/lib%.a)
 
 #
 # Release build settings
@@ -32,6 +34,7 @@ RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
 RELLIBDIR = $(LIBDIR) -L../Release
+RELMYLIB = $(MYLIB:-l%=../$(RELDIR)/lib%.a)
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -43,15 +46,16 @@ all: release
 #Debug:
 debug: ../$(DEGEXE)
 
-../$(DBGEXE): $(DBGOBJS)
+../$(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
 	@mkdir -p ../$(DBGDIR)
-	$(MAKE) -C ../common debug
-	$(MAKE) -C ../util debug
 	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $@
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
 	$(CXX) -c $(CXXFLAGS) $(DBGCFLAGS) $(INC) -o $@ $<
+
+$(DBGMYLIB):
+	$(MAKE) -C $(@:../$(DBGDIR)/lib%.a=../%) debug
 
 #
 # Release rules
@@ -59,16 +63,17 @@ $(DBGDIR)/%.o: %.cpp
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELOBJS)
+../$(RELEXE): $(RELOBJS) $(RELMYLIB)
 	@mkdir -p ../$(RELDIR)
-	$(MAKE) -C ../common release
-	$(MAKE) -C ../util release
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $@
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
 	$(CXX) -c $(CXXFLAGS) $(RELCFLAGS) $(INC) -o $@ $<
 
+$(RELMYLIB):
+	$(MAKE) -C $(@:../$(RELDIR)/lib%.a=../%) release
+	
 #
 # common rules
 #
@@ -80,9 +85,6 @@ directories:
 	@mkdir -p $(RELDIR)
 	@mkdir -p ../$(RELDIR)
 
-stdafx.h.gch: stdafx.h
-	$(CXX) $(CXXFLAGS) -c stdafx.cpp -o stdafx.h.gch
-	
 clean:
 	rm -rf $(DBGDIR)
 	rm -rf $(RELDIR)

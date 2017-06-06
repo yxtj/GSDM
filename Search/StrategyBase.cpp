@@ -3,9 +3,8 @@
 
 using namespace std;
 
-bool StrategyBase::checkInput(const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg)
+bool StrategyBase::checkInput(const DataHolder & dPos, const DataHolder & dNeg)
 {
-	return !gPos.empty() && !gPos.front().empty()
-		&& !gNeg.empty() && !gNeg.front().empty();
+	return !dPos.empty() || !dNeg.empty();
 }
 

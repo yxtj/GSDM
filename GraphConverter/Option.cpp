@@ -1,28 +1,38 @@
 #include "stdafx.h"
 #include "Option.h"
 #include "../util/Util.h"
+#include <boost/program_options.hpp>
 
 using namespace std;
 
+struct Option::implDesc {
+	boost::program_options::options_description desc;
+};
+
 Option::Option()
-	:desc("Options", getScreenSize().first)
+	:pimpl(new implDesc{ boost::program_options::options_description("Options", getScreenSize().first) })
 {
 	// define
 	using boost::program_options::value;
-	desc.add_options()
+	pimpl->desc.add_options()
 		("help", "Print help messages")
+		("showInfo", value<bool>(&show)->default_value(1), "Print the initializing information")
 		("dataset", value<string>(&dataset), "Specific which dataset is going to be used (ADHD, ABIDE, ABIDE2, ADNI).")
 		("nSkip",value<int>(&nSkip)->default_value(0),"Skip the first nSkip items(subject/corr).")
-		("nSubject,n", value<int>(&nSubject)->default_value(-1), "# of items(subject/corr) to load from dataset "
+		("nSubject,n", value<int>(&nSubject)->default_value(-1), 
+			"# of items(subject/corr) to load from dataset "
 			"(non-positive means load all).")
 		("tcPath", value<string>(&tcPath), "The folder for time course data (input)")
-		("phenoPath", value<string>(&phenoPath), "The folder for the phenotyic file (input). If it is empty, tcPath will be used.")
+		("phenoPath", value<string>(&phenoPath), 
+			"The folder for the phenotyic file (input). If it is empty, tcPath will be used.")
 		("corrPath", value<string>(&corrPath), "The folder for correlation data "
 			"(if --tcPath is not given, this is an input folder. otherwise this is used for output).")
 		("graphPath", value<string>(&graphPath), "The folder for graph data (output).")
 		("tc-qc", value<string>(&tcQualityControl)->default_value(string("all")), 
 			"How to use the Quality Control fields to filter the subjects,\n"
 			"supports: none (not use), any (fulfill any QC), all (fulfill all QC).")
+		(TCCutterParam::name.c_str(), value<vector<string>>(&_cutp_str)->multitoken()->default_value(vector<string>{},""),
+			TCCutterParam::usage.c_str())
 		("corr-method", value<string>(&corrMethod)->default_value(string("pearson")),
 			"The method for calculating correlation between ROI,\n"
 			"supports: pearson, spearman, mutialinfo.")
@@ -32,19 +42,9 @@ Option::Option()
 			"between uses [thLow,thUp) range. outside is the oppsite to between.\n"
 			"USE 'n' INSTEAD OF '-' FOR NEGATIVE NUMBER. i.e. n0.8 instead of -0.8, because \"-x\" is regarded as an option.")
 		("com-graph", value<int>(&comGraphLevel)->default_value(0), "The compression level for outputting graphs.\n"
-			"The larger the number is, the smaller the output size is. 0 -> normal text, 1 -> binary, 2~n -> compressed whith different level.")
+			"The larger the number is, the smaller the output size is. "
+			"0 -> normal text, 1 -> binary, 2~n -> compressed whith different level.")
 		;
-	cutp.reg(*this);
-}
-
-boost::program_options::options_description & Option::getDesc()
-{
-	return desc;
-}
-
-void Option::addParser(std::function<bool()>& fun)
-{
-	paramParser.push_back(move(fun));
 }
 
 bool Option::parseInput(int argc, char* argv[]) {
@@ -53,7 +53,7 @@ bool Option::parseInput(int argc, char* argv[]) {
 	boost::program_options::variables_map var_map;
 	try {
 		boost::program_options::store(
-			boost::program_options::parse_command_line(argc, argv, desc), var_map);
+			boost::program_options::parse_command_line(argc, argv, pimpl->desc), var_map);
 		boost::program_options::notify(var_map);
 
 		if(var_map.count("help")) {
@@ -72,15 +72,8 @@ bool Option::parseInput(int argc, char* argv[]) {
 			flag_help = true;
 			break;
 		}
-		try {
-			for(auto& fun : paramParser) {
-				if(!fun()) {
-					flag_help = true;
-					break;
-				}
-			}
-		} catch(exception& e) {
-			cerr << e.what() << endl;
+		if(!cutp.parse(boost::any_cast<vector<string>>(
+			var_map[TCCutterParam::name].value()))) {
 			flag_help = true;
 			break;
 		}
@@ -97,7 +90,7 @@ bool Option::parseInput(int argc, char* argv[]) {
 	}
 
 	if(true == flag_help) {
-		cerr << desc << endl;
+		cerr << pimpl->desc << endl;
 		return false;
 	}
 	return true;

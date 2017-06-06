@@ -1,19 +1,51 @@
 #pragma once
-#include "StrategyOFG.h"
+#include "StrategyBase.h"
 #include "TopKBoundedHolder.hpp"
 #include "LocalTables.h"
 #include "RemoteTable.h"
 #include "DistributedTopKMaintainer.h"
 #include "Stat.h"
+#include "../objfunc/ObjFunction.h"
+#include "../holder/SDSignature.h"
 #include "../util/Timer.h"
 #include "../net/NetworkThread.h"
 #include "../msgdriver/MsgDriver.h"
 #include "../msgdriver/tools/ReplyHandler.h"
 #include "../msgdriver/tools/SyncUnit.h"
+#include <regex>
 
 class StrategyOFGPara :
-	public StrategyOFG
+	public StrategyBase
 {
+protected:
+	size_t k; // number of result
+	double pSnap; // minimum show up probability among a subject's all snapshots
+	double minSup; // minimum show up probability among postive subjects
+	ObjFunction objFun;
+	//bool flagDistributed;
+
+	bool flagUseSD; // whether to use the shortest distance optimization
+	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
+	bool flagDCESConnected; // whether to use the dynamic candiate edge set (connect with valid motif in last layer)
+	bool flagDCESBound; // whether to use the dynamic candiate edge set (upper bound condition)
+	bool flagOutputScore; // whether to output the score of the top-k result
+	std::string pathOutputScore; // the path of the score file
+	bool flagStatDump;
+	std::string pathStatDump;
+
+protected:
+	int nNode;
+	Timer timer;
+
+	DataHolder *pdp, *pdn;
+
+	// Statistics:
+	mutable Stat st;
+	std::mutex mst;
+	std::vector<Stat> statBuff; // only used for StatDump on master
+
+	/* Distribution required */
+protected:
 	NetworkThread* net;
 	MsgDriver driver;
 	bool running_;
@@ -26,7 +58,7 @@ class StrategyOFGPara :
 	int INTERVAL_COORDINATE_TOP_K = 5*1000; //in millisecond
 	int BATCH_SIZE_ACTIVE = 100; // num. of active motifs explored at each step
 	int INTERVAL_STATE_REPORT = 10; // in seconds
-private:
+protected:
 	// candidate edge set
 	std::mutex mce;
 	std::vector<std::tuple<Edge, double, int>> edges; // <Edge, freq, last-used-level>
@@ -48,39 +80,32 @@ private:
 	// remote table buffers
 	std::vector<RemoteTable> rtables; // one for each remote worker
 
-private:
-	Timer timer;
-
-	bool flagStatDump;
-	std::string pathStatDump;
-	std::mutex mst;
-	mutable Stat st;
-	std::vector<Stat> statBuff; // only used for StatDump on master
 public:
 	static const std::string name;
 	static const std::string usage;
-	static const std::string usageDesc, usageParam;
 
 	StrategyOFGPara() = default;
 
 	virtual bool parse(const std::vector<std::string>& param);
 
 	// initialize and search
-	virtual std::vector<Motif> search(const Option& opt,
-		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
-	
+	virtual std::vector<Motif> search(
+		const Option& opt, DataHolder& dPos, DataHolder& dNeg);
+
 	// Steps
 private:
-	void initParams(
-		const std::vector<std::vector<Graph>>& gPos, const std::vector<std::vector<Graph>>& gNeg);
+	void initParams(DataHolder& dPos, DataHolder& dNeg);
 	void initLRTables();
 	void initHandlers();
 
 	SyncUnit suReg, suStart;
 	void registerAllWorkers();
 
+	SyncUnit suSGInit;
+	void initialSignature_para();
+
 	SyncUnit suCEinit;
-	void initialCE_para();
+	void initialCE_para(const DataHolder& dPos);
 
 	SyncUnit suSearchEnd;
 	void work_para();
@@ -97,18 +122,38 @@ private:
 	void regDSPDefault(callback_t fp);
 	
 /* helpers */
-private:
+protected:
+	// parse
+	void parseObj(const std::string& name, const std::ssub_match& alpha);
+	void parseDCES(const std::ssub_match & option, const std::ssub_match & minsup, const bool flag);
+	void parseLOG(const std::ssub_match & param, const bool flag);
 	void parseStat(const std::ssub_match& m, const bool flag);
 
-	std::pair<int, int> num2Edge(const int idx);
+	// common
+	DataHolder* getDataHolder(const int dtype); // 1->pos, 0->neg
 	int getMotifOwner(const Motif& m);
 
-	bool explore(const Motif& m);
+	// signature
+	void initialSignParaOne(DataHolder& dh, const int dtype);
+	bool signRecv(const std::string& msg);
+	std::string signSerialize(DataHolder& dh, const int dtype, const int f, const int l);
+	std::tuple<int, int, int, std::vector<SDSignature>> signDeserialize(const std::string& msg);
+	void signMerge(const int dtype, const int idx, SDSignature&& sd);
+
+	// candidate edge
+	std::pair<int, int> num2Edge(const int idx);
+	virtual std::vector<std::tuple<Edge, double, int>> prepareLocalCE(const int size, const int id);
+
+	// search-core
+	virtual bool explore(const Motif& m);
+	virtual std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
 	// return new motifs and their upper-bounds ( min(ub, new-edge.ub) )
 	std::vector<std::pair<Motif, double>> expand(const Motif& m, const double ub, const bool used);
+	static int quickEstimiateNumberOfParents(const Motif & m);
 //	static int getNParents(const MotifBuilder& m);
 	static int getNParents(const Motif& m);
 
+	// search-util
 	void assignBeginningMotifs();
 
 	void generalUpdateCandidateMotif(const Motif& m, const double ub); //local + buffer for net
@@ -149,19 +194,21 @@ private:
 			=> maintains a correct out-date global top-k
 		3, [main on master] Broadcast current updated global k-th score
 	*/
+
 	// start a global top-k coordinate process
 	void topKCoordinate();
 	// a callback to finish a global top-k coordinate process
 	void topKCoordinateFinish();
 	void topKMerge(const std::vector<double>& recv, const int source);
 
-
+private:
 	void resultSend();
 	void resultReceive();
 	void resultMerge(std::vector<std::pair<Motif, double>>& recv);
 
 	void statSend();
 	void statReceive();
+	void statLocalCollect();
 	void statMerge(const int source, Stat& recv);
 	static void statFormatOutput(std::ostream& os, const Stat& st);
 	void statDump();
@@ -181,6 +228,8 @@ public:
 	void cbRegisterWorker(const std::string& d, const RPCInfo& info);
 	void cbStart(const std::string& d, const RPCInfo& info);
 
+	void cbSGInit(const std::string& d, const RPCInfo& info);
+
 	void cbCEInit(const std::string& d, const RPCInfo& info);
 	void cbCERemove(const std::string& d, const RPCInfo& info);
 	void cbCEUsage(const std::string& d, const RPCInfo& info);
@@ -199,7 +248,7 @@ public:
 	void cbGatherStat(const std::string& d, const RPCInfo& info);
 
 /* log related: */
-private:
+protected:
 	std::string logHead(const std::string& head) const;
 	std::string logHeadID(const std::string& head) const;
 	void reportState() const;

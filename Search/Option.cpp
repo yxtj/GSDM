@@ -1,17 +1,23 @@
 #include "stdafx.h"
 #include "Option.h"
 #include "StrategyFactory.h"
+#include <boost/program_options.hpp>
 #include "../util/Util.h"
 
 using namespace std;
 
+struct Option::Impl {
+	boost::program_options::options_description desc;
+};
+
 Option::Option()
-	:desc("Options", getScreenSize().first)
+	:pimpl(new Impl{ boost::program_options::options_description("Options", getScreenSize().first) })
 {
 	using boost::program_options::value;
 	using boost::program_options::bool_switch;
-	desc.add_options()
+	pimpl->desc.add_options()
 		("help", "Print help messages")
+		("showInfo", value<bool>(&show)->default_value(1), "Print the initializing information")
 		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
 		("prefix-graph", value<string>(&graphFolder)->default_value(string("graph/")),
 			"[string] the folder/subfolder for graph files. "
@@ -41,11 +47,7 @@ Option::Option()
 
 Option::~Option()
 {
-}
-
-boost::program_options::options_description & Option::getDesc()
-{
-	return desc;
+	delete pimpl;
 }
 
 void Option::addParser(std::function<bool()>& fun)
@@ -60,7 +62,7 @@ bool Option::parseInput(int argc, char * argv[])
 	try {
 		boost::program_options::variables_map var_map;
 		boost::program_options::store(
-			boost::program_options::parse_command_line(argc, argv, desc), var_map);
+			boost::program_options::parse_command_line(argc, argv, pimpl->desc), var_map);
 		boost::program_options::notify(var_map);
 
 		sortUpPath(prefix);
@@ -85,7 +87,6 @@ bool Option::parseInput(int argc, char * argv[])
 			if(stgParam.empty() || !StrategyFactory::isValid(stgParam[0])) {
 				throw invalid_argument("strategy is not given or not supported.");
 			}
-
 		} while(false);
 
 		sort(blacklist.begin(), blacklist.end());
@@ -99,7 +100,7 @@ bool Option::parseInput(int argc, char * argv[])
 	}
 
 	if(true == flag_help) {
-		cerr << desc << endl;
+		cerr << pimpl->desc << endl;
 		return false;
 	}
 	return true;

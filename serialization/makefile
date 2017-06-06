@@ -10,7 +10,7 @@ EXE = libserialization.a
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-LIBS = -lcommon
+LIBS = 
 
 export CXX CC CFLAGS CPPFLAGS OPROFILE
 
@@ -22,7 +22,6 @@ DBGEXE = $(DBGDIR)/$(EXE)
 DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
 DBGCFLAGS = -g -O0 -DDEBUG
 DBGLIBDIR = $(LIBDIR) -L../$(DBGDIR)
-DBGLIBS= $(foreach LIB,$(LIBS),../$(DBGDIR)/lib$(LIB:-l%=%.a))
 
 #
 # Release build settings
@@ -32,7 +31,6 @@ RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
 RELCFLAGS = -O2 -DNDEBUG
 RELLIBDIR = $(LIBDIR) -L../$(RELDIR)
-DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 
 #---------------------------------------------------------------------------------
 #DO NOT EDIT BELOW THIS LINE
@@ -42,7 +40,7 @@ DBGLIBS= $(foreach LIB,$(LIBS),../$(RELDIR)/lib$(LIB:-l%=%.a))
 all: release
 
 #Debug:
-debug: ../$(DEGEXE)
+debug: ../$(DBGEXE)
 
 ../$(DBGEXE): $(DBGOBJS)
 	@mkdir -p ../$(DBGDIR)
@@ -59,7 +57,7 @@ $(DBGDIR)/%.o: %.cpp
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELOBJS)
+../$(RELEXE): $(RELEXE)
 	@mkdir -p ../$(RELDIR)
 	$(MAKE) -C ../common release
 	ar rcs $@ $^ $(RELLIBS)

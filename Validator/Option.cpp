@@ -11,11 +11,8 @@ Option::Option()
 	using boost::program_options::bool_switch;
 	desc.add_options()
 		("help", "Print help messages")
-		("prefix", value<string>(&prefix)->default_value("../data"), "[string] data folder prefix")
-		("prefix-graph", value<string>(&graphFolder)->default_value(string("graph/")),
-			"[string] the folder/subfolder for graph files. "
-			"If the option starts with a '/', it is a absolute path. Otherwise it is a subfolder of <prefix>")
-			("blacklist", value<vector<int>>(&blacklist)->multitoken()->default_value(vector<int>(), ""), "[integer]s of individuals removed")
+		("showInfo", value<bool>(&show)->default_value(1), "Print the initializing information")
+		("pathGraph", value<string>(&graphFolder), "[string] the folder/subfolder for graph files.")
 		("n", value<int>(&nNode)->default_value(-1), "[integer] size of each graph (number of nodes)")
 		("npi", value<int>(&nPosInd)->default_value(10), "[integer] number of positive individuals (negative means read all)")
 		("nni", value<int>(&nNegInd)->default_value(10), "[integer] number of negative individuals (negative means read all)")
@@ -25,6 +22,7 @@ Option::Option()
 		("typeNeg", value<vector<int>>(&typeNeg)->multitoken()->default_value(vector<int>(1, 0), "0"),
 			"The type(s) of negative individual")
 		("theta", value<double>(&theta), "[double] within frequency threshold to regard a motif as existed")
+		("periodic", value<bool>(&periodic)->default_value(0), "only check the periodic occurrence")
 		("fun", value<string>(&funName)->default_value(string("diff")), "name of the objective funtion. Support: diff, ratio")
 		("alpha", value<double>(&alpha)->default_value(1.0), "[double] parameter for objective function")
 		;
@@ -51,8 +49,7 @@ bool Option::parseInput(int argc, char * argv[])
 			boost::program_options::parse_command_line(argc, argv, desc), var_map);
 		boost::program_options::notify(var_map);
 
-		sortUpPath(prefix);
-		processSubPath(graphFolder);
+		sortUpPath(graphFolder);
 
 		do {
 			if(var_map.count("help")) {
@@ -68,8 +65,6 @@ bool Option::parseInput(int argc, char * argv[])
 			}
 
 		} while(false);
-
-		sort(blacklist.begin(), blacklist.end());
 
 	} catch(std::exception& excep) {
 		cerr << "error: " << excep.what() << "\n";
@@ -90,14 +85,5 @@ std::string& Option::sortUpPath(std::string & path)
 {
 	if(!path.empty() && path.back() != '/' && path.back() != '\\')
 		path.push_back('/');
-	return path;
-}
-
-std::string & Option::processSubPath(std::string & path)
-{
-	sortUpPath(path);
-	if(path.front() != '/') {
-		path = prefix + path;
-	}
 	return path;
 }

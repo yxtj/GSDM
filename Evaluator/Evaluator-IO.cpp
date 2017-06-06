@@ -36,7 +36,7 @@ vector<SubjectData> loadGraph(const string& folder, const vector<int>& graphType
 			dit->second.type = sub.type;
 		}
 		std::ifstream fin(folder + fn);
-		dit->second.snapshots.push_back(loadGraph(fin));
+		dit->second.addGraph(loadGraph(fin));
 		if(cnt >= limit)
 			break;
 	}

@@ -1,10 +1,32 @@
 #pragma once
+#include "Motif.h"
+#include "MotifBuilder.h"
 #include <vector>
-#include <ostream>
+#include <unordered_map>
 
-// data format:
-// first line: one integer indicating number of lines of this file
-// rest lines: "id	a b c " i.e. "id\ta b c ", where a, b, c are dst of source id
-std::vector<std::vector<int>> readGraph(const std::string& fn);
-void writeGraph(std::ostream& os, const std::vector<std::vector<int>>& g);
+// Functions for seriailization
 
+/*
+single
+*/
+size_t estimateSizeMotif(const Motif& m);
+char* serializeMotif(char* res, int bufSize, const Motif& item);
+char* serializeMotif(char* res, const Motif& item);
+std::pair<Motif, const char*> deserializeMotif(const char* p);
+
+size_t estimateSizeMotif(const MotifBuilder& m);
+char* serializeMotif(char* res, int bufSize, const MotifBuilder& item);
+char* serializeMotif(char* res, const MotifBuilder& item);
+std::pair<MotifBuilder, const char*> deserializeMotifBuilder(const char* p);
+
+/*
+some existing container
+*/
+std::pair<char*, std::unordered_map<Motif, std::pair<int, double>>::const_iterator> serializeMP(
+	char* res, int bufSize, std::unordered_map<Motif, std::pair<int, double>>::const_iterator first,
+	std::unordered_map<Motif, std::pair<int, double>>::const_iterator last);
+std::pair<std::unordered_map<Motif, std::pair<int, double>>, const char*> deserializeMP(const char* p);
+
+std::pair<char*, std::vector<Motif>::const_iterator> serializeVM(char* res, int bufSize,
+	std::vector<Motif>::const_iterator first, std::vector<Motif>::const_iterator last);
+std::pair<std::vector<Motif>, const char*> deserializeVM(const char *p);

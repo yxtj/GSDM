@@ -23,7 +23,7 @@ bool MotifBuilder::addEdge(const int s, const int d) {
 	Edge e{ s,d };
 	auto p = edges.insert(e);
 	if(p.second) {
-		plEdge = p.first;
+		//plEdge = p.first;
 		++nodes[s];
 		++nodes[d];
 	}
@@ -56,10 +56,10 @@ bool MotifBuilder::containEdge(const int s, const int d) const
 	return edges.find(Edge{ s,d }) != edges.end();
 }
 
-const Edge & MotifBuilder::lastEdge() const
-{
-	return *plEdge;
-}
+//const Edge & MotifBuilder::lastEdge() const
+//{
+//	return *plEdge;
+//}
 
 bool MotifBuilder::connected() const
 {
