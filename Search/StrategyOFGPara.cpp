@@ -16,11 +16,12 @@ const std::string StrategyOFGPara::usage(
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
 	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::getUsage() + ")\n"
 	//"  <dist>: optional [dist/dist-no], default disabled, run in distributed manner\n"
-	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance optimization\n"
-	"  [net]: optional [net/net-no], default enabled, use the motif network to prune (a motif's all parents should be valid)\n"
+	"  [sd]: optional [sd/sd-no], default enabled, use the shortest distance based signature optimization\n"
+	"  [net]: optional [net/net-no], default enabled, generate a new motif only when all parents are promising\n"
 	"  [dces]: optional [dces/dces-c/dces-b/decs-no](:<ms>), "
 	"default enabled, use dynamic candidate edge set ('c' for connected-condition, 'b' for bound-condition) "
 	"<ms> is the minimum frequency of candidate edges, default 0.0\n"
+	"  [async]: optional [async/async-no/sync], default enabled, use the asynchronous distribution\n"
 	"  [npar]: opetional [npar-estim/npar-exact], default estimated, which way used to calculated the number of parents of a motif\n"
 	"  [log]: optional [log:<path>/log-no], default disabled, output the score of the top-k result to given path\n"
 	"  [stat]: optional [stat:<path>/stat-no], default disabled, dump the statistics of all workers to a file"
@@ -41,12 +42,14 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 		flagNetworkPrune = true;
 		flagDCESConnected = true;
 		flagDCESBound = true;
+		flagAsync = true;
 		minSup = 0.0;
 		flagOutputScore = false;
 		flagStatDump = false;
 		regex reg_sd("sd(-no)?");
 		regex reg_net("net(-no)?");
 		regex reg_dces("dces(-[cb])?(-no)?(:0\\.\\d+)?");
+		regex reg_async("(a)?sync(-no)?");
 		regex reg_log("log(:.+)?(-no)?");
 		regex reg_stat("stat(:.+)?(-no)?");
 		for(size_t i = 4; i < param.size(); ++i) {
@@ -59,6 +62,9 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 			} else if(regex_match(param[i], m, reg_dces)) {
 				bool flag = !m[2].matched;
 				parseDCES(m[1], m[3], flag);
+			} else if(regex_match(param[i], m, reg_async)) {
+				bool flag = m[1].matched ^ m[2].matched; // async when only one of (a) and (-no) match
+				flagAsync = flag;
 			} else if(regex_match(param[i], m, reg_log)) {
 				bool flag = !m[2].matched;
 				parseLOG(m[1], flag);
@@ -157,7 +163,10 @@ std::vector<Motif> StrategyOFGPara::search(
 	}
 
 	// step 3: search independently (each worker holds motif whose score is larger than current k-th)
-	work_para();
+	if(flagAsync)
+		work_para_async();
+	else
+		work_para_sync();
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Global search finished." << endl;
 	}
@@ -172,6 +181,7 @@ std::vector<Motif> StrategyOFGPara::search(
 		cout << logHead("LOG") + "Global top-k motifs gathered, "
 			+ to_string(holder->size()) + "/" + to_string(k) + " in all, "
 			+ "last score=" + to_string(holder->lastScore()) << endl;
+		holder->sort();
 		if(flagOutputScore) {
 			ofstream fout(pathOutputScore);
 			for(auto& p : holder->data) {

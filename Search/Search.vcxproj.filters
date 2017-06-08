@@ -148,6 +148,9 @@
     <ClCompile Include="StrategyPeriodic.cpp">
       <Filter>Strategies\Source</Filter>
     </ClCompile>
+    <ClCompile Include="StrategyOFGPara-sync.cpp">
+      <Filter>Strategies\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />

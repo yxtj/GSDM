@@ -130,8 +130,8 @@ bool LocalTables::emptyCandidate() const
 
 bool LocalTables::emptyCandidate(const int level) const
 {
-	return static_cast<int>(candidateTables.size()) > level
-		&& candidateTables[level].empty();
+	return static_cast<int>(candidateTables.size()) <= level
+		|| candidateTables[level].empty();
 }
 
 bool LocalTables::emptyActivated() const
@@ -141,8 +141,8 @@ bool LocalTables::emptyActivated() const
 
 bool LocalTables::emptyActivated(const int level) const
 {
-	return static_cast<int>(nActLevel.size()) > level
-		&& nActLevel[level] == 0;
+	return static_cast<int>(nActLevel.size()) <= level
+		|| nActLevel[level] == 0;
 }
 
 int LocalTables::getNumCandidate() const

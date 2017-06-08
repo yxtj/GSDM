@@ -27,6 +27,9 @@ struct TopKBoundedHolder {
 	// return the last score, if size()<k return - infinity
 	S lastScore4Update() const;
 
+	// sort the elements with equal score, requires operator < for T
+	void sort();
+
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
 	std::vector<std::pair<T, S>> getResultScore() const;
@@ -123,6 +126,17 @@ template<class T, typename S>
 inline S TopKBoundedHolder<T, S>::lastScore4Update() const
 {
 	return data.size() < k ? bound : data.back().second;
+}
+
+template<class T, typename S>
+inline void TopKBoundedHolder<T, S>::sort()
+{
+	//std::sort(data.begin(), data.end(), [](const std::pair<T, S>& l, const std::pair<T, S>& r) {
+	//	return l.second < r.second || l.second == r.second && l.first < r.first;
+	//});
+	data.sort([](const std::pair<T, S>& l, const std::pair<T, S>& r) {
+		return l.second > r.second || l.second == r.second && l.first < r.first;
+	});
 }
 
 template<class T, typename S>

@@ -60,6 +60,7 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 	}
 
 	cout << "Phase 3 (output)" << endl;
+	holder.sort();
 	if(flagOutputScore) {
 		ofstream fout(pathOutputScore);
 		for(auto& p : holder.data) {

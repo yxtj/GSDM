@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <list>
+#include <algorithm>
 
 // holder the data with a score greater or equal to given bound
 template<class T, typename S = double>
@@ -23,6 +24,9 @@ struct BoundedHolder {
 	S lastScore() const;
 	// return the last score, if size()<k return - infinity
 	S lastScore4Update() const;
+
+	// sort the elements with equal score, requires operator < for T
+	void sort();
 
 	std::vector<T> getResult() const;
 	std::vector<T> getResultMove();
@@ -100,6 +104,14 @@ template<class T, typename S>
 inline S BoundedHolder<T, S>::lastScore4Update() const
 {
 	return data.size() < k ? bound : data.back().second;
+}
+
+template<class T, typename S>
+inline void BoundedHolder<T, S>::sort()
+{
+	std::sort(data.begin(), data.end(), [](const std::pair<T, S>& l, const std::pair<T, S>& r) {
+		return l.second > r.second || l.second == r.second && l.first < r.first;
+	});
 }
 
 template<class T, typename S>

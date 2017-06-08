@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void StrategyOFGPara::work_para()
+void StrategyOFGPara::work_para_async()
 {
 	// initial the first level
 	initLRTables();
@@ -21,8 +21,9 @@ void StrategyOFGPara::work_para()
 	// TODO: add time calculation for each task during report interval
 	Timer t; // timer for controlling working frequency (INTERVAL_PROCESS)
 	//INTERVAL_COORDINATE_TOP_K = 1000;
+
 	// work on the activated motifs
-	processLevelFinish();
+	processLevelFinish(true); // directly terminates for empty
 	while(!checkSearchFinish()) {
 		// process all activated motifs
 		int cnt = 0;
@@ -36,7 +37,7 @@ void StrategyOFGPara::work_para()
 				continue;
 			}
 			++cnt;
-			// update lower bound
+			// expand and update lower bound
 			if(explore(mu.first)) {
 				if(holder->size() >= k && holder->lastScore() >= globalBound) {
 					bool modifyTables = false;
@@ -61,7 +62,7 @@ void StrategyOFGPara::work_para()
 			}
 		}
 		// send level finish signal if possible
-		processLevelFinish();
+		processLevelFinish(true);
 		// get the global top-k if necessary
 		if(static_cast<int>(tct.elapseMS()) >= INTERVAL_COORDINATE_TOP_K) {
 			topKCoordinate();
@@ -72,7 +73,7 @@ void StrategyOFGPara::work_para()
 			reportState();
 			tsr.restart();
 		}
-
+		// wait enough time for new comming endorsements
 		int e = INTERVAL_PROCESS - static_cast<int>(t.elapseMS());
 		if(e > 0) {
 			st.timeWait += e;
@@ -81,7 +82,8 @@ void StrategyOFGPara::work_para()
 		}
 	}
 	// send level finish signal if not send before
-	processLevelFinish();
+	//processLevelFinish(true);
+	ltable.sortUp(ltable.mostRecentLevel());
 	// send search finish signal
 	rph.input(MType::GSearchFinish, id);
 	net->broadcast(MType::GSearchFinish, *lastFinishLevel);
@@ -169,17 +171,22 @@ std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
 	return res;
 }
 
-bool StrategyOFGPara::processLevelFinish()
+bool StrategyOFGPara::processLevelFinish(bool aggresive)
 {
 	bool moved = false;
 	int oldlfl = *lastFinishLevel;
-	while(checkLocalLevelFinish(*lastFinishLevel + 1)) {
-		ltable.sortUp(*lastFinishLevel + 1);
-		lock_guard<mutex> lg(mfl);
-		++finishedAtLevel[net->id()]; // local finish
-//		cout << logHeadID("DBG") + "Change finish-level to " + to_string(*lastFinishLevel) << endl;
-		moved = true;
-	}
+	// in the loop "aggresive" is re-defined as a marker for continuing
+	do {
+		if(checkLocalLevelFinish(*lastFinishLevel + 1)) {
+			ltable.sortUp(*lastFinishLevel + 1);
+			lock_guard<mutex> lg(mfl);
+			++finishedAtLevel[net->id()]; // local finish
+			cout << logHeadID("DBG") + "Change finish-level to " + to_string(*lastFinishLevel) << endl;
+			moved = true;
+		} else {
+			aggresive = false;
+		}
+	} while(aggresive);
 	if(moved) {
 		// conditions:
 		// 1, local worker finished level lfl
@@ -193,8 +200,8 @@ bool StrategyOFGPara::processLevelFinish()
 
 void StrategyOFGPara::moveToNewLevel(const int from)
 {
-	cout << logHeadID("LOG") + "Moved from level " + to_string(from) + 
-		" to level " + to_string(*lastFinishLevel) << endl;
+	cout << logHeadID("LOG") + "Moved from level " + to_string(from + 1) +
+		" to level " + to_string(*lastFinishLevel + 1) << endl;
 	if(flagDCESConnected) {
 		edgeUsageSend(from);
 		// require: all edge usages before level $from$ are already received
@@ -213,13 +220,17 @@ void StrategyOFGPara::moveToNewLevel(const int from)
 bool StrategyOFGPara::checkLocalLevelFinish(const int level)
 {
 	if(ltable.emptyActivated(level)) {
-		int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(),
+		//int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(),
+		//	[=](const int l) {
+		//	return l >= level - 1;
+		//});
+		//if(net->size() == ec) {
+		//	return true;
+		//}
+		return all_of(finishedAtLevel.begin(), finishedAtLevel.end(),
 			[=](const int l) {
 			return l >= level - 1;
 		});
-		if(net->size() == ec) {
-			return true;
-		}
 	}
 	return false;
 /*	return ltable.emptyActivated(level)

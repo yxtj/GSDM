@@ -24,6 +24,7 @@ protected:
 	ObjFunction objFun;
 	//bool flagDistributed;
 
+	bool flagAsync; // whether to use asynchronization or 
 	bool flagUseSD; // whether to use the shortest distance optimization
 	bool flagNetworkPrune; // whether to prune the motifs with any invalid parent
 	bool flagDCESConnected; // whether to use the dynamic candiate edge set (connect with valid motif in last layer)
@@ -108,7 +109,8 @@ private:
 	void initialCE_para(const DataHolder& dPos);
 
 	SyncUnit suSearchEnd;
-	void work_para();
+	void work_para_async();
+	void work_para_sync();
 
 	SyncUnit suTKGather;
 	void gatherResult();
@@ -156,18 +158,21 @@ protected:
 	// search-util
 	void assignBeginningMotifs();
 
+	// synchronization barrier
+	bool syncBarrierChecking();
+
 	void generalUpdateCandidateMotif(const Motif& m, const double ub); //local + buffer for net
 	void generalAbandonCandidateMotif(const Motif& m);
 
 	/* Logic for level & search finish while using activation queue mechanishm:
-		Condition:	1, all previous workers finished their parts of all previous levels;
-					2, there is no more unprocessed active motifs of current level.
+		Condition:	1, all workers finished their parts of all previous levels;
+					2, local worker finishes its local parts i.e., there is no more unprocessed active motifs of current level.
 		Conclusion:	current worker finishes its part on current level.
 		Optimization: move as more levels as possible.
 					Implemented by recursively increase last-finished-local-level
 					Post-condition: not all other workers finished last-finished-local-level
 	*/
-	bool processLevelFinish();
+	bool processLevelFinish(bool aggresive);
 	// the tasks need to be done for level movement
 	void moveToNewLevel(const int from);
 	// check whether local worker have finished processing all local motifs of the given level
