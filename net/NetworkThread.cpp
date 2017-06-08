@@ -187,6 +187,7 @@ void NetworkThread::Shutdown() {
 			while(!p->done) {
 				Sleep();
 			}
+			//p->t_.join();	// strange runtime error
 			p->net = nullptr;
 			NetworkImplMPI::Shutdown();
 		}
@@ -199,7 +200,13 @@ void NetworkThread::Terminate()
 		NetworkThread* p = nullptr;
 		swap(p, self);
 		p->running = false;
+		//wait for Run() to exit
+		while(!p->done) {
+			Sleep();
+		}
+		//p->t_.join();	// strange runtime error
 		p->t_.~thread();
+		p->net = nullptr;
 		delete p;
 		NetworkImplMPI::Shutdown();
 	}
