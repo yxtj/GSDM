@@ -6,15 +6,16 @@ import display as dsp
 import matplotlib.pyplot as plt
 import importlib as imp
 
-DATASETS = ['ahdh', 'abide', 'abide2', 'adni']
+DATASETS = ['adhd', 'abide', 'abide2', 'adni']
 DATAPREFIX = '../data_abide/data-all'
 METHODS = ['static', 'dynamic']
 
 pathFC = DATAPREFIX + '/whole'
 pathDFC1 = DATAPREFIX + '/p-s20-10/corr'
 pathOut = DATAPREFIX + '/analysis'
-typeCon = 2
-typePat = 1
+
+typeCon = {'adhd': 0, 'abide': 2, 'abide2': 2, 'adni': 0}
+typePat = {'adhd': [1, 2, 3], 'abide': 1, 'abide2': 1, 'adni': [1, 2, 3, 4]}
 
 
 # data
@@ -31,6 +32,7 @@ def reloadData(prefix, method):
         corr, m, s, mse = pickle.load(f)
     return (corr, m, s, mse)
 
+
 # ------------
 # static FC
 
@@ -43,6 +45,7 @@ def reloadFC():
     with open(DATAPREFIX + '/analysis/fc.pickle', 'rb') as f:
         fcc, fcp = pickle.load(f)
     return fcc, fcp
+
 
 # corr1, s1, m1, mse1 = reloadData(DATAPREFIX, METHODS[0])
 # corr2, s2, m2, mse2 = reloadData(DATAPREFIX, METHODS[1])

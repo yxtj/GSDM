@@ -32,10 +32,29 @@ class GraphLoader:
         # assume non-compressed
         return GraphLoader.__loadOneText(data[off:])
 
-    def load(self, types):
+    '''
+    Return a list (file) of Graphs
+    '''
+
+    def load(self, types=None):
         l=dl.getFileNames(self.path, types)
         res=[]
         for fn in l:
             t=self.loadOne(fn)
+            res.append(t)
+        return res
+
+    '''
+    Return a list (subject) of Graphs
+    '''
+
+    def load_as_subjects(self, types=None):
+        l = dl.getFileNames(self.path, types)
+        l = dl.sortUpWithSubject(l)
+        res = []
+        for sub in l:
+            t = []
+            for gn in sub:
+                t.append(self.loadOne(gn))
             res.append(t)
         return res

@@ -151,7 +151,7 @@ if __name__ == '__main__':
               '  <type-neg>: type(s) for the dividend, separated with "," for multiple types;\n'
               '  <min-mean>: (=0.3) the minimum value for the absolute mean correlation;\n'
               '  <min-rel-diff>: (=0.1) the minimum absolute value for the relative difference on mean value;\n'
-              '  <out-edge>: (=False) weather to put a copy of the used edge list at path foler with name.')
+              '  <out-edge>: (=False) whether to put a list of the selected edges under the given folder.')
         exit()
     # path = '../data_abide/data-all/dis-2/'
     path = sys.argv[1]

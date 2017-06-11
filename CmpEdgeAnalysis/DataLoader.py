@@ -42,18 +42,19 @@ class SubjectInfo:
         return hash(self.id, self.seq)
 
 
-def getFileNames(path, types, nFile = None):
-    if not isinstance(types, list):
-        types = [str(types)]
-    else:
-        types = [str(v) for v in types]
+def getFileNames(path, types=None, nFile=None):
+    if types is not None:
+        if not isinstance(types, list):
+            types = [str(types)]
+        else:
+            types = [str(v) for v in types]
     l = os.listdir(path)
     if isinstance(nFile, int):
         l = l[:nFile]
     res = []
     for fn in l:
         m = SubjectInfo.fnReg.match(fn)
-        if m and m.group(1) in types:
+        if m and (types is None or m.group(1) in types):
             res.append(fn)
     return res
 
