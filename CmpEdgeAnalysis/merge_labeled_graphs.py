@@ -7,6 +7,7 @@ import GraphLoader as gl
 from typing import Union, List, Tuple
 
 
+@nb.jit(nopython=True)
 def get_type_count(n: int, subs: List[List]):
     cnt = np.zeros([n, n])
     for sub in subs:
@@ -37,7 +38,7 @@ def output_label(fn: str, label: np.ndarray):
             f.write('\n')
 
 
-@nb.vectorize(nopython=True)
+@nb.jit(nopython=True)
 def merge_graph(n, graph_w, graph_e, label):
     res = [[] for i in range(n)]
     for i in range(n):
@@ -86,6 +87,8 @@ def main(path_weakened: str, path_enhanced: str, path_out: str):
     print('Merging graphs...')
     files = dl.getFileNames(path_weakened, None)
     files_sub = dl.sortUpWithSubject(files, None)
+    print(len(sub_w), len(sub_e), len(files_sub))
+    print(len(sub_w[0]), len(sub_e[0]), len(files_sub[0]))
     for i in range(len(files_sub)):
         for j in range(len(files_sub[i])):
             g = merge_graph(node, sub_w[i][j], sub_e[i][j], label)

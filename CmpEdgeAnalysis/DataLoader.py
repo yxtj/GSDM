@@ -70,7 +70,7 @@ def sortUpWithSubject(fnlist, nsub: int = None, nseq: Union[int, List[int], Tupl
             seqMax = nseq[1]
 
     infoList = [SubjectInfo(fn) for fn in fnlist]
-    sorted(infoList)
+    infoList.sort()
     if len(infoList) == 0:
         return []
     res = [[infoList[0].makeFileName()]]
