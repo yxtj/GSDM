@@ -32,8 +32,12 @@ std::multimap<SubjectInfo, tc_t> loadInputTC(
 // 	}
 	for(SubjectInfo& s : slist) {
 		string fn = loader->getFilePath(s);
-		tc_t tc = loader->loadTimeCourse(tcPath + fn);
-		res.emplace(move(s), move(tc));
+		try{
+			tc_t tc = loader->loadTimeCourse(tcPath + fn);
+			res.emplace(move(s), move(tc));
+		}catch(exception& e){
+			cerr << "skip: \"" << fn << "\" because:\n\t" << e.what() << endl;
+		}
 	}
 	delete loader;
 
