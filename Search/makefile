@@ -12,7 +12,7 @@ EXE = Search
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-MYLIB= -lcommon -lutil -lobjfunc -lholder -lnet -lserialization -lmsgdriver
+MYLIB= -lcommon -lutil -lobjfunc -lholder -lnet -lmsgdriver
 LIBS = $(MYLIB)
 LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
