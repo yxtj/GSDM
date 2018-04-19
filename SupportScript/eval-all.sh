@@ -1,10 +1,9 @@
-#THRESHOLD="0.2 0.3"
-
 if [ $# -lt 5 ] ; then
-	echo "Usage: <motif root> <graph folder> <graph type pos> <graph type neg> <output folder> [group generation=none] [m-group method=any] [n motifs=-1]"
+	echo "Usage: <motif root> <graph folder> <type pos> <type neg> <output folder> [group generation=none] [m-group method=any] [n motifs=-1]"
 	echo "	<motif root>: next layer is threshold, then explore all in next layer. like <motif root>/0.3/25-0.5-0.5"
+	echo "    The input structure should be <motif root>/<threshold>/<folder for parameters>/res-0.txt"
 	echo "	<graph type>: USE \" and space to express multiple types. like \"0 1\""
-	echo "The input structure should be <motif root>/<threshold>/<folder for parameters>/res-0.txt"
+	echo "  [group generation]: none, topk <k>, comb <k>"
 	exit
 fi
 
