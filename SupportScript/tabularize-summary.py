@@ -8,7 +8,7 @@ Created on Thu Oct 27 00:36:01 2016
 import sys
 import re
 
-TYPE_STR='<type> should be one of: func, cut, dug'
+TYPE_STR='<type> should be one of: func, cut, dug, other'
 
 def _procCommon(header, data, headHeader, regPat, regRep):
     newHeader=headHeader+header;
@@ -27,7 +27,7 @@ def _checkMatch(pat, line):
 def procFunc(header, data, tstPrefix):
     # tst-0.4-diff-1-0.3.txt
     # tst-(0.\d+)-diff-(\d(?:\.\d)?)-(0\.\d+)\.txt
-    _regPattern=tstPrefix+r'-(0.\d+)-diff-(\d(?:\.\d)?)-(0\.\d+)\.txt'
+    _regPattern=tstPrefix+r'-(0.\d+)-\w+-(\d(?:\.\d)?)-(0\.\d+)\.txt'
     _regReplace=r'\1\t\3\t\2'
     _headHeader='theta\tminsup\talpha\t'+'num\t'
     _checkMatch(_regPattern, data[0])
@@ -41,7 +41,8 @@ def procCut(header, data, tstPrefix):
     _headHeader='theta\tf-pos\tf-neg\tn-min\tn-max\t'+'num\t'
     _checkMatch(_regPattern, data[0])
     return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
-    
+
+
 def procDug(header, data, tstPrefix):
     # res-0.03.txt
     _regPattern=tstPrefix+r'-(0.\d+)\.txt'
@@ -50,11 +51,24 @@ def procDug(header, data, tstPrefix):
     _checkMatch(_regPattern, data[0])
     return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
 
+
+def procOther(header, data, tstPrefix):
+    # tst-0.4-gspan-0.3.txt
+    # tst-0.4-apriori-0.3.txt
+    # tst-(0.\d+)-gspan-(\d(?:\.\d)?)\.txt
+    _regPattern=tstPrefix+r'-(0.\d+)-\w+-(\d(?:\.\d)?)\.txt'
+    _regReplace=r'\1\t\2'
+    _headHeader='theta\tminsup\t'+'num\t'
+    _checkMatch(_regPattern, data[0])
+    return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
+
+
 def output(fn, header, data):
     with open(fn,'w') as f:
         f.write(header)
         for line in data:
             f.write(line)
+
 
 def main(smyType, smyFile, outputFn, tstPrefix):
     if 'func'==smyType:
@@ -64,8 +78,10 @@ def main(smyType, smyFile, outputFn, tstPrefix):
     elif 'dug'==smyType:
         pFun=procDug;
     else:
-        print('ERROR: '+TYPE_STR)
-        exit()
+        #print('ERROR: '+TYPE_STR)
+        #exit()
+        print("Warning: trying general pattern.")
+        pFun=procOther;
     with open(smyFile, 'r') as f:
         # '\n' is kept at the end of each line
         header=f.readline()
@@ -73,6 +89,7 @@ def main(smyType, smyFile, outputFn, tstPrefix):
         f.close()
         (newHeader,newData)=pFun(header,data,tstPrefix)
         output(outputFn, newHeader, newData)
+
 
 if __name__=='__main__':
     if len(sys.argv)<4 or len(sys.argv)>5:
