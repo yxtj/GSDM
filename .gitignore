@@ -244,6 +244,16 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 
+# vs-code project
+.vscode/
+*.code-workspace
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+
 # linux temporary files
 *.gch
 *.o
@@ -258,3 +268,6 @@ conf/
 tmp/
 temp/
 log*/
+build/
+bin/
+
