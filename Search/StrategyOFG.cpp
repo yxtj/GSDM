@@ -9,7 +9,7 @@ using namespace std;
 const std::string StrategyOFG::name("ofg");
 const std::string StrategyOFG::usage(
 	"Select the discriminative motifs as result.\n"
-	"Usage: " + name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [log]\n"
+	"Usage: " + name + " <k> <theta> <obj-fun> [sd] [net] [dces] [log]\n"
 	"  <k>: [integer] return top-k result\n"
 	"  <theta>: [double] the minimum show up probability of a motif among the snapshots of a subject\n"
 	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::getUsage() + ")\n"

@@ -12,7 +12,7 @@ EXE = Search
 CXXFLAGS = -std=c++11
 INC = 
 LIBDIR = 
-MYLIB= -lcommon -lutil -lobjfunc -lholder -lnet -lserialization -lmsgdriver
+MYLIB= -lcommon -lutil -lobjfunc -lholder -lnet -lmsgdriver
 LIBS = $(MYLIB)
 LIBS += -lboost_program_options -lboost_filesystem -lboost_system
 
@@ -47,10 +47,10 @@ all: release
 
 #Debug:
 debug: ../$(DEGEXE)
-	
+
 ../$(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
 	@mkdir -p ../$(DBGDIR)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $(DBGOBJS) $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(DBGOBJS) $(DBGLIBDIR) $(LIBS) $(MPI_LINK_FLAGS) -o ../$(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -67,7 +67,7 @@ release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELOBJS) $(RELMYLIB)
 	@mkdir -p ../$(RELDIR)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $(RELOBJS) $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(RELOBJS) $(RELLIBDIR) $(LIBS) $(MPI_LINK_FLAGS) -o ../$(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
