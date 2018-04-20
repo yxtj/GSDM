@@ -59,7 +59,7 @@ $(DBGEXE): $(DBGOBJS)
 	cd ../net; make debug
 	cd ../msgdriver; make debug
 	cd ../serialization; make debug
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(MPI_LINK_FLAGS) $^ $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $^ $(DBGLIBDIR) $(LIBS) $(MPI_LINK_FLAGS) -o $(DBGEXE)
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -81,7 +81,7 @@ $(RELEXE): $(RELOBJS)
 	cd ../net; make release
 	cd ../msgdriver; make release
 	cd ../serialization; make release
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(MPI_LINK_FLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) $(MPI_LINK_FLAGS) -o $(RELEXE)
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
