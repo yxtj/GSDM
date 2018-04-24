@@ -12,7 +12,6 @@
 #include "../msgdriver/MsgDriver.h"
 #include "../msgdriver/tools/ReplyHandler.h"
 #include "../msgdriver/tools/SyncUnit.h"
-#include <regex>
 
 class StrategyOFGPara :
 	public StrategyBase
@@ -126,10 +125,10 @@ private:
 /* helpers */
 protected:
 	// parse
-	void parseObj(const std::string& name, const std::ssub_match& alpha);
-	void parseDCES(const std::ssub_match & option, const std::ssub_match & minsup, const bool flag);
-	void parseLOG(const std::ssub_match & param, const bool flag);
-	void parseStat(const std::ssub_match& m, const bool flag);
+	void parseObj(const std::string& func_str);
+	void parseDCES(const std::string& option, const std::string& minsup, const bool flag);
+	void parseLOG(const std::string& param, const bool flag);
+	void parseStat(const std::string& m, const bool flag);
 
 	// common
 	DataHolder* getDataHolder(const int dtype); // 1->pos, 0->neg

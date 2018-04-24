@@ -33,11 +33,7 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 		checkParam(param, 3, 9, name);
 		k = stoi(param[1]);
 		pSnap = stod(param[2]);
-		smatch m;
-		regex reg_obj("(\\w+)(:\\d?\\.?\\d*)?");
-		if(regex_match(param[3], m, reg_obj)) {
-			parseObj(m[1].str(), m[2]);
-		}
+		parseObj(param[3]);
 		flagUseSD = true;
 		flagNetworkPrune = true;
 		flagDCESConnected = true;
@@ -52,6 +48,7 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 		regex reg_async("(a)?sync(-no)?");
 		regex reg_log("log(:.+)?(-no)?");
 		regex reg_stat("stat(:.+)?(-no)?");
+		smatch m;
 		for(size_t i = 4; i < param.size(); ++i) {
 			if(regex_match(param[i], m, reg_sd)) {
 				bool flag = !m[1].matched;
@@ -61,16 +58,16 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 				flagNetworkPrune = flag;
 			} else if(regex_match(param[i], m, reg_dces)) {
 				bool flag = !m[2].matched;
-				parseDCES(m[1], m[3], flag);
+				parseDCES(m[1].str(), m[3].str(), flag);
 			} else if(regex_match(param[i], m, reg_async)) {
 				bool flag = m[1].matched ^ m[2].matched; // async when only one of (a) and (-no) match
 				flagAsync = flag;
 			} else if(regex_match(param[i], m, reg_log)) {
 				bool flag = !m[2].matched;
-				parseLOG(m[1], flag);
+				parseLOG(m[1].str(), flag);
 			} else if(regex_match(param[i], m, reg_stat)) {
 				bool flag = !m[2].matched;
-				parseStat(m[1], flag);
+				parseStat(m[1].str(), flag);
 			} else {
 				throw invalid_argument("Unknown option for strategy " + name + ": " + param[i]);
 			}
@@ -83,43 +80,41 @@ bool StrategyOFGPara::parse(const std::vector<std::string>& param)
 	return true;
 }
 
-void StrategyOFGPara::parseObj(const std::string & name, const ssub_match & alpha)
+void StrategyOFGPara::parseObj(const std::string & func_str)
 {
-	objFun.setFunc(name);
-	if(alpha.matched)
-		objFun.setAlpha(stod(alpha.str().substr(1)));
+	objFun.setFunc(func_str);
 }
 
-void StrategyOFGPara::parseDCES(const ssub_match & option, const ssub_match & minsup, const bool flag)
+void StrategyOFGPara::parseDCES(const std::string & option, const std::string & minsup, const bool flag)
 {
-	if(!option.matched) {
+	if(option.empty()) {
 		flagDCESConnected = flagDCESBound = flag;
 	} else {
-		string opt = option.str();
-		if(opt.find("c") != string::npos) {
+		if(option.find("c") != string::npos) {
 			flagDCESConnected = flag;
 		} else { //if(opt.find("b") != string::npos)
 			flagDCESBound = flag;
 		}
 	}
-	if(minsup.matched) {
-		minSup = stod(minsup.str().substr(1));
+	if(!minsup.empty()) {
+		minSup = stod(minsup.substr(1));
 	}
 }
 
-void StrategyOFGPara::parseLOG(const ssub_match & param, const bool flag)
+void StrategyOFGPara::parseLOG(const std::string & param, const bool flag)
 {
 	flagOutputScore = flag;
 	if(flag) {
-		pathOutputScore = param.str().substr(1);
+		pathOutputScore = param.substr(1);
 	}
 }
 
-void StrategyOFGPara::parseStat(const ssub_match & param, const bool flag)
+
+void StrategyOFGPara::parseStat(const std::string & param, const bool flag)
 {
 	flagStatDump = flag;
 	if(flag) {
-		pathStatDump = param.str().substr(1);
+		pathStatDump = param.substr(1);
 	}
 
 }

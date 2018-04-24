@@ -5,7 +5,6 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include <regex>
 
 class StrategyOFG :
 	public StrategyBase
@@ -54,9 +53,9 @@ public:
 protected:
 	void initParams(DataHolder& dPos, DataHolder& dNeg);
 	void initStatistics();
-	void parseObj(const std::string& name, const std::ssub_match& alpha);
-	void parseDCES(const std::ssub_match& option, const std::ssub_match& minsup, const bool flag);
-	void parseLOG(const std::ssub_match& param, const bool flag);
+	void parseObj(const std::string& func_str);
+	void parseDCES(const std::string& option, const std::string& minsup, const bool flag);
+	void parseLOG(const std::string& param, const bool flag);
 
 	/* Objective Function Guided Search */
 protected:
