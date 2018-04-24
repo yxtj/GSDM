@@ -8,7 +8,7 @@ Created on Thu Oct 27 00:36:01 2016
 import sys
 import re
 
-TYPE_STR='<type> should be one of: func, cut, dug, other'
+TYPE_STR='<type> should be one of: diff, ratio, cut, dug, other'
 
 def _procCommon(header, data, headHeader, regPat, regRep):
     newHeader=headHeader+header;
@@ -24,12 +24,22 @@ def _checkMatch(pat, line):
         raise Exception('Cannot match content of the summary file. '
         'Please check the prefix.')
 
-def procFunc(header, data, tstPrefix):
+def procDiff(header, data, tstPrefix):
     # tst-0.4-diff-1-0.3.txt
     # tst-(0.\d+)-diff-(\d(?:\.\d)?)-(0\.\d+)\.txt
-    _regPattern=tstPrefix+r'-(0.\d+)-\w+-(\d(?:\.\d)?)-(0\.\d+)\.txt'
+    _regPattern=tstPrefix+r'-(0.\d+)-diff-(\d(?:\.\d)?)-(0\.\d+)\.txt'
     _regReplace=r'\1\t\3\t\2'
     _headHeader='theta\tminsup\talpha\t'+'num\t'
+    _checkMatch(_regPattern, data[0])
+    return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
+    
+
+def procRatio(header, data, tstPrefix):
+    # tst-0.4-ratio.txt
+    # tst-(0.\d+)-ratio\.txt
+    _regPattern=tstPrefix+r'-(0.\d+)-ratio\.txt'
+    _regReplace=r'\1'
+    _headHeader='theta\t'+'num\t'
     _checkMatch(_regPattern, data[0])
     return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
     
@@ -71,17 +81,19 @@ def output(fn, header, data):
 
 
 def main(smyType, smyFile, outputFn, tstPrefix):
-    if 'func'==smyType:
-        pFun=procFunc;
+    if 'diff'==smyType:
+        pFun=procDiff
+    if 'ratio'==smyType:
+        pFun=procRatio
     elif 'cut'==smyType:
-        pFun=procCut;
+        pFun=procCut
     elif 'dug'==smyType:
-        pFun=procDug;
+        pFun=procDug
     else:
         #print('ERROR: '+TYPE_STR)
         #exit()
         print("Warning: trying general pattern.")
-        pFun=procOther;
+        pFun=procOther
     with open(smyFile, 'r') as f:
         # '\n' is kept at the end of each line
         header=f.readline()
@@ -89,6 +101,7 @@ def main(smyType, smyFile, outputFn, tstPrefix):
         f.close()
         (newHeader,newData)=pFun(header,data,tstPrefix)
         output(outputFn, newHeader, newData)
+        print("Finished successfully.")
 
 
 if __name__=='__main__':
