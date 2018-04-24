@@ -7,9 +7,9 @@ class ObjFunction
 	double alpha;
 public:
 	enum class OFType{
-		NONE, DIFF, MARGIN, RATIO
+		NONE, DIFF, MARGIN, RATIO, GTEST
 	};
-	// none, diff, margin, ratio
+	// none, diff, margin, ratio, g-test
 	static const std::map<std::string, OFType> names;
 	static std::string getUsage();
 private:
@@ -17,9 +17,9 @@ private:
 
 public:
 	ObjFunction();
-	ObjFunction(const std::string& name);
-	void setFunc(OFType type);
-	void setFunc(const std::string& name);
+	explicit ObjFunction(const std::string& func_str);
+	void setFuncType(OFType type);
+	void setFunc(const std::string& func_str);
 	OFType getFunc() const;
 	std::string getFuncName() const;
 
@@ -41,5 +41,7 @@ public:
 	double objFun_diffP2N(const double freqPos, const double freqNeg) const;
 	double objFun_marginP2N(const double freqPos, const double freqNeg) const;
 	double objFun_ratioP2N(const double freqPos, const double freqNeg) const;
+	double objFun_gtestP2N(const double freqPos, const double freqNeg) const;
+	double objFun_gtest(const int nPos, const int nNeg) const;
 };
 
