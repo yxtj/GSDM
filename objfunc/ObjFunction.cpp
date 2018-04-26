@@ -178,7 +178,7 @@ double ObjFunction::ubFun_diff(const double freqPos) const
 double ObjFunction::ubFun_diff2(const double freqPos, const double freqNeg) const
 {
 	// df/dx > 0 and df/dy < 0
-	return freqPos
+	return freqPos;
 }
 
 double ObjFunction::ubFun_ratio(const double freqPos) const
