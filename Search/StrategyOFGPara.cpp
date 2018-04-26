@@ -216,6 +216,8 @@ void StrategyOFGPara::initParams(DataHolder& dPos, DataHolder& dNeg)
 	nNode = dPos.getnNode();
 	pdp = &dPos;
 	pdn = &dNeg;
+	objFun.setTotalPos(dPos.size());
+	objFun.setTotalNeg(dNeg.size());
 
 	running_ = true;
 	globalBound = numeric_limits<decltype(globalBound)>::lowest();

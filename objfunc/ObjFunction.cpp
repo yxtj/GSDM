@@ -9,24 +9,14 @@ using namespace std;
 
 const std::map<std::string, ObjFunction::OFType> ObjFunction::names{
 	{ "none", OFType::NONE }, { "diff", OFType::DIFF },
-	{ "margin", OFType::MARGIN }, { "ratio", OFType::RATIO },
+	//{ "margin", OFType::MARGIN },
+	{ "ratio", OFType::RATIO },
 	{ "gtest", OFType::GTEST }
 };
 
 std::string ObjFunction::getUsage()
 {
 	return "Support: diff:<alpha>, margin:<alpha>, ratio:<alpha>, gtest. Default alpha=1.";
-}
-
-ObjFunction::ObjFunction()
-	: totalPos(0), totalNeg(0), alpha(1.0), OFID(OFType::NONE), pf(nullptr), pu(nullptr)
-{
-}
-
-ObjFunction::ObjFunction(const std::string & func_str)
-	: totalPos(0), totalNeg(0), alpha(1.0), OFID(OFType::NONE), pf(nullptr), pu(nullptr)
-{
-	setFunc(func_str);
 }
 
 void ObjFunction::setFuncType(OFType type)
@@ -36,19 +26,23 @@ void ObjFunction::setFuncType(OFType type)
 	{
 	case OFType::DIFF:
 		pf = &ObjFunction::objFun_diffP2N;
-		pu = &ObjFunction::ubFun_freqPos;
+		pu = &ObjFunction::ubFun_diff;
+		pu2 = &ObjFunction::ubFun_diff2;
 		break;
-	case OFType::MARGIN:
-		pf = &ObjFunction::objFun_marginP2N;
-		pu = &ObjFunction::ubFun_freqPos;
-		break;
+	// case OFType::MARGIN:
+	// 	pf = &ObjFunction::objFun_marginP2N;
+	// 	pu = &ObjFunction::ubFun_margin;
+	// 	pu2 = &ObjFunction::ubFun_margin2;
+	// 	break;
 	case OFType::RATIO:
 		pf = &ObjFunction::objFun_ratioP2N;
-		pu = &ObjFunction::ubFun_freqPos;
+		pu = &ObjFunction::ubFun_ratio;
+		pu2 = &ObjFunction::ubFun_ratio2;
 		break;
 	case OFType::GTEST:
 		pf = &ObjFunction::objFun_gtestP2N;
 		pu = &ObjFunction::ubFun_gtest;
+		pu2 = &ObjFunction::ubFun_gtest2;
 		break;
 	default:
 		pf = nullptr;
@@ -131,6 +125,10 @@ double ObjFunction::upperbound(double freqPos) const
 {
 	return (this->*pu)(freqPos);
 }
+double ObjFunction::upperbound(double freqPos, double freqNeg) const
+{
+	return (this->*pu2)(freqPos, freqNeg);
+}
 
 double ObjFunction::score(int cntPos, int cntNeg) const
 {
@@ -150,11 +148,6 @@ double ObjFunction::objFun_diffP2N(const double freqPos, const double freqNeg) c
 	return freqPos - alpha*freqNeg;
 }
 
-double ObjFunction::objFun_marginP2N(const double freqPos, const double freqNeg) const
-{
-	return (1.0 - freqPos) + alpha*freqNeg;
-}
-
 double ObjFunction::objFun_ratioP2N(const double freqPos, const double freqNeg) const
 {
 	//return freqNeg != 0.0 ? freqPos / freqNeg : freqPos;
@@ -163,7 +156,12 @@ double ObjFunction::objFun_ratioP2N(const double freqPos, const double freqNeg) 
 
 double ObjFunction::objFun_gtestP2N(const double freqPos, const double freqNeg) const
 {
-	return freqPos*(freqPos*log(freqPos/freqNeg) + (1-freqPos)*log((1-freqPos)/(1-freqNeg)));
+	double fn = freqNeg;
+	if(fn == 0)
+		fn = inv_tn;
+	else if(fn == 1)
+		fn = 1 - inv_tn;
+	return freqPos*(freqPos*log(freqPos/fn) + (1-freqPos)*log((1-freqPos)/(1-fn)));
 }
 double ObjFunction::objFun_gtest(const int nPos, const int nNeg) const
 {
@@ -173,8 +171,23 @@ double ObjFunction::objFun_gtest(const int nPos, const int nNeg) const
 
 // upper-bound functions:
 
-double ObjFunction::ubFun_freqPos(const double freqPos) const
+double ObjFunction::ubFun_diff(const double freqPos) const
 {
+	return freqPos;
+}
+double ObjFunction::ubFun_diff2(const double freqPos, const double freqNeg) const
+{
+	// df/dx > 0 and df/dy < 0
+	return freqPos
+}
+
+double ObjFunction::ubFun_ratio(const double freqPos) const
+{
+	return freqPos;
+}
+double ObjFunction::ubFun_ratio2(const double freqPos, const double freqNeg) const
+{
+	// df/dx > 0 and df/dy < 0
 	return freqPos;
 }
 
@@ -185,4 +198,8 @@ double ObjFunction::ubFun_gtest(const double freqPos) const
 	}else{
 		return freqPos*freqPos*log(freqPos/inv_tn);
 	}
+}
+double ObjFunction::ubFun_gtest2(const double freqPos, const double freqNeg) const
+{
+	return ubFun_gtest(freqPos);
 }

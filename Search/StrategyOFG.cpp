@@ -117,6 +117,8 @@ void StrategyOFG::initParams(DataHolder& dPos, DataHolder& dNeg)
 	dNeg.setTheta(pSnap);
 	pdp = &dPos;
 	pdn = &dNeg;
+	objFun.setTotalPos(dPos.size());
+	objFun.setTotalNeg(dNeg.size());
 	//nMinSup = static_cast<int>((nSubPosGlobal + nSubNegGlobal)*minSup);
 	//nMinSup = static_cast<int>(nSubPosGlobal*minSup);
 	nNode = dPos.getnNode();

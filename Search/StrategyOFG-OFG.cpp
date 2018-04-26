@@ -109,13 +109,15 @@ std::pair<double, double> StrategyOFG::scoring(const MotifBuilder & mb, const do
 	int cntPos = pdp->count(mb);
 	double freqPos = static_cast<double>(cntPos) / pdp->size();
 	double scoreUB = objFun.upperbound(freqPos);
-	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
-	if(scoreUB <= lowerBound)
+	if(scoreUB <= lowerBound){
+		// cout<<cntPos<<":"<<freqPos<<"\t"<<scoreUB<<endl;
 		return make_pair(numeric_limits<double>::lowest(), numeric_limits<double>::lowest());
-	// calculate the how score
+	}
+	// calculate the score
 	int cntNeg = pdn->count(mb);
 	double freqNeg = static_cast<double>(cntNeg) / pdn->size();
+	// cout<<cntPos<<":"<<freqPos<<"\t"<<cntNeg<<":"<<freqNeg<<"\t"<<objFun.score(freqPos, freqNeg)<<endl;
 	return make_pair(scoreUB, objFun.score(freqPos, freqNeg));
 }
 
