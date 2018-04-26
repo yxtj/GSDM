@@ -150,7 +150,7 @@ protected:
 	virtual std::pair<double, double> scoring(const MotifBuilder& mb, const double lowerBound);
 	// return new motifs and their upper-bounds ( min(ub, new-edge.ub) )
 	std::vector<std::pair<Motif, double>> expand(const Motif& m, const double ub, const bool used);
-	static int quickEstimiateNumberOfParents(const Motif & m);
+	static int quickEstimateNumberOfParents(const Motif & m);
 //	static int getNParents(const MotifBuilder& m);
 	static int getNParents(const Motif& m);
 
@@ -171,7 +171,7 @@ protected:
 					Implemented by recursively increase last-finished-local-level
 					Post-condition: not all other workers finished last-finished-local-level
 	*/
-	bool processLevelFinish(bool aggresive);
+	bool processLevelFinish(bool aggressive);
 	// the tasks need to be done for level movement
 	void moveToNewLevel(const int from);
 	// check whether local worker have finished processing all local motifs of the given level

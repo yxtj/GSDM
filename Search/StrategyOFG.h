@@ -75,8 +75,8 @@ protected:
 	std::pair<std::vector<MotifBuilder>, size_t> removeDuplicate(std::map<MotifBuilder, int>& layer);
 
 	// estimate num. of parents by the num. of nodes whose degree is 1
-	static int quickEstimiateNumberOfParents(const Motif& m);
-	static int quickEstimiateNumberOfParents(const MotifBuilder& m);
+	static int quickEstimateNumberOfParents(const Motif& m);
+	static int quickEstimateNumberOfParents(const MotifBuilder& m);
 
 	std::pair<std::vector<MotifBuilder>, size_t> pruneWithNumberOfParents(std::map<MotifBuilder, int>& mbs);
 

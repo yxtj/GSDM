@@ -108,7 +108,7 @@ std::pair<double, double> StrategyOFG::scoring(const MotifBuilder & mb, const do
 	// TODO: optimize with parent selection and marked SD checking
 	int cntPos = pdp->count(mb);
 	double freqPos = static_cast<double>(cntPos) / pdp->size();
-	double scoreUB = freqPos;
+	double scoreUB = objFun.upperbound(freqPos);
 	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
 	if(scoreUB <= lowerBound)
@@ -116,7 +116,7 @@ std::pair<double, double> StrategyOFG::scoring(const MotifBuilder & mb, const do
 	// calculate the how score
 	int cntNeg = pdn->count(mb);
 	double freqNeg = static_cast<double>(cntNeg) / pdn->size();
-	return make_pair(scoreUB, objFun(freqPos, freqNeg));
+	return make_pair(scoreUB, objFun.score(freqPos, freqNeg));
 }
 
 std::pair<std::vector<MotifBuilder>, size_t> StrategyOFG::sortUpNewLayer(std::map<MotifBuilder, int>& layer)
@@ -139,7 +139,7 @@ std::pair<std::vector<MotifBuilder>, size_t> StrategyOFG::removeDuplicate(std::m
 	return make_pair(move(res), move(cnt));
 }
 
-int StrategyOFG::quickEstimiateNumberOfParents(const Motif & m)
+int StrategyOFG::quickEstimateNumberOfParents(const Motif & m)
 {
 /*	unordered_set<int> uniqueNodes, duplicateNodes;
 	auto fun = [&](const int n) {
@@ -168,7 +168,7 @@ int StrategyOFG::quickEstimiateNumberOfParents(const Motif & m)
 
 }
 
-int StrategyOFG::quickEstimiateNumberOfParents(const MotifBuilder & m)
+int StrategyOFG::quickEstimateNumberOfParents(const MotifBuilder & m)
 {
 	int cnt = 0;
 	for(auto& p : m.nodes) {
@@ -191,7 +191,7 @@ std::pair<std::vector<MotifBuilder>, size_t> StrategyOFG::pruneWithNumberOfParen
 	auto pEnd = mbs.end();
 	while(++p != pEnd) {
 		if(!(*pGroup == *p)) { // new motif
-			int nParentMin = quickEstimiateNumberOfParents(*pGroup);
+			int nParentMin = quickEstimateNumberOfParents(*pGroup);
 			if(nParentMin <= p - pGroup) {
 				// all (all found) its parents are qualified
 				if(pRes != pGroup)
@@ -214,7 +214,7 @@ std::pair<std::vector<MotifBuilder>, size_t> StrategyOFG::pruneWithNumberOfParen
 	vector<MotifBuilder> res;
 	size_t cnt = 0;
 	for(auto& p : mbs) {
-		int nParentMin = quickEstimiateNumberOfParents(p.first);
+		int nParentMin = quickEstimateNumberOfParents(p.first);
 		int nGenerate = p.second;
 		cnt += nGenerate;
 		if(nParentMin <= nGenerate)

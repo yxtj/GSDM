@@ -364,7 +364,7 @@ int StrategyOFGPara::getMotifOwner(const Motif & m)
 	return hash<Motif>()(m) % net->size();
 }
 
-int StrategyOFGPara::quickEstimiateNumberOfParents(const Motif & m)
+int StrategyOFGPara::quickEstimateNumberOfParents(const Motif & m)
 {
 	unordered_map<int, int> cont;
 	for(auto&e : m.edges) {
@@ -378,12 +378,12 @@ int StrategyOFGPara::quickEstimiateNumberOfParents(const Motif & m)
 /*
 int StrategyOFGPara::getNParents(const MotifBuilder & m)
 {
-	return quickEstimiateNumberOfParents(m);
+	return quickEstimateNumberOfParents(m);
 }
 */
 int StrategyOFGPara::getNParents(const Motif & m)
 {
-	return quickEstimiateNumberOfParents(m);
+	return quickEstimateNumberOfParents(m);
 }
 
 void StrategyOFGPara::assignBeginningMotifs()

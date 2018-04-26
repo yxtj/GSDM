@@ -6,7 +6,7 @@ using namespace std;
 const std::string StrategyPeriodic::name("period");
 const std::string StrategyPeriodic::usage(
 	"Select the discriminative and periodic motifs as result.\n"
-	"Usage: " + name + " <k> <theta> <obj-fun> <alpha> [sd] [net] [dces] [npar] [log] [stat]\n"
+	"Usage: " + name + " <k> <theta> <obj-fun> [sd] [net] [dces] [npar] [log] [stat]\n"
 	"  <k>: [integer] return top-k result\n"
 	"  <theta>: [double] the minimum show up probability and the period (on all n-snapshot*<theta> parts) of a motif among the snapshots of a subject\n"
 	"  <obj-fun>: [name:para] name for the objective function (" + ObjFunction::getUsage() + ")\n"
@@ -24,7 +24,7 @@ const std::string StrategyPeriodic::usage(
 bool StrategyPeriodic::parse(const std::vector<std::string>& param)
 {
 	vector<string> par(param);
-	par[0] = "ofg-para";
+	par[0] = "periodic";
 	return StrategyOFGPara::parse(par);
 }
 
@@ -33,7 +33,7 @@ std::pair<double, double> StrategyPeriodic::scoring(
 {
 	int cntPos = pdp->countByPeriod(mb);
 	double freqPos = static_cast<double>(cntPos) / pdp->size();
-	double scoreUB = freqPos;
+	double scoreUB = objFun.upperbound(freqPos);
 	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
 	if(scoreUB <= lowerBound)
@@ -41,7 +41,7 @@ std::pair<double, double> StrategyPeriodic::scoring(
 	// calculate the how score
 	int cntNeg = pdn->count(mb);
 	double freqNeg = static_cast<double>(cntNeg) / pdn->size();
-	return make_pair(scoreUB, objFun(freqPos, freqNeg));
+	return make_pair(scoreUB, objFun.score(freqPos, freqNeg));
 }
 
 std::vector<std::tuple<Edge, double, int>> StrategyPeriodic::prepareLocalCE(const int size, const int id)

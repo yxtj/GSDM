@@ -133,7 +133,7 @@ std::pair<double, double> StrategyOFGPara::scoring(const MotifBuilder & mb, cons
 		int cntPos = pdp->count(mb);
 		freqPos = static_cast<double>(cntPos) / pdp->size();
 	}
-	double scoreUB = freqPos;
+	double scoreUB = objFun.upperbound(freqPos);
 	// freqPos is the upperbound of differential & ratio based objective function
 	//if(freqPos < minSup || scoreUB <= lowerBound)
 	if(scoreUB <= lowerBound)
@@ -144,7 +144,7 @@ std::pair<double, double> StrategyOFGPara::scoring(const MotifBuilder & mb, cons
 		int cntNeg = pdn->count(mb);
 		freqNeg = static_cast<double>(cntNeg) / pdn->size();
 	}
-	return make_pair(scoreUB, objFun(freqPos, freqNeg));
+	return make_pair(scoreUB, objFun.score(freqPos, freqNeg));
 }
 
 std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
@@ -171,11 +171,11 @@ std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
 	return res;
 }
 
-bool StrategyOFGPara::processLevelFinish(bool aggresive)
+bool StrategyOFGPara::processLevelFinish(bool aggressive)
 {
 	bool moved = false;
 	int oldlfl = *lastFinishLevel;
-	// in the loop "aggresive" is re-defined as a marker for continuing
+	// in the loop "aggressive" is re-defined as a marker for continuing
 	do {
 		if(checkLocalLevelFinish(*lastFinishLevel + 1)) {
 			ltable.sortUp(*lastFinishLevel + 1);
@@ -184,9 +184,9 @@ bool StrategyOFGPara::processLevelFinish(bool aggresive)
 			cout << logHeadID("DBG") + "Change finish-level to " + to_string(*lastFinishLevel) << endl;
 			moved = true;
 		} else {
-			aggresive = false;
+			aggressive = false;
 		}
-	} while(aggresive);
+	} while(aggressive);
 	if(moved) {
 		// conditions:
 		// 1, local worker finished level lfl
