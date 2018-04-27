@@ -23,7 +23,7 @@ void StrategyOFGPara::work_para_async()
 	//INTERVAL_COORDINATE_TOP_K = 1000;
 
 	// work on the activated motifs
-	processLevelFinish(true); // directly terminates for empty
+	processLevelFinish(false); // directly terminates for empty
 	while(!checkSearchFinish()) {
 		// process all activated motifs
 		int cnt = 0;
@@ -171,11 +171,10 @@ std::vector<std::pair<Motif, double>> StrategyOFGPara::expand(
 	return res;
 }
 
-bool StrategyOFGPara::processLevelFinish(bool aggressive)
+bool StrategyOFGPara::processLevelFinish(const bool aggressive)
 {
 	bool moved = false;
 	int oldlfl = *lastFinishLevel;
-	// in the loop "aggressive" is re-defined as a marker for continuing
 	do {
 		if(checkLocalLevelFinish(*lastFinishLevel + 1)) {
 			ltable.sortUp(*lastFinishLevel + 1);
@@ -183,8 +182,8 @@ bool StrategyOFGPara::processLevelFinish(bool aggressive)
 			++finishedAtLevel[net->id()]; // local finish
 			cout << logHeadID("DBG") + "Change finish-level to " + to_string(*lastFinishLevel) << endl;
 			moved = true;
-		} else {
-			aggressive = false;
+		}else{
+			break;
 		}
 	} while(aggressive);
 	if(moved) {
@@ -219,7 +218,7 @@ void StrategyOFGPara::moveToNewLevel(const int from)
 
 bool StrategyOFGPara::checkLocalLevelFinish(const int level)
 {
-	if(ltable.emptyActivated(level)) {
+	if(ltable.mostRecentLevel() >= level && ltable.emptyActivated(level)) {
 		//int ec = count_if(finishedAtLevel.begin(), finishedAtLevel.end(),
 		//	[=](const int l) {
 		//	return l >= level - 1;
@@ -244,13 +243,13 @@ bool StrategyOFGPara::checkSearchFinish()
 {
 	// correctness requirement: normal messages arrive before level-finish messages
 	if(ltable.getNumEverActive(*lastFinishLevel + 1) == 0) {
-		int ec= count_if(finishedAtLevel.begin(), finishedAtLevel.end(),
+		return all_of(finishedAtLevel.begin(), finishedAtLevel.end(),
 			[=](const int l) {
 			return l >= *lastFinishLevel;
 		});
-		if(net->size() == ec) {
-			return true;
-		}
+		// if(net->size() == ec) {
+		// 	return true;
+		// }
 	}
 	return false;
 /*	return ltable.getNumEverActive(*lastFinishLevel + 1) == 0
