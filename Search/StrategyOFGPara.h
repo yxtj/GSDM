@@ -105,7 +105,7 @@ private:
 	void initialSignature_para();
 
 	SyncUnit suCEinit;
-	void initialCE_para(const DataHolder& dPos);
+	void initialCE_para();
 
 	SyncUnit suSearchEnd;
 	void work_para_async();
@@ -171,7 +171,7 @@ protected:
 					Implemented by recursively increase last-finished-local-level
 					Post-condition: not all other workers finished last-finished-local-level
 	*/
-	bool processLevelFinish(bool aggressive);
+	bool processLevelFinish(const bool aggressive);
 	// the tasks need to be done for level movement
 	void moveToNewLevel(const int from);
 	// check whether local worker have finished processing all local motifs of the given level

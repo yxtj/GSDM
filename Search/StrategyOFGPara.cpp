@@ -148,7 +148,7 @@ std::vector<Motif> StrategyOFGPara::search(
 			cout << logHead("LOG") + "  Signatures generated in " + to_string(timer.elapseS()) + " s" << endl;
 	}
 	timer.restart();
-	initialCE_para(dPos);
+	initialCE_para();
 	if(id == MASTER_ID) {
 		cout << logHead("LOG") + "Candidate edges initialized: " + to_string(edges.size()) + " in all." << endl;
 		/*stream fout("../data_adhd/try/edge1.txt");

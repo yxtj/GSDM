@@ -86,7 +86,7 @@ protected:
 	void setDCESmaintainOrder(bool inorder);
 	std::vector<Edge> initialCandidateEdges();
 	std::vector<std::pair<Edge, double>> getExistedEdges(
-		const DataHolder& subs) const;
+		const DataHolder& subsPos, const DataHolder& subsNeg) const; // return edge and its upperbound
 
 	// remove unused edges (on longer connected). returns the number of removed edges
 	int maintainDCESConnected_inorder(std::vector<std::pair<Edge, double>>& edges, std::vector<bool>& used);

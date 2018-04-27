@@ -9,7 +9,7 @@ std::vector<Motif> StrategyOFG::method_edge1_bfs()
 {
 	cout << "Phase 1 (prepare edges)" << endl;
 	//vector<Edge> edges = initialCandidateEdges();
-	vector<pair<Edge, double>> edges = getExistedEdges(*pdp);
+	vector<pair<Edge, double>> edges = getExistedEdges(*pdp, *pdn);
 	cout << "  # of edges: " << edges.size() << endl;
 	//	vector<pair<MotifBuilder, double>> last;
 	vector<MotifBuilder> last;

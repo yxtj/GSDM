@@ -33,18 +33,21 @@ std::vector<Edge> StrategyOFG::initialCandidateEdges()
 }
 
 std::vector<std::pair<Edge, double>> StrategyOFG::getExistedEdges(
-	const DataHolder& dh) const
+	const DataHolder& subsPos, const DataHolder& subsNeg) const
 {
 	std::vector<std::pair<Edge, double>> res;
-	double factor = 1.0 / dh.size();
-	int th = static_cast<int>(ceil(minSup*dh.size()));
+	double factorP = 1.0 / subsPos.size();
+	double factorN = 1.0 / subsNeg.size();
+	int th = static_cast<int>(ceil(minSup*subsPos.size()));
 	th = max(th, 1); // in case of minSup=0
 	for(int i = 0; i < nNode; ++i) {
 		for(int j = i+1; j < nNode; ++j) {
-			int t = dh.count({ i,j });
+			Edge e{i,j};
+			int t = subsPos.count(e);
 			if(t >= th) {
-				auto f = t*factor;
-				res.emplace_back(Edge(i, j), f);
+				double fp = factorP * t;
+				double fn = factorN * subsNeg.count(e);
+				res.emplace_back(e, objFun.upperbound(fp, fn));
 			}
 		}
 	}

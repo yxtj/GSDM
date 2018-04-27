@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void StrategyOFGPara::initialCE_para(const DataHolder& dPos)
+void StrategyOFGPara::initialCE_para()
 {
 	int size = net->size();
 	int id = net->id();
@@ -64,7 +64,8 @@ std::vector<std::tuple<Edge, double, int>> StrategyOFGPara::prepareLocalCE(const
 	pair<int, int> cef = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*id));
 	pair<int, int> cel = num2Edge(static_cast<int>(floor(nEdgeInAll / (double)size)*(id + 1)));
 
-	double factor = 1.0 / pdp->size();
+	const double factorP = 1.0 / pdp->size();
+	const double factorN = 1.0 / pdn->size();
 	int th = static_cast<int>(ceil(minSup*pdp->size()));
 	th = max(th, 1); // in case of minSup=0
 	vector<tuple<Edge, double, int>> ceLocal;
@@ -72,10 +73,12 @@ std::vector<std::tuple<Edge, double, int>> StrategyOFGPara::prepareLocalCE(const
 		int j = (i == cef.first ? cef.second : i + 1);
 		int endj = (i == cel.first ? cel.second : nNode);
 		while(j < endj) {
-			int t = pdp->count(Edge{ i,j });
+			Edge e{i, j};
+			int t = pdp->count(e);
 			if(t >= th) {
-				auto f = t*factor;
-				ceLocal.emplace_back(Edge(i, j), f, 0);
+				auto fp = factorP * t;
+				auto fn = factorP * pdn->count(e);
+				ceLocal.emplace_back(e, objFun.upperbound(fp, fn), 0);
 			}
 			++j;
 		}
