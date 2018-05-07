@@ -6,9 +6,9 @@ class ObjFunction
 {
 public:
 	enum class OFType{
-		NONE, DIFF, MARGIN, RATIO, GTEST
+		NONE, DIFF, MARGIN, RATIO, GTEST, KLD
 	};
-	// none, diff, margin, ratio, g-test
+	// none, diff, margin, ratio, g-test, KL-divergence
 	static const std::map<std::string, OFType> names;
 	static std::string getUsage();
 
@@ -47,6 +47,7 @@ public:
 	double objFun_ratioP2N(const double freqPos, const double freqNeg) const;
 	double objFun_gtestP2N(const double freqPos, const double freqNeg) const;
 	double objFun_gtest(const int nPos, const int nNeg) const;
+	double objFun_kldP2N(const double freqPos, const double freqNeg) const;
 
 	double ubFun_diff(const double freqPos) const;
 	double ubFun_diff2(const double freqPos, const double freqNeg) const;
@@ -54,6 +55,8 @@ public:
 	double ubFun_ratio2(const double freqPos, const double freqNeg) const;
 	double ubFun_gtest(const double freqPos) const;
 	double ubFun_gtest2(const double freqPos, const double freqNeg) const;
+	double ubFun_kld(const double freqPos) const;
+	double ubFun_kld2(const double freqPos, const double freqNeg) const;
 
 private:
 	OFType OFID;

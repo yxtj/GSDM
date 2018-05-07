@@ -44,6 +44,11 @@ void ObjFunction::setFuncType(OFType type)
 		pu = &ObjFunction::ubFun_gtest;
 		pu2 = &ObjFunction::ubFun_gtest2;
 		break;
+	case OFType::KLD:
+		pf = &ObjFunction::objFun_kldP2N;
+		pu = &ObjFunction::ubFun_kld;
+		pu2 = &ObjFunction::ubFun_kld2;
+		break;
 	default:
 		pf = nullptr;
 		break;
@@ -169,6 +174,14 @@ double ObjFunction::objFun_gtest(const int nPos, const int nNeg) const
 		+ 2*(totalPos-nPos)*log( (totalNeg*(totalPos-nPos))/(totalPos*(totalNeg-nNeg)) );
 }
 
+double ObjFunction::objFun_kldP2N(const double freqPos, const double freqNeg) const
+{
+	double fn = freqNeg;
+	if(fn == 0)
+		fn = inv_tn;
+	return freqPos*freqPos*log(freqPos/fn);
+}
+
 // upper-bound functions:
 
 double ObjFunction::ubFun_diff(const double freqPos) const
@@ -201,6 +214,15 @@ double ObjFunction::ubFun_gtest(const double freqPos) const
 }
 double ObjFunction::ubFun_gtest2(const double freqPos, const double freqNeg) const
 {
-	// df/dx > 0 and df/dy < 0
 	return ubFun_gtest(freqPos);
+}
+
+double ObjFunction::ubFun_kld(const double freqPos) const
+{
+	return freqPos*log(freqPos/inv_tn);
+}
+double ObjFunction::ubFun_kld2(const double freqPos, const double freqNeg) const
+{
+	// df/dx > 0 and df/dy < 0
+	return objFun_kldP2N(freqPos, freqNeg);
 }
