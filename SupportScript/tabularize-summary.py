@@ -8,7 +8,7 @@ Created on Thu Oct 27 00:36:01 2016
 import sys
 import re
 
-TYPE_STR='<type> should be one of: diff, ratio, cut, dug, other'
+TYPE_STR='<type> should be one of: diff, ratio, cut, dug, gspan, apriori, g-test, kld, general'
 
 def _procCommon(header, data, headHeader, regPat, regRep):
     newHeader=headHeader+header;
@@ -62,13 +62,24 @@ def procDug(header, data, tstPrefix):
     return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
 
 
-def procOther(header, data, tstPrefix):
+def procMinsup(header, data, tstPrefix):
     # tst-0.4-gspan-0.3.txt
     # tst-0.4-apriori-0.3.txt
     # tst-(0.\d+)-gspan-(\d(?:\.\d)?)\.txt
     _regPattern=tstPrefix+r'-(0.\d+)-\w+-(\d(?:\.\d)?)\.txt'
     _regReplace=r'\1\t\2'
     _headHeader='theta\tminsup\t'+'num\t'
+    _checkMatch(_regPattern, data[0])
+    return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
+
+
+def procGeneral(header, data, tstPrefix):
+    # tst-0.4-gtest.txt
+    # tst-0.4-kld.txt
+    # tst-(0.\d+)-\w+\.txt
+    _regPattern=tstPrefix+r'-(0.\d+)-\w+\.txt'
+    _regReplace=r'\1'
+    _headHeader='theta\t'+'num\t'
     _checkMatch(_regPattern, data[0])
     return _procCommon(header,data, _headHeader, _regPattern, _regReplace)
 
@@ -89,6 +100,10 @@ def main(smyType, smyFile, outputFn, tstPrefix):
         pFun=procCut
     elif 'dug'==smyType:
         pFun=procDug
+    elif 'gspan'==smyType or 'apriori'==smyType:
+        pFun=procMinsup
+    elif 'gtest'==smyType or 'kld'==smyType:
+        pFun=procGeneral
     else:
         #print('ERROR: '+TYPE_STR)
         #exit()

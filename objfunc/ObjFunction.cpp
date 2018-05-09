@@ -11,12 +11,13 @@ const std::map<std::string, ObjFunction::OFType> ObjFunction::names{
 	{ "none", OFType::NONE }, { "diff", OFType::DIFF },
 	//{ "margin", OFType::MARGIN },
 	{ "ratio", OFType::RATIO },
-	{ "gtest", OFType::GTEST }
+	{ "gtest", OFType::GTEST },
+	{ "kld", OFType::KLD }
 };
 
 std::string ObjFunction::getUsage()
 {
-	return "Support: diff:<alpha>, margin:<alpha>, ratio:<alpha>, gtest. Default alpha=1.";
+	return "Support: diff:<alpha>, margin:<alpha>, ratio:<alpha>, gtest, kld. Default alpha=1.";
 }
 
 void ObjFunction::setFuncType(OFType type)
