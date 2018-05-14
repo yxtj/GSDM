@@ -1,6 +1,7 @@
 #include "Option.h"
 #include <iostream>
 #include "../util/Util.h"
+#include "../objfunc/ObjFunction.h"
 
 using namespace std;
 
@@ -23,8 +24,7 @@ Option::Option()
 			"The type(s) of negative individual")
 		("theta", value<double>(&theta), "[double] within frequency threshold to regard a motif as existed")
 		("periodic", value<bool>(&periodic)->default_value(0), "only check the periodic occurrence")
-		("fun", value<string>(&funName)->default_value(string("diff")), "name of the objective funtion. Support: diff, ratio")
-		("alpha", value<double>(&alpha)->default_value(1.0), "[double] parameter for objective function")
+		("fun", value<string>(&funName)->default_value(string("diff")), ("name of the objective funtion. "+ObjFunction::getUsage()).c_str())
 		;
 }
 
@@ -59,11 +59,6 @@ bool Option::parseInput(int argc, char * argv[])
 			if(nNode <= 0) {
 				throw invalid_argument("nNode is not given.");
 			}
-
-			if(funName != "diff" && funName != "ratio") {
-				throw invalid_argument("objective function is not given or is not supported.");
-			}
-
 		} while(false);
 
 	} catch(std::exception& excep) {

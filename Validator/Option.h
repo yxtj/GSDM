@@ -21,7 +21,6 @@ public:
 							//  whether the input data folder contains all the graphs
 	
 	std::string funName;
-	double alpha;
 public:
 	Option();
 	~Option();

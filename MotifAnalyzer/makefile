@@ -46,12 +46,9 @@ all: release
 #Debug:
 debug: ../$(DEGEXE)
 
-../$(DEGEXE): $(DBGEXE)
+../$(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
 	@mkdir -p ../$(DBGDIR)
-	cp $(DBGEXE) ../$(DBGEXE)
-	
-$(DBGEXE): $(DBGOBJS) $(DBGMYLIB)
-	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(DBGOBJS) $(DBGLIBDIR) $(LIBS) -o $(DBGEXE)
+	$(CXX) $(CXXFLAGS) $(DBGCFLAGS) $(DBGOBJS) $(DBGLIBDIR) $(LIBS) -o $@
 
 $(DBGDIR)/%.o: %.cpp
 	@mkdir -p $(DBGDIR)
@@ -66,12 +63,9 @@ $(DBGMYLIB):
 
 release: ../$(RELEXE)
 
-../$(RELEXE): $(RELEXE)
+../$(RELEXE): $(RELOBJS) $(RELMYLIB)
 	@mkdir -p ../$(RELDIR)
-	cp $(RELEXE) ../$(RELEXE)
-
-$(RELEXE): $(RELOBJS) $(RELMYLIB)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(RELOBJS) $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $(RELOBJS) $(RELLIBDIR) $(LIBS) -o $@
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)

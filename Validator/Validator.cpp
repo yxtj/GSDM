@@ -138,14 +138,12 @@ int main(int argc, char* argv[])
 			<< "  Type(s) of negative subject: " << opt.typeNeg << "\n"
 			<< "Theta = " << opt.theta << "\n"
 			<< "  Periodic check: " << opt.periodic << "\n"
-			<< "Objective function: " << opt.funName << " , alpha " << opt.alpha
+			<< "Objective function: " << opt.funName
 			<< endl;
 	}
 
 	ObjFunction objFun;
 	objFun.setFunc(opt.funName);
-	if(objFun.needAlpha())
-		objFun.setAlpha(opt.alpha);
 
 	int nPosSub = opt.nPosInd, nPosSkip = 0;
 	int nNegSub = opt.nNegInd, nNegSkip = 0;
@@ -186,7 +184,7 @@ int main(int argc, char* argv[])
 		}
 		double fPos = probOnGS(dPos, m);
 		double fNeg = probOnGS(dNeg, m);
-		double score = objFun(fPos, fNeg);
+		double score = objFun.score(fPos, fNeg);
 		cout << "fPos=" << fPos << ", fNeg=" << fNeg << ", score=" << score << endl;
 	}
 	return 0;

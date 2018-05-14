@@ -65,7 +65,7 @@ release: ../$(RELEXE)
 
 ../$(RELEXE): $(RELOBJS) $(RELMYLIB)
 	@mkdir -p ../$(RELDIR)
-	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $(RELEXE)
+	$(CXX) $(CXXFLAGS) $(RELCFLAGS) $^ $(RELLIBDIR) $(LIBS) -o $@
 
 $(RELDIR)/%.o: %.cpp
 	@mkdir -p $(RELDIR)
