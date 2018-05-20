@@ -149,7 +149,13 @@ string LoaderABIDE::getFilePath(const SubjectInfo &sub) {
 		fn = nameMapping.at(m[0].str());
 	}
 	// TODO: handle differnt ROI
-	return fn + "_rois_aal.1D";
+	string roi="aal";
+	//roi="cc200";
+	//roi="cc400";
+	//roi="ez";
+	//roi="dosenbach160";
+	//roi="tt";
+	return fn + "_rois_" + roi + ".1D";
 }
 
 tc_t LoaderABIDE::loadTimeCourse(const std::string &fn)
