@@ -1,0 +1,134 @@
+TYPE="kld ratio"
+DS="abide2 adni adhd"
+
+for type in $TYPE; do 
+LOG=../log-$type/$DATASET/$GRAPH ;
+mkdir -p $LOG ;
+for th in $THRESHOLD; do
+echo $type-$th ;
+./Search --prefix=../data_$DATASET --prefix-graph=$DATA/$GRAPH --all-data --shared-input --typePos $TYPEPOS --typeNeg $TYPENEG --n=113 --npi=$NUMPOS --nni=$NUMNEG --ns=0 --strategy ofg 15 $th $type sd net dces log:$LOG/score-$th-$type.txt --out=$RESULT/$GRAPH/$th/$type > $LOG/log-$th-$type.txt
+done
+done
+
+
+for type in kld; do 
+LOG=../log-$type/$DATASET/$GRAPH ;
+mkdir -p $LOG ;
+for th in 0.9; do
+echo $type-$th ;
+./Search --prefix=../data_$DATASET --prefix-graph=$DATA/$GRAPH --all-data --shared-input --typePos $TYPEPOS --typeNeg $TYPENEG --n=113 --npi=$NUMPOS --nni=$NUMNEG --ns=0 --strategy ofg 15 $th $type sd net dces log:$LOG/score-$th-$type.txt --out=$RESULT/$GRAPH/$th/$type > $LOG/log-$th-$type.txt
+done
+done
+
+for th in $THRESHOLD; do
+for fn in $(ls ../data_$DATASET/$RESULT/$GRAPH/$th);do
+echo $fn
+./Evaluator --graphPath ../data_$DATASET/$DATATEST/$GRAPH --graphTypePos $TYPEPOS --graphTypeNeg $TYPENEG --motifPath ../data_$DATASET/$RESULT/$GRAPH/$th/$fn --testMethodSingle freq $th --testGenerateGroup comb 15 --testMethodGroup any --outputFile ../data_$DATASET/eval/eval-pre/$GRAPH/tst-$th-$fn.txt
+done
+done
+
+for DATASET in $DS; do for type in $TYPE; do
+python ../SupportScript/summary-test-result.py ../data_$DATASET/$EVAL/$GRAPH/$type-any ../data_$DATASET/summary/$GRAPH/$type-any.txt ;
+python ../SupportScript/tabularize-summary.py $type ../data_$DATASET/summary/$GRAPH/$type-any.txt ../data_$DATASET/summary/$GRAPH/tbl-$type-any.tsv ;
+done done
+
+for DATASET in $DS; do for type in $TYPE; do
+python ../SupportScript/tabularize-summary.py $type ../data_$DATASET/summary/$GRAPH/$type-any.txt ../data_$DATASET/summary/$GRAPH/tbl-$type-any.tsv
+done done
+
+# -------- roi --------
+
+ROI="tt 160 cc200 cc400"
+
+# -------- apriori --------
+
+DS="abide2 adni adhd"
+MS="80 70 60 50 40 30"
+
+#cd ~/Code/apriori
+
+for ds in $DS; do
+FOLDER=../DEG/test-result/data-$ds/ap-res ;
+mkdir -p $FOLDER
+for ms in $MS; do
+echo $ds-$ms ;
+./bin/apriori -n6 -s$ms -q-1 -P $FOLDER/$ms-spectrum.txt $FOLDER/../apriori-graph.txt $FOLDER/$ms-res.txt 2> $FOLDER/$ms-log.txt ;
+done
+done
+
+# -- evaluation --
+
+THRESHOLD="0.8 0.7 0.6 0.5"
+MS2="8 7 6 5 4 3"
+
+#cd ~/Code/GSDM/Release
+RES_ROOT=../../DEG/test-result;
+
+# run dataset specific headers
+
+RESULT=$RES_ROOT/data-$DATASET ;
+for th in $THRESHOLD; do
+for ms in $MS2; do
+echo $th-$ms ;
+./Evaluator --graphPath ../data_$DATASET/$DATATEST/$GRAPH/ --graphTypePos $TYPEPOS --graphTypeNeg $TYPENEG --motifPath $RESULT/ap-res-trans --motifPattern ${ms}0-res.txt --nMotif 15 --testMethodSingle freq $th --testGenerateGroup comb 15 --testMethodGroup any --outputFile $RESULT/ap-eval/tst-$th-apriori-0.$ms.txt >> log-eval
+done
+done
+
+
+# -------- gspan --------
+
+DS="abide2 adni adhd"
+MS="0.8 0.7 0.6 0.5 0.4"
+
+export OMP_NUM_THREADS=1
+
+for ds in $DS; do
+FOLDER=../test-result/data-$ds/gs-res ;
+mkdir -p $FOLDER ;
+mkdir -p $FOLDER/processed ;
+for ms in $MS; do
+./DataMining-gSpan-master/build/gbolt -input_file $FOLDER/../gspan-graph.txt -output_file $FOLDER/$ms -pattern -support $ms 2> $FOLDER/../gs-log/1-$ms.log;
+sed '/x:/d' $FOLDER/$ms.t* > $FOLDER/processed/$ms ;
+done
+done
+
+# remove uncessary lines
+for ds in $DS; do
+FOLDER=../test-result/data-$ds/gs-res/ ;
+mkdir -p $FOLDER/processed ;
+for ms in $MS; do
+sed '/x:/d' $FOLDER/$ms.t* > $FOLDER/processed/$ms ;
+done done
+
+# -- evaluation --
+
+THRESHOLD="0.8 0.7 0.6 0.5"
+
+#cd ~/Code/GSDM/Release
+RES_ROOT=../../DEG/test-result;
+
+# run dataset specific headers
+
+RESULT=$RES_ROOT/data-$DATASET ;
+for th in $THRESHOLD; do
+for ms in $MS; do
+echo $th-$ms ;
+./Evaluator --graphPath ../data_$DATASET/$DATATEST/$GRAPH/ --graphTypePos $TYPEPOS --graphTypeNeg $TYPENEG --motifPath $RESULT/gs-res-trans --motifPattern $ms --nMotif 15 --testMethodSingle freq $th --testGenerateGroup comb 15 --testMethodGroup any --outputFile $RESULT/gs-eval/tst-$th-gspan-$ms.txt
+done
+done
+
+# -------- ap + gs evaluation summary --------
+
+#cd ~/Code/GSDM/Release
+RES_ROOT=../../DEG/test-result;
+
+for ds in $DS; do
+RESULT=$RES_ROOT/data-$ds;
+for type in gspan apriori ; do
+tp=${type:0:2}
+echo $ds-$type;
+python ../SupportScript/summary-test-result.py $RESULT/$tp-eval/ $RESULT/$tp-summary/$type-any.txt ;
+python ../SupportScript/tabularize-summary.py $type $RESULT/$tp-summary/$type-any.txt $RESULT/$tp-summary/tbl-$type-any.tsv ;
+done done
+
+
